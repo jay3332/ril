@@ -6,8 +6,8 @@ pub mod pixel;
 
 pub use error::{Error, Result};
 pub use image::{Image, ImageFormat};
-pub use pixel::{Pixel, BitPixel, Dynamic, L, Rgb, Rgba};
+pub use pixel::{BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
 
 pub mod prelude {
-    pub use super::{Image, ImageFormat, Pixel, BitPixel, Dynamic, L, Rgb, Rgba};
+    pub use super::{BitPixel, Dynamic, Image, ImageFormat, Pixel, Rgb, Rgba, L};
 }

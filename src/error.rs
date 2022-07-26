@@ -23,14 +23,46 @@ pub enum Error {
     /// Errors can differ across encodings, so the inner ``&'static str`` here is nothing more than
     /// an error message.
     DecodingError(&'static str),
+
+    /// An image received data incompatible with the image's dimensions.
+    IncompatibleImageData {
+        width: u32,
+        height: u32,
+        received: usize,
+    },
+
+    /// Received an unsupported color type when trying to create a pixel from raw data.
+    ///
+    /// This occurs when the color type is not supported by the pixel type. This is almost
+    /// always fixed by switching the pixel type to [`Dynamic`] then using [`Image::convert`]
+    /// to convert the image into your desired type.
+    UnsupportedColorType,
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Error::InvalidHexCode(hex_code) => write!(f, "Invalid hex code: {}", hex_code),
-            Error::InvalidExtension(ext) => write!(f, "Invalid extension: {}", ext.to_string_lossy()),
+            Error::InvalidExtension(ext) => {
+                write!(f, "Invalid extension: {}", ext.to_string_lossy())
+            }
             Error::DecodingError(message) => write!(f, "Decoding error: {}", message),
+            Error::UnsupportedColorType => write!(
+                f,
+                "Unsupported color type. Try using the `Dynamic` pixel type instead."
+            ),
+            Error::IncompatibleImageData {
+                width,
+                height,
+                received,
+            } => write!(
+                f,
+                "An image with dimensions {}x{} should have {} pixels, received {} instead",
+                width,
+                height,
+                width * height,
+                received,
+            ),
         }
     }
 }
