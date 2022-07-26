@@ -4,7 +4,6 @@ use crate::{
     Error::{DecodingError, IncompatibleImageData},
     Image, Pixel, Result,
 };
-use std::marker::PhantomData;
 
 pub const PNG_SIGNATURE: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
@@ -20,13 +19,13 @@ pub enum ColorType {
 }
 
 impl ColorType {
-    pub fn channels(&self) -> usize {
+    #[must_use]
+    pub const fn channels(&self) -> usize {
         match self {
-            ColorType::L => 1,
-            ColorType::RGB => 3,
-            ColorType::Palette => 1,
-            ColorType::LA => 2,
-            ColorType::RGBA => 4,
+            Self::L | Self::Palette => 1,
+            Self::LA => 2,
+            Self::RGB => 3,
+            Self::RGBA => 4,
         }
     }
 }
@@ -36,11 +35,11 @@ impl TryFrom<u8> for ColorType {
 
     fn try_from(value: u8) -> Result<Self> {
         match value {
-            0 => Ok(ColorType::L),
-            2 => Ok(ColorType::RGB),
-            3 => Ok(ColorType::Palette),
-            4 => Ok(ColorType::LA),
-            6 => Ok(ColorType::RGBA),
+            0 => Ok(Self::L),
+            2 => Ok(Self::RGB),
+            3 => Ok(Self::Palette),
+            4 => Ok(Self::LA),
+            6 => Ok(Self::RGBA),
             _ => Err(DecodingError("invalid color type")),
         }
     }
@@ -74,6 +73,7 @@ pub struct PngDecoder {
 }
 
 impl PngDecoder {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             inflater: ZlibReader::new(),
@@ -172,6 +172,12 @@ impl Decoder for PngDecoder {
         Err(DecodingError(
             "Unexpected end of file (expected IEND chunk)",
         ))
+    }
+}
+
+impl Default for PngDecoder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

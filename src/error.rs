@@ -42,16 +42,16 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::InvalidHexCode(hex_code) => write!(f, "Invalid hex code: {}", hex_code),
-            Error::InvalidExtension(ext) => {
+            Self::InvalidHexCode(hex_code) => write!(f, "Invalid hex code: {}", hex_code),
+            Self::InvalidExtension(ext) => {
                 write!(f, "Invalid extension: {}", ext.to_string_lossy())
             }
-            Error::DecodingError(message) => write!(f, "Decoding error: {}", message),
-            Error::UnsupportedColorType => write!(
+            Self::DecodingError(message) => write!(f, "Decoding error: {}", message),
+            Self::UnsupportedColorType => write!(
                 f,
                 "Unsupported color type. Try using the `Dynamic` pixel type instead."
             ),
-            Error::IncompatibleImageData {
+            Self::IncompatibleImageData {
                 width,
                 height,
                 received,

@@ -21,7 +21,7 @@ pub struct Image<P: Pixel = Dynamic> {
 impl<P: Pixel> Image<P> {
     #[inline]
     #[must_use]
-    fn resolve_coordinate(&self, x: u32, y: u32) -> usize {
+    const fn resolve_coordinate(&self, x: u32, y: u32) -> usize {
         (y * self.width + x) as usize
     }
 
@@ -69,8 +69,16 @@ impl<P: Pixel> Image<P> {
         self.width * self.height
     }
 
+    /// Returns true if the image contains no pixels.
+    #[inline]
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns a reference of the pixel at the given coordinates.
     #[inline]
+    #[must_use]
     pub fn pixel(&self, x: u32, y: u32) -> &P {
         &self.data[self.resolve_coordinate(x, y)]
     }
@@ -88,7 +96,7 @@ impl<P: Pixel> Image<P> {
     pub fn set_pixel(&mut self, x: u32, y: u32, pixel: P) {
         let pos = self.resolve_coordinate(x, y);
 
-        self.data[pos] = pixel
+        self.data[pos] = pixel;
     }
 
     /// Takes this image and inverts it.
@@ -148,8 +156,7 @@ impl<P: Pixel> Image<P> {
             data.chunks(width as usize)
                 .into_iter()
                 .enumerate()
-                .map(|(y, row)| f(y as u32, row))
-                .flatten()
+                .flat_map(|(y, row)| f(y as u32, row))
                 .collect()
         })
     }
@@ -199,8 +206,9 @@ pub enum ImageFormat {
 impl ImageFormat {
     /// Returns whether the extension is unknown.
     #[inline]
+    #[must_use]
     pub fn is_unknown(&self) -> bool {
-        self == &ImageFormat::Unknown
+        self == &Self::Unknown
     }
 
     /// Parses the given extension and returns the corresponding image format.
@@ -218,13 +226,13 @@ impl ImageFormat {
                 .to_ascii_lowercase()
                 .as_str()
             {
-                "png" => ImageFormat::Png,
-                "jpg" | "jpeg" => ImageFormat::Jpeg,
-                "gif" => ImageFormat::Gif,
-                "bmp" => ImageFormat::Bmp,
-                "tiff" => ImageFormat::Tiff,
-                "webp" => ImageFormat::WebP,
-                _ => ImageFormat::Unknown,
+                "png" => Self::Png,
+                "jpg" | "jpeg" => Self::Jpeg,
+                "gif" => Self::Gif,
+                "bmp" => Self::Bmp,
+                "tiff" => Self::Tiff,
+                "webp" => Self::WebP,
+                _ => Self::Unknown,
             },
         )
     }
@@ -247,17 +255,18 @@ impl ImageFormat {
         let mime = mime.as_ref();
 
         match mime {
-            "image/png" => ImageFormat::Png,
-            "image/jpeg" => ImageFormat::Jpeg,
-            "image/gif" => ImageFormat::Gif,
-            "image/bmp" => ImageFormat::Bmp,
-            "image/tiff" => ImageFormat::Tiff,
-            "image/webp" => ImageFormat::WebP,
-            _ => ImageFormat::Unknown,
+            "image/png" => Self::Png,
+            "image/jpeg" => Self::Jpeg,
+            "image/gif" => Self::Gif,
+            "image/bmp" => Self::Bmp,
+            "image/tiff" => Self::Tiff,
+            "image/webp" => Self::WebP,
+            _ => Self::Unknown,
         }
     }
 
     /// Infers the encoding format from the given data via a byte stream.
+    #[must_use]
     pub fn infer_encoding() -> Self {
         todo!()
     }
@@ -269,13 +278,13 @@ impl fmt::Display for ImageFormat {
             f,
             "{}",
             match self {
-                ImageFormat::Png => "png",
-                ImageFormat::Jpeg => "jpeg",
-                ImageFormat::Gif => "gif",
-                ImageFormat::Bmp => "bmp",
-                ImageFormat::Tiff => "tiff",
-                ImageFormat::WebP => "webp",
-                ImageFormat::Unknown => "",
+                Self::Png => "png",
+                Self::Jpeg => "jpeg",
+                Self::Gif => "gif",
+                Self::Bmp => "bmp",
+                Self::Tiff => "tiff",
+                Self::WebP => "webp",
+                Self::Unknown => "",
             }
         )
     }

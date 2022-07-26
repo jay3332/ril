@@ -1,6 +1,6 @@
-//! Simple wrapper around miniz_oxide for inflating data.
+//! Simple wrapper around `miniz_oxide` for inflating data.
 //!
-//! This was created with https://github.com/image-rs/image-png/blob/master/src/decoder/zlib.rs
+//! This was created with <`https://github.com/image-rs/image-png/blob/master/src/decoder/zlib.rs`>
 //! as a reference.
 
 use crate::{Error::DecodingError, Result};

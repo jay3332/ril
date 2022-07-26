@@ -10,6 +10,7 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     ///
     /// This is a value between 0 and 255.
     /// 0 is completely transparent, and 255 is completely opaque.
+    #[must_use]
     fn alpha(&self) -> u8;
 
     /// Returns the inverted value of this pixel.
@@ -30,19 +31,22 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     ///
     /// Finally, the most obvious reasoning is that for fully opaque pixels, those pixels will
     /// become fully transparent which is obviously not favored.
+    #[must_use]
     fn inverted(&self) -> Self;
 
     /// The luminance of the pixel.
+    #[must_use]
     fn luminance(&self) -> u8
     where
         Self: Into<L>,
     {
-        let L(value) = self.clone().into();
+        let L(value) = (*self).into();
 
         value
     }
 
     /// Creates this pixel from raw data.
+    #[must_use]
     fn from_pixel_data(data: PixelData) -> Result<Self>;
 }
 
@@ -55,23 +59,27 @@ pub struct BitPixel(
 
 impl BitPixel {
     /// Returns a new `BitPixel` with the given value.
+    #[must_use]
     pub const fn new(value: bool) -> Self {
-        BitPixel(value)
+        Self(value)
     }
 
     /// Returns the value of the pixel.
-    pub fn value(&self) -> bool {
+    #[must_use]
+    pub const fn value(&self) -> bool {
         self.0
     }
 
     /// Returns a new `BitPixel` that is on.
+    #[must_use]
     pub const fn on() -> Self {
-        BitPixel(true)
+        Self(true)
     }
 
     /// Returns a new `BitPixel` that is off.
+    #[must_use]
     pub const fn off() -> Self {
-        BitPixel(false)
+        Self(false)
     }
 }
 
@@ -81,7 +89,7 @@ impl Pixel for BitPixel {
     }
 
     fn inverted(&self) -> Self {
-        BitPixel(!self.0)
+        Self(!self.0)
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
@@ -128,12 +136,14 @@ impl Pixel for L {
 
 impl L {
     /// Creates a new L pixel with the given luminance value.
+    #[must_use]
     pub const fn new(l: u8) -> Self {
         Self(l)
     }
 
     /// Returns the luminance value of the pixel.
-    pub fn value(&self) -> u8 {
+    #[must_use]
+    pub const fn value(&self) -> u8 {
         self.0
     }
 }
@@ -176,7 +186,7 @@ impl Pixel for Rgb {
 
 impl Rgb {
     /// Creates a new RGB pixel.
-    pub const fn new(r: u8, g: u8, b: u8) -> Rgb {
+    pub const fn new(r: u8, g: u8, b: u8) -> Self {
         Self { r, g, b }
     }
 
@@ -215,7 +225,7 @@ impl Rgb {
 
         let err = |_| InvalidHexCode(hex.to_string());
 
-        Ok(Rgb {
+        Ok(Self {
             r: u8::from_str_radix(&hex[0..2], 16).map_err(err)?,
             g: u8::from_str_radix(&hex[2..4], 16).map_err(err)?,
             b: u8::from_str_radix(&hex[4..6], 16).map_err(err)?,
@@ -223,11 +233,13 @@ impl Rgb {
     }
 
     /// Creates a completely black pixel.
+    #[must_use]
     pub const fn black() -> Self {
         Self::new(0, 0, 0)
     }
 
     /// Creates a completely white pixel.
+    #[must_use]
     pub const fn white() -> Self {
         Self::new(255, 255, 255)
     }
@@ -252,7 +264,7 @@ impl Pixel for Rgba {
     }
 
     fn inverted(&self) -> Self {
-        Rgba {
+        Self {
             r: 255 - self.r,
             g: 255 - self.g,
             b: 255 - self.b,
@@ -284,11 +296,12 @@ impl Pixel for Rgba {
 
 impl Rgba {
     /// Creates a new RGBA pixel.
-    pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Rgba {
+    pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
 
     /// Creates an opaque pixel from an RGB pixel.
+    #[must_use]
     pub fn from_rgb(Rgb { r, g, b }: Rgb) -> Self {
         Self::new(r, g, b, 255)
     }
@@ -335,16 +348,19 @@ impl Rgba {
     }
 
     /// Creates a completely transparent pixel.
+    #[must_use]
     pub const fn transparent() -> Self {
         Self::new(0, 0, 0, 0)
     }
 
     /// Creates an opaque black pixel.
+    #[must_use]
     pub const fn black() -> Self {
         Self::new(0, 0, 0, 255)
     }
 
     /// Creates an opaque white pixel.
+    #[must_use]
     pub const fn white() -> Self {
         Self::new(255, 255, 255, 255)
     }
@@ -368,30 +384,30 @@ impl Default for Dynamic {
 impl Pixel for Dynamic {
     fn alpha(&self) -> u8 {
         match self {
-            Dynamic::BitPixel(pixel) => pixel.alpha(),
-            Dynamic::L(pixel) => pixel.alpha(),
-            Dynamic::Rgb(pixel) => pixel.alpha(),
-            Dynamic::Rgba(pixel) => pixel.alpha(),
+            Self::BitPixel(pixel) => pixel.alpha(),
+            Self::L(pixel) => pixel.alpha(),
+            Self::Rgb(pixel) => pixel.alpha(),
+            Self::Rgba(pixel) => pixel.alpha(),
         }
     }
 
     fn inverted(&self) -> Self {
         match self {
-            Dynamic::BitPixel(pixel) => Dynamic::BitPixel(pixel.inverted()),
-            Dynamic::L(pixel) => Dynamic::L(pixel.inverted()),
-            Dynamic::Rgb(pixel) => Dynamic::Rgb(pixel.inverted()),
-            Dynamic::Rgba(pixel) => Dynamic::Rgba(pixel.inverted()),
+            Self::BitPixel(pixel) => Self::BitPixel(pixel.inverted()),
+            Self::L(pixel) => Self::L(pixel.inverted()),
+            Self::Rgb(pixel) => Self::Rgb(pixel.inverted()),
+            Self::Rgba(pixel) => Self::Rgba(pixel.inverted()),
         }
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
         Ok(match data {
-            PixelData::Bit(value) => Dynamic::BitPixel(BitPixel(value)),
-            PixelData::L(l) => Dynamic::L(L(l)),
+            PixelData::Bit(value) => Self::BitPixel(BitPixel(value)),
+            PixelData::L(l) => Self::L(L(l)),
             // TODO: LA pixel type
-            PixelData::LA(l, _a) => Dynamic::L(L(l)),
-            PixelData::Rgb(r, g, b) => Dynamic::Rgb(Rgb { r, g, b }),
-            PixelData::Rgba(r, g, b, a) => Dynamic::Rgba(Rgba { r, g, b, a }),
+            PixelData::LA(l, _a) => Self::L(L(l)),
+            PixelData::Rgb(r, g, b) => Self::Rgb(Rgb { r, g, b }),
+            PixelData::Rgba(r, g, b, a) => Self::Rgba(Rgba { r, g, b, a }),
             _ => return Err(UnsupportedColorType),
         })
     }
@@ -424,13 +440,13 @@ impl_dynamic!(BitPixel, L, Rgb, Rgba);
 
 impl From<Rgb> for BitPixel {
     fn from(rgb: Rgb) -> Self {
-        BitPixel(rgb.luminance() > 127)
+        Self(rgb.luminance() > 127)
     }
 }
 
 impl From<Rgba> for BitPixel {
     fn from(rgba: Rgba) -> Self {
-        BitPixel(rgba.luminance() > 127)
+        Self(rgba.luminance() > 127)
     }
 }
 
@@ -466,7 +482,7 @@ impl From<L> for BitPixel {
 
 impl From<Rgb> for L {
     fn from(Rgb { r, g, b }: Rgb) -> Self {
-        Self(((r as f32 * 0.299) + (g as f32 * 0.587) + (b as f32 * 0.114)) as u8)
+        Self(f32::from(b).mul_add(0.114, (f32::from(r) * 0.299) + (f32::from(g) * 0.587)) as u8)
     }
 }
 

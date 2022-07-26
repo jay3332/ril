@@ -7,15 +7,18 @@ pub struct ByteStream<'buf> {
 }
 
 impl<'buf> ByteStream<'buf> {
-    pub fn new(data: &'buf [u8]) -> Self {
+    #[must_use]
+    pub const fn new(data: &'buf [u8]) -> Self {
         Self { data, position: 0 }
     }
 
-    pub fn position(&self) -> usize {
+    #[must_use]
+    pub const fn position(&self) -> usize {
         self.position
     }
 
-    pub fn remaining(&self) -> usize {
+    #[must_use]
+    pub const fn remaining(&self) -> usize {
         self.data.len() - self.position
     }
 
@@ -45,13 +48,15 @@ impl<'buf> ByteStream<'buf> {
         &self.data[start..self.position]
     }
 
+    /// TODO!
+    /// 
+    /// Panics
+    /// * Panics if there are not enough data to read
     pub fn read_to<T>(&mut self) -> T {
         let size = std::mem::size_of::<T>();
         let data = self.read(size);
 
-        if data.len() != size {
-            panic!("Not enough data to read");
-        }
+        assert!(data.len() == size, "Not enough data to read");
 
         // SAFETY: we check if the data is the same length as T above
         unsafe { (data as *const _ as *const T).read() }
@@ -59,9 +64,9 @@ impl<'buf> ByteStream<'buf> {
 
     pub fn read_u8(&mut self) -> crate::Result<u8> {
         self.read(1)
-            .get(0)
-            .map(|&b| b)
-            .ok_or_else(|| DecodingError("Expected 1 more byte to convert into u8"))
+            .first()
+            .copied()
+            .ok_or(DecodingError("Expected 1 more byte to convert into u8"))
     }
 
     pub fn read_u32(&mut self) -> crate::Result<u32> {

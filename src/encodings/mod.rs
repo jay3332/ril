@@ -11,41 +11,42 @@ pub enum ColorType {
 }
 
 impl ColorType {
+    #[must_use]
     pub fn channels(&self) -> usize {
         match self {
-            ColorType::L => 1,
-            ColorType::LA => 2,
-            ColorType::Rgb => 3,
-            ColorType::Rgba => 4,
-            ColorType::Palette => 1,
+            Self::L => 1,
+            Self::LA => 2,
+            Self::Rgb => 3,
+            Self::Rgba => 4,
+            Self::Palette => 1,
         }
     }
 }
 
 impl From<png::ColorType> for ColorType {
     fn from(value: png::ColorType) -> Self {
-        use png::ColorType::*;
+        use png::ColorType::{Palette, L, LA, RGB, RGBA};
 
         match value {
-            L => ColorType::L,
-            LA => ColorType::LA,
-            RGB => ColorType::Rgb,
-            RGBA => ColorType::Rgba,
-            Palette => ColorType::Palette,
+            L => Self::L,
+            LA => Self::LA,
+            RGB => Self::Rgb,
+            RGBA => Self::Rgba,
+            Palette => Self::Palette,
         }
     }
 }
 
 impl From<ColorType> for png::ColorType {
     fn from(value: ColorType) -> Self {
-        use ColorType::*;
+        use ColorType::{Palette, Rgb, Rgba, L, LA};
 
         match value {
-            L => png::ColorType::L,
-            LA => png::ColorType::LA,
-            Rgb => png::ColorType::RGB,
-            Rgba => png::ColorType::RGBA,
-            Palette => png::ColorType::Palette,
+            L => Self::L,
+            LA => Self::LA,
+            Rgb => Self::RGB,
+            Rgba => Self::RGBA,
+            Palette => Self::Palette,
         }
     }
 }
@@ -96,12 +97,12 @@ impl PixelData {
         };
 
         Ok(match (color_type, bit_depth) {
-            (c, 1) if c.channels() == 1 => PixelData::Bit(data[0] != 0),
-            (ColorType::L, _) => PixelData::L(data[0]),
-            (ColorType::LA, _) => PixelData::LA(data[0], data[1]),
-            (ColorType::Rgb, _) => PixelData::Rgb(data[0], data[1], data[2]),
-            (ColorType::Rgba, _) => PixelData::Rgba(data[0], data[1], data[2], data[3]),
-            (ColorType::Palette, _) => PixelData::Palette(data[0]),
+            (c, 1) if c.channels() == 1 => Self::Bit(data[0] != 0),
+            (ColorType::L, _) => Self::L(data[0]),
+            (ColorType::LA, _) => Self::LA(data[0], data[1]),
+            (ColorType::Rgb, _) => Self::Rgb(data[0], data[1], data[2]),
+            (ColorType::Rgba, _) => Self::Rgba(data[0], data[1], data[2], data[3]),
+            (ColorType::Palette, _) => Self::Palette(data[0]),
         })
     }
 }
