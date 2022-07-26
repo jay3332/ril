@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ImageFormat","Represents the underlying encoding format of an image."]],"struct":[["Image","A high-level image representation."]]});
