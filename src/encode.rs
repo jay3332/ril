@@ -79,6 +79,6 @@ impl<'buf> ByteStream<'buf> {
     }
 }
 
-pub trait Decoder<P: Pixel> {
-    fn decode(&mut self, stream: &mut ByteStream) -> crate::Result<Image<P>>;
+pub trait Decoder {
+    fn decode<P: Pixel>(&mut self, stream: &mut ByteStream) -> crate::Result<Image<P>>;
 }

@@ -67,20 +67,18 @@ pub struct PngHeader {
     interlace_method: u8,
 }
 
-pub struct PngDecoder<P: Pixel> {
+pub struct PngDecoder {
     inflater: ZlibReader,
     pub ihdr: PngHeader,
     pub idat: Vec<u8>,
-    temp: PhantomData<P>,
 }
 
-impl<P: Pixel> PngDecoder<P> {
+impl PngDecoder {
     pub fn new() -> Self {
         Self {
             inflater: ZlibReader::new(),
             ihdr: PngHeader::default(),
             idat: Vec::new(),
-            temp: PhantomData,
         }
     }
 
@@ -106,8 +104,8 @@ impl<P: Pixel> PngDecoder<P> {
     }
 }
 
-impl<P: Pixel> Decoder<P> for PngDecoder<P> {
-    fn decode(&mut self, stream: &mut ByteStream) -> Result<Image<P>> {
+impl Decoder for PngDecoder {
+    fn decode<P: Pixel>(&mut self, stream: &mut ByteStream) -> Result<Image<P>> {
         let signature = stream.read(8);
 
         if signature != PNG_SIGNATURE {
@@ -192,8 +190,8 @@ mod test {
             192, 0, 0, 3, 1, 1, 0, 24, 221, 141, 176, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
         ];
 
-        let image = PngDecoder::<Rgb>::new()
-            .decode(&mut ByteStream::new(data))
+        let image = PngDecoder::new()
+            .decode::<Rgb>(&mut ByteStream::new(data))
             .unwrap();
 
         assert_eq!(image.dimensions(), (1, 1));
