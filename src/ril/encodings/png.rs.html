@@ -203,13 +203,18 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">zlib::ZlibReader</span>, <span class="ident">PixelData</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>},
     <span class="ident">Error</span>::{<span class="ident">DecodingError</span>, <span class="ident">IncompatibleImageData</span>},
     <span class="ident">Image</span>, <span class="ident">Pixel</span>, <span class="prelude-ty">Result</span>,
 };
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PNG_SIGNATURE</span>: [<span class="ident">u8</span>; <span class="number">8</span>] <span class="op">=</span> [<span class="number">137</span>, <span class="number">80</span>, <span class="number">78</span>, <span class="number">71</span>, <span class="number">13</span>, <span class="number">10</span>, <span class="number">26</span>, <span class="number">10</span>];
 
@@ -225,13 +230,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ColorType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">channels</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">channels</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ColorType::L</span> =&gt; <span class="number">1</span>,
-            <span class="ident">ColorType::RGB</span> =&gt; <span class="number">3</span>,
-            <span class="ident">ColorType::Palette</span> =&gt; <span class="number">1</span>,
-            <span class="ident">ColorType::LA</span> =&gt; <span class="number">2</span>,
-            <span class="ident">ColorType::RGBA</span> =&gt; <span class="number">4</span>,
+            <span class="ident"><span class="self">Self</span>::L</span> <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Palette</span> =&gt; <span class="number">1</span>,
+            <span class="ident"><span class="self">Self</span>::LA</span> =&gt; <span class="number">2</span>,
+            <span class="ident"><span class="self">Self</span>::RGB</span> =&gt; <span class="number">3</span>,
+            <span class="ident"><span class="self">Self</span>::RGBA</span> =&gt; <span class="number">4</span>,
         }
     }
 }
@@ -241,11 +246,11 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="number">0</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ColorType::L</span>),
-            <span class="number">2</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ColorType::RGB</span>),
-            <span class="number">3</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ColorType::Palette</span>),
-            <span class="number">4</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ColorType::LA</span>),
-            <span class="number">6</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">ColorType::RGBA</span>),
+            <span class="number">0</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::L</span>),
+            <span class="number">2</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::RGB</span>),
+            <span class="number">3</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Palette</span>),
+            <span class="number">4</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::LA</span>),
+            <span class="number">6</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::RGBA</span>),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">DecodingError</span>(<span class="string">&quot;invalid color type&quot;</span>)),
         }
     }
@@ -279,6 +284,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PngDecoder</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inflater</span>: <span class="ident">ZlibReader::new</span>(),
@@ -377,6 +383,12 @@
         <span class="prelude-val">Err</span>(<span class="ident">DecodingError</span>(
             <span class="string">&quot;Unexpected end of file (expected IEND chunk)&quot;</span>,
         ))
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PngDecoder</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
 

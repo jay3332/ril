@@ -87,6 +87,11 @@
 <span id="82">82</span>
 <span id="83">83</span>
 <span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error::DecodingError</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Image</span>, <span class="ident">Pixel</span>};
 
@@ -96,15 +101,18 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;buf</span><span class="op">&gt;</span> <span class="ident">ByteStream</span><span class="op">&lt;</span><span class="lifetime">&#39;buf</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;buf</span> [<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;buf</span> [<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">data</span>, <span class="ident">position</span>: <span class="number">0</span> }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">position</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">position</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">position</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">remaining</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">position</span>
     }
 
@@ -134,13 +142,15 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>[<span class="ident">start</span>..<span class="self">self</span>.<span class="ident">position</span>]
     }
 
+    <span class="doccomment">/// TODO!</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// Panics</span>
+    <span class="doccomment">/// * Panics if there are not enough data to read</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_to</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T</span> {
         <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">std::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read</span>(<span class="ident">size</span>);
 
-        <span class="kw">if</span> <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">size</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Not enough data to read&quot;</span>);
-        }
+        <span class="macro">assert!</span>(<span class="ident">data</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">size</span>, <span class="string">&quot;Not enough data to read&quot;</span>);
 
         <span class="comment">// SAFETY: we check if the data is the same length as T above</span>
         <span class="kw">unsafe</span> { (<span class="ident">data</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">T</span>).<span class="ident">read</span>() }
@@ -148,9 +158,9 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_u8</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">read</span>(<span class="number">1</span>)
-            .<span class="ident">get</span>(<span class="number">0</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">DecodingError</span>(<span class="string">&quot;Expected 1 more byte to convert into u8&quot;</span>))
+            .<span class="ident">first</span>()
+            .<span class="ident">copied</span>()
+            .<span class="ident">ok_or</span>(<span class="ident">DecodingError</span>(<span class="string">&quot;Expected 1 more byte to convert into u8&quot;</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_u32</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {

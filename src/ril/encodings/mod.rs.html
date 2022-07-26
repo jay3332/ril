@@ -110,6 +110,7 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
+<span id="108">108</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">png</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">zlib</span>;
 
@@ -123,41 +124,42 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ColorType</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">channels</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ColorType::L</span> =&gt; <span class="number">1</span>,
-            <span class="ident">ColorType::LA</span> =&gt; <span class="number">2</span>,
-            <span class="ident">ColorType::Rgb</span> =&gt; <span class="number">3</span>,
-            <span class="ident">ColorType::Rgba</span> =&gt; <span class="number">4</span>,
-            <span class="ident">ColorType::Palette</span> =&gt; <span class="number">1</span>,
+            <span class="ident"><span class="self">Self</span>::L</span> =&gt; <span class="number">1</span>,
+            <span class="ident"><span class="self">Self</span>::LA</span> =&gt; <span class="number">2</span>,
+            <span class="ident"><span class="self">Self</span>::Rgb</span> =&gt; <span class="number">3</span>,
+            <span class="ident"><span class="self">Self</span>::Rgba</span> =&gt; <span class="number">4</span>,
+            <span class="ident"><span class="self">Self</span>::Palette</span> =&gt; <span class="number">1</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">png::ColorType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ColorType</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">png::ColorType</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">png::ColorType</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="ident">png::ColorType</span>::{<span class="ident">Palette</span>, <span class="ident">L</span>, <span class="ident">LA</span>, <span class="ident">RGB</span>, <span class="ident">RGBA</span>};
 
         <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">L</span> =&gt; <span class="ident">ColorType::L</span>,
-            <span class="ident">LA</span> =&gt; <span class="ident">ColorType::LA</span>,
-            <span class="ident">RGB</span> =&gt; <span class="ident">ColorType::Rgb</span>,
-            <span class="ident">RGBA</span> =&gt; <span class="ident">ColorType::Rgba</span>,
-            <span class="ident">Palette</span> =&gt; <span class="ident">ColorType::Palette</span>,
+            <span class="ident">L</span> =&gt; <span class="ident"><span class="self">Self</span>::L</span>,
+            <span class="ident">LA</span> =&gt; <span class="ident"><span class="self">Self</span>::LA</span>,
+            <span class="ident">RGB</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>,
+            <span class="ident">RGBA</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>,
+            <span class="ident">Palette</span> =&gt; <span class="ident"><span class="self">Self</span>::Palette</span>,
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ColorType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">png::ColorType</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">ColorType</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">ColorType</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="ident">ColorType</span>::{<span class="ident">Palette</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>, <span class="ident">LA</span>};
 
         <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">L</span> =&gt; <span class="ident">png::ColorType::L</span>,
-            <span class="ident">LA</span> =&gt; <span class="ident">png::ColorType::LA</span>,
-            <span class="ident">Rgb</span> =&gt; <span class="ident">png::ColorType::RGB</span>,
-            <span class="ident">Rgba</span> =&gt; <span class="ident">png::ColorType::RGBA</span>,
-            <span class="ident">Palette</span> =&gt; <span class="ident">png::ColorType::Palette</span>,
+            <span class="ident">L</span> =&gt; <span class="ident"><span class="self">Self</span>::L</span>,
+            <span class="ident">LA</span> =&gt; <span class="ident"><span class="self">Self</span>::LA</span>,
+            <span class="ident">Rgb</span> =&gt; <span class="ident"><span class="self">Self</span>::RGB</span>,
+            <span class="ident">Rgba</span> =&gt; <span class="ident"><span class="self">Self</span>::RGBA</span>,
+            <span class="ident">Palette</span> =&gt; <span class="ident"><span class="self">Self</span>::Palette</span>,
         }
     }
 }
@@ -208,12 +210,12 @@
         };
 
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> (<span class="ident">color_type</span>, <span class="ident">bit_depth</span>) {
-            (<span class="ident">c</span>, <span class="number">1</span>) <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">channels</span>() <span class="op">==</span> <span class="number">1</span> =&gt; <span class="ident">PixelData::Bit</span>(<span class="ident">data</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>),
-            (<span class="ident">ColorType::L</span>, <span class="kw">_</span>) =&gt; <span class="ident">PixelData::L</span>(<span class="ident">data</span>[<span class="number">0</span>]),
-            (<span class="ident">ColorType::LA</span>, <span class="kw">_</span>) =&gt; <span class="ident">PixelData::LA</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="ident">data</span>[<span class="number">1</span>]),
-            (<span class="ident">ColorType::Rgb</span>, <span class="kw">_</span>) =&gt; <span class="ident">PixelData::Rgb</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="ident">data</span>[<span class="number">1</span>], <span class="ident">data</span>[<span class="number">2</span>]),
-            (<span class="ident">ColorType::Rgba</span>, <span class="kw">_</span>) =&gt; <span class="ident">PixelData::Rgba</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="ident">data</span>[<span class="number">1</span>], <span class="ident">data</span>[<span class="number">2</span>], <span class="ident">data</span>[<span class="number">3</span>]),
-            (<span class="ident">ColorType::Palette</span>, <span class="kw">_</span>) =&gt; <span class="ident">PixelData::Palette</span>(<span class="ident">data</span>[<span class="number">0</span>]),
+            (<span class="ident">c</span>, <span class="number">1</span>) <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">channels</span>() <span class="op">==</span> <span class="number">1</span> =&gt; <span class="ident"><span class="self">Self</span>::Bit</span>(<span class="ident">data</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="number">0</span>),
+            (<span class="ident">ColorType::L</span>, <span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">data</span>[<span class="number">0</span>]),
+            (<span class="ident">ColorType::LA</span>, <span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::LA</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="ident">data</span>[<span class="number">1</span>]),
+            (<span class="ident">ColorType::Rgb</span>, <span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="ident">data</span>[<span class="number">1</span>], <span class="ident">data</span>[<span class="number">2</span>]),
+            (<span class="ident">ColorType::Rgba</span>, <span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="ident">data</span>[<span class="number">1</span>], <span class="ident">data</span>[<span class="number">2</span>], <span class="ident">data</span>[<span class="number">3</span>]),
+            (<span class="ident">ColorType::Palette</span>, <span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::Palette</span>(<span class="ident">data</span>[<span class="number">0</span>]),
         })
     }
 }

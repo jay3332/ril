@@ -115,16 +115,16 @@
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Error::InvalidHexCode</span>(<span class="ident">hex_code</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid hex code: {}&quot;</span>, <span class="ident">hex_code</span>),
-            <span class="ident">Error::InvalidExtension</span>(<span class="ident">ext</span>) =&gt; {
+            <span class="ident"><span class="self">Self</span>::InvalidHexCode</span>(<span class="ident">hex_code</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid hex code: {}&quot;</span>, <span class="ident">hex_code</span>),
+            <span class="ident"><span class="self">Self</span>::InvalidExtension</span>(<span class="ident">ext</span>) =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid extension: {}&quot;</span>, <span class="ident">ext</span>.<span class="ident">to_string_lossy</span>())
             }
-            <span class="ident">Error::DecodingError</span>(<span class="ident">message</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Decoding error: {}&quot;</span>, <span class="ident">message</span>),
-            <span class="ident">Error::UnsupportedColorType</span> =&gt; <span class="macro">write!</span>(
+            <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">message</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Decoding error: {}&quot;</span>, <span class="ident">message</span>),
+            <span class="ident"><span class="self">Self</span>::UnsupportedColorType</span> =&gt; <span class="macro">write!</span>(
                 <span class="ident">f</span>,
                 <span class="string">&quot;Unsupported color type. Try using the `Dynamic` pixel type instead.&quot;</span>
             ),
-            <span class="ident">Error::IncompatibleImageData</span> {
+            <span class="ident"><span class="self">Self</span>::IncompatibleImageData</span> {
                 <span class="ident">width</span>,
                 <span class="ident">height</span>,
                 <span class="ident">received</span>,
