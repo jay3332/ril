@@ -12,4 +12,4 @@ keyword = ["ril", "imaging", "image", "processing", "editing", "graphics"]
 categories = ["encoding", "graphics", "multimedia", "visualization"]
 
 [dependencies]
-flate2 = "1"
+miniz_oxide = "^0.5"

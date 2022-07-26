@@ -1,5 +1,6 @@
 use crate::{
-    Error::InvalidHexCode,
+    encodings::PixelData,
+    Error::{InvalidHexCode, UnsupportedColorType},
     Result,
 };
 
@@ -40,6 +41,9 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
 
         value
     }
+
+    /// Creates this pixel from raw data.
+    fn from_pixel_data(data: PixelData) -> Result<Self>;
 }
 
 /// Represents a single-bit pixel that represents either a pixel that is on or off.
@@ -79,6 +83,15 @@ impl Pixel for BitPixel {
     fn inverted(&self) -> Self {
         BitPixel(!self.0)
     }
+
+    fn from_pixel_data(data: PixelData) -> Result<Self> {
+        // Before, this supported L, however this implicit conversion is not supported anymore
+        // as the result will be completely different
+        match data {
+            PixelData::Bit(value) => Ok(Self(value)),
+            _ => Err(UnsupportedColorType),
+        }
+    }
 }
 
 /// Represents an L, or luminance pixel that is stored as only one single
@@ -99,6 +112,17 @@ impl Pixel for L {
 
     fn inverted(&self) -> Self {
         Self(255 - self.0)
+    }
+
+    fn from_pixel_data(data: PixelData) -> Result<Self> {
+        match data {
+            PixelData::L(value) => Ok(Self(value)),
+            // Currently, losing alpha implicitly is allowed, but I may change my mind about this
+            // in the future.
+            PixelData::LA(value, _) => Ok(Self(value)),
+            PixelData::Bit(value) => Ok(Self(value.then_some(255).unwrap_or(0))),
+            _ => Err(UnsupportedColorType),
+        }
     }
 }
 
@@ -135,6 +159,17 @@ impl Pixel for Rgb {
             r: 255 - self.r,
             g: 255 - self.g,
             b: 255 - self.b,
+        }
+    }
+
+    fn from_pixel_data(data: PixelData) -> Result<Self> {
+        match data {
+            PixelData::Rgb(r, g, b) => Ok(Self { r, g, b }),
+            PixelData::Rgba(r, g, b, _) => Ok(Self { r, g, b }),
+            PixelData::L(l) => Ok(Self { r: l, g: l, b: l }),
+            PixelData::LA(l, _) => Ok(Self { r: l, g: l, b: l }),
+            PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
+            _ => Err(UnsupportedColorType),
         }
     }
 }
@@ -224,6 +259,27 @@ impl Pixel for Rgba {
             a: self.a,
         }
     }
+
+    fn from_pixel_data(data: PixelData) -> Result<Self> {
+        match data {
+            PixelData::Rgb(r, g, b) => Ok(Self { r, g, b, a: 255 }),
+            PixelData::Rgba(r, g, b, a) => Ok(Self { r, g, b, a }),
+            PixelData::L(l) => Ok(Self {
+                r: l,
+                g: l,
+                b: l,
+                a: 255,
+            }),
+            PixelData::LA(l, a) => Ok(Self {
+                r: l,
+                g: l,
+                b: l,
+                a,
+            }),
+            PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
+            _ => Err(UnsupportedColorType),
+        }
+    }
 }
 
 impl Rgba {
@@ -273,7 +329,7 @@ impl Rgba {
                     b: u8::from_str_radix(&hex[4..6], 16).map_err(err)?,
                     a: u8::from_str_radix(&hex[6..8], 16).map_err(err)?,
                 })
-            },
+            }
             _ => Err(InvalidHexCode(hex.to_string())),
         }
     }
@@ -326,6 +382,18 @@ impl Pixel for Dynamic {
             Dynamic::Rgb(pixel) => Dynamic::Rgb(pixel.inverted()),
             Dynamic::Rgba(pixel) => Dynamic::Rgba(pixel.inverted()),
         }
+    }
+
+    fn from_pixel_data(data: PixelData) -> Result<Self> {
+        Ok(match data {
+            PixelData::Bit(value) => Dynamic::BitPixel(BitPixel(value)),
+            PixelData::L(l) => Dynamic::L(L(l)),
+            // TODO: LA pixel type
+            PixelData::LA(l, _a) => Dynamic::L(L(l)),
+            PixelData::Rgb(r, g, b) => Dynamic::Rgb(Rgb { r, g, b }),
+            PixelData::Rgba(r, g, b, a) => Dynamic::Rgba(Rgba { r, g, b, a }),
+            _ => return Err(UnsupportedColorType),
+        })
     }
 }
 
@@ -416,12 +484,17 @@ impl From<L> for Rgb {
 
 impl From<L> for Rgba {
     fn from(L(l): L) -> Self {
-        Self { r: l, g: l, b: l, a: 255 }
+        Self {
+            r: l,
+            g: l,
+            b: l,
+            a: 255,
+        }
     }
 }
 
 impl From<Rgba> for Rgb {
-    fn from(Rgba { r, g, b, .. } : Rgba) -> Self {
+    fn from(Rgba { r, g, b, .. }: Rgba) -> Self {
         Self { r, g, b }
     }
 }

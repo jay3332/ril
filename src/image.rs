@@ -1,6 +1,7 @@
 use crate::error::{Error::InvalidExtension, Result};
 use crate::pixel::Pixel;
 
+use crate::Dynamic;
 use std::ffi::OsStr;
 use std::fmt;
 use std::path::Path;
@@ -10,11 +11,11 @@ use std::path::Path;
 /// This represents a static, single-frame image.
 /// See [`ImageSequence`] for information on opening animated or multi-frame images.
 #[derive(Clone)]
-pub struct Image<P: Pixel> {
-    width: u32,
-    height: u32,
-    data: Vec<P>,
-    format: ImageFormat,
+pub struct Image<P: Pixel = Dynamic> {
+    pub(crate) width: u32,
+    pub(crate) height: u32,
+    pub(crate) data: Vec<P>,
+    pub(crate) format: ImageFormat,
 }
 
 impl<P: Pixel> Image<P> {
@@ -36,6 +37,14 @@ impl<P: Pixel> Image<P> {
     #[must_use]
     pub const fn height(&self) -> u32 {
         self.height
+    }
+
+    /// Returns a Vec of slices representing the pixels of the image.
+    /// Each slice in the Vec is a row. The returned slice should be of ``Vec<&[P; width]>``.
+    #[inline]
+    #[must_use]
+    pub fn pixels(&self) -> Vec<&[P]> {
+        self.data.chunks_exact(self.width as usize).collect()
     }
 
     /// Returns the encoding format of the image. This is nothing more but metadata about the image.
@@ -116,12 +125,12 @@ impl<P: Pixel> Image<P> {
     pub fn map_pixels_with_coords<T: Pixel>(self, f: impl Fn(u32, u32, P) -> T) -> Image<T> {
         let width = self.width;
 
-        self.map_data(|data| data
-            .into_iter()
-            .zip(0..)
-            .map(|(p, i)| f(i % width, i / width, p))
-            .collect()
-        )
+        self.map_data(|data| {
+            data.into_iter()
+                .zip(0..)
+                .map(|(p, i)| f(i % width, i / width, p))
+                .collect()
+        })
     }
 
     /// Returns the image with each row of pixels represented as a slice mapped to the given
@@ -131,18 +140,18 @@ impl<P: Pixel> Image<P> {
     /// (represented as a slice) and return an Iterator of pixels.
     pub fn map_rows<I, T: Pixel>(self, f: impl Fn(u32, &[P]) -> I) -> Image<T>
     where
-        I: IntoIterator<Item = T>
+        I: IntoIterator<Item = T>,
     {
         let width = self.width;
 
-        self.map_data(|data| data
-            .chunks(width as usize)
-            .into_iter()
-            .enumerate()
-            .map(|(y, row)| f(y as u32, row))
-            .flatten()
-            .collect()
-        )
+        self.map_data(|data| {
+            data.chunks(width as usize)
+                .into_iter()
+                .enumerate()
+                .map(|(y, row)| f(y as u32, row))
+                .flatten()
+                .collect()
+        })
     }
 
     /// Converts the image into an image with the given pixel type.
@@ -203,20 +212,21 @@ impl ImageFormat {
     pub fn from_extension(ext: impl AsRef<OsStr>) -> Result<Self> {
         let extension = ext.as_ref().to_str();
 
-        Ok(match extension.ok_or_else(|| {
-            InvalidExtension(ext.as_ref().to_os_string())
-        })?
-        .to_ascii_lowercase()
-        .as_str()
-        {
-            "png" => ImageFormat::Png,
-            "jpg" | "jpeg" => ImageFormat::Jpeg,
-            "gif" => ImageFormat::Gif,
-            "bmp" => ImageFormat::Bmp,
-            "tiff" => ImageFormat::Tiff,
-            "webp" => ImageFormat::WebP,
-            _ => ImageFormat::Unknown,
-        })
+        Ok(
+            match extension
+                .ok_or_else(|| InvalidExtension(ext.as_ref().to_os_string()))?
+                .to_ascii_lowercase()
+                .as_str()
+            {
+                "png" => ImageFormat::Png,
+                "jpg" | "jpeg" => ImageFormat::Jpeg,
+                "gif" => ImageFormat::Gif,
+                "bmp" => ImageFormat::Bmp,
+                "tiff" => ImageFormat::Tiff,
+                "webp" => ImageFormat::WebP,
+                _ => ImageFormat::Unknown,
+            },
+        )
     }
 
     /// Returns the format specified by the given path.
@@ -226,8 +236,7 @@ impl ImageFormat {
     /// This resolves via the extension of the path. See [`ImageFormat::infer_encoding`] for an
     /// implementation that can resolve the format from the data.
     pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
-        path
-            .as_ref()
+        path.as_ref()
             .extension()
             .ok_or_else(|| InvalidExtension(path.as_ref().into()))
             .and_then(Self::from_extension)
@@ -250,20 +259,24 @@ impl ImageFormat {
 
     /// Infers the encoding format from the given data via a byte stream.
     pub fn infer_encoding() -> Self {
-
+        todo!()
     }
 }
 
 impl fmt::Display for ImageFormat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match self {
-            ImageFormat::Png => "png",
-            ImageFormat::Jpeg => "jpeg",
-            ImageFormat::Gif => "gif",
-            ImageFormat::Bmp => "bmp",
-            ImageFormat::Tiff => "tiff",
-            ImageFormat::WebP => "webp",
-            ImageFormat::Unknown => "",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                ImageFormat::Png => "png",
+                ImageFormat::Jpeg => "jpeg",
+                ImageFormat::Gif => "gif",
+                ImageFormat::Bmp => "bmp",
+                ImageFormat::Tiff => "tiff",
+                ImageFormat::WebP => "webp",
+                ImageFormat::Unknown => "",
+            }
+        )
     }
 }

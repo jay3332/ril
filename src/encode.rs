@@ -1,3 +1,4 @@
+use crate::Error::DecodingError;
 use crate::{Image, Pixel};
 
 pub struct ByteStream<'buf> {
@@ -6,11 +7,8 @@ pub struct ByteStream<'buf> {
 }
 
 impl<'buf> ByteStream<'buf> {
-    pub fn new(data: &[u8]) -> Self {
-        Self {
-            data,
-            position: 0,
-        }
+    pub fn new(data: &'buf [u8]) -> Self {
+        Self { data, position: 0 }
     }
 
     pub fn position(&self) -> usize {
@@ -26,6 +24,10 @@ impl<'buf> ByteStream<'buf> {
         self.position = self.data.len();
 
         data
+    }
+
+    pub fn peek(&mut self, bytes: usize) -> &[u8] {
+        &self.data[self.position..self.position + bytes]
     }
 
     pub fn read(&mut self, bytes: usize) -> &[u8] {
@@ -50,9 +52,22 @@ impl<'buf> ByteStream<'buf> {
         if data.len() != size {
             panic!("Not enough data to read");
         }
-        
+
         // SAFETY: we check if the data is the same length as T above
         unsafe { (data as *const _ as *const T).read() }
+    }
+
+    pub fn read_u8(&mut self) -> crate::Result<u8> {
+        self.read(1)
+            .get(0)
+            .map(|&b| b)
+            .ok_or_else(|| DecodingError("Expected 1 more byte to convert into u8"))
+    }
+
+    pub fn read_u32(&mut self) -> crate::Result<u32> {
+        Ok(u32::from_be_bytes(self.read(4).try_into().map_err(
+            |_| DecodingError("Expected 4 bytes to convert into u32"),
+        )?))
     }
 
     pub fn rewind(&mut self, bytes: usize) {
@@ -65,5 +80,5 @@ impl<'buf> ByteStream<'buf> {
 }
 
 pub trait Decoder<P: Pixel> {
-    fn decode(&mut self, stream: &mut ByteStream) -> Image<P>;
+    fn decode(&mut self, stream: &mut ByteStream) -> crate::Result<Image<P>>;
 }
