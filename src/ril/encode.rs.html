@@ -168,8 +168,8 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ByteStream</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decoder</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ByteStream</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>

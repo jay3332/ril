@@ -203,8 +203,6 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">zlib::ZlibReader</span>, <span class="ident">PixelData</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>},
@@ -274,20 +272,18 @@
     <span class="ident">interlace_method</span>: <span class="ident">u8</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PngDecoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PngDecoder</span> {
     <span class="ident">inflater</span>: <span class="ident">ZlibReader</span>,
     <span class="kw">pub</span> <span class="ident">ihdr</span>: <span class="ident">PngHeader</span>,
     <span class="kw">pub</span> <span class="ident">idat</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    <span class="ident">temp</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">PngDecoder</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">PngDecoder</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inflater</span>: <span class="ident">ZlibReader::new</span>(),
             <span class="ident">ihdr</span>: <span class="ident">PngHeader::default</span>(),
             <span class="ident">idat</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">temp</span>: <span class="ident">PhantomData</span>,
         }
     }
 
@@ -313,8 +309,8 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PngDecoder</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ByteStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">Decoder</span> <span class="kw">for</span> <span class="ident">PngDecoder</span> {
+    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ByteStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">read</span>(<span class="number">8</span>);
 
         <span class="kw">if</span> <span class="ident">signature</span> <span class="op">!</span><span class="op">=</span> <span class="ident">PNG_SIGNATURE</span> {
@@ -399,8 +395,8 @@
             <span class="number">192</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">24</span>, <span class="number">221</span>, <span class="number">141</span>, <span class="number">176</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">73</span>, <span class="number">69</span>, <span class="number">78</span>, <span class="number">68</span>, <span class="number">174</span>, <span class="number">66</span>, <span class="number">96</span>, <span class="number">130</span>,
         ];
 
-        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">PngDecoder</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::new</span>()
-            .<span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ByteStream::new</span>(<span class="ident">data</span>))
+        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">PngDecoder::new</span>()
+            .<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ByteStream::new</span>(<span class="ident">data</span>))
             .<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">image</span>.<span class="ident">dimensions</span>(), (<span class="number">1</span>, <span class="number">1</span>));
