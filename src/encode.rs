@@ -53,7 +53,7 @@ impl<'buf> ByteStream<'buf> {
     }
 
     /// Reads data and transmutes it to T.
-    /// 
+    ///
     /// # Panics
     /// * There is not enough data to read
     pub fn read_to<T>(&mut self) -> T {

@@ -1,18 +1,15 @@
 use crate::{
-    error::{Error::{self, InvalidExtension}, Result},
+    encode::{ByteStream, Decoder},
+    encodings::png::PngDecoder,
+    error::{
+        Error::{self, InvalidExtension},
+        Result,
+    },
     pixel::Pixel,
     Dynamic,
-    encode::{ByteStream, Decoder},
-    encodings::png::PngDecoder
 };
 
-use std::{
-    ffi::OsStr,
-    fmt,
-    fs::File,
-    io::Read,
-    path::Path
-};
+use std::{ffi::OsStr, fmt, fs::File, io::Read, path::Path};
 
 /// The behavior to use when overlaying images on top of each other.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
@@ -280,7 +277,8 @@ impl<P: Pixel> Image<P> {
         Self {
             width: x2 - x1,
             height: y2 - y1,
-            data: self.pixels()
+            data: self
+                .pixels()
                 .into_iter()
                 .skip(y1 as usize)
                 .zip(y1..y2)
@@ -400,10 +398,7 @@ impl ImageFormat {
             ImageFormat::Bmp
         } else if sample.len() > 11 && &sample[8..12] == b"WEBP" {
             ImageFormat::WebP
-        } else if (
-            sample.starts_with(b"\x49\x49\x2A\0")
-            || sample.starts_with(b"\x4D\x4D\0\x2A")
-        )
+        } else if (sample.starts_with(b"\x49\x49\x2A\0") || sample.starts_with(b"\x4D\x4D\0\x2A"))
             && sample[8] != 0x43
             && sample[9] != 0x52
         {
