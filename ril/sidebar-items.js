@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["encode",""],["encodings",""],["error",""],["image",""],["pixel",""],["prelude",""]]});
+initSidebarItems({"mod":[["draw",""],["encode",""],["encodings",""],["error",""],["image",""],["pixel",""],["prelude",""]]});

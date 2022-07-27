@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ImageFormat","Represents the underlying encoding format of an image."]],"struct":[["Image","A high-level image representation."]]});
+initSidebarItems({"enum":[["ImageFormat","Represents the underlying encoding format of an image."],["OverlayMode","The behavior to use when overlaying images on top of each other."]],"struct":[["Image","A high-level image representation."]]});

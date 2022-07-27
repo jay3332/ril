@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["BorderPosition","Represents whether a border is inset, outset, or if it lays in the center."]],"struct":[["Border","Represents a shape border."],["Rectangle",""]],"trait":[["Draw",""]]});
