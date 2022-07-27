@@ -524,6 +524,17 @@
 <span id="519">519</span>
 <span id="520">520</span>
 <span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encodings::PixelData</span>,
     <span class="ident">Error</span>::{<span class="ident">InvalidHexCode</span>, <span class="ident">UnsupportedColorType</span>},
@@ -649,10 +660,9 @@
 
     <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">data</span> {
-            <span class="ident">PixelData::L</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>)),
             <span class="comment">// Currently, losing alpha implicitly is allowed, but I may change my mind about this</span>
             <span class="comment">// in the future.</span>
-            <span class="ident">PixelData::LA</span>(<span class="ident">value</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>)),
+            <span class="ident">PixelData::L</span>(<span class="ident">value</span>) <span class="op">|</span> <span class="ident">PixelData::LA</span>(<span class="ident">value</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>)),
             <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>.<span class="ident">then_some</span>(<span class="number">255</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
@@ -698,11 +708,12 @@
     }
 
     <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_wildcard_for_single_variants</span>)]</span>
         <span class="kw">match</span> <span class="ident">data</span> {
-            <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }),
-            <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }),
-            <span class="ident">PixelData::L</span>(<span class="ident">l</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>: <span class="ident">l</span>, <span class="ident">g</span>: <span class="ident">l</span>, <span class="ident">b</span>: <span class="ident">l</span> }),
-            <span class="ident">PixelData::LA</span>(<span class="ident">l</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>: <span class="ident">l</span>, <span class="ident">g</span>: <span class="ident">l</span>, <span class="ident">b</span>: <span class="ident">l</span> }),
+            <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) <span class="op">|</span> <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="kw">_</span>) =&gt; {
+                <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> })
+            },
+            <span class="ident">PixelData::L</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">PixelData::LA</span>(<span class="ident">l</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>: <span class="ident">l</span>, <span class="ident">g</span>: <span class="ident">l</span>, <span class="ident">b</span>: <span class="ident">l</span> }),
             <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">value</span> { <span class="ident"><span class="self">Self</span>::white</span>() } <span class="kw">else</span> { <span class="ident"><span class="self">Self</span>::black</span>() }),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
@@ -711,6 +722,7 @@
 
 <span class="kw">impl</span> <span class="ident">Rgb</span> {
     <span class="doccomment">/// Creates a new RGB pixel.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">r</span>: <span class="ident">u8</span>, <span class="ident">g</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }
     }
@@ -722,6 +734,9 @@
     <span class="doccomment">/// - RGB</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// * Received a malformed hex code.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_hex</span>(<span class="ident">hex</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="ident">hex</span>.<span class="ident">as_ref</span>();
 
@@ -798,6 +813,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_wildcard_for_single_variants</span>)]</span>
         <span class="kw">match</span> <span class="ident">data</span> {
             <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>: <span class="number">255</span> }),
             <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }),
@@ -821,13 +837,14 @@
 
 <span class="kw">impl</span> <span class="ident">Rgba</span> {
     <span class="doccomment">/// Creates a new RGBA pixel.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">r</span>: <span class="ident">u8</span>, <span class="ident">g</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>, <span class="ident">a</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }
     }
 
     <span class="doccomment">/// Creates an opaque pixel from an RGB pixel.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rgb</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_rgb</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="number">255</span>)
     }
 
@@ -840,6 +857,9 @@
     <span class="doccomment">/// - RGB</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// * Received a malformed hex code.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_hex</span>(<span class="ident">hex</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="ident">hex</span>.<span class="ident">strip_prefix</span>(<span class="string">&#39;#&#39;</span>).<span class="ident">unwrap_or</span>(<span class="ident">hex</span>);
 
@@ -926,6 +946,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_wildcard_for_single_variants</span>)]</span>
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">data</span> {
             <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">BitPixel</span>(<span class="ident">value</span>)),
             <span class="ident">PixelData::L</span>(<span class="ident">l</span>) =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">L</span>(<span class="ident">l</span>)),
@@ -1007,7 +1028,8 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">L</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">f32::from</span>(<span class="ident">b</span>).<span class="ident">mul_add</span>(<span class="number">0.114</span>, (<span class="ident">f32::from</span>(<span class="ident">r</span>) <span class="op">*</span> <span class="number">0.299</span>) <span class="op">+</span> (<span class="ident">f32::from</span>(<span class="ident">g</span>) <span class="op">*</span> <span class="number">0.587</span>)) <span class="kw">as</span> <span class="ident">u8</span>)
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_sign_loss</span>, <span class="ident">clippy::cast_possible_truncation</span>)]</span>
+        <span class="self">Self</span>(<span class="ident">f32::from</span>(<span class="ident">b</span>).<span class="ident">mul_add</span>(<span class="number">0.114</span>, <span class="ident">f32::from</span>(<span class="ident">r</span>).<span class="ident">mul_add</span>(<span class="number">0.299</span>, <span class="ident">f32::from</span>(<span class="ident">g</span>) <span class="op">*</span> <span class="number">0.587</span>)) <span class="kw">as</span> <span class="ident">u8</span>)
     }
 }
 

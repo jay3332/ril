@@ -79,6 +79,12 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Image</span>, <span class="ident">Pixel</span>};
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> {
@@ -120,28 +126,34 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">P</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">P</span> {
         <span class="self">self</span>.<span class="ident">color</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">thickness</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">thickness</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">thickness</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">position</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BorderPosition</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">position</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BorderPosition</span> {
         <span class="self">self</span>.<span class="ident">position</span>
     }
 
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">color</span> <span class="op">=</span> <span class="ident">color</span>;
         <span class="self">self</span>
     }
 
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_thickness</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">thickness</span> <span class="op">=</span> <span class="ident">thickness</span>;
         <span class="self">self</span>
     }
 
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_position</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">position</span>: <span class="ident">BorderPosition</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">position</span> <span class="op">=</span> <span class="ident">position</span>;
         <span class="self">self</span>
