@@ -24,6 +24,9 @@ pub enum Error {
     /// an error message.
     DecodingError(&'static str),
 
+    /// No encoding format could be inferred for the given image.
+    UnknownEncodingFormat,
+
     /// An image received data incompatible with the image's dimensions.
     IncompatibleImageData {
         width: u32,
@@ -50,6 +53,7 @@ impl fmt::Display for Error {
                 write!(f, "Invalid extension: {}", ext.to_string_lossy())
             }
             Self::DecodingError(message) => write!(f, "Decoding error: {}", message),
+            Self::UnknownEncodingFormat => write!(f, "Could not infer encoding format"),
             Self::UnsupportedColorType => write!(
                 f,
                 "Unsupported color type. Try using the `Dynamic` pixel type instead."

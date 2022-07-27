@@ -39,28 +39,34 @@ impl<P: Pixel> Border<P> {
         }
     }
 
-    pub fn color(&self) -> P {
+    #[must_use]
+    pub const fn color(&self) -> P {
         self.color
     }
 
-    pub fn thickness(&self) -> u32 {
+    #[must_use]
+    pub const fn thickness(&self) -> u32 {
         self.thickness
     }
 
-    pub fn position(&self) -> BorderPosition {
+    #[must_use]
+    pub const fn position(&self) -> BorderPosition {
         self.position
     }
 
+    #[must_use]
     pub fn with_color(mut self, color: P) -> Self {
         self.color = color;
         self
     }
 
+    #[must_use]
     pub fn with_thickness(mut self, thickness: u32) -> Self {
         self.thickness = thickness;
         self
     }
 
+    #[must_use]
     pub fn with_position(mut self, position: BorderPosition) -> Self {
         self.position = position;
         self

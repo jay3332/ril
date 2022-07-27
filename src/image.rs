@@ -66,9 +66,11 @@ impl<P: Pixel> Image<P> {
     pub fn from_pixels(width: u32, pixels: impl AsRef<[P]>) -> Self {
         let pixels = pixels.as_ref();
 
-        if pixels.len() as u32 % width != 0 {
-            panic!("length of pixels must be a multiple of the image width");
-        }
+        assert_eq!(
+            pixels.len() % width as usize,
+            0,
+            "length of pixels must be a multiple of the image width",
+        );
 
         Self {
             width,
@@ -80,8 +82,29 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Decodes an image with the explicitly given image encoding from the raw bytes.
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     pub fn decode_from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
         format.run_decoder(&mut ByteStream::new(bytes.as_ref()))
+    }
+
+    /// Decodes an image from the given bytes, inferring its encoding.
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
+    /// specifying it.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    pub fn decode_inferred_from_bytes(bytes: impl AsRef<[u8]>) -> Result<Self> {
+        let stream = &mut ByteStream::new(bytes.as_ref());
+
+        match ImageFormat::infer_encoding(stream) {
+            ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
+            format => format.run_decoder(stream),
+        }
     }
 
     /// Opens a file from the given path and decodes it into an image.
@@ -254,13 +277,14 @@ impl<P: Pixel> Image<P> {
         self.map_data(|data| {
             data.chunks(width as usize)
                 .into_iter()
-                .enumerate()
-                .flat_map(|(y, row)| f(y as u32, row))
+                .zip(0..)
+                .flat_map(|(row, y)| f(y, row))
                 .collect()
         })
     }
 
     /// Converts the image into an image with the given pixel type.
+    #[must_use]
     pub fn convert<T: Pixel + From<P>>(self) -> Image<T> {
         self.map_pixels(T::from)
     }
@@ -273,6 +297,7 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Crops the image to the given box.
+    #[must_use]
     pub fn crop(self, x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
         Self {
             width: x2 - x1,
@@ -282,8 +307,7 @@ impl<P: Pixel> Image<P> {
                 .into_iter()
                 .skip(y1 as usize)
                 .zip(y1..y2)
-                .map(|(row, _)| &row[x1 as usize..x2 as usize])
-                .flatten()
+                .flat_map(|(row, _)| &row[x1 as usize..x2 as usize])
                 .cloned()
                 .collect(),
             format: self.format,
@@ -335,6 +359,9 @@ impl ImageFormat {
     ///
     /// If the extension is completely invalid and fails to be converted into a `&str`,
     /// the [`Error::InvalidExtension`] error is returned.
+    ///
+    /// # Errors
+    /// * The extension is completely invalid and failed to be converted into a `&str`.
     pub fn from_extension(ext: impl AsRef<OsStr>) -> Result<Self> {
         let extension = ext.as_ref().to_str();
 
@@ -361,6 +388,9 @@ impl ImageFormat {
     ///
     /// This resolves via the extension of the path. See [`ImageFormat::infer_encoding`] for an
     /// implementation that can resolve the format from the data.
+    ///
+    /// # Errors
+    /// * No extension can be resolved from the path.
     pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
         path.as_ref()
             .extension()
@@ -389,25 +419,32 @@ impl ImageFormat {
         let sample = stream.peek(12);
 
         if sample.starts_with(b"\x89PNG\x0D\x0A\x1A\x0A") {
-            ImageFormat::Png
+            Self::Png
         } else if sample.starts_with(b"\xFF\xD8\xFF") {
-            ImageFormat::Jpeg
+            Self::Jpeg
         } else if sample.starts_with(b"GIF") {
-            ImageFormat::Gif
+            Self::Gif
         } else if sample.starts_with(b"BM") {
-            ImageFormat::Bmp
+            Self::Bmp
         } else if sample.len() > 11 && &sample[8..12] == b"WEBP" {
-            ImageFormat::WebP
+            Self::WebP
         } else if (sample.starts_with(b"\x49\x49\x2A\0") || sample.starts_with(b"\x4D\x4D\0\x2A"))
             && sample[8] != 0x43
             && sample[9] != 0x52
         {
-            ImageFormat::Tiff
+            Self::Tiff
         } else {
-            ImageFormat::Unknown
+            Self::Unknown
         }
     }
 
+    /// Decodes the image data from a `ByteStream` into an image.
+    ///
+    /// # Errors
+    /// * An error occured while decoding.
+    ///
+    /// # Panics
+    /// * No decoder implementation is found for this image encoding.
     pub fn run_decoder<P: Pixel>(&self, stream: &mut ByteStream) -> Result<Image<P>> {
         match self {
             Self::Png => PngDecoder::new().decode(stream),

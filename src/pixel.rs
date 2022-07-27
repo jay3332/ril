@@ -123,10 +123,9 @@ impl Pixel for L {
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
         match data {
-            PixelData::L(value) => Ok(Self(value)),
             // Currently, losing alpha implicitly is allowed, but I may change my mind about this
             // in the future.
-            PixelData::LA(value, _) => Ok(Self(value)),
+            PixelData::L(value) | PixelData::LA(value, _) => Ok(Self(value)),
             PixelData::Bit(value) => Ok(Self(value.then_some(255).unwrap_or(0))),
             _ => Err(UnsupportedColorType),
         }
@@ -172,11 +171,12 @@ impl Pixel for Rgb {
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
+        #[allow(clippy::match_wildcard_for_single_variants)]
         match data {
-            PixelData::Rgb(r, g, b) => Ok(Self { r, g, b }),
-            PixelData::Rgba(r, g, b, _) => Ok(Self { r, g, b }),
-            PixelData::L(l) => Ok(Self { r: l, g: l, b: l }),
-            PixelData::LA(l, _) => Ok(Self { r: l, g: l, b: l }),
+            PixelData::Rgb(r, g, b) | PixelData::Rgba(r, g, b, _) => {
+                Ok(Self { r, g, b })
+            },
+            PixelData::L(l) | PixelData::LA(l, _) => Ok(Self { r: l, g: l, b: l }),
             PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
             _ => Err(UnsupportedColorType),
         }
@@ -185,6 +185,7 @@ impl Pixel for Rgb {
 
 impl Rgb {
     /// Creates a new RGB pixel.
+    #[must_use]
     pub const fn new(r: u8, g: u8, b: u8) -> Self {
         Self { r, g, b }
     }
@@ -196,6 +197,9 @@ impl Rgb {
     /// - RGB
     ///
     /// These can be optionally padded with #, for example "#FF0000" is the same as as "FF0000".
+    ///
+    /// # Errors
+    /// * Received a malformed hex code.
     pub fn from_hex(hex: impl AsRef<str>) -> Result<Self> {
         let hex = hex.as_ref();
 
@@ -272,6 +276,7 @@ impl Pixel for Rgba {
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
+        #[allow(clippy::match_wildcard_for_single_variants)]
         match data {
             PixelData::Rgb(r, g, b) => Ok(Self { r, g, b, a: 255 }),
             PixelData::Rgba(r, g, b, a) => Ok(Self { r, g, b, a }),
@@ -295,13 +300,14 @@ impl Pixel for Rgba {
 
 impl Rgba {
     /// Creates a new RGBA pixel.
+    #[must_use]
     pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
 
     /// Creates an opaque pixel from an RGB pixel.
     #[must_use]
-    pub fn from_rgb(Rgb { r, g, b }: Rgb) -> Self {
+    pub const fn from_rgb(Rgb { r, g, b }: Rgb) -> Self {
         Self::new(r, g, b, 255)
     }
 
@@ -314,6 +320,9 @@ impl Rgba {
     /// - RGB
     ///
     /// These can be optionally padded with #, for example "#FF0000" is the same as as "FF0000".
+    ///
+    /// # Errors
+    /// * Received a malformed hex code.
     pub fn from_hex(hex: &str) -> Result<Self> {
         let hex = hex.strip_prefix('#').unwrap_or(hex);
 
@@ -400,6 +409,7 @@ impl Pixel for Dynamic {
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
+        #[allow(clippy::match_wildcard_for_single_variants)]
         Ok(match data {
             PixelData::Bit(value) => Self::BitPixel(BitPixel(value)),
             PixelData::L(l) => Self::L(L(l)),
@@ -481,7 +491,8 @@ impl From<L> for BitPixel {
 
 impl From<Rgb> for L {
     fn from(Rgb { r, g, b }: Rgb) -> Self {
-        Self(f32::from(b).mul_add(0.114, (f32::from(r) * 0.299) + (f32::from(g) * 0.587)) as u8)
+        #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+        Self(f32::from(b).mul_add(0.114, f32::from(r).mul_add(0.299, f32::from(g) * 0.587)) as u8)
     }
 }
 

@@ -1,3 +1,5 @@
+#![allow(clippy::module_name_repetitions)]
+
 pub mod draw;
 pub mod encode;
 pub mod encodings;
