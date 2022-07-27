@@ -11,5 +11,10 @@ readme = "README.md"
 keywords = ["ril", "imaging", "image", "processing", "editing", "graphics"]
 categories = ["encoding", "graphics", "multimedia", "visualization"]
 
+[workspace]
+members = [
+    "ril_py"
+]
+
 [dependencies]
 miniz_oxide = "^0.5"
