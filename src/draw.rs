@@ -1,6 +1,8 @@
+use crate::image::OverlayMode;
 use crate::{Image, Pixel};
 
 pub trait Draw<P: Pixel> {
+    /// Draws the object to the given image.
     fn draw(&self, image: &mut Image<P>);
 }
 
@@ -32,6 +34,8 @@ pub struct Border<P: Pixel> {
 
 impl<P: Pixel> Border<P> {
     pub fn new(color: P, thickness: u32) -> Self {
+        assert_ne!(thickness, 0, "border thickness cannot be 0");
+
         Self {
             color,
             thickness,
@@ -47,6 +51,7 @@ impl<P: Pixel> Border<P> {
 
     #[must_use]
     pub fn with_thickness(mut self, thickness: u32) -> Self {
+        assert_ne!(thickness, 0, "border thickness cannot be 0");
         self.thickness = thickness;
         self
     }
@@ -63,12 +68,22 @@ pub struct Rectangle<P: Pixel> {
     pub position: (u32, u32),
     pub size: (u32, u32),
     pub border: Option<Border<P>>,
-    pub fill: P,
+    pub fill: Option<P>,
+    pub overlay: Option<OverlayMode>,
 }
 
 impl<P: Pixel> Rectangle<P> {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn from_bounding_box(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
+        assert!(x2 >= x1, "invalid bounding box");
+        assert!(y2 >= y1, "invalid bounding box");
+
+        Self::default()
+            .with_position(x1, y1)
+            .with_size(x2 - x1, y2 - y1)
     }
 
     pub fn with_position(mut self, x: u32, y: u32) -> Self {
@@ -87,13 +102,80 @@ impl<P: Pixel> Rectangle<P> {
     }
 
     pub fn with_fill(mut self, fill: P) -> Self {
-        self.fill = fill;
+        self.fill = Some(fill);
+        self
+    }
+
+    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+        self.overlay = Some(mode);
         self
     }
 }
 
 impl<P: Pixel> Draw<P> for Rectangle<P> {
     fn draw(&self, image: &mut Image<P>) {
-        todo!()
+        assert!(
+            self.fill.is_some() || self.border.is_some(),
+            "must provide one of either fill or border"
+        );
+
+        let (x1, y1) = self.position;
+        let (w, h) = self.size;
+        let (x2, y2) = (x1 + w, y1 + h);
+        let overlay = self.overlay.unwrap_or_else(|| image.overlay);
+
+        let border = self.border.as_ref().map(
+            |Border {
+                 color,
+                 thickness,
+                 position,
+             }| {
+                let (inner, outer) = match position {
+                    BorderPosition::Outset => (0_u32, *thickness),
+                    BorderPosition::Inset => (*thickness, 0),
+                    BorderPosition::Center => {
+                        let offset = thickness / 2;
+                        // This way, the two will still sum to offset
+                        (offset, thickness - offset)
+                    }
+                };
+
+                (inner, outer, color)
+            },
+        );
+
+        image.map_in_place(|x, y, pixel| {
+            if let Some((inner, outer, color)) = border {
+                if x < x1 + inner
+                    && x >= x1 - outer
+                    && y >= y1 - outer
+                    && y <= y2 + outer
+                    // Right border
+                    || x > x2 - inner
+                    && x <= x2 + outer
+                    && y >= y1 - outer
+                    && y <= y2 + outer
+                    // Top border
+                    || y < y1 + inner
+                    && y >= y1 - outer
+                    && x >= x1
+                    && x <= x2
+                    // Bottom border
+                    || y > y2 - inner
+                    && y <= y2 + outer
+                    && x >= x1
+                    && x <= x2
+                {
+                    *pixel = pixel.overlay(color.clone(), overlay);
+                    return;
+                }
+            }
+
+            if let Some(fill) = self.fill {
+                if x >= x1 && x <= x2 && y >= y1 && y <= y2 {
+                    *pixel = pixel.overlay(fill, overlay);
+                }
+            }
+        });
     }
 }

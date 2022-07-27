@@ -1,4 +1,5 @@
 use crate::{
+    draw::Draw,
     encode::{ByteStream, Decoder},
     encodings::png::PngDecoder,
     error::{
@@ -30,7 +31,7 @@ pub enum OverlayMode {
 pub struct Image<P: Pixel = Dynamic> {
     pub(crate) width: u32,
     pub(crate) height: u32,
-    pub(crate) data: Vec<P>,
+    pub data: Vec<P>,
     pub(crate) format: ImageFormat,
     pub(crate) overlay: OverlayMode,
 }
@@ -220,7 +221,12 @@ impl<P: Pixel> Image<P> {
         self.data[pos] = pixel;
     }
 
-    /// Takes this image and inverts it.
+    /// Inverts this image in place.
+    pub fn invert(&mut self) {
+        self.data.iter_mut().for_each(|p| *p = p.inverted());
+    }
+
+    /// Takes this image and inverts it. Useful for method chaining.
     #[must_use]
     pub fn inverted(self) -> Self {
         self.map_pixels(|pixel| pixel.inverted())
@@ -238,6 +244,18 @@ impl<P: Pixel> Image<P> {
             format: self.format,
             overlay: self.overlay,
         }
+    }
+
+    /// Sets the data of this image to the new data. This is used a lot internally,
+    /// but should rarely be used by you.
+    pub fn set_data(&mut self, data: Vec<P>) {
+        assert_eq!(
+            self.width * self.height,
+            data.len() as u32,
+            "misformed data"
+        );
+
+        self.data = data;
     }
 
     /// Returns the image with each pixel in the image mapped to the given function.
@@ -261,6 +279,18 @@ impl<P: Pixel> Image<P> {
                 .map(|(p, i)| f(i % width, i / width, p))
                 .collect()
         })
+    }
+
+    /// Similar to [`map_pixels_with_coords`], but this maps the pixels in place.
+    ///
+    /// This means that the output pixel type must be the same.
+    pub fn map_in_place(&mut self, f: impl Fn(u32, u32, &mut P)) {
+        let width = self.width;
+
+        self.data
+            .iter_mut()
+            .zip(0..)
+            .for_each(|(p, i)| f(i % width, i / width, p));
     }
 
     /// Returns the image with each row of pixels represented as a slice mapped to the given
@@ -296,23 +326,37 @@ impl<P: Pixel> Image<P> {
         self.format = format;
     }
 
-    /// Crops the image to the given box.
+    /// Crops this image in place to the given bounding box.
+    pub fn crop(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
+        self.width = x2 - x1;
+        self.height = y2 - y1;
+        self.data = self
+            .pixels()
+            .into_iter()
+            .skip(y1 as usize)
+            .zip(y1..y2)
+            .flat_map(|(row, _)| &row[x1 as usize..x2 as usize])
+            .cloned()
+            .collect();
+    }
+
+    /// Takes this image and crops it to the given box. Useful for method chaining.
     #[must_use]
-    pub fn crop(self, x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
-        Self {
-            width: x2 - x1,
-            height: y2 - y1,
-            data: self
-                .pixels()
-                .into_iter()
-                .skip(y1 as usize)
-                .zip(y1..y2)
-                .flat_map(|(row, _)| &row[x1 as usize..x2 as usize])
-                .cloned()
-                .collect(),
-            format: self.format,
-            overlay: self.overlay,
-        }
+    pub fn cropped(mut self, x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
+        self.crop(x1, y1, x2, y2);
+        self
+    }
+
+    /// Draws an object or shape onto this image.
+    pub fn draw(&mut self, entity: &impl Draw<P>) {
+        entity.draw(self)
+    }
+
+    /// Takes this image, draws the given object or shape onto it, and returns it.
+    /// Useful for method chaining and drawing multiple objects at once.
+    pub fn with(mut self, entity: &impl Draw<P>) -> Self {
+        self.draw(entity);
+        self
     }
 }
 

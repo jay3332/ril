@@ -57,7 +57,7 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     /// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.
     fn overlay(self, other: Self, mode: OverlayMode) -> Self {
         match mode {
-            OverlayMode::Replace => self,
+            OverlayMode::Replace => other,
             OverlayMode::Merge => self.merge(other),
         }
     }
@@ -310,6 +310,13 @@ impl Pixel for Rgba {
     }
 
     fn merge(self, other: Self) -> Self {
+        // Optimize for common cases
+        if other.a == 255 {
+            return other;
+        } else if other.a == 0 {
+            return self;
+        }
+
         let (base_r, base_g, base_b, base_a) = (
             self.r as f32 / 255.,
             self.g as f32 / 255.,
