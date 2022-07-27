@@ -31,6 +31,7 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
+        env:
           CIBW_PLATFORM: ${{ matrix.platform || matrix.os }}
           CIBW_BUILD: 'cp3${{ matrix.python-version }}-*'
           CIBW_SKIP: '*-win32'
