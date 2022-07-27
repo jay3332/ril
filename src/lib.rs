@@ -1,3 +1,4 @@
+pub mod draw;
 pub mod encode;
 pub mod encodings;
 pub mod error;

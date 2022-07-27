@@ -29,7 +29,11 @@ impl<'buf> ByteStream<'buf> {
         data
     }
 
-    pub fn peek(&mut self, bytes: usize) -> &[u8] {
+    pub fn peek(&self, bytes: usize) -> &[u8] {
+        if bytes > self.remaining() {
+            return &self.data[self.position..];
+        }
+
         &self.data[self.position..self.position + bytes]
     }
 
@@ -48,15 +52,15 @@ impl<'buf> ByteStream<'buf> {
         &self.data[start..self.position]
     }
 
-    /// TODO!
+    /// Reads data and transmutes it to T.
     /// 
-    /// Panics
-    /// * Panics if there are not enough data to read
+    /// # Panics
+    /// * There is not enough data to read
     pub fn read_to<T>(&mut self) -> T {
         let size = std::mem::size_of::<T>();
         let data = self.read(size);
 
-        assert!(data.len() == size, "Not enough data to read");
+        assert_eq!(data.len(), size, "Not enough data to read");
 
         // SAFETY: we check if the data is the same length as T above
         unsafe { (data as *const _ as *const T).read() }

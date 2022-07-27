@@ -1,10 +1,29 @@
-use crate::error::{Error::InvalidExtension, Result};
-use crate::pixel::Pixel;
+use crate::{
+    error::{Error::{self, InvalidExtension}, Result},
+    pixel::Pixel,
+    Dynamic,
+    encode::{ByteStream, Decoder},
+    encodings::png::PngDecoder
+};
 
-use crate::Dynamic;
-use std::ffi::OsStr;
-use std::fmt;
-use std::path::Path;
+use std::{
+    ffi::OsStr,
+    fmt,
+    fs::File,
+    io::Read,
+    path::Path
+};
+
+/// The behavior to use when overlaying images on top of each other.
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+pub enum OverlayMode {
+    /// Replace alpha values with the alpha values of the overlay image. This is the default
+    /// behavior.
+    #[default]
+    Replace,
+    /// Merge the alpha values of overlay image with the alpha values of the base image.
+    Merge,
+}
 
 /// A high-level image representation.
 ///
@@ -16,9 +35,77 @@ pub struct Image<P: Pixel = Dynamic> {
     pub(crate) height: u32,
     pub(crate) data: Vec<P>,
     pub(crate) format: ImageFormat,
+    pub(crate) overlay: OverlayMode,
 }
 
 impl<P: Pixel> Image<P> {
+    /// Creates a new image with the given width and height, with all pixels being set
+    /// intially to `fill`.
+    #[must_use]
+    pub fn new(width: u32, height: u32, fill: P) -> Self {
+        Self {
+            width,
+            height,
+            data: vec![fill; (width * height) as usize],
+            format: ImageFormat::Png,
+            overlay: OverlayMode::default(),
+        }
+    }
+
+    /// Creates a new image with the given width and height. The pixels are then resolved through
+    /// then given callback function which takes two parameters - the x and y coordinates of
+    /// a pixel - and returns a pixel.
+    #[must_use]
+    pub fn from_fn(width: u32, height: u32, f: impl Fn(u32, u32) -> P) -> Self {
+        Self::new(width, height, P::default()).map_pixels_with_coords(|x, y, _| f(x, y))
+    }
+
+    /// Creates a new image shaped with the given width and a 1-dimensional sequence of pixels
+    /// which will be shaped according to the width.
+    ///
+    /// # Panics
+    /// * The length of the pixels is not a multiple of the width.
+    #[must_use]
+    pub fn from_pixels(width: u32, pixels: impl AsRef<[P]>) -> Self {
+        let pixels = pixels.as_ref();
+
+        if pixels.len() as u32 % width != 0 {
+            panic!("length of pixels must be a multiple of the image width");
+        }
+
+        Self {
+            width,
+            height: pixels.len() as u32 / width,
+            data: pixels.to_vec(),
+            format: ImageFormat::Png,
+            overlay: OverlayMode::default(),
+        }
+    }
+
+    /// Decodes an image with the explicitly given image encoding from the raw bytes.
+    pub fn decode_from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
+        format.run_decoder(&mut ByteStream::new(bytes.as_ref()))
+    }
+
+    /// Opens a file from the given path and decodes it into an image.
+    ///
+    /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
+    /// by using the [`decode_from_bytes`] method.
+    pub fn open(path: impl AsRef<Path>) -> Result<Self> {
+        let buffer = &mut Vec::new();
+        let mut file = File::open(path.as_ref()).map_err(Error::IOError)?;
+        file.read_to_end(buffer).map_err(Error::IOError)?;
+
+        let mut stream = ByteStream::new(buffer);
+
+        let format = match ImageFormat::from_path(path)? {
+            ImageFormat::Unknown => ImageFormat::infer_encoding(&stream),
+            format => format,
+        };
+
+        format.run_decoder(&mut stream)
+    }
+
     #[inline]
     #[must_use]
     const fn resolve_coordinate(&self, x: u32, y: u32) -> usize {
@@ -53,6 +140,20 @@ impl<P: Pixel> Image<P> {
     #[must_use]
     pub const fn format(&self) -> ImageFormat {
         self.format
+    }
+
+    /// Returns the overlay mode of the image.
+    #[inline]
+    #[must_use]
+    pub const fn overlay_mode(&self) -> OverlayMode {
+        self.overlay
+    }
+
+    /// Returns the same image with its overlay mode set to the given value.
+    #[must_use]
+    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+        self.overlay = mode;
+        self
     }
 
     /// Returns the dimensions of the image.
@@ -115,6 +216,7 @@ impl<P: Pixel> Image<P> {
             height: self.height,
             data: f(self.data),
             format: self.format,
+            overlay: self.overlay,
         }
     }
 
@@ -171,6 +273,24 @@ impl<P: Pixel> Image<P> {
     /// This is more or less image metadata.
     pub fn set_format(&mut self, format: ImageFormat) {
         self.format = format;
+    }
+
+    /// Crops the image to the given box.
+    pub fn crop(self, x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
+        Self {
+            width: x2 - x1,
+            height: y2 - y1,
+            data: self.pixels()
+                .into_iter()
+                .skip(y1 as usize)
+                .zip(y1..y2)
+                .map(|(row, _)| &row[x1 as usize..x2 as usize])
+                .flatten()
+                .cloned()
+                .collect(),
+            format: self.format,
+            overlay: self.overlay,
+        }
     }
 }
 
@@ -267,8 +387,37 @@ impl ImageFormat {
 
     /// Infers the encoding format from the given data via a byte stream.
     #[must_use]
-    pub fn infer_encoding() -> Self {
-        todo!()
+    pub fn infer_encoding(stream: &ByteStream) -> Self {
+        let sample = stream.peek(12);
+
+        if sample.starts_with(b"\x89PNG\x0D\x0A\x1A\x0A") {
+            ImageFormat::Png
+        } else if sample.starts_with(b"\xFF\xD8\xFF") {
+            ImageFormat::Jpeg
+        } else if sample.starts_with(b"GIF") {
+            ImageFormat::Gif
+        } else if sample.starts_with(b"BM") {
+            ImageFormat::Bmp
+        } else if sample.len() > 11 && &sample[8..12] == b"WEBP" {
+            ImageFormat::WebP
+        } else if (
+            sample.starts_with(b"\x49\x49\x2A\0")
+            || sample.starts_with(b"\x4D\x4D\0\x2A")
+        )
+            && sample[8] != 0x43
+            && sample[9] != 0x52
+        {
+            ImageFormat::Tiff
+        } else {
+            ImageFormat::Unknown
+        }
+    }
+
+    pub fn run_decoder<P: Pixel>(&self, stream: &mut ByteStream) -> Result<Image<P>> {
+        match self {
+            Self::Png => PngDecoder::new().decode(stream),
+            _ => panic!("No decoder implementation for this image format"),
+        }
     }
 }
 

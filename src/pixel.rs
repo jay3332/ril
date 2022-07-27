@@ -46,7 +46,6 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     }
 
     /// Creates this pixel from raw data.
-    #[must_use]
     fn from_pixel_data(data: PixelData) -> Result<Self>;
 }
 

@@ -37,6 +37,9 @@ pub enum Error {
     /// always fixed by switching the pixel type to [`Dynamic`] then using [`Image::convert`]
     /// to convert the image into your desired type.
     UnsupportedColorType,
+
+    /// An error occured when trying to read a file or when trying to write to a file.
+    IOError(std::io::Error),
 }
 
 impl fmt::Display for Error {
@@ -63,6 +66,7 @@ impl fmt::Display for Error {
                 width * height,
                 received,
             ),
+            Self::IOError(error) => write!(f, "IO error: {}", error),
         }
     }
 }
