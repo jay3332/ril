@@ -22,33 +22,17 @@ jobs:
             platform: linux
           - os: windows
             ls: dir
-          - os: windows
-            arch: alt
-            alt_arch_name: 'ARM64'
           - os: ubuntu
             arch: alt
-            alt_arch_name: 'aarch64'
-          - os: ubuntu
-            arch: alt
-            alt_arch_name: 'ppc64le'
-          - os: ubuntu
-            arch: alt
-            alt_arch_name: 's390x'
+            alt_arch_name: 'aarch64 ppc64le'
           - os: macos
             arch: alt
-            alt_arch_name: 'arm64'
-          - os: macos
-            arch: alt
-            alt_arch_name: 'universal2'
+            alt_arch_name: 'arm64 universal2'
         exclude:
           - os: macos
             python-version: '7'
             arch: alt
           - os: windows
-            python-version: '7'
-            arch: alt
-          - os: windows
-            python-version: '8'
             arch: alt
 
     runs-on: ${{ format('{0}-latest', matrix.os) }}
