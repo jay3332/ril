@@ -24,15 +24,15 @@ jobs:
             ls: dir
           - os: ubuntu
             arch: alt
-            alt_arch_name: aarch64
+            alt_arch_name: 'aarch64'
           - os: macos
             arch: alt
-            alt_arch_name: arm64
+            alt_arch_name: 'arm64 universal2'
         exclude:
-          - os: windows
-            arch: alt
           - os: macos
             python-version: '7'
+            arch: alt
+          - os: windows
             arch: alt
 
     runs-on: ${{ format('{0}-latest', matrix.os) }}
@@ -48,16 +48,16 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         profile: minimal
-        toolchain: stable
+        toolchain: nightly
         override: true
 
     - run: rustup target add aarch64-apple-darwin
       if: matrix.os == 'macos'
 
-    - run: rustup toolchain install stable-i686-pc-windows-msvc
+    - run: rustup toolchain install nightly-i686-pc-windows-msvc nightly-aarch64-pc-windows-msvc
       if: matrix.os == 'windows'
 
-    - run: rustup target add i686-pc-windows-msvc
+    - run: rustup target add i686-pc-windows-msvc aarch64-pc-windows-msvc
       if: matrix.os == 'windows'
 
     - name: install python dependencies
@@ -83,17 +83,11 @@ jobs:
         CIBW_SKIP: '*-musllinux_i686'
         # we build for "alt_arch_name" if it exists, else 'auto
         CIBW_ARCHS: ${{ matrix.alt_arch_name || 'auto' }}
-        # see https://cibuildwheel.readthedocs.io/en/stable/faq/#universal2, tests can run on cross-compiled binaries
-        CIBW_ENVIRONMENT: 'PATH="$HOME/.cargo/bin:$PATH"'
+        CIBW_ENVIRONMENT: 'PATH="$HOME/.cargo/bin:$PATH" CARGO_UNSTABLE_SPARSE_REGISTRY=true'
         CIBW_ENVIRONMENT_WINDOWS: 'PATH="$UserProfile\.cargo\bin;$PATH"'
-        CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-        CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-        CIBW_MUSLLINUX_X86_64_IMAGE: musllinux_1_1
-        CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
-        CIBW_MUSLLINUX_AARCH64_IMAGE: musllinux_1_1
         CIBW_BEFORE_BUILD: rustup show
         CIBW_BEFORE_BUILD_LINUX: >
-          curl https://sh.rustup.rs -sSf | sh -s -- --profile=minimal -y &&
+          curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=nightly --profile=minimal -y &&
           rustup show
 
     - run: ${{ matrix.ls || 'ls -lh' }} wheelhouse/

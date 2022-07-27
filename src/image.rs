@@ -10,7 +10,7 @@ use crate::{
     Dynamic,
 };
 
-use std::{ffi::OsStr, fmt, fs::File, io::Read, path::Path};
+use std::{ffi::OsStr, fmt::{self, Display}, fs::File, io::Read, path::Path};
 
 /// The behavior to use when overlaying images on top of each other.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
@@ -21,6 +21,15 @@ pub enum OverlayMode {
     Replace,
     /// Merge the alpha values of overlay image with the alpha values of the base image.
     Merge,
+}
+
+impl Display for OverlayMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Merge => write!(f, "{}", "merge"),
+            Self::Replace => write!(f, "{}", "replace")
+        }
+    }
 }
 
 /// A high-level image representation.
