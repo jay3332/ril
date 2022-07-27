@@ -1,5 +1,6 @@
 use crate::{
     encodings::PixelData,
+    image::OverlayMode,
     Error::{InvalidHexCode, UnsupportedColorType},
     Result,
 };
@@ -47,6 +48,19 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
 
     /// Creates this pixel from raw data.
     fn from_pixel_data(data: PixelData) -> Result<Self>;
+
+    /// Merges this pixel with the given overlay pixel, taking into account alpha.
+    fn merge(self, other: Self) -> Self {
+        other
+    }
+
+    /// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.
+    fn overlay(self, other: Self, mode: OverlayMode) -> Self {
+        match mode {
+            OverlayMode::Replace => self,
+            OverlayMode::Merge => self.merge(other),
+        }
+    }
 }
 
 /// Represents a single-bit pixel that represents either a pixel that is on or off.
@@ -173,9 +187,7 @@ impl Pixel for Rgb {
     fn from_pixel_data(data: PixelData) -> Result<Self> {
         #[allow(clippy::match_wildcard_for_single_variants)]
         match data {
-            PixelData::Rgb(r, g, b) | PixelData::Rgba(r, g, b, _) => {
-                Ok(Self { r, g, b })
-            },
+            PixelData::Rgb(r, g, b) | PixelData::Rgba(r, g, b, _) => Ok(Self { r, g, b }),
             PixelData::L(l) | PixelData::LA(l, _) => Ok(Self { r: l, g: l, b: l }),
             PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
             _ => Err(UnsupportedColorType),
@@ -294,6 +306,34 @@ impl Pixel for Rgba {
             }),
             PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
             _ => Err(UnsupportedColorType),
+        }
+    }
+
+    fn merge(self, other: Self) -> Self {
+        let (base_r, base_g, base_b, base_a) = (
+            self.r as f32 / 255.,
+            self.g as f32 / 255.,
+            self.b as f32 / 255.,
+            self.a as f32 / 255.,
+        );
+
+        let (overlay_r, overlay_g, overlay_b, overlay_a) = (
+            other.r as f32 / 255.,
+            other.g as f32 / 255.,
+            other.b as f32 / 255.,
+            other.a as f32 / 255.,
+        );
+
+        let a = (1. - overlay_a) * base_a + overlay_a;
+        let r = ((1. - overlay_a) * base_a * base_r + overlay_a * overlay_r) / a;
+        let g = ((1. - overlay_a) * base_a * base_g + overlay_a * overlay_g) / a;
+        let b = ((1. - overlay_a) * base_a * base_b + overlay_a * overlay_b) / a;
+
+        Self {
+            r: (r * 255.) as u8,
+            g: (g * 255.) as u8,
+            b: (b * 255.) as u8,
+            a: (a * 255.) as u8,
         }
     }
 }

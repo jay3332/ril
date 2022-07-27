@@ -159,7 +159,7 @@ impl Decoder for PngDecoder {
                                 })
                                 .collect::<Result<Vec<_>>>()?,
                             format: crate::ImageFormat::Png,
-                            overlay: crate::image::OverlayMode::default()
+                            overlay: crate::image::OverlayMode::default(),
                         });
                     }
                     // Ignore unknown chunks

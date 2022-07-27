@@ -20,14 +20,14 @@ pub enum BorderPosition {
 /// Represents a shape border.
 ///
 /// TODO: Add support for rounded borders
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Border<P: Pixel> {
     /// The color of the border.
-    color: P,
+    pub color: P,
     /// The thickness of the border, in pixels.
-    thickness: u32,
+    pub thickness: u32,
     /// The position of the border.
-    position: BorderPosition,
+    pub position: BorderPosition,
 }
 
 impl<P: Pixel> Border<P> {
@@ -37,21 +37,6 @@ impl<P: Pixel> Border<P> {
             thickness,
             position: BorderPosition::default(),
         }
-    }
-
-    #[must_use]
-    pub const fn color(&self) -> P {
-        self.color
-    }
-
-    #[must_use]
-    pub const fn thickness(&self) -> u32 {
-        self.thickness
-    }
-
-    #[must_use]
-    pub const fn position(&self) -> BorderPosition {
-        self.position
     }
 
     #[must_use]
@@ -73,10 +58,42 @@ impl<P: Pixel> Border<P> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Rectangle<P: Pixel> {
-    position: (u32, u32),
-    size: (u32, u32),
-    border: Option<Border<P>>,
-    fill: P,
+    pub position: (u32, u32),
+    pub size: (u32, u32),
+    pub border: Option<Border<P>>,
+    pub fill: P,
+}
+
+impl<P: Pixel> Rectangle<P> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_position(mut self, x: u32, y: u32) -> Self {
+        self.position = (x, y);
+        self
+    }
+
+    pub fn with_size(mut self, width: u32, height: u32) -> Self {
+        self.size = (width, height);
+        self
+    }
+
+    pub fn with_border(mut self, border: Border<P>) -> Self {
+        self.border = Some(border);
+        self
+    }
+
+    pub fn with_fill(mut self, fill: P) -> Self {
+        self.fill = fill;
+        self
+    }
+}
+
+impl<P: Pixel> Draw<P> for Rectangle<P> {
+    fn draw(&self, image: &mut Image<P>) {
+        todo!()
+    }
 }
