@@ -34,6 +34,12 @@ jobs:
           - os: macos
             python-version: '7'
             arch: alt
+          - os: windows
+            python-version: '7'
+            arch: alt
+          - os: windows
+            python-version: '8'
+            arch: alt
 
     runs-on: ${{ format('{0}-latest', matrix.os) }}
     steps:
@@ -54,10 +60,10 @@ jobs:
     - run: rustup target add aarch64-apple-darwin
       if: matrix.os == 'macos'
 
-    - run: rustup toolchain install stable-i686-pc-windows-msvc
+    - run: rustup toolchain install stable-i686-pc-windows-msvc stable-aarch64-pc-windows-msvc
       if: matrix.os == 'windows'
 
-    - run: rustup target add i686-pc-windows-msvc
+    - run: rustup target add i686-pc-windows-msvc aarch64-pc-windows-msvc
       if: matrix.os == 'windows'
 
     - name: install python dependencies
