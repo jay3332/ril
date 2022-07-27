@@ -475,6 +475,15 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>},
     <span class="ident">encodings::png::PngDecoder</span>,
@@ -486,7 +495,7 @@
     <span class="ident">Dynamic</span>,
 };
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">ffi::OsStr</span>, <span class="ident">fmt</span>, <span class="ident">fs::File</span>, <span class="ident">io::Read</span>, <span class="ident">path::Path</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">ffi::OsStr</span>, <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>}, <span class="ident">fs::File</span>, <span class="ident">io::Read</span>, <span class="ident">path::Path</span>};
 
 <span class="doccomment">/// The behavior to use when overlaying images on top of each other.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -497,6 +506,15 @@
     <span class="ident">Replace</span>,
     <span class="doccomment">/// Merge the alpha values of overlay image with the alpha values of the base image.</span>
     <span class="ident">Merge</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">OverlayMode</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Merge</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="string">&quot;merge&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Replace</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="string">&quot;replace&quot;</span>)
+        }
+    }
 }
 
 <span class="doccomment">/// A high-level image representation.</span>
