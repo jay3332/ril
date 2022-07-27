@@ -1,0 +1,16 @@
+[package]
+name = "ril-py"
+authors = ["Cryptex", "jay3332"]
+version = "0.1.0"
+license = "MIT"
+edition = "2021"
+description = "Rust Imaging Library's Python binding: A high-level image processing crate for Python written in Rust"
+readme = "../README.md"
+
+[lib]
+name = "ril"
+crate-type = ["cdylib"]
+
+[dependencies]
+ril = { path = "../" }
+pyo3 = { version = "0.16", features = ["extension-module"] }
