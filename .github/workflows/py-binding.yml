@@ -9,10 +9,17 @@ defaults:
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ format('{0}-latest', matrix.os) }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu, windows, macos]
+        python-version: [6, 7, 8, 9, 10, 11]
+        include:
+          - os: ubuntu
+            platform: linux
+
+          - os: windows
+            ls: dir
 
     steps:
       - uses: actions/checkout@v3
@@ -24,6 +31,32 @@ jobs:
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
+          CIBW_PLATFORM: ${{ matrix.platform || matrix.os }}
+          CIBW_BUILD: 'cp3${{ matrix.python-version }}-*'
+          CIBW_SKIP: '*-win32'
+          CIBW_BEFORE_BUILD_LINUX: >
+            pip install -U setuptools-rust &&
+            curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=stable --profile=minimal -y &&
+            rustup show
+          CIBW_ENVIRONMENT: 'PATH="$HOME/.cargo/bin:$PATH"'
+          CIBW_ENVIRONMENT_WINDOWS: 'PATH="$UserProfile\.cargo\bin;$PATH"'
+      
+      - name: Build windows 32bit wheels
+        if: matrix.os == 'windows'
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD: 'cp3${{ matrix.python-version }}-win32'
+          CIBW_PLATFORM: windows
+          CIBW_ENVIRONMENT: 'PATH="$UserProfile\.cargo\bin;$PATH"'
+          CIBW_BEFORE_BUILD: >
+            pip install -U setuptools-rust &&
+            rustup toolchain install stable-i686-pc-windows-msvc &&
+            rustup default stable-i686-pc-windows-msvc &&
+            rustup override set stable-i686-pc-windows-msvc &&
+            rustup show
+
+      - name: List wheelhouse files
+        run: ${{ matrix.ls || 'ls -lh' }} wheelhouse/
 
       - uses: actions/upload-artifact@v3
         with:
