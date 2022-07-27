@@ -49,7 +49,7 @@ impl<'buf> ByteStream<'buf> {
     }
 
     /// TODO!
-    /// 
+    ///
     /// Panics
     /// * Panics if there are not enough data to read
     pub fn read_to<T>(&mut self) -> T {

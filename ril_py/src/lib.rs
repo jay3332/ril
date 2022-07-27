@@ -1,8 +1,8 @@
 mod pixels;
 
-use pyo3::prelude::*;
-use ril::{Image as RilImage, Dynamic};
 use pixels::*;
+use pyo3::prelude::*;
+use ril::{Dynamic, Image as RilImage};
 
 /// Python representation of `ril::Image`
 #[pyclass]
@@ -23,7 +23,7 @@ impl Image {
             Dynamic::BitPixel(_) => "bitpixel",
             Dynamic::L(_) => "L",
             Dynamic::Rgb(_) => "RGB",
-            Dynamic::Rgba(_) => "RGBA"
+            Dynamic::Rgba(_) => "RGBA",
         }
     }
 
@@ -38,24 +38,27 @@ impl Image {
     }
 
     /// Returns a list of list representing the pixels of the image. Each list in the list is a row.
-    /// 
+    ///
     /// For example:
-    /// 
+    ///
     /// [[Pixel, Pixel, Pixel], [Pixel, Pixel, Pixel]]
-    /// 
+    ///
     /// where the width of the inner list is determined by the width of the image.
     fn pixels(&self, py: Python<'_>) -> Vec<Vec<PyObject>> {
-        self.inner.pixels().into_iter().map(
-            |p| p.into_iter().map(
-                |p| match p {
-                    &Dynamic::BitPixel(v) => BitPixel::from(v).into_py(py),
-                    &Dynamic::L(v) => L::from(v).into_py(py),
-                    &Dynamic::Rgb(v) => Rgb::from(v).into_py(py),
-                    &Dynamic::Rgba(v) => Rgba::from(v).into_py(py)
-                }
-            ).collect::<Vec<PyObject>>()
-        )
-        .collect::<Vec<Vec<PyObject>>>()
+        self.inner
+            .pixels()
+            .into_iter()
+            .map(|p| {
+                p.into_iter()
+                    .map(|p| match p {
+                        &Dynamic::BitPixel(v) => BitPixel::from(v).into_py(py),
+                        &Dynamic::L(v) => L::from(v).into_py(py),
+                        &Dynamic::Rgb(v) => Rgb::from(v).into_py(py),
+                        &Dynamic::Rgba(v) => Rgba::from(v).into_py(py),
+                    })
+                    .collect::<Vec<PyObject>>()
+            })
+            .collect::<Vec<Vec<PyObject>>>()
     }
 
     fn format(&self) -> String {
@@ -71,7 +74,7 @@ impl Image {
             &Dynamic::BitPixel(v) => BitPixel::from(v).into_py(py),
             &Dynamic::L(v) => L::from(v).into_py(py),
             &Dynamic::Rgb(v) => Rgb::from(v).into_py(py),
-            &Dynamic::Rgba(v) => Rgba::from(v).into_py(py)
+            &Dynamic::Rgba(v) => Rgba::from(v).into_py(py),
         }
     }
 
