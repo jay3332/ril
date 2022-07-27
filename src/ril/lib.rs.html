@@ -19,6 +19,11 @@
 <span id="14">14</span>
 <span id="15">15</span>
 <span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::module_name_repetitions</span>)]</span>
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">draw</span>;
@@ -28,12 +33,17 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">image</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pixel</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">draw</span>::{<span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">Draw</span>, <span class="ident">Rectangle</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">image</span>::{<span class="ident">Image</span>, <span class="ident">ImageFormat</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">image</span>::{<span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">OverlayMode</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pixel</span>::{<span class="ident">BitPixel</span>, <span class="ident">Dynamic</span>, <span class="ident">Pixel</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>};
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">BitPixel</span>, <span class="ident">Dynamic</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
+        <span class="ident">BitPixel</span>, <span class="ident">Dynamic</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>,
+        <span class="ident">OverlayMode</span>, <span class="ident">Draw</span>, <span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">Rectangle</span>,
+    };
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>

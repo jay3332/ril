@@ -484,7 +484,52 @@
 <span id="479">479</span>
 <span id="480">480</span>
 <span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>},
     <span class="ident">encodings::png::PngDecoder</span>,
     <span class="ident">error</span>::{
@@ -525,7 +570,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span> <span class="op">=</span> <span class="ident">Dynamic</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">width</span>: <span class="ident">u32</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">height</span>: <span class="ident">u32</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">format</span>: <span class="ident">ImageFormat</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">overlay</span>: <span class="ident">OverlayMode</span>,
 }
@@ -715,7 +760,12 @@
         <span class="self">self</span>.<span class="ident">data</span>[<span class="ident">pos</span>] <span class="op">=</span> <span class="ident">pixel</span>;
     }
 
-    <span class="doccomment">/// Takes this image and inverts it.</span>
+    <span class="doccomment">/// Inverts this image in place.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">iter_mut</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">inverted</span>());
+    }
+
+    <span class="doccomment">/// Takes this image and inverts it. Useful for method chaining.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">map_pixels</span>(<span class="op">|</span><span class="ident">pixel</span><span class="op">|</span> <span class="ident">pixel</span>.<span class="ident">inverted</span>())
@@ -733,6 +783,18 @@
             <span class="ident">format</span>: <span class="self">self</span>.<span class="ident">format</span>,
             <span class="ident">overlay</span>: <span class="self">self</span>.<span class="ident">overlay</span>,
         }
+    }
+
+    <span class="doccomment">/// Sets the data of this image to the new data. This is used a lot internally,</span>
+    <span class="doccomment">/// but should rarely be used by you.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_data</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
+        <span class="macro">assert_eq!</span>(
+            <span class="self">self</span>.<span class="ident">width</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">height</span>,
+            <span class="ident">data</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>,
+            <span class="string">&quot;misformed data&quot;</span>
+        );
+
+        <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>;
     }
 
     <span class="doccomment">/// Returns the image with each pixel in the image mapped to the given function.</span>
@@ -756,6 +818,18 @@
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="ident">i</span>)<span class="op">|</span> <span class="ident">f</span>(<span class="ident">i</span> <span class="op">%</span> <span class="ident">width</span>, <span class="ident">i</span> <span class="op">/</span> <span class="ident">width</span>, <span class="ident">p</span>))
                 .<span class="ident">collect</span>()
         })
+    }
+
+    <span class="doccomment">/// Similar to [`map_pixels_with_coords`], but this maps the pixels in place.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This means that the output pixel type must be the same.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_in_place</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="ident">u32</span>, <span class="ident">u32</span>, <span class="kw-2">&amp;mut</span> <span class="ident">P</span>)) {
+        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">width</span>;
+
+        <span class="self">self</span>.<span class="ident">data</span>
+            .<span class="ident">iter_mut</span>()
+            .<span class="ident">zip</span>(<span class="number">0</span>..)
+            .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="ident">i</span>)<span class="op">|</span> <span class="ident">f</span>(<span class="ident">i</span> <span class="op">%</span> <span class="ident">width</span>, <span class="ident">i</span> <span class="op">/</span> <span class="ident">width</span>, <span class="ident">p</span>));
     }
 
     <span class="doccomment">/// Returns the image with each row of pixels represented as a slice mapped to the given</span>
@@ -791,23 +865,37 @@
         <span class="self">self</span>.<span class="ident">format</span> <span class="op">=</span> <span class="ident">format</span>;
     }
 
-    <span class="doccomment">/// Crops the image to the given box.</span>
+    <span class="doccomment">/// Crops this image in place to the given bounding box.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">x1</span>: <span class="ident">u32</span>, <span class="ident">y1</span>: <span class="ident">u32</span>, <span class="ident">x2</span>: <span class="ident">u32</span>, <span class="ident">y2</span>: <span class="ident">u32</span>) {
+        <span class="self">self</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">x2</span> <span class="op">-</span> <span class="ident">x1</span>;
+        <span class="self">self</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">y2</span> <span class="op">-</span> <span class="ident">y1</span>;
+        <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">pixels</span>()
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">skip</span>(<span class="ident">y1</span> <span class="kw">as</span> <span class="ident">usize</span>)
+            .<span class="ident">zip</span>(<span class="ident">y1</span>..<span class="ident">y2</span>)
+            .<span class="ident">flat_map</span>(<span class="op">|</span>(<span class="ident">row</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">row</span>[<span class="ident">x1</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">x2</span> <span class="kw">as</span> <span class="ident">usize</span>])
+            .<span class="ident">cloned</span>()
+            .<span class="ident">collect</span>();
+    }
+
+    <span class="doccomment">/// Takes this image and crops it to the given box. Useful for method chaining.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crop</span>(<span class="self">self</span>, <span class="ident">x1</span>: <span class="ident">u32</span>, <span class="ident">y1</span>: <span class="ident">u32</span>, <span class="ident">x2</span>: <span class="ident">u32</span>, <span class="ident">y2</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">width</span>: <span class="ident">x2</span> <span class="op">-</span> <span class="ident">x1</span>,
-            <span class="ident">height</span>: <span class="ident">y2</span> <span class="op">-</span> <span class="ident">y1</span>,
-            <span class="ident">data</span>: <span class="self">self</span>
-                .<span class="ident">pixels</span>()
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">skip</span>(<span class="ident">y1</span> <span class="kw">as</span> <span class="ident">usize</span>)
-                .<span class="ident">zip</span>(<span class="ident">y1</span>..<span class="ident">y2</span>)
-                .<span class="ident">flat_map</span>(<span class="op">|</span>(<span class="ident">row</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">row</span>[<span class="ident">x1</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">x2</span> <span class="kw">as</span> <span class="ident">usize</span>])
-                .<span class="ident">cloned</span>()
-                .<span class="ident">collect</span>(),
-            <span class="ident">format</span>: <span class="self">self</span>.<span class="ident">format</span>,
-            <span class="ident">overlay</span>: <span class="self">self</span>.<span class="ident">overlay</span>,
-        }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cropped</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x1</span>: <span class="ident">u32</span>, <span class="ident">y1</span>: <span class="ident">u32</span>, <span class="ident">x2</span>: <span class="ident">u32</span>, <span class="ident">y2</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">crop</span>(<span class="ident">x1</span>, <span class="ident">y1</span>, <span class="ident">x2</span>, <span class="ident">y2</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Draws an object or shape onto this image.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
+        <span class="ident">entity</span>.<span class="ident">draw</span>(<span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Takes this image, draws the given object or shape onto it, and returns it.</span>
+    <span class="doccomment">/// Useful for method chaining and drawing multiple objects at once.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">entity</span>);
+        <span class="self">self</span>
     }
 }
 

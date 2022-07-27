@@ -575,6 +575,13 @@
 <span id="570">570</span>
 <span id="571">571</span>
 <span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encodings::PixelData</span>,
     <span class="ident">image::OverlayMode</span>,
@@ -634,7 +641,7 @@
     <span class="doccomment">/// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.</span>
     <span class="kw">fn</span> <span class="ident">overlay</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">OverlayMode::Replace</span> =&gt; <span class="self">self</span>,
+            <span class="ident">OverlayMode::Replace</span> =&gt; <span class="ident">other</span>,
             <span class="ident">OverlayMode::Merge</span> =&gt; <span class="self">self</span>.<span class="ident">merge</span>(<span class="ident">other</span>),
         }
     }
@@ -887,6 +894,13 @@
     }
 
     <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
+        <span class="comment">// Optimize for common cases</span>
+        <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">a</span> <span class="op">==</span> <span class="number">255</span> {
+            <span class="kw">return</span> <span class="ident">other</span>;
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">a</span> <span class="op">==</span> <span class="number">0</span> {
+            <span class="kw">return</span> <span class="self">self</span>;
+        }
+
         <span class="kw">let</span> (<span class="ident">base_r</span>, <span class="ident">base_g</span>, <span class="ident">base_b</span>, <span class="ident">base_a</span>) <span class="op">=</span> (
             <span class="self">self</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
             <span class="self">self</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
