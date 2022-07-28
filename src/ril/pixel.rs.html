@@ -582,6 +582,11 @@
 <span id="577">577</span>
 <span id="578">578</span>
 <span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encodings::PixelData</span>,
     <span class="ident">image::OverlayMode</span>,
@@ -631,14 +636,19 @@
     }
 
     <span class="doccomment">/// Creates this pixel from raw data.</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// todo!()</span>
     <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Merges this pixel with the given overlay pixel, taking into account alpha.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">other</span>
     }
 
     <span class="doccomment">/// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">fn</span> <span class="ident">overlay</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">mode</span> {
             <span class="ident">OverlayMode::Replace</span> =&gt; <span class="ident">other</span>,
@@ -915,10 +925,10 @@
             <span class="ident">f32::from</span>(<span class="ident">other</span>.<span class="ident">a</span>) <span class="op">/</span> <span class="number">255.</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>) <span class="op">*</span> <span class="ident">base_a</span> <span class="op">+</span> <span class="ident">overlay_a</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>) <span class="op">*</span> <span class="ident">base_a</span> <span class="op">*</span> <span class="ident">base_r</span> <span class="op">+</span> <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_r</span>) <span class="op">/</span> <span class="ident">a</span>;
-        <span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>) <span class="op">*</span> <span class="ident">base_a</span> <span class="op">*</span> <span class="ident">base_g</span> <span class="op">+</span> <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_g</span>) <span class="op">/</span> <span class="ident">a</span>;
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>) <span class="op">*</span> <span class="ident">base_a</span> <span class="op">*</span> <span class="ident">base_b</span> <span class="op">+</span> <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_b</span>) <span class="op">/</span> <span class="ident">a</span>;
+        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>).<span class="ident">mul_add</span>(<span class="ident">base_a</span>, <span class="ident">overlay_a</span>);
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>) <span class="op">*</span> <span class="ident">base_a</span>).<span class="ident">mul_add</span>(<span class="ident">base_r</span>, <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_r</span>) <span class="op">/</span> <span class="ident">a</span>;
+        <span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>) <span class="op">*</span> <span class="ident">base_a</span>).<span class="ident">mul_add</span>(<span class="ident">base_g</span>, <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_g</span>) <span class="op">/</span> <span class="ident">a</span>;
+        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>) <span class="op">*</span> <span class="ident">base_a</span>).<span class="ident">mul_add</span>(<span class="ident">base_b</span>, <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_b</span>) <span class="op">/</span> <span class="ident">a</span>;
 
         <span class="self">Self</span> {
             <span class="ident">r</span>: (<span class="ident">r</span> <span class="op">*</span> <span class="number">255.</span>) <span class="kw">as</span> <span class="ident">u8</span>,

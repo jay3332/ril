@@ -566,6 +566,14 @@
 <span id="561">561</span>
 <span id="562">562</span>
 <span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>},
@@ -695,6 +703,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The encoding of the image is automatically inferred. You can explicitly pass in an encoding</span>
     <span class="doccomment">/// by using the [`decode_from_bytes`] method.</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// todo!()</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">map_err</span>(<span class="ident">Error::IOError</span>)<span class="question-mark">?</span>;
@@ -831,6 +842,9 @@
 
     <span class="doccomment">/// Sets the data of this image to the new data. This is used a lot internally,</span>
     <span class="doccomment">/// but should rarely be used by you.</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * Panics if the data is misinformed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_data</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.<span class="ident">width</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">height</span>,
@@ -934,7 +948,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mirror</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">data</span>
             .<span class="ident">chunks_exact_mut</span>(<span class="self">self</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">usize</span>)
-            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>.<span class="ident">reverse</span>())
+            .<span class="ident">for_each</span>(<span class="op">&lt;</span>[<span class="ident">P</span>]<span class="op">&gt;</span><span class="ident">::reverse</span>);
     }
 
     <span class="doccomment">/// Takes this image and flips it horizontally (about the y-axis). Useful for method chaining.</span>
@@ -957,6 +971,7 @@
     }
 
     <span class="doccomment">/// Takes this image and flips it bvertically, or about the x-axis. Useful for method chaining.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flipped</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">flip</span>();
         <span class="self">self</span>
@@ -964,11 +979,12 @@
 
     <span class="doccomment">/// Draws an object or shape onto this image.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
-        <span class="ident">entity</span>.<span class="ident">draw</span>(<span class="self">self</span>)
+        <span class="ident">entity</span>.<span class="ident">draw</span>(<span class="self">self</span>);
     }
 
     <span class="doccomment">/// Takes this image, draws the given object or shape onto it, and returns it.</span>
     <span class="doccomment">/// Useful for method chaining and drawing multiple objects at once.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">entity</span>);
         <span class="self">self</span>

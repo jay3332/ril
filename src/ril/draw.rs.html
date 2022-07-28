@@ -187,6 +187,22 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image::OverlayMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Image</span>, <span class="ident">Pixel</span>};
 
@@ -222,6 +238,10 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Border</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// todo!()</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * Panics if border thickness is greater than 0.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">color</span>: <span class="ident">P</span>, <span class="ident">thickness</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert_ne!</span>(<span class="ident">thickness</span>, <span class="number">0</span>, <span class="string">&quot;border thickness cannot be 0&quot;</span>);
 
@@ -238,6 +258,10 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// todo!()</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * Panics if border thickness is greater than 0.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_thickness</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert_ne!</span>(<span class="ident">thickness</span>, <span class="number">0</span>, <span class="string">&quot;border thickness cannot be 0&quot;</span>);
@@ -267,6 +291,10 @@
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
 
+    <span class="doccomment">/// todo!()</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * Panics if the bounding box is invalid.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bounding_box</span>(<span class="ident">x1</span>: <span class="ident">u32</span>, <span class="ident">y1</span>: <span class="ident">u32</span>, <span class="ident">x2</span>: <span class="ident">u32</span>, <span class="ident">y2</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert!</span>(<span class="ident">x2</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">x1</span>, <span class="string">&quot;invalid bounding box&quot;</span>);
@@ -283,21 +311,25 @@
         <span class="self">self</span>
     }
 
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> (<span class="ident">width</span>, <span class="ident">height</span>);
         <span class="self">self</span>
     }
 
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_border</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">border</span>: <span class="ident">Border</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">border</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">border</span>);
         <span class="self">self</span>
     }
 
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_fill</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">fill</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">fill</span>);
         <span class="self">self</span>
     }
 
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_overlay_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">overlay</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>);
         <span class="self">self</span>
