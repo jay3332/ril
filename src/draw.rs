@@ -33,6 +33,10 @@ pub struct Border<P: Pixel> {
 }
 
 impl<P: Pixel> Border<P> {
+    /// todo!()
+    /// 
+    /// # Panics
+    /// * Panics if border thickness is greater than 0.
     pub fn new(color: P, thickness: u32) -> Self {
         assert_ne!(thickness, 0, "border thickness cannot be 0");
 
@@ -49,6 +53,10 @@ impl<P: Pixel> Border<P> {
         self
     }
 
+    /// todo!()
+    /// 
+    /// # Panics
+    /// * Panics if border thickness is greater than 0.
     #[must_use]
     pub fn with_thickness(mut self, thickness: u32) -> Self {
         assert_ne!(thickness, 0, "border thickness cannot be 0");
@@ -78,6 +86,10 @@ impl<P: Pixel> Rectangle<P> {
         Self::default()
     }
 
+    /// todo!()
+    /// 
+    /// # Panics
+    /// * Panics if the bounding box is invalid.
     #[must_use]
     pub fn from_bounding_box(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
         assert!(x2 >= x1, "invalid bounding box");
@@ -94,21 +106,25 @@ impl<P: Pixel> Rectangle<P> {
         self
     }
 
+    #[must_use]
     pub const fn with_size(mut self, width: u32, height: u32) -> Self {
         self.size = (width, height);
         self
     }
 
+    #[must_use]
     pub const fn with_border(mut self, border: Border<P>) -> Self {
         self.border = Some(border);
         self
     }
 
+    #[must_use]
     pub const fn with_fill(mut self, fill: P) -> Self {
         self.fill = Some(fill);
         self
     }
 
+    #[must_use]
     pub const fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
         self.overlay = Some(mode);
         self

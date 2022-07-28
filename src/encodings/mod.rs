@@ -14,11 +14,10 @@ impl ColorType {
     #[must_use]
     pub const fn channels(&self) -> usize {
         match self {
-            Self::L => 1,
+            Self::L | Self::Palette => 1,
             Self::LA => 2,
             Self::Rgb => 3,
             Self::Rgba => 4,
-            Self::Palette => 1,
         }
     }
 }
@@ -62,6 +61,10 @@ pub enum PixelData {
 }
 
 impl PixelData {
+    /// todo!()
+    /// 
+    /// # Errors
+    /// * Errors if the bit depth is not a power of two.
     pub fn from_raw(color_type: ColorType, bit_depth: u8, data: &[u8]) -> crate::Result<Self> {
         // TODO: support 16-bit bit depths. right now, it scales down
         if !bit_depth.is_power_of_two() {

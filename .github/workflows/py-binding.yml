@@ -67,7 +67,7 @@ jobs:
       if: matrix.os == 'ubuntu' && matrix.python-version == '8'
       run: |
         pip install -U setuptools-rust
-        python setup.py sdist
+        python setup.py sdist -d wheelhouse
 
     - name: Set up QEMU
       if: matrix.os == 'ubuntu'
