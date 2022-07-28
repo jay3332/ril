@@ -48,13 +48,13 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         profile: minimal
-        toolchain: nightly
+        toolchain: stable
         override: true
 
     - run: rustup target add aarch64-apple-darwin
       if: matrix.os == 'macos'
 
-    - run: rustup toolchain install nightly-i686-pc-windows-msvc nightly-aarch64-pc-windows-msvc
+    - run: rustup toolchain install stable-i686-pc-windows-msvc stable-aarch64-pc-windows-msvc
       if: matrix.os == 'windows'
 
     - run: rustup target add i686-pc-windows-msvc aarch64-pc-windows-msvc
@@ -83,11 +83,11 @@ jobs:
         CIBW_SKIP: '*-musllinux_i686'
         # we build for "alt_arch_name" if it exists, else 'auto
         CIBW_ARCHS: ${{ matrix.alt_arch_name || 'auto' }}
-        CIBW_ENVIRONMENT: 'PATH="$HOME/.cargo/bin:$PATH" CARGO_UNSTABLE_SPARSE_REGISTRY=true'
+        CIBW_ENVIRONMENT: 'PATH="$HOME/.cargo/bin:$PATH"'
         CIBW_ENVIRONMENT_WINDOWS: 'PATH="$UserProfile\.cargo\bin;$PATH"'
         CIBW_BEFORE_BUILD: rustup show
         CIBW_BEFORE_BUILD_LINUX: >
-          curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=nightly --profile=minimal -y &&
+          curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=stable --profile=minimal -y &&
           rustup show
 
     - run: ${{ matrix.ls || 'ls -lh' }} wheelhouse/
