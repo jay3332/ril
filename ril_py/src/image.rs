@@ -124,6 +124,14 @@ impl Image {
             .collect::<Vec<Vec<PyObject>>>()
     }
 
+    fn mirror(&mut self) {
+        self.inner.mirror();
+    }
+
+    fn flip(&mut self) {
+        self.inner.flip();
+    }
+
     /// Returns the encoding format of the image.
     /// This is nothing more but metadata about the image.
     /// When saving the image, you will still have to explicitly specify the encoding format.
