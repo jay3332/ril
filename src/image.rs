@@ -10,7 +10,13 @@ use crate::{
     Dynamic,
 };
 
-use std::{ffi::OsStr, fmt::{self, Display}, fs::File, io::Read, path::Path};
+use std::{
+    ffi::OsStr,
+    fmt::{self, Display},
+    fs::File,
+    io::Read,
+    path::Path,
+};
 
 /// The behavior to use when overlaying images on top of each other.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
@@ -27,7 +33,7 @@ impl Display for OverlayMode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Merge => write!(f, "{}", "merge"),
-            Self::Replace => write!(f, "{}", "replace")
+            Self::Replace => write!(f, "{}", "replace"),
         }
     }
 }
