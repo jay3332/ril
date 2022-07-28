@@ -6,7 +6,7 @@ use crate::{
 };
 
 /// Represents any type of pixel in an image.
-pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
+pub trait Pixel: Copy + Clone + Default {
     /// Returns the alpha, or opacity level of the pixel.
     ///
     /// This is a value between 0 and 255.
@@ -33,13 +33,14 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     /// Finally, the most obvious reasoning is that for fully opaque pixels, those pixels will
     /// become fully transparent which is obviously not favored.
     #[must_use]
-    fn inverted(&self) -> Self;
+    fn inverted(&self) -> Self where Self: Sized;
 
     /// The luminance of the pixel.
     #[must_use]
     fn luminance(&self) -> u8
     where
         Self: Into<L>,
+        Self: Sized
     {
         let L(value) = (*self).into();
 
@@ -50,17 +51,17 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     /// 
     /// # Errors
     /// todo!()
-    fn from_pixel_data(data: PixelData) -> Result<Self>;
+    fn from_pixel_data(data: PixelData) -> Result<Self> where Self: Sized;
 
     /// Merges this pixel with the given overlay pixel, taking into account alpha.
     #[must_use]
-    fn merge(self, other: Self) -> Self {
+    fn merge(self, other: Self) -> Self where Self: Sized {
         other
     }
 
     /// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.
     #[must_use]
-    fn overlay(self, other: Self, mode: OverlayMode) -> Self {
+    fn overlay(self, other: Self, mode: OverlayMode) -> Self where Self: Sized {
         match mode {
             OverlayMode::Replace => other,
             OverlayMode::Merge => self.merge(other),
