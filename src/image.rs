@@ -362,6 +362,38 @@ impl<P: Pixel> Image<P> {
         self
     }
 
+    /// Mirrors, or flips this image horizontally (about the y-axis) in place.
+    pub fn mirror(&mut self) {
+        self.data
+            .chunks_exact_mut(self.width as usize)
+            .for_each(|row| row.reverse())
+    }
+
+    /// Takes this image and flips it horizontally (about the y-axis). Useful for method chaining.
+    #[must_use]
+    pub fn mirrored(mut self) -> Self {
+        self.mirror();
+        self
+    }
+
+    /// Flips this image vertically (about the x-axis) in place.
+    pub fn flip(&mut self) {
+        let chunks = self
+            .data
+            .chunks_exact(self.width as usize)
+            .collect::<Vec<_>>();
+
+        self.data = (0..self.width as usize)
+            .flat_map(|i| chunks.iter().map(|c| c[i]).rev().collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+    }
+
+    /// Takes this image and flips it bvertically, or about the x-axis. Useful for method chaining.
+    pub fn flipped(mut self) -> Self {
+        self.flip();
+        self
+    }
+
     /// Draws an object or shape onto this image.
     pub fn draw(&mut self, entity: &impl Draw<P>) {
         entity.draw(self)
@@ -512,7 +544,7 @@ impl ImageFormat {
     }
 }
 
-impl fmt::Display for ImageFormat {
+impl Display for ImageFormat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
