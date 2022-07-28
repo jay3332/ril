@@ -44,7 +44,7 @@ impl<P: Pixel> Border<P> {
     }
 
     #[must_use]
-    pub fn with_color(mut self, color: P) -> Self {
+    pub const fn with_color(mut self, color: P) -> Self {
         self.color = color;
         self
     }
@@ -57,7 +57,7 @@ impl<P: Pixel> Border<P> {
     }
 
     #[must_use]
-    pub fn with_position(mut self, position: BorderPosition) -> Self {
+    pub const fn with_position(mut self, position: BorderPosition) -> Self {
         self.position = position;
         self
     }
@@ -73,10 +73,12 @@ pub struct Rectangle<P: Pixel> {
 }
 
 impl<P: Pixel> Rectangle<P> {
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
+    #[must_use]
     pub fn from_bounding_box(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
         assert!(x2 >= x1, "invalid bounding box");
         assert!(y2 >= y1, "invalid bounding box");
@@ -86,27 +88,28 @@ impl<P: Pixel> Rectangle<P> {
             .with_size(x2 - x1, y2 - y1)
     }
 
-    pub fn with_position(mut self, x: u32, y: u32) -> Self {
+    #[must_use]
+    pub const fn with_position(mut self, x: u32, y: u32) -> Self {
         self.position = (x, y);
         self
     }
 
-    pub fn with_size(mut self, width: u32, height: u32) -> Self {
+    pub const fn with_size(mut self, width: u32, height: u32) -> Self {
         self.size = (width, height);
         self
     }
 
-    pub fn with_border(mut self, border: Border<P>) -> Self {
+    pub const fn with_border(mut self, border: Border<P>) -> Self {
         self.border = Some(border);
         self
     }
 
-    pub fn with_fill(mut self, fill: P) -> Self {
+    pub const fn with_fill(mut self, fill: P) -> Self {
         self.fill = Some(fill);
         self
     }
 
-    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+    pub const fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
         self.overlay = Some(mode);
         self
     }
@@ -122,7 +125,7 @@ impl<P: Pixel> Draw<P> for Rectangle<P> {
         let (x1, y1) = self.position;
         let (w, h) = self.size;
         let (x2, y2) = (x1 + w, y1 + h);
-        let overlay = self.overlay.unwrap_or_else(|| image.overlay);
+        let overlay = self.overlay.unwrap_or(image.overlay);
 
         let border = self.border.as_ref().map(
             |Border {
@@ -166,7 +169,7 @@ impl<P: Pixel> Draw<P> for Rectangle<P> {
                     && x >= x1
                     && x <= x2
                 {
-                    *pixel = pixel.overlay(color.clone(), overlay);
+                    *pixel = pixel.overlay(*color, overlay);
                     return;
                 }
             }

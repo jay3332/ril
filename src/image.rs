@@ -32,8 +32,8 @@ pub enum OverlayMode {
 impl Display for OverlayMode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Merge => write!(f, "{}", "merge"),
-            Self::Replace => write!(f, "{}", "replace"),
+            Self::Merge => write!(f, "merge"),
+            Self::Replace => write!(f, "replace"),
         }
     }
 }
@@ -187,7 +187,7 @@ impl<P: Pixel> Image<P> {
 
     /// Returns the same image with its overlay mode set to the given value.
     #[must_use]
-    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+    pub const fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
         self.overlay = mode;
         self
     }
@@ -351,7 +351,7 @@ impl<P: Pixel> Image<P> {
             .skip(y1 as usize)
             .zip(y1..y2)
             .flat_map(|(row, _)| &row[x1 as usize..x2 as usize])
-            .cloned()
+            .copied()
             .collect();
     }
 

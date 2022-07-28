@@ -12,7 +12,7 @@ pub enum ColorType {
 
 impl ColorType {
     #[must_use]
-    pub fn channels(&self) -> usize {
+    pub const fn channels(&self) -> usize {
         match self {
             Self::L => 1,
             Self::LA => 2,

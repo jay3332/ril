@@ -318,17 +318,17 @@ impl Pixel for Rgba {
         }
 
         let (base_r, base_g, base_b, base_a) = (
-            self.r as f32 / 255.,
-            self.g as f32 / 255.,
-            self.b as f32 / 255.,
-            self.a as f32 / 255.,
+            f32::from(self.r) / 255.,
+            f32::from(self.g) / 255.,
+            f32::from(self.b) / 255.,
+            f32::from(self.a) / 255.,
         );
 
         let (overlay_r, overlay_g, overlay_b, overlay_a) = (
-            other.r as f32 / 255.,
-            other.g as f32 / 255.,
-            other.b as f32 / 255.,
-            other.a as f32 / 255.,
+            f32::from(other.r) / 255.,
+            f32::from(other.g) / 255.,
+            f32::from(other.b) / 255.,
+            f32::from(other.a) / 255.,
         );
 
         let a = (1. - overlay_a) * base_a + overlay_a;
