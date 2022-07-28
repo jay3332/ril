@@ -101,7 +101,7 @@ impl Image {
 
     /// Draws an object or shape onto this image.
     fn draw(&mut self, entity: DrawEntity) {
-        (*entity.0).draw(&mut self.inner);
+        entity.0.draw(&mut self.inner);
     }
 
     /// Returns a list of list representing the pixels of the image. Each list in the list is a row.
