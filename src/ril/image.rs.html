@@ -528,6 +528,12 @@
 <span id="523">523</span>
 <span id="524">524</span>
 <span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>},
@@ -540,7 +546,13 @@
     <span class="ident">Dynamic</span>,
 };
 
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">ffi::OsStr</span>, <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>}, <span class="ident">fs::File</span>, <span class="ident">io::Read</span>, <span class="ident">path::Path</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">ffi::OsStr</span>,
+    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>},
+    <span class="ident">fs::File</span>,
+    <span class="ident">io::Read</span>,
+    <span class="ident">path::Path</span>,
+};
 
 <span class="doccomment">/// The behavior to use when overlaying images on top of each other.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -557,7 +569,7 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Merge</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="string">&quot;merge&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::Replace</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="string">&quot;replace&quot;</span>)
+            <span class="ident"><span class="self">Self</span>::Replace</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="string">&quot;replace&quot;</span>),
         }
     }
 }
