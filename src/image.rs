@@ -33,7 +33,7 @@ impl Display for OverlayMode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Merge => write!(f, "{}", "merge"),
-            Self::Replace => write!(f, "{}", "replace")
+            Self::Replace => write!(f, "{}", "replace"),
         }
     }
 }
@@ -378,7 +378,8 @@ impl<P: Pixel> Image<P> {
 
     /// Flips this image vertically (about the x-axis) in place.
     pub fn flip(&mut self) {
-        let chunks = self.data
+        let chunks = self
+            .data
             .chunks_exact(self.width as usize)
             .collect::<Vec<_>>();
 
