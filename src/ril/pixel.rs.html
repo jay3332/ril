@@ -587,6 +587,7 @@
 <span id="582">582</span>
 <span id="583">583</span>
 <span id="584">584</span>
+<span id="585">585</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encodings::PixelData</span>,
     <span class="ident">image::OverlayMode</span>,
@@ -595,7 +596,7 @@
 };
 
 <span class="doccomment">/// Represents any type of pixel in an image.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Pixel</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Eq</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Pixel</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Default</span> {
     <span class="doccomment">/// Returns the alpha, or opacity level of the pixel.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is a value between 0 and 255.</span>
@@ -622,13 +623,14 @@
     <span class="doccomment">/// Finally, the most obvious reasoning is that for fully opaque pixels, those pixels will</span>
     <span class="doccomment">/// become fully transparent which is obviously not favored.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>;
 
     <span class="doccomment">/// The luminance of the pixel.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">fn</span> <span class="ident">luminance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span>,
+        <span class="self">Self</span>: <span class="ident">Sized</span>
     {
         <span class="kw">let</span> <span class="ident">L</span>(<span class="ident">value</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">into</span>();
 
@@ -639,17 +641,17 @@
     <span class="doccomment">/// </span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// todo!()</span>
-    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>;
 
     <span class="doccomment">/// Merges this pixel with the given overlay pixel, taking into account alpha.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span> {
         <span class="ident">other</span>
     }
 
     <span class="doccomment">/// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlay</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">overlay</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span> {
         <span class="kw">match</span> <span class="ident">mode</span> {
             <span class="ident">OverlayMode::Replace</span> =&gt; <span class="ident">other</span>,
             <span class="ident">OverlayMode::Merge</span> =&gt; <span class="self">self</span>.<span class="ident">merge</span>(<span class="ident">other</span>),
