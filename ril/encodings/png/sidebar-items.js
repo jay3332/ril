@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["PNG_SIGNATURE",""]],"enum":[["ColorType",""]],"struct":[["PngDecoder",""],["PngHeader",""]]});
+initSidebarItems({"constant":[["PNG_SIGNATURE",""]],"enum":[["ColorType",""],["FilterType",""]],"struct":[["PngDecoder","Decodes a PNG image into an image."],["PngEncoder","Encodes an image into a PNG image."],["PngHeader",""]]});

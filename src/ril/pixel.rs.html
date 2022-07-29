@@ -587,8 +587,36 @@
 <span id="582">582</span>
 <span id="583">583</span>
 <span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">encodings::PixelData</span>,
+    <span class="ident">encodings</span>::{<span class="ident">ColorType</span>, <span class="ident">PixelData</span>},
     <span class="ident">image::OverlayMode</span>,
     <span class="ident">Error</span>::{<span class="ident">InvalidHexCode</span>, <span class="ident">UnsupportedColorType</span>},
     <span class="prelude-ty">Result</span>,
@@ -640,6 +668,9 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// todo!()</span>
     <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Creates raw pixel data from this pixel type.</span>
+    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span>;
 
     <span class="doccomment">/// Merges this pixel with the given overlay pixel, taking into account alpha.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
@@ -707,6 +738,10 @@
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
     }
+
+    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
+        <span class="ident">PixelData::Bit</span>(<span class="self">self</span>.<span class="number">0</span>)
+    }
 }
 
 <span class="doccomment">/// Represents an L, or luminance pixel that is stored as only one single</span>
@@ -737,6 +772,10 @@
             <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>.<span class="ident">then_some</span>(<span class="number">255</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
+        <span class="ident">PixelData::L</span>(<span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
@@ -786,6 +825,10 @@
             <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">value</span> { <span class="ident"><span class="self">Self</span>::white</span>() } <span class="kw">else</span> { <span class="ident"><span class="self">Self</span>::black</span>() }),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
+        <span class="ident">PixelData::Rgb</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>)
     }
 }
 
@@ -901,6 +944,10 @@
             <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">value</span> { <span class="ident"><span class="self">Self</span>::white</span>() } <span class="kw">else</span> { <span class="ident"><span class="self">Self</span>::black</span>() }),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
+        <span class="ident">PixelData::Rgba</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
@@ -1060,6 +1107,15 @@
             <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }),
             <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         })
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">BitPixel</span>(<span class="ident">value</span>)) =&gt; <span class="ident">PixelData::Bit</span>(<span class="kw-2">*</span><span class="ident">value</span>),
+            <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">L</span>(<span class="ident">l</span>)) =&gt; <span class="ident">PixelData::L</span>(<span class="kw-2">*</span><span class="ident">l</span>),
+            <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }) =&gt; <span class="ident">PixelData::Rgb</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">g</span>, <span class="kw-2">*</span><span class="ident">b</span>),
+            <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }) =&gt; <span class="ident">PixelData::Rgba</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">g</span>, <span class="kw-2">*</span><span class="ident">b</span>, <span class="kw-2">*</span><span class="ident">a</span>),
+        }
     }
 }
 

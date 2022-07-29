@@ -112,8 +112,14 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Error::DecodingError</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Image</span>, <span class="ident">Pixel</span>};
+<span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ByteStream</span><span class="op">&lt;</span><span class="lifetime">&#39;buf</span><span class="op">&gt;</span> {
     <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;buf</span> [<span class="ident">u8</span>],
@@ -212,6 +218,10 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seek</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">position</span> <span class="op">=</span> <span class="ident">offset</span>;
     }
+}
+
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Encoder</span> {
+    <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decoder</span> {
