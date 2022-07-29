@@ -1,4 +1,5 @@
 #![allow(clippy::module_name_repetitions)]
+#![allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 
 pub mod draw;
 pub mod encode;

@@ -2,11 +2,11 @@ use std::{fmt::Display, marker::PhantomData};
 
 use pyo3::{
     exceptions::{PyRuntimeError, PyValueError},
-    prelude::*,
+    prelude::*, types::PyType,
 };
 use ril::{
     draw::{Border as RilBorder, BorderPosition as RilBorderPosition, Rectangle as RilRectangle},
-    Dynamic, OverlayMode,
+    Dynamic, OverlayMode, Draw,
 };
 
 use crate::{
@@ -146,6 +146,11 @@ impl Rectangle {
         })
     }
 
+    #[classmethod]
+    fn from_bounding_box(_: &PyType, x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
+        Self { inner: RilRectangle::from_bounding_box(x1, y1, x2, y2) }
+    }
+
     #[getter]
     fn get_position(&self) -> Xy {
         self.inner.position
@@ -222,19 +227,25 @@ impl Rectangle {
     }
 }
 
-pub enum DrawEntities<'a> {
-    Rectangle(Rectangle),
-    _Phantom(PhantomData<&'a ()>),
+macro_rules! impl_draw_entities {
+    ( $obj:expr, $( $class:ty ),* ) => {{
+        $(
+            match $obj.extract::<$class>() {
+                Ok(r) => return Ok(Self(Box::new(r.inner), PhantomData)),
+                Err(_) => ()
+            }
+        )*
+
+        Err(PyRuntimeError::new_err(
+            "Invalid argument for draw".to_string(),
+        ))
+    }};
 }
 
-impl<'a> FromPyObject<'a> for DrawEntities<'a> {
+pub struct DrawEntity<'a>(pub Box<dyn Draw<Dynamic>>, PhantomData<&'a ()>);
+
+impl<'a> FromPyObject<'a> for DrawEntity<'a> {
     fn extract(obj: &'a PyAny) -> PyResult<Self> {
-        if let Ok(r) = obj.extract::<Rectangle>() {
-            Ok(Self::Rectangle(r))
-        } else {
-            Err(PyRuntimeError::new_err(
-                "Invalid argument for draw".to_string(),
-            ))
-        }
+        impl_draw_entities!(obj, Rectangle)
     }
 }

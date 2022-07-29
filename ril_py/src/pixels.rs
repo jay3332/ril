@@ -6,35 +6,35 @@ use ril::Dynamic;
 /// Represents a single-bit pixel that represents either a pixel that is on or off.
 #[pyclass]
 pub struct BitPixel {
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     value: bool,
 }
 
 #[pyclass]
 pub struct L {
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     value: u8,
 }
 
 #[pyclass]
 pub struct Rgb {
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     r: u8,
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     g: u8,
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     b: u8,
 }
 
 #[pyclass]
 pub struct Rgba {
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     r: u8,
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     g: u8,
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     b: u8,
-    #[pyo3(get)]
+    #[pyo3(get, set)]
     a: u8,
 }
 
@@ -100,6 +100,11 @@ impl Display for Pixel {
 
 #[pymethods]
 impl BitPixel {
+    #[new]
+    fn new(value: bool) -> Self {
+        Self { value }
+    }
+
     fn __repr__(&self) -> String {
         format!("<BitPixel value={}>", self.value)
     }
@@ -107,6 +112,11 @@ impl BitPixel {
 
 #[pymethods]
 impl L {
+    #[new]
+    fn new(value: u8) -> Self {
+        Self { value }
+    }
+
     fn __repr__(&self) -> String {
         format!("<L value={}>", self.value)
     }
@@ -114,6 +124,11 @@ impl L {
 
 #[pymethods]
 impl Rgb {
+    #[new]
+    fn new(r: u8, g: u8, b: u8) -> Self {
+        Self { r, g, b }
+    }
+
     fn __repr__(&self) -> String {
         format!("<Rgb r={} g={} b={}>", self.r, self.g, self.b)
     }
@@ -121,6 +136,11 @@ impl Rgb {
 
 #[pymethods]
 impl Rgba {
+    #[new]
+    fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Self { r, g, b, a }
+    }
+
     fn __repr__(&self) -> String {
         format!("<Rgb r={} g={} b={} a={}>", self.r, self.g, self.b, self.a)
     }

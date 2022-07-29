@@ -5,8 +5,11 @@ version = "0.1.0"
 license = "MIT"
 edition = "2021"
 description = "Rust Imaging Library's Python binding: A high-level image processing crate for Python written in Rust"
+repository = "https://github.com/jay3332/ril"
+homepage = "https://github.com/jay3332/ril"
 readme = "../README.md"
-
+keywords = ["ril", "imaging", "image", "processing", "editing", "graphics"]
+categories = ["encoding", "graphics", "multimedia", "visualization"]
 [lib]
 name = "ril"
 crate-type = ["cdylib"]

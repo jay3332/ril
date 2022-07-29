@@ -33,8 +33,8 @@ pub enum OverlayMode {
 impl Display for OverlayMode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Merge => write!(f, "{}", "merge"),
-            Self::Replace => write!(f, "{}", "replace"),
+            Self::Merge => write!(f, "merge"),
+            Self::Replace => write!(f, "replace"),
         }
     }
 }
@@ -128,6 +128,9 @@ impl<P: Pixel> Image<P> {
     ///
     /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
     /// by using the [`decode_from_bytes`] method.
+    /// 
+    /// # Errors
+    /// todo!()
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let buffer = &mut Vec::new();
         let mut file = File::open(path.as_ref()).map_err(Error::IOError)?;
@@ -188,7 +191,7 @@ impl<P: Pixel> Image<P> {
 
     /// Returns the same image with its overlay mode set to the given value.
     #[must_use]
-    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+    pub const fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
         self.overlay = mode;
         self
     }
@@ -271,6 +274,9 @@ impl<P: Pixel> Image<P> {
 
     /// Sets the data of this image to the new data. This is used a lot internally,
     /// but should rarely be used by you.
+    /// 
+    /// # Panics
+    /// * Panics if the data is misinformed.
     pub fn set_data(&mut self, data: Vec<P>) {
         assert_eq!(
             self.width * self.height,
@@ -359,7 +365,7 @@ impl<P: Pixel> Image<P> {
             .skip(y1 as usize)
             .zip(y1..y2)
             .flat_map(|(row, _)| &row[x1 as usize..x2 as usize])
-            .cloned()
+            .copied()
             .collect();
     }
 
@@ -374,7 +380,7 @@ impl<P: Pixel> Image<P> {
     pub fn mirror(&mut self) {
         self.data
             .chunks_exact_mut(self.width as usize)
-            .for_each(|row| row.reverse())
+            .for_each(<[P]>::reverse);
     }
 
     /// Takes this image and flips it horizontally (about the y-axis). Useful for method chaining.
@@ -397,6 +403,7 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Takes this image and flips it bvertically, or about the x-axis. Useful for method chaining.
+    #[must_use]
     pub fn flipped(mut self) -> Self {
         self.flip();
         self
@@ -404,11 +411,12 @@ impl<P: Pixel> Image<P> {
 
     /// Draws an object or shape onto this image.
     pub fn draw(&mut self, entity: &impl Draw<P>) {
-        entity.draw(self)
+        entity.draw(self);
     }
 
     /// Takes this image, draws the given object or shape onto it, and returns it.
     /// Useful for method chaining and drawing multiple objects at once.
+    #[must_use]
     pub fn with(mut self, entity: &impl Draw<P>) -> Self {
         self.draw(entity);
         self

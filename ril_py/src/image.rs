@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::draw::DrawEntities;
+use crate::draw::DrawEntity;
 use crate::error::Error;
 use crate::pixels::{BitPixel, Pixel, Rgb, Rgba, L};
 use crate::utils::cast_pixel_to_pyobject;
@@ -94,11 +94,14 @@ impl Image {
         self.inner.height()
     }
 
-    fn draw(&mut self, entity: DrawEntities) {
-        match entity {
-            DrawEntities::Rectangle(r) => self.inner.draw(&r.inner),
-            _ => (),
-        }
+    /// Crops this image in place to the given bounding box.
+    fn crop(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
+        self.inner.crop(x1, y1, x2, y2);
+    }
+
+    /// Draws an object or shape onto this image.
+    fn draw(&mut self, entity: DrawEntity) {
+        entity.0.draw(&mut self.inner);
     }
 
     /// Returns a list of list representing the pixels of the image. Each list in the list is a row.
@@ -122,6 +125,14 @@ impl Image {
                     .collect::<Vec<PyObject>>()
             })
             .collect::<Vec<Vec<PyObject>>>()
+    }
+
+    fn mirror(&mut self) {
+        self.inner.mirror();
+    }
+
+    fn flip(&mut self) {
+        self.inner.flip();
     }
 
     /// Returns the encoding format of the image.

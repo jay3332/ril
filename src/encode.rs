@@ -23,6 +23,7 @@ impl<'buf> ByteStream<'buf> {
         self.data.len() - self.position
     }
 
+    #[must_use]
     pub fn read_to_end(&mut self) -> &[u8] {
         let data = &self.data[self.position..];
         self.position = self.data.len();
@@ -30,6 +31,7 @@ impl<'buf> ByteStream<'buf> {
         data
     }
 
+    #[must_use]
     pub fn peek(&self, bytes: usize) -> &[u8] {
         if bytes > self.remaining() {
             return &self.data[self.position..];
@@ -38,6 +40,7 @@ impl<'buf> ByteStream<'buf> {
         &self.data[self.position..self.position + bytes]
     }
 
+    #[must_use]
     pub fn read(&mut self, bytes: usize) -> &[u8] {
         if bytes == 0 {
             return &[];
@@ -57,6 +60,7 @@ impl<'buf> ByteStream<'buf> {
     ///
     /// # Panics
     /// * There is not enough data to read
+    #[allow(clippy::ptr_as_ptr)] // Clippy bug
     pub fn read_to<T>(&mut self) -> T {
         let size = std::mem::size_of::<T>();
         let data = self.read(size);
@@ -67,6 +71,10 @@ impl<'buf> ByteStream<'buf> {
         unsafe { (data as *const _ as *const T).read() }
     }
 
+    /// todo!()
+    /// 
+    /// # Errors
+    /// * Errors if there are not enough bytes to convert to an u8
     pub fn read_u8(&mut self) -> crate::Result<u8> {
         self.read(1)
             .first()
@@ -74,6 +82,10 @@ impl<'buf> ByteStream<'buf> {
             .ok_or(DecodingError("Expected 1 more byte to convert into u8"))
     }
 
+    /// todo!()
+    /// 
+    /// # Errors
+    /// * Error if there are more or less 4 bytes needed to convert to u32
     pub fn read_u32(&mut self) -> crate::Result<u32> {
         Ok(u32::from_be_bytes(self.read(4).try_into().map_err(
             |_| DecodingError("Expected 4 bytes to convert into u32"),
@@ -94,5 +106,9 @@ pub trait Encoder {
 }
 
 pub trait Decoder {
+    /// todo!()
+    /// 
+    /// # Errors
+    /// * todo!()
     fn decode<P: Pixel>(&mut self, stream: &mut ByteStream) -> crate::Result<Image<P>>;
 }
