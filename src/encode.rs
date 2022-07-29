@@ -1,5 +1,6 @@
 use crate::Error::DecodingError;
 use crate::{Image, Pixel};
+use std::io::Write;
 
 pub struct ByteStream<'buf> {
     data: &'buf [u8],
@@ -86,6 +87,10 @@ impl<'buf> ByteStream<'buf> {
     pub fn seek(&mut self, offset: usize) {
         self.position = offset;
     }
+}
+
+pub trait Encoder {
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()>;
 }
 
 pub trait Decoder {

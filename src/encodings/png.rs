@@ -1,9 +1,13 @@
 use super::{zlib::ZlibReader, PixelData};
 use crate::{
-    encode::{ByteStream, Decoder},
-    Error::{DecodingError, IncompatibleImageData},
+    encode::{ByteStream, Decoder, Encoder},
+    Error::{DecodingError, EmptyImageError, IncompatibleImageData},
     Image, Pixel, Result,
 };
+
+use crc32fast::hash as crc;
+use miniz_oxide::deflate::compress_to_vec_zlib;
+use std::io::Write;
 
 pub const PNG_SIGNATURE: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
@@ -66,13 +70,104 @@ pub struct PngHeader {
     interlace_method: u8,
 }
 
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[repr(u8)]
+pub enum FilterType {
+    #[default]
+    None = 0,
+    Sub = 1,
+    Up = 2,
+    Average = 3,
+    Paeth = 4,
+}
+
+impl From<u8> for FilterType {
+    fn from(member: u8) -> Self {
+        match member {
+            0 => Self::None,
+            1 => Self::Sub,
+            2 => Self::Up,
+            3 => Self::Average,
+            4 => Self::Paeth,
+            _ => panic!("invalid filter index"),
+        }
+    }
+}
+
+impl FilterType {
+    fn paeth(a: u8, b: u8, c: u8) -> u8 {
+        let p = a + b - c;
+        let pa = p.abs_diff(a);
+        let pb = p.abs_diff(b);
+        let pc = p.abs_diff(c);
+
+        if pa <= pb && pa <= pc {
+            a
+        } else if pb <= pc {
+            b
+        } else {
+            c
+        }
+    }
+
+    pub fn filter(&self, x: u8, a: u8, b: u8, c: u8) -> u8 {
+        x - match self {
+            Self::None => 0,
+            Self::Sub => a,
+            Self::Up => b,
+            Self::Average => (a + b) / 2,
+            Self::Paeth => Self::paeth(a, b, c),
+        }
+    }
+
+    pub fn reconstruct(&self, previous: &Option<Vec<&[u8]>>, current: &Vec<&[u8]>, i: usize, j: usize) -> u8 {
+        let x = current[i][j];
+
+        macro_rules! a {
+            () => {{
+                if i > 0 {
+                    current[i - 1][j]
+                } else {
+                    x
+                }
+            }}
+        }
+
+        macro_rules! b {
+            () => {{ previous.map(|p| p[i][j]).unwrap_or(x) }}
+        }
+
+        macro_rules! c {
+            () => {{
+                if i > 0 {
+                    previous.map(|p| p[i - 1][j]).unwrap_or(x)
+                } else {
+                    x
+                }
+            }}
+        }
+
+        x + match self {
+            Self::None => 0,
+            Self::Sub => a!(),
+            Self::Up => b!(),
+            Self::Average => (a!() + b!()) / 2,
+            Self::Paeth => Self::paeth(a!(), b!(), c!()),
+        }
+    }
+}
+
+/// Decodes a PNG image into an image.
 pub struct PngDecoder {
     inflater: ZlibReader,
+    /// The decoded IHDR metadata about the image.
     pub ihdr: PngHeader,
+    /// THe accumulative IDAT chunks containing pixel data about the image.
     pub idat: Vec<u8>,
 }
 
 impl PngDecoder {
+    /// Creates a new PNG decoder.
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -132,8 +227,32 @@ impl Decoder for PngDecoder {
                         self.inflater.decompress(data, &mut self.idat)?;
                     }
                     b"IEND" => {
-                        let pixels = self.idat[1..]
-                            .chunks(self.ihdr.color_type.channels())
+                        let pixels = self.idat
+                            .chunks_exact(self.ihdr.width as usize + 1)
+                            .scan(None, |previous, scanline| {
+                                let filter_type = FilterType::from(scanline[0]);
+
+                                let pixels = self.idat[1..]
+                                    .chunks(self.ihdr.color_type.channels())
+                                    .collect::<Vec<_>>();
+
+                                Some(if filter_type == FilterType::None {
+                                    pixels
+                                } else {
+                                    pixels
+                                        .into_iter()
+                                        .enumerate()
+                                        .map(|(i, pixel)| (0..pixel.len())
+                                            .map(|j| {
+                                                filter_type.reconstruct(&previous, &pixels, i, j)
+                                            })
+                                            .collect::<Vec<_>>()
+                                            .as_slice()
+                                        )
+                                        .collect()
+                                })
+                            })
+                            .flatten()
                             .collect::<Vec<_>>();
 
                         if pixels.len() != (self.ihdr.width * self.ihdr.height) as usize {
@@ -177,6 +296,112 @@ impl Decoder for PngDecoder {
 }
 
 impl Default for PngDecoder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Encodes an image into a PNG image.
+#[derive(Debug)]
+pub struct PngEncoder {
+    /// The compression level to compress IDAT pixel data. Must be between 0 and 9.
+    ///
+    /// The default level is 6. Lower values mean faster encoding with the cost of having a larger
+    /// output. Quality will not be influenced since compression is lossless.
+    pub compression_level: u8,
+    /// The filtering method to use per row.
+    pub filter_method: FilterType,
+}
+
+impl PngEncoder {
+    /// Creates a new PNG encoder.
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            compression_level: 6,
+            filter_method: FilterType::default(),
+        }
+    }
+
+    /// Sets the compression level. Must be a value between 0 and 9.
+    ///
+    /// # Panics
+    /// * The compression value is not between 0 and 9.
+    pub fn with_compression_level(self, level: u8) -> Self {
+        assert!(level <= 9, "Compression level must be between 0 and 9");
+
+        // SAFETY: bounds are checked above
+        unsafe { self.with_compression_level_unchecked(level) }
+    }
+
+    /// Sets the compression level. Should be a value between 0 and 9, but this does not check
+    /// for that. Any other value may lead to unwanted or unknown behavior.
+    pub unsafe fn with_compression_level_unchecked(mut self, level: u8) -> Self {
+        self.compression_level = level;
+        self
+    }
+
+    /// Sets the filter method.
+    pub fn with_filter_method(mut self, method: FilterType) -> Self {
+        self.filter_method = method;
+        self
+    }
+
+    fn write_chunk(&mut self, name: &'static str, data: &[u8], dest: &mut impl Write) -> Result<()> {
+        dest.write(&(data.len() as u32).to_be_bytes())?;
+        dest.write(name.as_bytes())?;
+        dest.write(data)?;
+        dest.write(&crc(&*[name.as_bytes(), data].concat()).to_be_bytes())?;
+
+        Ok(())
+    }
+}
+
+impl Encoder for PngEncoder {
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
+        dest.write(&PNG_SIGNATURE)?;
+
+        let first = image.data.get(0).ok_or(EmptyImageError)?;
+        let (ty, depth) = first.as_pixel_data().type_data();
+
+        let ihdr = [
+            &image.width.to_be_bytes() as &[_],
+            &image.height.to_be_bytes(),
+            &[
+                depth,
+                ColorType::from(ty) as u8,
+                0,
+                0,
+                // TODO: interlacing
+                0,
+            ],
+        ].concat();
+
+        self.write_chunk("IHDR", &*ihdr, dest)?;
+
+        // Use this instead of .flat_map due to Rust's borrow checker rules
+        let mut idat = Vec::<u8>::with_capacity(image.len() as usize);
+        let mut previous = None;
+
+        for row in image.pixels() {
+            idat.push(self.filter_method as u8);
+
+            let row = row.into_iter().map(P::as_pixel_data).collect::<Vec<_>>();
+
+            previous = Some(row);
+        }
+
+        let compressed = compress_to_vec_zlib(&*idat, self.compression_level);
+        self.write_chunk("IDAT", &*compressed, dest)?;
+
+        // IEND is a chunk with no data
+        self.write_chunk("IEND", &[], dest)?;
+
+        Ok(())
+    }
+}
+
+impl Default for PngEncoder {
     fn default() -> Self {
         Self::new()
     }

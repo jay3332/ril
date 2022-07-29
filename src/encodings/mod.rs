@@ -62,6 +62,17 @@ pub enum PixelData {
 }
 
 impl PixelData {
+    pub fn type_data(&self) -> (ColorType, u8) {
+        match self {
+            Self::Bit(_) => (ColorType::L, 1),
+            Self::L(_) => (ColorType::L, 8),
+            Self::LA(..) => (ColorType::LA, 8),
+            Self::Rgb(..) => (ColorType::Rgb, 8),
+            Self::Rgba(..) => (ColorType::Rgba, 8),
+            Self::Palette(_) => (ColorType::Palette, 8),
+        }
+    }
+
     pub fn from_raw(color_type: ColorType, bit_depth: u8, data: &[u8]) -> crate::Result<Self> {
         // TODO: support 16-bit bit depths. right now, it scales down
         if !bit_depth.is_power_of_two() {
@@ -104,5 +115,16 @@ impl PixelData {
             (ColorType::Rgba, _) => Self::Rgba(data[0], data[1], data[2], data[3]),
             (ColorType::Palette, _) => Self::Palette(data[0]),
         })
+    }
+
+    pub fn data(&self) -> &[u8] {
+        match self {
+            Self::Bit(value) => &[value.then_some(255).unwrap_or(0)],
+            Self::L(l) => &[*l],
+            Self::LA(l, a) => &[*l, *a],
+            Self::Rgb(r, g, b) => &[*r, *g, *b],
+            Self::Rgba(r, g, b, a) => &[*r, *g, *b, *a],
+            Self::Palette(idx) => &[*idx],
+        }
     }
 }

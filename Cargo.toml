@@ -17,4 +17,5 @@ members = [
 ]
 
 [dependencies]
+crc32fast = "^1"
 miniz_oxide = "^0.5"

@@ -1,5 +1,5 @@
 use crate::{
-    encodings::PixelData,
+    encodings::{ColorType, PixelData},
     image::OverlayMode,
     Error::{InvalidHexCode, UnsupportedColorType},
     Result,
@@ -48,6 +48,9 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
 
     /// Creates this pixel from raw data.
     fn from_pixel_data(data: PixelData) -> Result<Self>;
+
+    /// Creates raw pixel data from this pixel type.
+    fn as_pixel_data(&self) -> PixelData;
 
     /// Merges this pixel with the given overlay pixel, taking into account alpha.
     fn merge(self, other: Self) -> Self {
@@ -113,6 +116,10 @@ impl Pixel for BitPixel {
             _ => Err(UnsupportedColorType),
         }
     }
+
+    fn as_pixel_data(&self) -> PixelData {
+        PixelData::Bit(self.0)
+    }
 }
 
 /// Represents an L, or luminance pixel that is stored as only one single
@@ -143,6 +150,10 @@ impl Pixel for L {
             PixelData::Bit(value) => Ok(Self(value.then_some(255).unwrap_or(0))),
             _ => Err(UnsupportedColorType),
         }
+    }
+
+    fn as_pixel_data(&self) -> PixelData {
+        PixelData::L(self.0)
     }
 }
 
@@ -192,6 +203,10 @@ impl Pixel for Rgb {
             PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
             _ => Err(UnsupportedColorType),
         }
+    }
+
+    fn as_pixel_data(&self) -> PixelData {
+        PixelData::Rgb(self.r, self.g, self.b)
     }
 }
 
@@ -307,6 +322,10 @@ impl Pixel for Rgba {
             PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
             _ => Err(UnsupportedColorType),
         }
+    }
+
+    fn as_pixel_data(&self) -> PixelData {
+        PixelData::Rgba(self.r, self.g, self.b, self.a)
     }
 
     fn merge(self, other: Self) -> Self {
@@ -466,6 +485,15 @@ impl Pixel for Dynamic {
             PixelData::Rgba(r, g, b, a) => Self::Rgba(Rgba { r, g, b, a }),
             _ => return Err(UnsupportedColorType),
         })
+    }
+
+    fn as_pixel_data(&self) -> PixelData {
+        match self {
+            Self::BitPixel(BitPixel(value)) => PixelData::Bit(*value),
+            Self::L(L(l)) => PixelData::L(*l),
+            Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(*r, *g, *b),
+            Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(*r, *g, *b, *a),
+        }
     }
 }
 

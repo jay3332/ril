@@ -1,7 +1,7 @@
 use crate::{
     draw::Draw,
     encode::{ByteStream, Decoder},
-    encodings::png::PngDecoder,
+    encodings::png,
     error::{
         Error::{self, InvalidExtension},
         Result,
@@ -14,9 +14,10 @@ use std::{
     ffi::OsStr,
     fmt::{self, Display},
     fs::File,
-    io::Read,
+    io::{Read, Write},
     path::Path,
 };
+use crate::encode::Encoder;
 
 /// The behavior to use when overlaying images on top of each other.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
@@ -218,6 +219,13 @@ impl<P: Pixel> Image<P> {
     #[must_use]
     pub fn pixel(&self, x: u32, y: u32) -> &P {
         &self.data[self.resolve_coordinate(x, y)]
+    }
+
+    /// Returns a reference of the pixel at the given coordinates, but only if it exists.
+    #[inline]
+    #[must_use]
+    pub fn get_pixel(&self, x: u32, y: u32) -> Option<&P> {
+        self.data.get(self.resolve_coordinate(x, y))
     }
 
     /// Returns a mutable reference to the pixel at the given coordinates.
@@ -529,6 +537,20 @@ impl ImageFormat {
         }
     }
 
+    /// Encodes the `Image` into raw bytes.
+    ///
+    /// # Errors
+    /// * An error occured while decoding.
+    ///
+    /// # Panics
+    /// * Noenecoder implementation is found for this image encoding.
+    pub fn run_encoder<P: Pixel>(&self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
+        match self {
+            Self::Png => png::PngEncoder::new().encode(image, dest),
+            _ => panic!("No encoder implementation is found for this image format"),
+        }
+    }
+
     /// Decodes the image data from a `ByteStream` into an image.
     ///
     /// # Errors
@@ -538,7 +560,7 @@ impl ImageFormat {
     /// * No decoder implementation is found for this image encoding.
     pub fn run_decoder<P: Pixel>(&self, stream: &mut ByteStream) -> Result<Image<P>> {
         match self {
-            Self::Png => PngDecoder::new().decode(stream),
+            Self::Png => png::PngDecoder::new().decode(stream),
             _ => panic!("No decoder implementation for this image format"),
         }
     }
