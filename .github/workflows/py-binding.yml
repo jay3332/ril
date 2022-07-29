@@ -91,7 +91,7 @@ jobs:
           rustup show
         CIBW_TEST_COMMAND: 'pytest {project}/test'
         CIBW_TEST_REQUIRES: pytest
-        CIBW_TEST_SKIP: '*-macosx_arm64'
+        CIBW_TEST_SKIP: '*-macosx_arm64 *-macosx_universal2:arm64'
 
     - run: ${{ matrix.ls || 'ls -lh' }} wheelhouse/
 
