@@ -191,7 +191,7 @@
     }
 
     <span class="doccomment">/// todo!()</span>
-    <span class="doccomment">/// </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * Errors if there are not enough bytes to convert to an u8</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_u8</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
@@ -202,7 +202,7 @@
     }
 
     <span class="doccomment">/// todo!()</span>
-    <span class="doccomment">/// </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * Error if there are more or less 4 bytes needed to convert to u32</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_u32</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
@@ -226,7 +226,7 @@
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decoder</span> {
     <span class="doccomment">/// todo!()</span>
-    <span class="doccomment">/// </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * todo!()</span>
     <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ByteStream</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>;
