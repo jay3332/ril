@@ -6,14 +6,9 @@ use crate::{
 };
 
 /// Represents any type of pixel in an image.
+///
+/// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
 pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
-    /// Returns the alpha, or opacity level of the pixel.
-    ///
-    /// This is a value between 0 and 255.
-    /// 0 is completely transparent, and 255 is completely opaque.
-    #[must_use]
-    fn alpha(&self) -> u8;
-
     /// Returns the inverted value of this pixel.
     ///
     /// This does not independently invert the alpha value, instead you may need to
@@ -71,6 +66,20 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     }
 }
 
+/// Represents a pixel that supports alpha, or transparency values.
+pub trait Alpha: Pixel {
+    /// Returns the alpha, or opacity level of the pixel.
+    ///
+    /// This is a value between 0 and 255.
+    /// 0 is completely transparent, and 255 is completely opaque.
+    #[must_use]
+    fn alpha(&self) -> u8;
+
+    /// Clones this pixel with the given alpha value.
+    #[must_use]
+    fn with_alpha(self, alpha: u8) -> Self;
+}
+
 /// Represents a single-bit pixel that represents either a pixel that is on or off.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct BitPixel(
@@ -105,10 +114,6 @@ impl BitPixel {
 }
 
 impl Pixel for BitPixel {
-    fn alpha(&self) -> u8 {
-        255
-    }
-
     fn inverted(&self) -> Self {
         Self(!self.0)
     }
@@ -139,10 +144,6 @@ pub struct L(
 );
 
 impl Pixel for L {
-    fn alpha(&self) -> u8 {
-        255
-    }
-
     fn inverted(&self) -> Self {
         Self(255 - self.0)
     }
@@ -188,10 +189,6 @@ pub struct Rgb {
 }
 
 impl Pixel for Rgb {
-    fn alpha(&self) -> u8 {
-        255
-    }
-
     fn inverted(&self) -> Self {
         Self {
             r: 255 - self.r,
@@ -294,10 +291,6 @@ pub struct Rgba {
 }
 
 impl Pixel for Rgba {
-    fn alpha(&self) -> u8 {
-        self.a
-    }
-
     fn inverted(&self) -> Self {
         Self {
             r: 255 - self.r,
@@ -366,6 +359,17 @@ impl Pixel for Rgba {
             b: (b * 255.) as u8,
             a: (a * 255.) as u8,
         }
+    }
+}
+
+impl Alpha for Rgba {
+    fn alpha(&self) -> u8 {
+        self.a
+    }
+
+    fn with_alpha(mut self, alpha: u8) -> Self {
+        self.a = alpha;
+        self
     }
 }
 
@@ -461,15 +465,6 @@ impl Default for Dynamic {
 }
 
 impl Pixel for Dynamic {
-    fn alpha(&self) -> u8 {
-        match self {
-            Self::BitPixel(pixel) => pixel.alpha(),
-            Self::L(pixel) => pixel.alpha(),
-            Self::Rgb(pixel) => pixel.alpha(),
-            Self::Rgba(pixel) => pixel.alpha(),
-        }
-    }
-
     fn inverted(&self) -> Self {
         match self {
             Self::BitPixel(pixel) => Self::BitPixel(pixel.inverted()),
@@ -498,6 +493,22 @@ impl Pixel for Dynamic {
             Self::L(L(l)) => PixelData::L(l),
             Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(r, g, b),
             Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(r, g, b, a),
+        }
+    }
+}
+
+impl Alpha for Dynamic {
+    fn alpha(&self) -> u8 {
+        match self {
+            Self::Rgba(pixel) => pixel.alpha(),
+            _ => 255,
+        }
+    }
+
+    fn with_alpha(self, alpha: u8) -> Self {
+        match self {
+            Self::Rgba(pixel) => Self::Rgba(pixel.with_alpha(alpha)),
+            pixel => pixel,
         }
     }
 }

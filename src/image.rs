@@ -449,6 +449,46 @@ impl<P: Pixel> Image<P> {
         self.draw(entity);
         self
     }
+
+    /// Pastes the given image onto this image at the given x and y coordinates.
+    ///
+    /// This is a shorthand for using the [`draw`] method with [`Paste`].
+    pub fn paste(&mut self, x: u32, y: u32, image: Image<P>) {
+        self.draw(&crate::Paste::new(image).with_position(x, y));
+    }
+
+    /// Pastes the given image onto this image at the given x and y coordinates,
+    /// masked with the given masking image.
+    ///
+    /// Currently, only [`BitPixel`] images are supported for the masking image.
+    ///
+    /// This is a shorthand for using the [`draw`] method with [`Paste`].
+    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Image<P>, mask: Image<crate::BitPixel>) {
+        self.draw(&crate::Paste::new(image).with_position(x, y).with_mask(mask));
+    }
+
+    /// Masks the alpha values of this image with the luminance values of the given single-channel
+    /// [`L`] image.
+    ///
+    /// If you want to mask using the alpha values of the image instead of providing an [`L`] image,
+    /// you can split the bands of the image and extract the alpha band.
+    ///
+    /// This masking image must have the same dimensions as this image. If it doesn't, you will
+    /// receive a panic.
+    pub fn mask_alpha(&mut self, mask: &Image<crate::L>) where P: crate::Alpha {
+        assert_eq!(
+            self.dimensions(),
+            mask.dimensions(),
+            "Masking image with dimensions {:?} must have the \
+            same dimensions as this image with dimensions {:?}",
+            mask.dimensions(),
+            self.dimensions()
+        );
+
+        self.data.iter_mut().zip(mask.data.iter()).for_each(|(pixel, mask)| {
+            *pixel = pixel.with_alpha(mask.value());
+        });
+    }
 }
 
 /// Represents the underlying encoding format of an image.
