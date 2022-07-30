@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["BorderPosition","Represents whether a border is inset, outset, or if it lays in the center."]],"struct":[["Border","Represents a shape border."],["Rectangle","A rectangle."]],"trait":[["Draw",""]]});
+initSidebarItems({"enum":[["BorderPosition","Represents whether a border is inset, outset, or if it lays in the center."]],"struct":[["Border","Represents a shape border."],["Paste","Pastes or overlays an image on top of another image."],["Rectangle","A rectangle."]],"trait":[["Draw",""]]});
