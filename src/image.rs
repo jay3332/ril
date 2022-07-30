@@ -146,6 +146,30 @@ impl<P: Pixel> Image<P> {
         format.run_decoder(&mut stream)
     }
 
+    /// Encodes the image with the given encoding and writes it to the given write buffer.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
+    ///
+    /// # Panics
+    /// * No encoder implementation for the given encoding format.
+    pub fn encode(&self, encoding: ImageFormat, dest: &mut impl Write) -> Result<()> {
+        encoding.run_encoder(self, dest)
+    }
+
+    /// Saves the image with the given encoding to the given path.
+    /// You can try saving to a memory buffer by using the [`encode`] method.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
+    ///
+    /// # Panics
+    /// * No encoder implementation for the given encoding format.
+    pub fn save(&self, encoding: ImageFormat, path: impl AsRef<Path>) -> Result<()> {
+        let mut file = File::create(path).map_err(Error::IOError)?;
+        self.encode(encoding, &mut file)
+    }
+
     #[inline]
     #[must_use]
     const fn resolve_coordinate(&self, x: u32, y: u32) -> usize {
@@ -397,12 +421,16 @@ impl<P: Pixel> Image<P> {
             .chunks_exact(self.width as usize)
             .collect::<Vec<_>>();
 
-        self.data = (0..self.width as usize)
-            .flat_map(|i| chunks.iter().map(|c| c[i]).rev().collect::<Vec<_>>())
+        let flipped = (0..self.width as usize)
+            .map(|i| chunks.iter().map(|c| c[i]).rev().collect::<Vec<_>>())
             .collect::<Vec<_>>();
+
+        self.data = (0..self.height as usize)
+            .flat_map(|i| flipped.iter().map(|c| c[i]).collect::<Vec<_>>())
+            .collect()
     }
 
-    /// Takes this image and flips it bvertically, or about the x-axis. Useful for method chaining.
+    /// Takes this image and flips it vertically, or about the x-axis. Useful for method chaining.
     #[must_use]
     pub fn flipped(mut self) -> Self {
         self.flip();
@@ -589,5 +617,21 @@ impl Display for ImageFormat {
                 Self::Unknown => "",
             }
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+
+    #[test]
+    fn test_encoding() {
+        let mut image = Image::new(200, 200, Rgba::white());
+        image.draw(&Rectangle::new()
+            .with_size(40, 40)
+            .with_fill(Rgba::new(0, 255, 0, 128))
+            .with_overlay_mode(OverlayMode::Replace));
+        image.flip();
+        image.save(ImageFormat::Png, "test.png").unwrap();
     }
 }

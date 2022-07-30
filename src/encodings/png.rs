@@ -120,7 +120,7 @@ impl FilterType {
         }
     }
 
-    pub fn reconstruct(&self, previous: &Option<Vec<&[u8]>>, current: &Vec<&[u8]>, i: usize, j: usize) -> u8 {
+    pub fn reconstruct(&self, previous: &Option<Vec<Vec<u8>>>, current: &Vec<&[u8]>, i: usize, j: usize) -> u8 {
         let x = current[i][j];
 
         macro_rules! a {
@@ -134,13 +134,13 @@ impl FilterType {
         }
 
         macro_rules! b {
-            () => {{ previous.map(|p| p[i][j]).unwrap_or(x) }}
+            () => {{ previous.as_ref().map(|p| p[i][j]).unwrap_or(x) }}
         }
 
         macro_rules! c {
             () => {{
                 if i > 0 {
-                    previous.map(|p| p[i - 1][j]).unwrap_or(x)
+                    previous.as_ref().map(|p| p[i - 1][j]).unwrap_or(x)
                 } else {
                     x
                 }
@@ -228,33 +228,12 @@ impl Decoder for PngDecoder {
                     }
                     b"IEND" => {
                         let pixels = self.idat
-                            .chunks_exact(self.ihdr.width as usize + 1)
-                            .scan(None, |previous, scanline| {
-                                let filter_type = FilterType::from(scanline[0]);
+                            .chunks_exact(self.ihdr.width as usize + 1);
 
-                                let pixels = self.idat[1..]
-                                    .chunks(self.ihdr.color_type.channels())
-                                    .collect::<Vec<_>>();
+                        let mut result = Vec::new();
+                        let mut previous = None;
 
-                                Some(if filter_type == FilterType::None {
-                                    pixels
-                                } else {
-                                    pixels
-                                        .into_iter()
-                                        .enumerate()
-                                        .map(|(i, pixel)| (0..pixel.len())
-                                            .map(|j| {
-                                                filter_type.reconstruct(&previous, &pixels, i, j)
-                                            })
-                                            .collect::<Vec<_>>()
-                                            .as_slice()
-                                        )
-                                        .collect()
-                                })
-                            })
-                            .flatten()
-                            .collect::<Vec<_>>();
-
+                        // Propgate uninformative panics in the future
                         if pixels.len() != (self.ihdr.width * self.ihdr.height) as usize {
                             return Err(IncompatibleImageData {
                                 width: self.ihdr.width,
@@ -263,16 +242,41 @@ impl Decoder for PngDecoder {
                             });
                         }
 
+                        for scanline in pixels {
+                            let filter_type = FilterType::from(scanline[0]);
+
+                            let channels = self.ihdr.color_type.channels();
+                            let pixels = self.idat[1..]
+                                .chunks(channels)
+                                .collect::<Vec<_>>();
+
+                            let out = if filter_type != FilterType::None {
+                                (0..self.ihdr.width as usize)
+                                    .map(|i| (0..channels)
+                                        .map(|j| {
+                                            filter_type.reconstruct(&previous, &pixels, i, j)
+                                        })
+                                        .collect::<Vec<_>>()
+                                    )
+                                    .collect::<Vec<_>>()
+                            } else {
+                                pixels.into_iter().map(|p| p.to_vec()).collect()
+                            };
+
+                            previous.replace(out.clone());
+                            result.extend(out);
+                        }
+
                         return Ok(Image {
                             width: self.ihdr.width,
                             height: self.ihdr.height,
-                            data: pixels
+                            data: result
                                 .into_iter()
                                 .map(|p| {
                                     PixelData::from_raw(
                                         super::ColorType::from(self.ihdr.color_type),
                                         self.ihdr.bit_depth,
-                                        p,
+                                        &p[..],
                                     )
                                     .and_then(|p| P::from_pixel_data(p))
                                 })
@@ -309,8 +313,8 @@ pub struct PngEncoder {
     /// The default level is 6. Lower values mean faster encoding with the cost of having a larger
     /// output. Quality will not be influenced since compression is lossless.
     pub compression_level: u8,
-    /// The filtering method to use per row.
-    pub filter_method: FilterType,
+    /// The default filtering type to use per row.
+    pub filter_type: FilterType,
 }
 
 impl PngEncoder {
@@ -319,7 +323,7 @@ impl PngEncoder {
     pub fn new() -> Self {
         Self {
             compression_level: 6,
-            filter_method: FilterType::default(),
+            filter_type: FilterType::default(),
         }
     }
 
@@ -341,9 +345,9 @@ impl PngEncoder {
         self
     }
 
-    /// Sets the filter method.
-    pub fn with_filter_method(mut self, method: FilterType) -> Self {
-        self.filter_method = method;
+    /// Sets the default filter type to use per row.
+    pub fn with_filter_method(mut self, ty: FilterType) -> Self {
+        self.filter_type = ty;
         self
     }
 
@@ -381,14 +385,19 @@ impl Encoder for PngEncoder {
 
         // Use this instead of .flat_map due to Rust's borrow checker rules
         let mut idat = Vec::<u8>::with_capacity(image.len() as usize);
-        let mut previous = None;
 
         for row in image.pixels() {
-            idat.push(self.filter_method as u8);
+            idat.push(self.filter_type as u8);
 
-            let row = row.into_iter().map(P::as_pixel_data).collect::<Vec<_>>();
+            let row = row.into_iter()
+                .map(P::as_pixel_data)
+                .map(|p| p.data())
+                .collect::<Vec<_>>();
 
-            previous = Some(row);
+            // todo
+            assert_eq!(self.filter_type, FilterType::None);
+
+            row.into_iter().for_each(|p| idat.extend(p));
         }
 
         let compressed = compress_to_vec_zlib(&*idat, self.compression_level);

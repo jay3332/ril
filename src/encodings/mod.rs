@@ -117,14 +117,14 @@ impl PixelData {
         })
     }
 
-    pub fn data(&self) -> &[u8] {
-        match self {
-            Self::Bit(value) => &[value.then_some(255).unwrap_or(0)],
-            Self::L(l) => &[*l],
-            Self::LA(l, a) => &[*l, *a],
-            Self::Rgb(r, g, b) => &[*r, *g, *b],
-            Self::Rgba(r, g, b, a) => &[*r, *g, *b, *a],
-            Self::Palette(idx) => &[*idx],
+    pub fn data(&self) -> Vec<u8> {
+        match *self {
+            Self::Bit(value) => vec![value.then_some(255).unwrap_or(0)],
+            Self::L(l) => vec![l],
+            Self::LA(l, a) => vec![l, a],
+            Self::Rgb(r, g, b) => vec![r, g, b],
+            Self::Rgba(r, g, b, a) => vec![r, g, b, a],
+            Self::Palette(idx) => vec![idx],
         }
     }
 }

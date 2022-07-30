@@ -71,6 +71,19 @@ impl<P: Pixel> Border<P> {
     }
 }
 
+/// A rectangle.
+///
+/// Using any of the predefined construction methods will automatically set the position to
+/// `(0, 0)`. If you want to specify a different position, use the `with_position` method.
+///
+/// # Note
+/// You must specify a width and height for the rectangle with something such as [`with_size`].
+/// If you don't, a panic will be raised during drawing. You can also try using
+/// [`from_bounding_box`] to create a rectangle from a bounding box, which automatically fills
+/// in the size.
+///
+/// Additionally, a panic will be raised during drawing if you do not specify either a fill color
+/// or a border. these can be set with [`with_fill`] and [`with_border`] subsequently.
 #[derive(Clone, Debug, Default)]
 pub struct Rectangle<P: Pixel> {
     pub position: (u32, u32),
@@ -135,7 +148,11 @@ impl<P: Pixel> Draw<P> for Rectangle<P> {
     fn draw(&self, image: &mut Image<P>) {
         assert!(
             self.fill.is_some() || self.border.is_some(),
-            "must provide one of either fill or border"
+            "must provide one of either fill or border, try calling .with_fill()"
+        );
+        assert!(
+            self.size.0 > 0 && self.size.1 > 0,
+            "rectangle must have a non-zero width and height, have you called .with_size() yet?"
         );
 
         let (x1, y1) = self.position;

@@ -1,5 +1,5 @@
 use crate::{
-    encodings::{ColorType, PixelData},
+    encodings::PixelData,
     image::OverlayMode,
     Error::{InvalidHexCode, UnsupportedColorType},
     Result,
@@ -493,11 +493,11 @@ impl Pixel for Dynamic {
     }
 
     fn as_pixel_data(&self) -> PixelData {
-        match self {
-            Self::BitPixel(BitPixel(value)) => PixelData::Bit(*value),
-            Self::L(L(l)) => PixelData::L(*l),
-            Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(*r, *g, *b),
-            Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(*r, *g, *b, *a),
+        match *self {
+            Self::BitPixel(BitPixel(value)) => PixelData::Bit(value),
+            Self::L(L(l)) => PixelData::L(l),
+            Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(r, g, b),
+            Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(r, g, b, a),
         }
     }
 }
