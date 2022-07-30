@@ -203,6 +203,23 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image::OverlayMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Image</span>, <span class="ident">Pixel</span>};
 
@@ -276,6 +293,19 @@
     }
 }
 
+<span class="doccomment">/// A rectangle.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Using any of the predefined construction methods will automatically set the position to</span>
+<span class="doccomment">/// `(0, 0)`. If you want to specify a different position, use the `with_position` method.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">/// You must specify a width and height for the rectangle with something such as [`with_size`].</span>
+<span class="doccomment">/// If you don&#39;t, a panic will be raised during drawing. You can also try using</span>
+<span class="doccomment">/// [`from_bounding_box`] to create a rectangle from a bounding box, which automatically fills</span>
+<span class="doccomment">/// in the size.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Additionally, a panic will be raised during drawing if you do not specify either a fill color</span>
+<span class="doccomment">/// or a border. these can be set with [`with_fill`] and [`with_border`] subsequently.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Rectangle</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">position</span>: (<span class="ident">u32</span>, <span class="ident">u32</span>),
@@ -340,7 +370,11 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.<span class="ident">fill</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">border</span>.<span class="ident">is_some</span>(),
-            <span class="string">&quot;must provide one of either fill or border&quot;</span>
+            <span class="string">&quot;must provide one of either fill or border, try calling .with_fill()&quot;</span>
+        );
+        <span class="macro">assert!</span>(
+            <span class="self">self</span>.<span class="ident">size</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">size</span>.<span class="number">1</span> <span class="op">&gt;</span> <span class="number">0</span>,
+            <span class="string">&quot;rectangle must have a non-zero width and height, have you called .with_size() yet?&quot;</span>
         );
 
         <span class="kw">let</span> (<span class="ident">x1</span>, <span class="ident">y1</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">position</span>;
