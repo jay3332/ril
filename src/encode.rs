@@ -72,7 +72,7 @@ impl<'buf> ByteStream<'buf> {
     }
 
     /// todo!()
-    /// 
+    ///
     /// # Errors
     /// * Errors if there are not enough bytes to convert to an u8
     pub fn read_u8(&mut self) -> crate::Result<u8> {
@@ -83,7 +83,7 @@ impl<'buf> ByteStream<'buf> {
     }
 
     /// todo!()
-    /// 
+    ///
     /// # Errors
     /// * Error if there are more or less 4 bytes needed to convert to u32
     pub fn read_u32(&mut self) -> crate::Result<u32> {
@@ -107,7 +107,7 @@ pub trait Encoder {
 
 pub trait Decoder {
     /// todo!()
-    /// 
+    ///
     /// # Errors
     /// * todo!()
     fn decode<P: Pixel>(&mut self, stream: &mut ByteStream) -> crate::Result<Image<P>>;

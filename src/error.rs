@@ -43,7 +43,7 @@ pub enum Error {
 
     /// An error occured when trying to read a file or when trying to write to a file.
     IOError(std::io::Error),
-    
+
     /// Tried to encode an empty image, or an image without data.
     EmptyImageError,
 }

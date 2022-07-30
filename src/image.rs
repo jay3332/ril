@@ -10,6 +10,7 @@ use crate::{
     Dynamic,
 };
 
+use crate::encode::Encoder;
 use std::{
     ffi::OsStr,
     fmt::{self, Display},
@@ -17,7 +18,6 @@ use std::{
     io::{Read, Write},
     path::Path,
 };
-use crate::encode::Encoder;
 
 /// The behavior to use when overlaying images on top of each other.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
@@ -128,7 +128,7 @@ impl<P: Pixel> Image<P> {
     ///
     /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
     /// by using the [`decode_from_bytes`] method.
-    /// 
+    ///
     /// # Errors
     /// todo!()
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
@@ -298,7 +298,7 @@ impl<P: Pixel> Image<P> {
 
     /// Sets the data of this image to the new data. This is used a lot internally,
     /// but should rarely be used by you.
-    /// 
+    ///
     /// # Panics
     /// * Panics if the data is misinformed.
     pub fn set_data(&mut self, data: Vec<P>) {
@@ -463,7 +463,13 @@ impl<P: Pixel> Image<P> {
     /// Currently, only [`BitPixel`] images are supported for the masking image.
     ///
     /// This is a shorthand for using the [`draw`] method with [`Paste`].
-    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Image<P>, mask: Image<crate::BitPixel>) {
+    pub fn paste_with_mask(
+        &mut self,
+        x: u32,
+        y: u32,
+        image: Image<P>,
+        mask: Image<crate::BitPixel>,
+    ) {
         self.draw(&crate::Paste::new(image).with_position(x, y).with_mask(mask));
     }
 
@@ -475,7 +481,10 @@ impl<P: Pixel> Image<P> {
     ///
     /// This masking image must have the same dimensions as this image. If it doesn't, you will
     /// receive a panic.
-    pub fn mask_alpha(&mut self, mask: &Image<crate::L>) where P: crate::Alpha {
+    pub fn mask_alpha(&mut self, mask: &Image<crate::L>)
+    where
+        P: crate::Alpha,
+    {
         assert_eq!(
             self.dimensions(),
             mask.dimensions(),
@@ -485,9 +494,12 @@ impl<P: Pixel> Image<P> {
             self.dimensions()
         );
 
-        self.data.iter_mut().zip(mask.data.iter()).for_each(|(pixel, mask)| {
-            *pixel = pixel.with_alpha(mask.value());
-        });
+        self.data
+            .iter_mut()
+            .zip(mask.data.iter())
+            .for_each(|(pixel, mask)| {
+                *pixel = pixel.with_alpha(mask.value());
+            });
     }
 }
 
@@ -667,10 +679,12 @@ mod tests {
     #[test]
     fn test_encoding() {
         let mut image = Image::new(200, 200, Rgba::white());
-        image.draw(&Rectangle::new()
-            .with_size(40, 40)
-            .with_fill(Rgba::new(0, 255, 0, 128))
-            .with_overlay_mode(OverlayMode::Replace));
+        image.draw(
+            &Rectangle::new()
+                .with_size(40, 40)
+                .with_fill(Rgba::new(0, 255, 0, 128))
+                .with_overlay_mode(OverlayMode::Replace),
+        );
         image.flip();
         image.save(ImageFormat::Png, "test.png").unwrap();
     }

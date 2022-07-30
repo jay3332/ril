@@ -34,7 +34,7 @@ pub struct Border<P: Pixel> {
 
 impl<P: Pixel> Border<P> {
     /// todo!()
-    /// 
+    ///
     /// # Panics
     /// * Panics if border thickness is greater than 0.
     pub fn new(color: P, thickness: u32) -> Self {
@@ -54,7 +54,7 @@ impl<P: Pixel> Border<P> {
     }
 
     /// todo!()
-    /// 
+    ///
     /// # Panics
     /// * Panics if border thickness is greater than 0.
     #[must_use]
@@ -118,7 +118,7 @@ impl<P: Pixel> Rectangle<P> {
     ///
     /// The first coordinate is the top-left corner of the rectangle, and the second coordinate is
     /// the bottom-right corner of the rectangle.
-    /// 
+    ///
     /// # Panics
     /// * Panics if the bounding box is invalid.
     #[must_use]
@@ -330,15 +330,13 @@ impl<P: Pixel> Draw<P> for Paste<P> {
         let (x2, y2) = (x1 + w, y1 + h);
 
         image.map_in_place(|x, y, pixel| {
-           if x >= x1 && x < x2 && y >= y1 && y < y2 {
-               let mask = mask.map(|mask| {
-                   mask.pixel(x - x1, y - y1).value()
-               });
+            if x >= x1 && x < x2 && y >= y1 && y < y2 {
+                let mask = mask.map(|mask| mask.pixel(x - x1, y - y1).value());
 
-               if mask.unwrap_or(true) {
-                   *pixel = pixel.overlay(*self.image.pixel(x - x1, y - y1), overlay);
-               }
-           }
+                if mask.unwrap_or(true) {
+                    *pixel = pixel.overlay(*self.image.pixel(x - x1, y - y1), overlay);
+                }
+            }
         });
     }
 }

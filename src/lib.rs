@@ -16,7 +16,7 @@ pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
 
 pub mod prelude {
     pub use super::{
-        Alpha, BitPixel, Border, BorderPosition, Draw, Dynamic, Image, ImageFormat, OverlayMode, Pixel,
-        Paste, Rectangle, Rgb, Rgba, L,
+        Alpha, BitPixel, Border, BorderPosition, Draw, Dynamic, Image, ImageFormat, OverlayMode,
+        Paste, Pixel, Rectangle, Rgb, Rgba, L,
     };
 }

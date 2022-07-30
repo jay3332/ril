@@ -120,7 +120,13 @@ impl FilterType {
         }
     }
 
-    pub fn reconstruct(&self, previous: &Option<Vec<Vec<u8>>>, current: &Vec<&[u8]>, i: usize, j: usize) -> u8 {
+    pub fn reconstruct(
+        &self,
+        previous: &Option<Vec<Vec<u8>>>,
+        current: &Vec<&[u8]>,
+        i: usize,
+        j: usize,
+    ) -> u8 {
         let x = current[i][j];
 
         macro_rules! a {
@@ -130,11 +136,13 @@ impl FilterType {
                 } else {
                     x
                 }
-            }}
+            }};
         }
 
         macro_rules! b {
-            () => {{ previous.as_ref().map(|p| p[i][j]).unwrap_or(x) }}
+            () => {{
+                previous.as_ref().map(|p| p[i][j]).unwrap_or(x)
+            }};
         }
 
         macro_rules! c {
@@ -144,7 +152,7 @@ impl FilterType {
                 } else {
                     x
                 }
-            }}
+            }};
         }
 
         x + match self {
@@ -227,8 +235,7 @@ impl Decoder for PngDecoder {
                         self.inflater.decompress(data, &mut self.idat)?;
                     }
                     b"IEND" => {
-                        let pixels = self.idat
-                            .chunks_exact(self.ihdr.width as usize + 1);
+                        let pixels = self.idat.chunks_exact(self.ihdr.width as usize + 1);
 
                         let mut result = Vec::new();
                         let mut previous = None;
@@ -246,18 +253,17 @@ impl Decoder for PngDecoder {
                             let filter_type = FilterType::from(scanline[0]);
 
                             let channels = self.ihdr.color_type.channels();
-                            let pixels = self.idat[1..]
-                                .chunks(channels)
-                                .collect::<Vec<_>>();
+                            let pixels = self.idat[1..].chunks(channels).collect::<Vec<_>>();
 
                             let out = if filter_type != FilterType::None {
                                 (0..self.ihdr.width as usize)
-                                    .map(|i| (0..channels)
-                                        .map(|j| {
-                                            filter_type.reconstruct(&previous, &pixels, i, j)
-                                        })
-                                        .collect::<Vec<_>>()
-                                    )
+                                    .map(|i| {
+                                        (0..channels)
+                                            .map(|j| {
+                                                filter_type.reconstruct(&previous, &pixels, i, j)
+                                            })
+                                            .collect::<Vec<_>>()
+                                    })
                                     .collect::<Vec<_>>()
                             } else {
                                 pixels.into_iter().map(|p| p.to_vec()).collect()
@@ -351,7 +357,12 @@ impl PngEncoder {
         self
     }
 
-    fn write_chunk(&mut self, name: &'static str, data: &[u8], dest: &mut impl Write) -> Result<()> {
+    fn write_chunk(
+        &mut self,
+        name: &'static str,
+        data: &[u8],
+        dest: &mut impl Write,
+    ) -> Result<()> {
         dest.write(&(data.len() as u32).to_be_bytes())?;
         dest.write(name.as_bytes())?;
         dest.write(data)?;
@@ -379,7 +390,8 @@ impl Encoder for PngEncoder {
                 // TODO: interlacing
                 0,
             ],
-        ].concat();
+        ]
+        .concat();
 
         self.write_chunk("IHDR", &*ihdr, dest)?;
 
@@ -389,7 +401,8 @@ impl Encoder for PngEncoder {
         for row in image.pixels() {
             idat.push(self.filter_type as u8);
 
-            let row = row.into_iter()
+            let row = row
+                .into_iter()
                 .map(P::as_pixel_data)
                 .map(|p| p.data())
                 .collect::<Vec<_>>();

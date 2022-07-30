@@ -2,11 +2,12 @@ use std::{fmt::Display, marker::PhantomData};
 
 use pyo3::{
     exceptions::{PyRuntimeError, PyValueError},
-    prelude::*, types::PyType,
+    prelude::*,
+    types::PyType,
 };
 use ril::{
     draw::{Border as RilBorder, BorderPosition as RilBorderPosition, Rectangle as RilRectangle},
-    Dynamic, OverlayMode, Draw,
+    Draw, Dynamic, OverlayMode,
 };
 
 use crate::{
@@ -148,7 +149,9 @@ impl Rectangle {
 
     #[classmethod]
     fn from_bounding_box(_: &PyType, x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
-        Self { inner: RilRectangle::from_bounding_box(x1, y1, x2, y2) }
+        Self {
+            inner: RilRectangle::from_bounding_box(x1, y1, x2, y2),
+        }
     }
 
     #[getter]
