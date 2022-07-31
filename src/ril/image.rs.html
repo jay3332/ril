@@ -1622,7 +1622,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_encoding</span>() {
-        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_fn</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="op">|</span><span class="ident">x</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">L</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u8</span>));
+        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_fn</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="op">|</span><span class="ident">x</span>, <span class="ident">y</span><span class="op">|</span> <span class="ident">Rgb::new</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">y</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="number">0</span>));
         <span class="comment">// image.save(ImageFormat::Png, &quot;test.png&quot;).unwrap();</span>
 
         <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">convert</span>::<span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span>();
