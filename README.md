@@ -52,9 +52,8 @@ Image::open("sample.png")?
 
 #### Create a new black image, open the sample image, and paste it on top of the black image:
 ```rs
-let image = Image::new(600, 600, Rgb::black())
-    .paste(100, 100, Image::open("sample.png")?);
-
+let image = Image::new(600, 600, Rgb::black());
+image.paste(100, 100, Image::open("sample.png")?);
 image.save_inferred("sample_on_black.png")?;
 ```
 
