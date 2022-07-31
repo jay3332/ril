@@ -61,6 +61,6 @@ image.save_inferred("sample_on_black.png")?;
 you can still use method chaining, but this accesses a lower level interface:
 ```rs
 let image = Image::new(600, 600, Rgb::black())
-    .with(&Paste(Image::open("sample.png")?).with_position(100, 100))
+    .with(&Paste::new(Image::open("sample.png")?).with_position(100, 100))
     .save_inferred("sample_on_black.png")?;
 ```
