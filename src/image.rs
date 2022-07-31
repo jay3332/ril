@@ -801,7 +801,7 @@ mod tests {
 
     #[test]
     fn test_encoding() {
-        let image = Image::from_fn(256, 256, |x, _| L(x as u8));
+        let image = Image::from_fn(256, 256, |x, y| Rgb::new(x as u8, y as u8, 0));
         // image.save(ImageFormat::Png, "test.png").unwrap();
 
         let image = image.convert::<Rgba>();

@@ -19,3 +19,11 @@ members = [
 [dependencies]
 crc32fast = "^1"
 miniz_oxide = "^0.5"
+
+[dev-dependencies]
+criterion = "^0.3"
+
+[[bench]]
+path = "benches/invert.rs"
+name = "invert"
+harness = false
