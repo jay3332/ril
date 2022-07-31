@@ -231,7 +231,7 @@ impl Rectangle {
 }
 
 macro_rules! impl_draw_entities {
-    ( $obj:expr, $( $class:ty ),* ) => {{
+    ($obj:expr, $( $class:ty ),*) => {{
         $(
             match $obj.extract::<$class>() {
                 Ok(r) => return Ok(Self(Box::new(r.inner), PhantomData)),
