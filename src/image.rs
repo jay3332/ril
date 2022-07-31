@@ -46,6 +46,12 @@ impl Display for OverlayMode {
 pub struct Image<P: Pixel = Dynamic> {
     pub(crate) width: u32,
     pub(crate) height: u32,
+    /// A 1-dimensional vector of pixels representing all pixels in the image. This is shaped
+    /// according to the image's width and height to form the image.
+    ///
+    /// This data is a low-level, raw representation of the image. You can see the various pixel
+    /// mapping functions, or use the [`pixels`] method directly for higher level representations
+    /// of the data.
     pub data: Vec<P>,
     pub(crate) format: ImageFormat,
     pub(crate) overlay: OverlayMode,
@@ -562,6 +568,23 @@ macro_rules! extract_bands {
     }};
 }
 
+macro_rules! validate_dimensions {
+    ($target:ident, $($others:ident),+) => {{
+        $(
+            assert_eq!(
+                $target.dimensions(),
+                $others.dimensions(),
+                "bands have different dimensions: {} has dimensions of {:?}, which is different \
+                from {} which has dimensions of {:?}",
+                stringify!($target),
+                $target.dimensions(),
+                stringify!($others),
+                $others.dimensions()
+            );
+        )+
+    }};
+}
+
 impl Banded<(Band, Band, Band)> for Image<crate::Rgb> {
     fn bands(&self) -> (Band, Band, Band) {
         extract_bands!(self; 0, 1, 2)
@@ -569,6 +592,8 @@ impl Banded<(Band, Band, Band)> for Image<crate::Rgb> {
 
     fn from_bands((r, g, b): (Band, Band, Band)) -> Self {
         use crate::L;
+
+        validate_dimensions!(r, g, b);
 
         r.map_data(|data| {
             data.into_iter()
@@ -587,6 +612,8 @@ impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
 
     fn from_bands((r, g, b, a): (Band, Band, Band, Band)) -> Self {
         use crate::L;
+
+        validate_dimensions!(r, g, b, a);
 
         r.map_data(|data| {
             data.into_iter()
