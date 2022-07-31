@@ -36,7 +36,7 @@ impl<P: Pixel> Border<P> {
     /// todo!()
     ///
     /// # Panics
-    /// * Panics if the border thickness is  0.
+    /// * Panics if the border thickness is 0.
     pub fn new(color: P, thickness: u32) -> Self {
         assert_ne!(thickness, 0, "border thickness cannot be 0");
 
@@ -56,7 +56,7 @@ impl<P: Pixel> Border<P> {
     /// todo!()
     ///
     /// # Panics
-    /// * Panics if the border thickness is  0.
+    /// * Panics if the border thickness is 0.
     #[must_use]
     pub fn with_thickness(mut self, thickness: u32) -> Self {
         assert_ne!(thickness, 0, "border thickness cannot be 0");
