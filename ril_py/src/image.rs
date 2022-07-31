@@ -4,14 +4,53 @@ use crate::draw::DrawEntity;
 use crate::error::Error;
 use crate::pixels::{BitPixel, Pixel, Rgb, Rgba, L};
 use crate::utils::cast_pixel_to_pyobject;
-use pyo3::{prelude::*, types::PyType};
-use ril::{Dynamic, Image as RilImage, ImageFormat};
+use pyo3::types::PyBytes;
+use pyo3::{
+    exceptions::{PyTypeError, PyValueError},
+    prelude::*,
+    types::{PyTuple, PyType},
+};
+use ril::{Banded, Dynamic, Image as RilImage, ImageFormat};
 
 /// Python representation of `ril::Image`
 #[pyclass]
 #[derive(Clone)]
 pub struct Image {
     inner: RilImage<Dynamic>,
+}
+
+macro_rules! cast_bands_to_pyobjects {
+    ($py:expr, $($band:expr),*) => {{
+        Ok((
+            $(
+                Self::from_inner($band.convert::<Dynamic>()),
+            )*
+        ).into_py($py))
+    }};
+}
+
+macro_rules! to_inner_bands {
+    ($bands:expr, $($band:tt),*) => {{
+        (
+            $(
+                $bands.$band.inner.convert::<ril::L>(),
+            )*
+        )
+    }};
+}
+
+macro_rules! ensure_mode {
+    ($bands:expr, $($band:tt),*) => {{
+        $(
+            if $bands.$band.mode() != "L" {
+                return Err(PyTypeError::new_err(format!("Expected mode `L`, got `{}`", $bands.$band.mode())));
+            } else {
+                ()
+            }
+        )*
+
+        Ok::<(), PyErr>(())
+    }};
 }
 
 #[pymethods]
@@ -95,6 +134,55 @@ impl Image {
         self.inner.height()
     }
 
+    fn bands(&self, py: Python<'_>) -> Result<PyObject, Error> {
+        match self.mode() {
+            "RGB" => {
+                let (r, g, b) = self.inner.clone().convert::<ril::Rgb>().bands();
+
+                cast_bands_to_pyobjects!(py, r, g, b)
+            }
+            "RGBA" => {
+                let (r, g, b, a) = self.inner.clone().convert::<ril::Rgba>().bands();
+
+                cast_bands_to_pyobjects!(py, r, g, b, a)
+            }
+            _ => Err(Error::UnexpectedFormat(
+                self.mode().to_string(),
+                "Rgb or Rgba".to_string(),
+            )),
+        }
+    }
+
+    #[classmethod]
+    #[args(bands = "*")]
+    fn from_bands(_: &PyType, bands: &PyTuple) -> PyResult<Self> {
+        match bands.len() {
+            3 => {
+                let bands: (Self, Self, Self) = bands.extract()?;
+
+                ensure_mode!(bands, 0, 1, 2)?;
+
+                Ok(Self::from_inner(
+                    RilImage::from_bands(to_inner_bands!(bands, 0, 1, 2)).convert::<ril::Dynamic>(),
+                ))
+            }
+            4 => {
+                let bands: (Self, Self, Self, Self) = bands.extract()?;
+
+                ensure_mode!(bands, 0, 1, 2, 3)?;
+
+                Ok(Self::from_inner(
+                    RilImage::from_bands(to_inner_bands!(bands, 0, 1, 2, 3))
+                        .convert::<ril::Dynamic>(),
+                ))
+            }
+            _ => Err(PyValueError::new_err(format!(
+                "Expected a tuple with 3 or 4 elements, got `{}`",
+                bands.len()
+            ))),
+        }
+    }
+
     /// Crops this image in place to the given bounding box.
     fn crop(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
         self.inner.crop(x1, y1, x2, y2);
@@ -106,19 +194,33 @@ impl Image {
     }
 
     /// Encodes the image with the given encoding and returns `bytes`.
-    fn encode(&self, encoding: &str) -> Result<Vec<u8>, Error> {
+    fn encode(&self, encoding: &str) -> Result<&PyBytes, Error> {
         let encoding = ImageFormat::from_extension(encoding)?;
 
         let mut buf = Vec::new();
         self.inner.encode(encoding, &mut buf)?;
 
-        Ok(buf)
+        // SAFETY: We acquired the GIL before calling `assume_gil_acquired`. 
+        // `assume_gil_acquired` is only used to ensure that PyBytes don't outlive the current function
+        unsafe {
+            Python::with_gil(|_| {
+                let buf = buf.as_slice();
+                let pyacq = Python::assume_gil_acquired();
+                Ok(PyBytes::new(pyacq, buf))
+            })
+        }
     }
 
-    /// Saves the image with the given encoding to the given path. You can try saving to a memory buffer by using the encode method.
-    fn save(&self, encoding: &str, path: PathBuf) -> Result<(), Error> {
-        let encoding = ImageFormat::from_extension(encoding)?;
-        self.inner.save(encoding, path)?;
+    /// Saves the image to the given path.
+    /// If encoding is not provided, it will attempt to infer it by the path/filename's extension
+    /// You can try saving to a memory buffer by using the encode method.
+    fn save(&self, path: PathBuf, encoding: Option<&str>) -> Result<(), Error> {
+        if let Some(encoding) = encoding {
+            let encoding = ImageFormat::from_extension(encoding)?;
+            self.inner.save(encoding, path)?;
+        } else {
+            self.inner.save_inferred(path)?;
+        }
 
         Ok(())
     }
@@ -148,10 +250,10 @@ impl Image {
 
     fn paste(&mut self, x: u32, y: u32, image: Self, mask: Option<Self>) -> Result<(), Error> {
         if let Some(mask) = mask {
-            if &mask.format() != "bitpixel" {
+            if mask.mode() != "bitpixel" {
                 return Err(Error::UnexpectedFormat(
                     "bitpixel".to_string(),
-                    mask.format(),
+                    mask.mode().to_string(),
                 ));
             }
 
@@ -165,8 +267,11 @@ impl Image {
     }
 
     fn mask_alpha(&mut self, mask: Self) -> Result<(), Error> {
-        if &mask.format() != "L" {
-            return Err(Error::UnexpectedFormat("L".to_string(), mask.format()));
+        if mask.mode() != "L" {
+            return Err(Error::UnexpectedFormat(
+                "L".to_string(),
+                mask.mode().to_string(),
+            ));
         }
 
         self.inner.mask_alpha(&mask.inner.convert::<ril::L>());
@@ -234,5 +339,11 @@ impl Image {
 
     fn __bool__(&self) -> bool {
         !self.inner.is_empty()
+    }
+}
+
+impl Image {
+    fn from_inner(image: RilImage) -> Self {
+        Self { inner: image }
     }
 }
