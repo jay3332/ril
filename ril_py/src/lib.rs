@@ -12,7 +12,7 @@ use pyo3::prelude::*;
 type Xy = (u32, u32);
 
 macro_rules! add_classes {
-    ( $m:expr, $( $class:ty ),* ) => {{
+    ($m:expr, $( $class:ty ),*) => {{
         $(
             $m.add_class::<$class>()?;
         )*

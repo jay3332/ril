@@ -9,6 +9,7 @@ use ril::{Dynamic, Image as RilImage, ImageFormat};
 
 /// Python representation of `ril::Image`
 #[pyclass]
+#[derive(Clone)]
 pub struct Image {
     inner: RilImage<Dynamic>,
 }
@@ -104,6 +105,24 @@ impl Image {
         entity.0.draw(&mut self.inner);
     }
 
+    /// Encodes the image with the given encoding and returns `bytes`.
+    fn encode(&self, encoding: &str) -> Result<Vec<u8>, Error> {
+        let encoding = ImageFormat::from_extension(encoding)?;
+
+        let mut buf = Vec::new();
+        self.inner.encode(encoding, &mut buf)?;
+        
+        Ok(buf)
+    }
+
+    /// Saves the image with the given encoding to the given path. You can try saving to a memory buffer by using the encode method.
+    fn save(&self, encoding: &str, path: PathBuf) -> Result<(), Error> {
+        let encoding = ImageFormat::from_extension(encoding)?;
+        self.inner.save(encoding, path)?;
+
+        Ok(())
+    }
+
     /// Returns a list of list representing the pixels of the image. Each list in the list is a row.
     ///
     /// For example:
@@ -125,6 +144,30 @@ impl Image {
                     .collect::<Vec<PyObject>>()
             })
             .collect::<Vec<Vec<PyObject>>>()
+    }
+
+    fn paste(&mut self, x: u32, y: u32, image: Self, mask: Option<Self>) -> Result<(), Error> {
+        if let Some(mask) = mask {
+            if &mask.format() != "bitpixel" {
+                return Err(Error::UnexpectedFormat("bitpixel".to_string(), mask.format()));
+            }
+    
+            self.inner.paste_with_mask(x, y, image.inner, mask.inner.convert::<ril::BitPixel>());
+        } else {
+            self.inner.paste(x, y, image.inner);
+        }
+
+        Ok(())
+    }
+
+    fn mask_alpha(&mut self, mask: Self) -> Result<(), Error> {
+        if &mask.format() != "L" {
+            return Err(Error::UnexpectedFormat("L".to_string(), mask.format()));
+        }
+        
+        self.inner.mask_alpha(&mask.inner.convert::<ril::L>());
+
+        Ok(())
     }
 
     fn mirror(&mut self) {
