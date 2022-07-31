@@ -66,7 +66,7 @@ impl<P: Pixel> Image<P> {
             width,
             height,
             data: vec![fill; (width * height) as usize],
-            format: ImageFormat::Png,
+            format: ImageFormat::default(),
             overlay: OverlayMode::default(),
         }
     }
@@ -98,7 +98,7 @@ impl<P: Pixel> Image<P> {
             width,
             height: pixels.len() as u32 / width,
             data: pixels.to_vec(),
-            format: ImageFormat::Png,
+            format: ImageFormat::default(),
             overlay: OverlayMode::default(),
         }
     }
