@@ -111,7 +111,7 @@ impl Image {
 
         let mut buf = Vec::new();
         self.inner.encode(encoding, &mut buf)?;
-        
+
         Ok(buf)
     }
 
@@ -149,10 +149,14 @@ impl Image {
     fn paste(&mut self, x: u32, y: u32, image: Self, mask: Option<Self>) -> Result<(), Error> {
         if let Some(mask) = mask {
             if &mask.format() != "bitpixel" {
-                return Err(Error::UnexpectedFormat("bitpixel".to_string(), mask.format()));
+                return Err(Error::UnexpectedFormat(
+                    "bitpixel".to_string(),
+                    mask.format(),
+                ));
             }
-    
-            self.inner.paste_with_mask(x, y, image.inner, mask.inner.convert::<ril::BitPixel>());
+
+            self.inner
+                .paste_with_mask(x, y, image.inner, mask.inner.convert::<ril::BitPixel>());
         } else {
             self.inner.paste(x, y, image.inner);
         }
@@ -164,7 +168,7 @@ impl Image {
         if &mask.format() != "L" {
             return Err(Error::UnexpectedFormat("L".to_string(), mask.format()));
         }
-        
+
         self.inner.mask_alpha(&mask.inner.convert::<ril::L>());
 
         Ok(())

@@ -1,6 +1,6 @@
 use crate::{
     draw::Draw,
-    encode::{ByteStream, Decoder},
+    encode::{ByteStream, Decoder, Encoder},
     encodings::png,
     error::{
         Error::{self, InvalidExtension},
@@ -10,7 +10,6 @@ use crate::{
     Dynamic,
 };
 
-use crate::encode::Encoder;
 use std::{
     ffi::OsStr,
     fmt::{self, Display},
@@ -546,7 +545,11 @@ macro_rules! map_idx {
         Image {
             width: $image.width,
             height: $image.height,
-            data: $image.data.iter().map(|p| L(p.as_pixel_data().data()[$idx])).collect(),
+            data: $image
+                .data
+                .iter()
+                .map(|p| L(p.as_pixel_data().data()[$idx]))
+                .collect(),
             format: $image.format,
             overlay: $image.overlay,
         }
@@ -567,11 +570,13 @@ impl Banded<(Band, Band, Band)> for Image<crate::Rgb> {
     fn from_bands((r, g, b): (Band, Band, Band)) -> Self {
         use crate::L;
 
-        r.map_data(|data| data.into_iter()
-            .zip(g.data.into_iter())
-            .zip(b.data.into_iter())
-            .map(|((L(r), L(g)), L(b))| crate::Rgb::new(r, g, b))
-            .collect())
+        r.map_data(|data| {
+            data.into_iter()
+                .zip(g.data.into_iter())
+                .zip(b.data.into_iter())
+                .map(|((L(r), L(g)), L(b))| crate::Rgb::new(r, g, b))
+                .collect()
+        })
     }
 }
 
@@ -583,12 +588,14 @@ impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
     fn from_bands((r, g, b, a): (Band, Band, Band, Band)) -> Self {
         use crate::L;
 
-        r.map_data(|data| data.into_iter()
-            .zip(g.data.into_iter())
-            .zip(b.data.into_iter())
-            .zip(a.data.into_iter())
-            .map(|(((L(r), L(g)), L(b)), L(a))| crate::Rgba::new(r, g, b, a))
-            .collect())
+        r.map_data(|data| {
+            data.into_iter()
+                .zip(g.data.into_iter())
+                .zip(b.data.into_iter())
+                .zip(a.data.into_iter())
+                .map(|(((L(r), L(g)), L(b)), L(a))| crate::Rgba::new(r, g, b, a))
+                .collect()
+        })
     }
 }
 
