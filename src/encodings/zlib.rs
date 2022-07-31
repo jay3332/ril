@@ -32,13 +32,13 @@ impl ZlibReader {
         }
     }
 
-    pub fn reset(&mut self) {
-        self.started = false;
-        self.buffer.clear();
-        self.output_buffer.clear();
-        self.output_buffer_start = 0;
-        *self.inner = DecompressorOxide::default();
-    }
+    // pub fn reset(&mut self) {
+    //     self.started = false;
+    //     self.buffer.clear();
+    //     self.output_buffer.clear();
+    //     self.output_buffer_start = 0;
+    //     *self.inner = DecompressorOxide::default();
+    // }
 
     pub fn prepare(&mut self) {
         if self

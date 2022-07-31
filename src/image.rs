@@ -170,6 +170,29 @@ impl<P: Pixel> Image<P> {
         self.encode(encoding, &mut file)
     }
 
+    /// Saves the image to the given path, inferring the encoding from the path/filename extension.
+    ///
+    /// This is obviously slower than [`save`] since this method itself uses it. You should only
+    /// use this method if the filename is dynamic, or if you do not know the desired encoding
+    /// before runtime.
+    ///
+    /// See [`save`] for more information on how saving works.
+    ///
+    /// # Errors
+    /// * Could not infer encoding format.
+    /// * An error occured during encoding.
+    ///
+    /// # Panics
+    /// * No encoder implementation for the given encoding format.
+    pub fn save_inferred(&self, path: impl AsRef<Path>) -> Result<()> {
+        let encoding = ImageFormat::from_path(path.as_ref())?;
+
+        match encoding {
+            ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
+            _ => self.save(encoding, path),
+        }
+    }
+
     #[inline]
     #[must_use]
     const fn resolve_coordinate(&self, x: u32, y: u32) -> usize {
@@ -503,6 +526,72 @@ impl<P: Pixel> Image<P> {
     }
 }
 
+/// Represents an image with multiple channels, called bands.
+///
+/// Each band should be represented as a separate [`Image`] with [`L`] or [`BitPixel`] pixels.
+pub trait Banded<T> {
+    /// Takes this image and returns its bands.
+    fn bands(&self) -> T;
+
+    /// Creates a new image from the given bands.
+    fn from_bands(bands: T) -> Self;
+}
+
+type Band = Image<crate::L>;
+
+macro_rules! map_idx {
+    ($image:expr, $idx:expr) => {{
+        use $crate::{Image, L};
+
+        Image {
+            width: $image.width,
+            height: $image.height,
+            data: $image.data.iter().map(|p| L(p.as_pixel_data().data()[$idx])).collect(),
+            format: $image.format,
+            overlay: $image.overlay,
+        }
+    }};
+}
+
+macro_rules! extract_bands {
+    ($image:expr; $($idx:expr),+) => {{
+        ($(map_idx!($image, $idx)),+)
+    }};
+}
+
+impl Banded<(Band, Band, Band)> for Image<crate::Rgb> {
+    fn bands(&self) -> (Band, Band, Band) {
+        extract_bands!(self; 0, 1, 2)
+    }
+
+    fn from_bands((r, g, b): (Band, Band, Band)) -> Self {
+        use crate::L;
+
+        r.map_data(|data| data.into_iter()
+            .zip(g.data.into_iter())
+            .zip(b.data.into_iter())
+            .map(|((L(r), L(g)), L(b))| crate::Rgb::new(r, g, b))
+            .collect())
+    }
+}
+
+impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
+    fn bands(&self) -> (Band, Band, Band, Band) {
+        extract_bands!(self; 0, 1, 2, 3)
+    }
+
+    fn from_bands((r, g, b, a): (Band, Band, Band, Band)) -> Self {
+        use crate::L;
+
+        r.map_data(|data| data.into_iter()
+            .zip(g.data.into_iter())
+            .zip(b.data.into_iter())
+            .zip(a.data.into_iter())
+            .map(|(((L(r), L(g)), L(b)), L(a))| crate::Rgba::new(r, g, b, a))
+            .collect())
+    }
+}
+
 /// Represents the underlying encoding format of an image.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub enum ImageFormat {
@@ -678,14 +767,16 @@ mod tests {
 
     #[test]
     fn test_encoding() {
-        let mut image = Image::new(200, 200, Rgba::white());
-        image.draw(
-            &Rectangle::new()
-                .with_size(40, 40)
-                .with_fill(Rgba::new(0, 255, 0, 128))
-                .with_overlay_mode(OverlayMode::Replace),
-        );
-        image.flip();
-        image.save(ImageFormat::Png, "test.png").unwrap();
+        let image = Image::from_fn(256, 256, |x, _| L(x as u8));
+        // image.save(ImageFormat::Png, "test.png").unwrap();
+
+        let image = image.convert::<Rgba>();
+        let (mut r, mut g, b, a) = image.bands();
+
+        r.invert();
+        r.draw(&Rectangle::from_bounding_box(50, 50, 128, 128).with_fill(L(45)));
+        g.mirror();
+        let result = Image::from_bands((r, g, b, a));
+        result.save_inferred("test.png").unwrap();
     }
 }
