@@ -299,6 +299,27 @@ impl<P: Pixel> Image<P> {
         self.data[pos] = pixel;
     }
 
+    /// Overlays the pixel at the given coordinates with the given pixel according to the overlay
+    /// mode.
+    #[inline]
+    pub fn overlay_pixel(&mut self, x: u32, y: u32, pixel: P) {
+       self.overlay_pixel_with_mode(x, y, pixel, self.overlay)
+    }
+
+    /// Overlays the pixel at the given coordinates with the given pixel according to the specified
+    /// overlay mode.
+    ///
+    /// If the pixel is out of bounds, nothing occurs. This is expected, use [`set_pixel`] if you
+    /// want this to panic, or to use a custo overlay mode use [`pixel_mut`].
+    #[inline]
+    pub fn overlay_pixel_with_mode(&mut self, x: u32, y: u32, pixel: P, mode: OverlayMode) {
+        let pos = self.resolve_coordinate(x, y);
+
+        if let Some(target) = self.data.get_mut(pos) {
+            *target = target.overlay(pixel, mode);
+        }
+    }
+
     /// Inverts this image in place.
     pub fn invert(&mut self) {
         self.data.iter_mut().for_each(|p| *p = p.inverted());
@@ -392,6 +413,11 @@ impl<P: Pixel> Image<P> {
                 .flat_map(|(row, y)| f(y, row))
                 .collect()
         })
+    }
+
+    /// Iterates over each row of pixels in the image.
+    pub fn rows(&self) -> impl Iterator<Item = &[P]> {
+        self.data.chunks_exact(self.width as usize)
     }
 
     /// Converts the image into an image with the given pixel type.
@@ -811,6 +837,9 @@ mod tests {
         r.draw(&Rectangle::from_bounding_box(50, 50, 128, 128).with_fill(L(45)));
         g.mirror();
         let result = Image::from_bands((r, g, b, a));
-        result.save_inferred("test.png").unwrap();
+
+        let mut image = Image::new(500, 500, Rgba::new(0, 0, 0, 0));
+        image.paste(100, 100, result);
+        image.save_inferred("test.png").unwrap();
     }
 }

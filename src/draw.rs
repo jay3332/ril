@@ -69,6 +69,24 @@ impl<P: Pixel> Border<P> {
         self.position = position;
         self
     }
+
+    // Bounds are inclusive
+    fn bounds(&self) -> (u32, u32, P) {
+        let Self { color, thickness, position } = self;
+        let thickness = *thickness;
+
+        let (inner, outer) = match position {
+            BorderPosition::Outset => (0, thickness),
+            BorderPosition::Inset => (thickness, 0),
+            BorderPosition::Center => {
+                let offset = thickness / 2;
+                // This way, the two will still sum to offset
+                (offset, thickness - offset)
+            }
+        };
+
+        (inner, outer, *color)
+    }
 }
 
 /// A rectangle.
@@ -183,62 +201,141 @@ impl<P: Pixel> Draw<P> for Rectangle<P> {
 
         let (x1, y1) = self.position;
         let (w, h) = self.size;
+        // Exclusive bounds
         let (x2, y2) = (x1 + w, y1 + h);
         let overlay = self.overlay.unwrap_or(image.overlay);
 
-        let border = self.border.as_ref().map(
-            |Border {
-                 color,
-                 thickness,
-                 position,
-             }| {
-                let (inner, outer) = match position {
-                    BorderPosition::Outset => (0_u32, *thickness),
-                    BorderPosition::Inset => (*thickness, 0),
-                    BorderPosition::Center => {
-                        let offset = thickness / 2;
-                        // This way, the two will still sum to offset
-                        (offset, thickness - offset)
-                    }
-                };
+        // Draw the fill first
+        if let Some(fill) = self.fill {
+            for y in y1..y2 {
+                for x in x1..x2 {
+                    image.overlay_pixel_with_mode(x, y, fill, overlay);
+                }
+            }
+        }
 
-                (inner, outer, color)
-            },
-        );
-
-        image.map_in_place(|x, y, pixel| {
-            if let Some((inner, outer, color)) = border {
-                if x < x1 + inner
-                    && x >= x1 - outer
-                    && y >= y1 - outer
-                    && y <= y2 + outer
-                    // Right border
-                    || x > x2 - inner
-                    && x <= x2 + outer
-                    && y >= y1 - outer
-                    && y <= y2 + outer
-                    // Top border
-                    || y < y1 + inner
-                    && y >= y1 - outer
-                    && x >= x1
-                    && x <= x2
-                    // Bottom border
-                    || y > y2 - inner
-                    && y <= y2 + outer
-                    && x >= x1
-                    && x <= x2
-                {
-                    *pixel = pixel.overlay(*color, overlay);
-                    return;
+        // Draw the border on top of the fill. If the border has alpha this could result in the
+        // border blending with the fill, but this is rarely a problem. This behavior isn't really
+        // normal though and I do plan to fix it, for example calculating border bounds first and
+        // only filling in pixels that are not in those bounds.
+        if let Some((inner, outer, color)) = self.border.as_ref().map(Border::bounds) {
+            // Top and bottom border
+            for y in (y1 - outer..y1 + inner).chain(y2 - inner..y2 + outer) {
+                for x in x1..x2 {
+                    image.overlay_pixel_with_mode(x, y, color, overlay);
                 }
             }
 
-            if let Some(fill) = self.fill {
-                if x >= x1 && x <= x2 && y >= y1 && y <= y2 {
-                    *pixel = pixel.overlay(fill, overlay);
+            // Left and right border
+            for x in (x1 - outer..x1 + inner).chain(x2 - inner..x2 + outer) {
+                for y in y1 - outer..y2 + outer {
+                    image.overlay_pixel_with_mode(x, y, color, overlay);
                 }
             }
-        });
+        }
+    }
+}
+
+/// An ellipse, which could be a circle.
+///
+/// Using any of the predefined constructors will automatically set the position to `(0, 0)` and
+/// you must explicitly set the size of the ellipse with [`with_size`] in order to set a size for
+/// the ellipse. If no size is set before drawing, you will receive a panic.
+///
+/// This also does not set any border or fill for the ellipse, you must explicitly set either one
+/// of them with [`with_fill`] or [`with_border`] respectively or else you will receive a panic at
+/// draw-time.
+#[derive(Clone, Debug, Default)]
+pub struct Ellipse<P: Pixel> {
+    /// The center position of the ellipse.
+    /// The center of this ellipse will be rendered at this position.
+    pub position: (u32, u32),
+    /// The radii of the ellipse, in pixels; (horizontal, vertical).
+    pub radii: (u32, u32),
+    // The border data for the ellipse if any.
+    pub border: Option<Border<P>>,
+    // The fill color for the ellipse if any.
+    pub fill: Option<P>,
+    // The overlay mode for the ellipse or None to inherit from the image's overlay mode.
+    pub overlay: Option<OverlayMode>,
+}
+
+impl<P: Pixel> Ellipse<P> {
+    /// Creates a new ellipse.
+    ///
+    /// The ellipse by default will be centered at `(0, 0)` which will always cut off a portion
+    /// of the ellipse. You should explicitly set the position of the center of the ellipse with
+    /// [`with_position`] or else you will receive a panic at draw-time.
+    ///
+    /// You must also specify a size for the ellipse with [`with_size`] or else you will receive a
+    /// panic at draw-time.
+    ///
+    /// Finally, you must also specify a fill color with [`with_fill`] or a border color with
+    /// [`with_border`] or else you will receive a panic at draw-time.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Creates a new ellipse from the given bounding box.
+    pub fn from_bounding_box(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
+        assert!(x2 >= x1, "invalid bounding box");
+        assert!(y2 >= y1, "invalid bounding box");
+
+        let (dx, dy) = (x2 - x1, y2 - y1);
+        let (x, y) = (x1 + dx / 2, y1 + dy / 2);
+
+        Self::default()
+            .with_position(x, y)
+            .with_size(dx, dy)
+    }
+
+    /// Creates a new circle with the given center position and radius.
+    pub fn circle(x: u32, y: u32, radius: u32) -> Self {
+        Self::default()
+            .with_position(x, y)
+            .with_radii(radius, radius)
+    }
+
+    /// Sets the position of the ellipse.
+    pub fn with_position(mut self, x: u32, y: u32) -> Self {
+        self.position = (x, y);
+        self
+    }
+
+    /// Sets the radii of the ellipse in pixels.
+    pub fn with_radii(mut self, width: u32, height: u32) -> Self {
+        self.radii = (width, height);
+        self
+    }
+
+    /// Sets the diameters of the ellipse in pixels.
+    pub fn with_size(mut self, width: u32, height: u32) -> Self {
+        self.radii = (width / 2, height / 2);
+        self
+    }
+
+    /// Sets the border of the ellipse.
+    pub fn with_border(mut self, border: Border<P>) -> Self {
+        self.border = Some(border);
+        self
+    }
+
+    /// Sets the fill color of the ellipse.
+    pub fn with_fill(mut self, fill: P) -> Self {
+        self.fill = Some(fill);
+        self
+    }
+
+    /// Sets the overlay mode of the ellipse.
+    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+        self.overlay = Some(mode);
+        self
+    }
+}
+
+impl<P: Pixel> Draw<P> for Ellipse<P> {
+    fn draw(&self, image: &mut Image<P>) {
+        todo!()
     }
 }
 
@@ -329,14 +426,14 @@ impl<P: Pixel> Draw<P> for Paste<P> {
         // These are exclusive bounds
         let (x2, y2) = (x1 + w, y1 + h);
 
-        image.map_in_place(|x, y, pixel| {
-            if x >= x1 && x < x2 && y >= y1 && y < y2 {
-                let mask = mask.map(|mask| mask.pixel(x - x1, y - y1).value());
+        for (y, i) in (y1..y2).zip(0..) {
+            for (x, j) in (x1..x2).zip(0..) {
+                let mask = mask.map(|mask| mask.pixel(j, i).value());
 
                 if mask.unwrap_or(true) {
-                    *pixel = pixel.overlay(*self.image.pixel(x - x1, y - y1), overlay);
+                    image.overlay_pixel_with_mode(x, y, *self.image.pixel(j, i), overlay);
                 }
             }
-        });
+        }
     }
 }
