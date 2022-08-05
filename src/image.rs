@@ -303,14 +303,14 @@ impl<P: Pixel> Image<P> {
     /// mode.
     #[inline]
     pub fn overlay_pixel(&mut self, x: u32, y: u32, pixel: P) {
-       self.overlay_pixel_with_mode(x, y, pixel, self.overlay)
+        self.overlay_pixel_with_mode(x, y, pixel, self.overlay)
     }
 
     /// Overlays the pixel at the given coordinates with the given pixel according to the specified
     /// overlay mode.
     ///
     /// If the pixel is out of bounds, nothing occurs. This is expected, use [`set_pixel`] if you
-    /// want this to panic, or to use a custo overlay mode use [`pixel_mut`].
+    /// want this to panic, or to use a custom overlay mode use [`pixel_mut`].
     #[inline]
     pub fn overlay_pixel_with_mode(&mut self, x: u32, y: u32, pixel: P, mode: OverlayMode) {
         let pos = self.resolve_coordinate(x, y);
@@ -827,19 +827,15 @@ mod tests {
 
     #[test]
     fn test_encoding() {
-        let image = Image::from_fn(256, 256, |x, y| Rgb::new(x as u8, y as u8, 0));
-        // image.save(ImageFormat::Png, "test.png").unwrap();
-
-        let image = image.convert::<Rgba>();
-        let (mut r, mut g, b, a) = image.bands();
-
-        r.invert();
-        r.draw(&Rectangle::from_bounding_box(50, 50, 128, 128).with_fill(L(45)));
-        g.mirror();
-        let result = Image::from_bands((r, g, b, a));
-
-        let mut image = Image::new(500, 500, Rgba::new(0, 0, 0, 0));
-        image.paste(100, 100, result);
-        image.save_inferred("test.png").unwrap();
+        Image::new(500, 500, Rgb::white())
+            .with(
+                &Ellipse::new()
+                    .with_position(250, 250)
+                    .with_radii(200, 100)
+                    .with_fill(Rgb::new(255, 0, 0))
+                    .with_border(Border::new(Rgb::black(), 10)),
+            )
+            .save_inferred("test.png")
+            .unwrap();
     }
 }

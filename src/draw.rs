@@ -72,7 +72,11 @@ impl<P: Pixel> Border<P> {
 
     // Bounds are inclusive
     fn bounds(&self) -> (u32, u32, P) {
-        let Self { color, thickness, position } = self;
+        let Self {
+            color,
+            thickness,
+            position,
+        } = self;
         let thickness = *thickness;
 
         let (inner, outer) = match position {
@@ -195,7 +199,7 @@ impl<P: Pixel> Draw<P> for Rectangle<P> {
             "must provide one of either fill or border, try calling .with_fill()"
         );
         assert!(
-            self.size.0 > 0 && self.size.1 > 0,
+            self.size.0 > 0 || self.size.1 > 0,
             "rectangle must have a non-zero width and height, have you called .with_size() yet?"
         );
 
@@ -284,9 +288,7 @@ impl<P: Pixel> Ellipse<P> {
         let (dx, dy) = (x2 - x1, y2 - y1);
         let (x, y) = (x1 + dx / 2, y1 + dy / 2);
 
-        Self::default()
-            .with_position(x, y)
-            .with_size(dx, dy)
+        Self::default().with_position(x, y).with_size(dx, dy)
     }
 
     /// Creates a new circle with the given center position and radius.
@@ -331,11 +333,248 @@ impl<P: Pixel> Ellipse<P> {
         self.overlay = Some(mode);
         self
     }
+
+    // Used when there is no border
+    fn rasterize_filled_circle(&self, image: &mut Image<P>) {
+        let radius = self.radii.0 as i32;
+
+        let mut x = 0;
+        let mut y = radius;
+        let mut p = 1 - radius;
+
+        let (h, k) = self.position;
+        let (h, k) = (h as i32, k as i32);
+
+        let fill = self.fill.unwrap();
+        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+
+        macro_rules! line {
+            ($from:expr, $to:expr, $y:expr) => {{
+                let y = ($y) as u32;
+
+                for x in ($from)..=($to) {
+                    image.overlay_pixel_with_mode(x as u32, y, fill, overlay);
+                }
+            }};
+        }
+
+        while x <= y {
+            line!(h - x, h + x, k + y);
+            line!(h - y, h + y, k + x);
+            line!(h - x, h + x, k - y);
+            line!(h - y, h + y, k - x);
+
+            x += 1;
+            if p < 0 {
+                p += 2 * x + 1;
+            } else {
+                y -= 1;
+                p += 2 * (x - y) + 1;
+            }
+        }
+    }
+
+    // Used when there is no border
+    fn rasterize_filled_ellipse(&self, image: &mut Image<P>) {
+        let (ch, k) = self.position;
+        let (ch, k) = (ch as i32, k as i32);
+
+        let (w, h) = self.radii;
+        let (w, h) = (w as i32, h as i32);
+        let (w2, h2) = (w * w, h * h);
+
+        let mut x = 0;
+        let mut y = h;
+        let mut px = 0;
+        let mut py = 2 * w2 * y;
+
+        let fill = self.fill.unwrap();
+        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+
+        macro_rules! line {
+            ($from:expr, $to:expr, $y:expr) => {{
+                let y = ($y) as u32;
+
+                for x in ($from)..=($to) {
+                    image.overlay_pixel_with_mode(x as u32, y, fill, overlay);
+                }
+            }};
+            ($x:expr, $y:expr) => {{
+                line!(ch - $x, ch + $x, k + $y);
+                line!(ch - $x, ch + $x, k - $y);
+            }};
+        }
+
+        let mut p = (h2 - w2 * h) as f32 + 0.25 * w2 as f32;
+        while px < py {
+            x += 1;
+            px += 2 * h2;
+
+            if p < 0. {
+                p += (h2 - px) as f32;
+            } else {
+                y -= 1;
+                py -= 2 * w2;
+                p += (h2 + px - py) as f32;
+            }
+
+            line!(x, y);
+        }
+
+        p = h2 as f32 * (x as f32 + 0.5).powi(2) + (w2 * (y - 1).pow(2)) as f32 - (w2 * h2) as f32;
+        while y > 0 {
+            y -= 1;
+            py -= 2 * w2;
+
+            if p > 0. {
+                p += (w2 - py) as f32;
+            } else {
+                x += 1;
+                px += 2 * h2;
+                p += (w2 + px - py) as f32;
+            }
+
+            line!(x, y);
+        }
+    }
+
+    // Standard, slower brute force algorithm that iterates through all pixels
+    fn render_circle(&self, image: &mut Image<P>) {
+        let (h, k) = self.position;
+        let (h, k) = (h as i32, k as i32);
+        let r = self.radii.0 as i32;
+        let r2 = r * r;
+
+        let (mut x1, mut y1) = (h - r, k - r);
+        let (mut x2, mut y2) = (h + r, k + r);
+
+        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+        let border = self
+            .border
+            .as_ref()
+            .map(Border::bounds)
+            .map(|(inner, outer, color)| {
+                let inner = inner as i32;
+                let outer = outer as i32;
+
+                x1 -= outer;
+                y1 -= outer;
+                x2 += outer;
+                y2 += outer;
+
+                let inner = r - inner;
+                let outer = r + outer;
+                (inner * inner, outer * outer, color)
+            });
+
+        for y in y1..=y2 {
+            for x in x1..=x2 {
+                let dx = x - h;
+                let dy = y - k;
+                let d2 = dx * dx + dy * dy;
+
+                if let Some((i2, o2, color)) = border {
+                    if d2 >= i2 && d2 <= o2 {
+                        image.overlay_pixel_with_mode(x as u32, y as u32, color, overlay);
+                    }
+                }
+
+                // Inside or on the circle
+                if d2 <= r2 {
+                    if let Some(fill) = self.fill {
+                        image.overlay_pixel_with_mode(x as u32, y as u32, fill, overlay);
+                    }
+                }
+            }
+        }
+    }
+
+    // Standard, slower brute force algorithm that iterates through all pixels
+    fn render_ellipse(&self, image: &mut Image<P>) {
+        let (h, k) = self.position;
+        let (h, k) = (h as i32, k as i32);
+        let (a, b) = self.radii;
+        let (a, b) = (a as i32, b as i32);
+        let (a2, b2) = ((a * a) as f32, (b * b) as f32);
+
+        let (mut x1, mut y1) = (h - a, k - b);
+        let (mut x2, mut y2) = (h + a, k + b);
+
+        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+        let border = self
+            .border
+            .as_ref()
+            .map(Border::bounds)
+            .map(|(inner, outer, color)| {
+                let inner = inner as i32;
+                let outer = outer as i32;
+
+                x1 -= outer;
+                y1 -= outer;
+                x2 += outer;
+                y2 += outer;
+
+                let (ia, oa) = (a - inner, a + outer - 1);
+                let (ib, ob) = (b - inner, b + outer - 1);
+
+                (
+                    (ia * ia) as f32,
+                    (oa * oa) as f32,
+                    (ib * ib) as f32,
+                    (ob * ob) as f32,
+                    color,
+                )
+            });
+
+        for y in y1..=y2 {
+            for x in x1..=x2 {
+                let dx = x - h;
+                let dy = y - k;
+                let dx2 = (dx * dx) as f32;
+                let dy2 = (dy * dy) as f32;
+
+                if let Some((ia2, oa2, ib2, ob2, color)) = border {
+                    if dx2 / ia2 + dy2 / ib2 >= 1. && dx2 / oa2 + dy2 / ob2 <= 1. {
+                        image.overlay_pixel_with_mode(x as u32, y as u32, color, overlay);
+                    }
+                }
+
+                if let Some(fill) = self.fill {
+                    if dx2 / a2 + dy2 / b2 <= 1. {
+                        image.overlay_pixel_with_mode(x as u32, y as u32, fill, overlay);
+                    }
+                }
+            }
+        }
+    }
 }
 
 impl<P: Pixel> Draw<P> for Ellipse<P> {
     fn draw(&self, image: &mut Image<P>) {
-        todo!()
+        assert!(
+            self.fill.is_some() || self.border.is_some(),
+            "must provide one of either fill or border, try calling .with_fill()"
+        );
+        assert!(
+            self.radii.0 > 0 || self.radii.1 > 0,
+            "ellipse must have non-zero radii, have you called .with_size() yet?"
+        );
+
+        if self.border.is_none() {
+            if self.radii.0 == self.radii.1 {
+                self.rasterize_filled_circle(image);
+            } else {
+                self.rasterize_filled_ellipse(image);
+            }
+
+            return;
+        }
+
+        if self.radii.0 == self.radii.1 {
+            self.render_circle(image);
+        } else {
+            self.render_ellipse(image);
+        }
     }
 }
 
