@@ -8,6 +8,7 @@ use crate::{
     },
     pixel::Pixel,
     Dynamic,
+    ResizeAlgorithm,
 };
 
 use std::{
@@ -496,6 +497,32 @@ impl<P: Pixel> Image<P> {
         self
     }
 
+    /// Resizes this image in place to the given dimensions using the given resizing algorithm
+    /// in place.
+    pub fn resize(&mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) {
+        let width = NonZeroU32::new(width).unwrap();
+        let height = NonZeroU32::new(height).unwrap();
+
+        self.data = crate::resize::resize(
+            &self.data,
+            self.width,
+            self.height,
+            width,
+            height,
+            algorithm,
+        );
+        self.width = width;
+        self.height = height;
+    }
+
+    /// Takes this image and resizes this image to the given dimensions using the given
+    /// resizing algorithm. Useful for method chaining.
+    #[must_use]
+    pub fn resized(mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) -> Self {
+        self.resize(width, height, algorithm);
+        self
+    }
+
     /// Draws an object or shape onto this image.
     pub fn draw(&mut self, entity: &impl Draw<P>) {
         entity.draw(self);
@@ -839,6 +866,7 @@ mod tests {
         let mut background = Image::new(image.width(), image.height(), Rgba::transparent());
 
         background.paste_with_mask(0, 0, image, mask);
+        background.resize(1024, 1024, ResizeAlgorithm::Nearest);
         background
             .save_inferred("test.png")
             .unwrap();
