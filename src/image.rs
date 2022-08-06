@@ -1,6 +1,6 @@
 use crate::{
     draw::Draw,
-    encode::{ByteStream, Decoder, Encoder},
+    encode::{Decoder, Encoder},
     encodings::png,
     error::{
         Error::{self, InvalidExtension},
@@ -113,7 +113,7 @@ impl<P: Pixel> Image<P> {
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     pub fn decode_from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
-        format.run_decoder(&mut ByteStream::new(bytes.as_ref()))
+        format.run_decoder(&mut bytes.as_ref())
     }
 
     /// Decodes an image from the given bytes, inferring its encoding.
@@ -126,7 +126,7 @@ impl<P: Pixel> Image<P> {
     /// # Panics
     /// * No decoder implementation for the given encoding format.
     pub fn decode_inferred_from_bytes(bytes: impl AsRef<[u8]>) -> Result<Self> {
-        let stream = &mut ByteStream::new(bytes.as_ref());
+        let stream = &mut bytes.as_ref();
 
         match ImageFormat::infer_encoding(stream) {
             ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
@@ -146,14 +146,12 @@ impl<P: Pixel> Image<P> {
         let mut file = File::open(path.as_ref()).map_err(Error::IOError)?;
         file.read_to_end(buffer).map_err(Error::IOError)?;
 
-        let mut stream = ByteStream::new(buffer);
-
         let format = match ImageFormat::from_path(path)? {
-            ImageFormat::Unknown => ImageFormat::infer_encoding(&stream),
+            ImageFormat::Unknown => ImageFormat::infer_encoding(&buffer[0..12]),
             format => format,
         };
 
-        format.run_decoder(&mut stream)
+        format.run_decoder(buffer.as_slice())
     }
 
     /// Encodes the image with the given encoding and writes it to the given write buffer.
@@ -758,9 +756,7 @@ impl ImageFormat {
 
     /// Infers the encoding format from the given data via a byte stream.
     #[must_use]
-    pub fn infer_encoding(stream: &ByteStream) -> Self {
-        let sample = stream.peek(12);
-
+    pub fn infer_encoding(sample: &[u8]) -> Self {
         if sample.starts_with(b"\x89PNG\x0D\x0A\x1A\x0A") {
             Self::Png
         } else if sample.starts_with(b"\xFF\xD8\xFF") {
@@ -802,9 +798,9 @@ impl ImageFormat {
     ///
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
-    pub fn run_decoder<P: Pixel>(&self, stream: &mut ByteStream) -> Result<Image<P>> {
+    pub fn run_decoder<P: Pixel>(&self, stream: impl Read) -> Result<Image<P>> {
         match self {
-            Self::Png => png::PngDecoder::new().decode(stream),
+            Self::Png => png::PngDecoder.decode(stream),
             _ => panic!("No decoder implementation for this image format"),
         }
     }
@@ -834,15 +830,15 @@ mod tests {
 
     #[test]
     fn test_encoding() {
-        let gradient = Image::from_fn(512, 512, |x, _| L((x / 2) as u8));
-        let mask = Image::new(512, 512, BitPixel(false))
+        let image = Image::open("/Users/jay3332/Downloads/jay3332.png").unwrap();
+        let mask = Image::new(image.width(), image.height(), BitPixel(false))
             .with(
-                &Ellipse::from_bounding_box(0, 0, 512, 512)
+                &Ellipse::from_bounding_box(0, 0, image.width(), image.height())
                     .with_fill(BitPixel(true)),
             );
-        let mut background = Image::new(512, 512, L(128));
+        let mut background = Image::new(image.width(), image.height(), Rgba::transparent());
 
-        background.paste_with_mask(0, 0, gradient, mask);
+        background.paste_with_mask(0, 0, image, mask);
         background
             .save_inferred("test.png")
             .unwrap();

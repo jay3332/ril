@@ -18,11 +18,14 @@ pub enum Error {
     /// &str. In the case of this, [`ImageFormat::Unknown`] is used instead.
     InvalidExtension(OsString),
 
+    /// Failed to encode an image.
+    EncodingError(String),
+
     /// Invalid data was encountered when an image, usually because it is corrupted.
     ///
     /// Errors can differ across encodings, so the inner ``&'static str`` here is nothing more than
     /// an error message.
-    DecodingError(&'static str),
+    DecodingError(String),
 
     /// No encoding format could be inferred for the given image.
     UnknownEncodingFormat,
@@ -55,6 +58,7 @@ impl fmt::Display for Error {
             Self::InvalidExtension(ext) => {
                 write!(f, "Invalid extension: {}", ext.to_string_lossy())
             }
+            Self::EncodingError(msg) => write!(f, "Encoding error: {}", msg),
             Self::DecodingError(message) => write!(f, "Decoding error: {}", message),
             Self::UnknownEncodingFormat => write!(f, "Could not infer encoding format"),
             Self::UnsupportedColorType => write!(
@@ -82,5 +86,27 @@ impl fmt::Display for Error {
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
         Self::IOError(err)
+    }
+}
+
+impl From<png::EncodingError> for Error {
+    fn from(err: png::EncodingError) -> Self {
+        match err {
+            png::EncodingError::IoError(err) => Self::IOError(err),
+            png::EncodingError::Format(err) => Self::EncodingError(err.to_string()),
+            png::EncodingError::LimitsExceeded => Self::EncodingError("limits exceeded".to_string()),
+            png::EncodingError::Parameter(err) => Self::EncodingError(err.to_string()),
+        }
+    }
+}
+
+impl From<png::DecodingError> for Error {
+    fn from(err: png::DecodingError) -> Self {
+        match err {
+            png::DecodingError::IoError(err) => Self::IOError(err),
+            png::DecodingError::Format(err) => Self::DecodingError(err.to_string()),
+            png::DecodingError::LimitsExceeded => Self::DecodingError("limits exceeded".to_string()),
+            png::DecodingError::Parameter(err) => Self::DecodingError(err.to_string()),
+        }
     }
 }

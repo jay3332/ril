@@ -1,5 +1,4 @@
 pub mod png;
-pub(crate) mod zlib;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ColorType {
@@ -19,34 +18,6 @@ impl ColorType {
             Self::Rgb => 3,
             Self::Rgba => 4,
             Self::Palette => 1,
-        }
-    }
-}
-
-impl From<png::ColorType> for ColorType {
-    fn from(value: png::ColorType) -> Self {
-        use png::ColorType::{Palette, L, LA, RGB, RGBA};
-
-        match value {
-            L => Self::L,
-            LA => Self::LA,
-            RGB => Self::Rgb,
-            RGBA => Self::Rgba,
-            Palette => Self::Palette,
-        }
-    }
-}
-
-impl From<ColorType> for png::ColorType {
-    fn from(value: ColorType) -> Self {
-        use ColorType::{Palette, Rgb, Rgba, L, LA};
-
-        match value {
-            L => Self::L,
-            LA => Self::LA,
-            Rgb => Self::RGB,
-            Rgba => Self::RGBA,
-            Palette => Self::Palette,
         }
     }
 }
@@ -77,7 +48,7 @@ impl PixelData {
         // TODO: support 16-bit bit depths. right now, it scales down
         if !bit_depth.is_power_of_two() {
             return Err(crate::Error::DecodingError(
-                "bit depth must be a power of two",
+                "bit depth must be a power of two".to_string(),
             ));
         }
 

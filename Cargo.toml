@@ -13,7 +13,9 @@ categories = ["encoding", "graphics", "multimedia", "visualization"]
 
 [dependencies]
 crc32fast = "^1"
+fast_image_resize = "^1"
 miniz_oxide = "^0.5"
+png = "^0.17"
 
 [dev-dependencies]
 criterion = "^0.3"

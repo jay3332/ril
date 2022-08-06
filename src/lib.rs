@@ -7,9 +7,10 @@ pub mod encodings;
 pub mod error;
 pub mod image;
 pub mod pixel;
+mod resize;
 
 pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
-pub use encode::{ByteStream, Decoder};
+pub use encode::{Encoder, Decoder};
 pub use error::{Error, Result};
 pub use image::{Banded, Image, ImageFormat, OverlayMode};
 pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
