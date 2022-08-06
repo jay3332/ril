@@ -15,6 +15,7 @@ use std::{
     fmt::{self, Display},
     fs::File,
     io::{Read, Write},
+    num::NonZeroU32,
     path::Path,
 };
 
@@ -44,8 +45,8 @@ impl Display for OverlayMode {
 /// See [`ImageSequence`] for information on opening animated or multi-frame images.
 #[derive(Clone)]
 pub struct Image<P: Pixel = Dynamic> {
-    pub(crate) width: u32,
-    pub(crate) height: u32,
+    pub(crate) width: NonZeroU32,
+    pub(crate) height: NonZeroU32,
     /// A 1-dimensional vector of pixels representing all pixels in the image. This is shaped
     /// according to the image's width and height to form the image.
     ///
@@ -60,11 +61,13 @@ pub struct Image<P: Pixel = Dynamic> {
 impl<P: Pixel> Image<P> {
     /// Creates a new image with the given width and height, with all pixels being set
     /// intially to `fill`.
+    ///
+    /// Both the width and height must be non-zero.
     #[must_use]
     pub fn new(width: u32, height: u32, fill: P) -> Self {
         Self {
-            width,
-            height,
+            width: NonZeroU32::new(width).unwrap(),
+            height: NonZeroU32::new(height).unwrap(),
             data: vec![fill; (width * height) as usize],
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
@@ -95,8 +98,10 @@ impl<P: Pixel> Image<P> {
         );
 
         Self {
-            width,
-            height: pixels.len() as u32 / width,
+            width: NonZeroU32::new(width).unwrap(),
+            // SAFETY: We have already asserted the width being non-zero above with addition to
+            // the height being a multiple of the width, meaning that the height cannot be zero.
+            height: unsafe { NonZeroU32::new_unchecked(pixels.len() as u32 / width) },
             data: pixels.to_vec(),
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
@@ -201,21 +206,21 @@ impl<P: Pixel> Image<P> {
     #[inline]
     #[must_use]
     const fn resolve_coordinate(&self, x: u32, y: u32) -> usize {
-        (y * self.width + x) as usize
+        (y * self.width() + x) as usize
     }
 
     /// Returns the width of the image.
     #[inline]
     #[must_use]
     pub const fn width(&self) -> u32 {
-        self.width
+        self.width.get()
     }
 
     /// Returns the height of the image.
     #[inline]
     #[must_use]
     pub const fn height(&self) -> u32 {
-        self.height
+        self.height.get()
     }
 
     /// Returns a Vec of slices representing the pixels of the image.
@@ -223,7 +228,7 @@ impl<P: Pixel> Image<P> {
     #[inline]
     #[must_use]
     pub fn pixels(&self) -> Vec<&[P]> {
-        self.data.chunks_exact(self.width as usize).collect()
+        self.data.chunks_exact(self.width() as usize).collect()
     }
 
     /// Returns the encoding format of the image. This is nothing more but metadata about the image.
@@ -252,14 +257,14 @@ impl<P: Pixel> Image<P> {
     #[inline]
     #[must_use]
     pub const fn dimensions(&self) -> (u32, u32) {
-        (self.width, self.height)
+        (self.width(), self.height())
     }
 
     /// Returns the amount of pixels in the image.
     #[inline]
     #[must_use]
     pub const fn len(&self) -> u32 {
-        self.width * self.height
+        self.width() * self.height()
     }
 
     /// Returns true if the image contains no pixels.
@@ -352,7 +357,7 @@ impl<P: Pixel> Image<P> {
     /// * Panics if the data is misinformed.
     pub fn set_data(&mut self, data: Vec<P>) {
         assert_eq!(
-            self.width * self.height,
+            self.width() * self.height(),
             data.len() as u32,
             "misformed data"
         );
@@ -404,7 +409,7 @@ impl<P: Pixel> Image<P> {
     where
         I: IntoIterator<Item = T>,
     {
-        let width = self.width;
+        let width = self.width();
 
         self.map_data(|data| {
             data.chunks(width as usize)
@@ -417,7 +422,7 @@ impl<P: Pixel> Image<P> {
 
     /// Iterates over each row of pixels in the image.
     pub fn rows(&self) -> impl Iterator<Item = &[P]> {
-        self.data.chunks_exact(self.width as usize)
+        self.data.chunks_exact(self.width() as usize)
     }
 
     /// Converts the image into an image with the given pixel type.
@@ -435,8 +440,8 @@ impl<P: Pixel> Image<P> {
 
     /// Crops this image in place to the given bounding box.
     pub fn crop(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
-        self.width = x2 - x1;
-        self.height = y2 - y1;
+        self.width = NonZeroU32::new(x2 - x1).unwrap();
+        self.height = NonZeroU32::new(y2 - y1).unwrap();
         self.data = self
             .pixels()
             .into_iter()
@@ -456,8 +461,10 @@ impl<P: Pixel> Image<P> {
 
     /// Mirrors, or flips this image horizontally (about the y-axis) in place.
     pub fn mirror(&mut self) {
+        let width = self.width();
+
         self.data
-            .chunks_exact_mut(self.width as usize)
+            .chunks_exact_mut(width as usize)
             .for_each(<[P]>::reverse);
     }
 
@@ -472,14 +479,14 @@ impl<P: Pixel> Image<P> {
     pub fn flip(&mut self) {
         let chunks = self
             .data
-            .chunks_exact(self.width as usize)
+            .chunks_exact(self.width() as usize)
             .collect::<Vec<_>>();
 
-        let flipped = (0..self.width as usize)
+        let flipped = (0..self.width() as usize)
             .map(|i| chunks.iter().map(|c| c[i]).rev().collect::<Vec<_>>())
             .collect::<Vec<_>>();
 
-        self.data = (0..self.height as usize)
+        self.data = (0..self.height() as usize)
             .flat_map(|i| flipped.iter().map(|c| c[i]).collect::<Vec<_>>())
             .collect()
     }
@@ -827,14 +834,16 @@ mod tests {
 
     #[test]
     fn test_encoding() {
-        Image::new(500, 500, Rgb::white())
+        let gradient = Image::from_fn(512, 512, |x, _| L((x / 2) as u8));
+        let mask = Image::new(512, 512, BitPixel(false))
             .with(
-                &Ellipse::new()
-                    .with_position(250, 250)
-                    .with_radii(200, 100)
-                    .with_fill(Rgb::new(255, 0, 0))
-                    .with_border(Border::new(Rgb::black(), 10)),
-            )
+                &Ellipse::from_bounding_box(0, 0, 512, 512)
+                    .with_fill(BitPixel(true)),
+            );
+        let mut background = Image::new(512, 512, L(128));
+
+        background.paste_with_mask(0, 0, gradient, mask);
+        background
             .save_inferred("test.png")
             .unwrap();
     }

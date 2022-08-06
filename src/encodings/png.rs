@@ -8,6 +8,7 @@ use crate::{
 use crc32fast::hash as crc;
 use miniz_oxide::deflate::compress_to_vec_zlib;
 use std::io::Write;
+use std::num::NonZeroU32;
 
 pub const PNG_SIGNATURE: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
@@ -274,8 +275,8 @@ impl Decoder for PngDecoder {
                         }
 
                         return Ok(Image {
-                            width: self.ihdr.width,
-                            height: self.ihdr.height,
+                            width: NonZeroU32::new(self.ihdr.width).unwrap(),
+                            height: NonZeroU32::new(self.ihdr.height).unwrap(),
                             data: result
                                 .into_iter()
                                 .map(|p| {
@@ -380,8 +381,8 @@ impl Encoder for PngEncoder {
         let (ty, depth) = first.as_pixel_data().type_data();
 
         let ihdr = [
-            &image.width.to_be_bytes() as &[_],
-            &image.height.to_be_bytes(),
+            &image.width().to_be_bytes() as &[_],
+            &image.height().to_be_bytes(),
             &[
                 depth,
                 ColorType::from(ty) as u8,
