@@ -1,8 +1,14 @@
-use crate::{Image, ImageFormat, Pixel, encode::{Encoder, Decoder}};
 use super::{ColorType, PixelData};
+use crate::{
+    encode::{Decoder, Encoder},
+    Image, ImageFormat, Pixel,
+};
 
-use std::{num::NonZeroU32, io::{Read, Write}};
 pub use png::{AdaptiveFilterType, Compression, FilterType};
+use std::{
+    io::{Read, Write},
+    num::NonZeroU32,
+};
 
 impl From<png::ColorType> for ColorType {
     fn from(value: png::ColorType) -> Self {
@@ -84,7 +90,8 @@ impl Encoder for PngEncoder {
         encoder.set_color(get_png_color_type(color_type));
         encoder.set_depth(png::BitDepth::from_u8(bit_depth).unwrap());
 
-        let data = image.data
+        let data = image
+            .data
             .iter()
             .flat_map(|pixel| pixel.as_pixel_data().data())
             .collect::<Vec<_>>();
@@ -115,7 +122,9 @@ impl Decoder for PngDecoder {
 
         let data = buffer
             .chunks_exact(info.bytes_per_pixel())
-            .map(|chunk| PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data))
+            .map(|chunk| {
+                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
+            })
             .collect::<crate::Result<Vec<_>>>()?;
 
         Ok(Image {

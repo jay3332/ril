@@ -94,7 +94,9 @@ impl From<png::EncodingError> for Error {
         match err {
             png::EncodingError::IoError(err) => Self::IOError(err),
             png::EncodingError::Format(err) => Self::EncodingError(err.to_string()),
-            png::EncodingError::LimitsExceeded => Self::EncodingError("limits exceeded".to_string()),
+            png::EncodingError::LimitsExceeded => {
+                Self::EncodingError("limits exceeded".to_string())
+            }
             png::EncodingError::Parameter(err) => Self::EncodingError(err.to_string()),
         }
     }
@@ -105,7 +107,9 @@ impl From<png::DecodingError> for Error {
         match err {
             png::DecodingError::IoError(err) => Self::IOError(err),
             png::DecodingError::Format(err) => Self::DecodingError(err.to_string()),
-            png::DecodingError::LimitsExceeded => Self::DecodingError("limits exceeded".to_string()),
+            png::DecodingError::LimitsExceeded => {
+                Self::DecodingError("limits exceeded".to_string())
+            }
             png::DecodingError::Parameter(err) => Self::DecodingError(err.to_string()),
         }
     }

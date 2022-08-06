@@ -7,8 +7,7 @@ use crate::{
         Result,
     },
     pixel::Pixel,
-    Dynamic,
-    ResizeAlgorithm,
+    Dynamic, ResizeAlgorithm,
 };
 
 use std::{
@@ -858,17 +857,14 @@ mod tests {
     #[test]
     fn test_encoding() {
         let image = Image::open("/Users/jay3332/Downloads/jay3332.png").unwrap();
-        let mask = Image::new(image.width(), image.height(), BitPixel(false))
-            .with(
-                &Ellipse::from_bounding_box(0, 0, image.width(), image.height())
-                    .with_fill(BitPixel(true)),
-            );
+        let mask = Image::new(image.width(), image.height(), BitPixel(false)).with(
+            &Ellipse::from_bounding_box(0, 0, image.width(), image.height())
+                .with_fill(BitPixel(true)),
+        );
         let mut background = Image::new(image.width(), image.height(), Rgba::transparent());
 
         background.paste_with_mask(0, 0, image, mask);
         background.resize(1024, 1024, ResizeAlgorithm::Nearest);
-        background
-            .save_inferred("test.png")
-            .unwrap();
+        background.save_inferred("test.png").unwrap();
     }
 }

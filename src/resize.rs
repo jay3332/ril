@@ -1,12 +1,15 @@
 //! An interfacing layer between fast_image_resize and this crate.
 
-use crate::{Pixel, encodings::{ColorType, PixelData}};
+use crate::{
+    encodings::{ColorType, PixelData},
+    Pixel,
+};
 
-use std::num::NonZeroU32;
 use fast_image_resize::{
-    Image as ResizeImage, ResizeAlg, FilterType as ResizeFilterType, PixelType as ResizePixelType,
+    FilterType as ResizeFilterType, Image as ResizeImage, PixelType as ResizePixelType, ResizeAlg,
     Resizer,
 };
+use std::num::NonZeroU32;
 
 /// A filtering algorithm that is used to resize an image.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
@@ -86,7 +89,10 @@ pub(crate) fn resize<P: Pixel>(
         _ => panic!("Unsupported bit depth"),
     };
 
-    let buffer = data.iter().flat_map(|p| p.as_pixel_data().data()).collect::<Vec<_>>();
+    let buffer = data
+        .iter()
+        .flat_map(|p| p.as_pixel_data().data())
+        .collect::<Vec<_>>();
     // We are able to unwrap here since we validated the buffer throughout the creation of the image.
     let image = ResizeImage::from_vec_u8(src_width, src_height, buffer, pixel_type).unwrap();
     let view = image.view();
@@ -99,13 +105,9 @@ pub(crate) fn resize<P: Pixel>(
     resizer.resize(&view, &mut dst_view).unwrap();
 
     let bpp = color_type.channels() * ((bit_depth as usize + 7) >> 3);
-    dest
-        .into_vec()
+    dest.into_vec()
         .chunks_exact(bpp)
-        .map(|c| {
-            PixelData::from_raw(color_type, bit_depth, c)
-                .and_then(P::from_pixel_data)
-        })
+        .map(|c| PixelData::from_raw(color_type, bit_depth, c).and_then(P::from_pixel_data))
         .collect::<crate::Result<Vec<_>>>()
         .unwrap()
 }
