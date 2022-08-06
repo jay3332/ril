@@ -849,13 +849,9 @@
 <span id="844">844</span>
 <span id="845">845</span>
 <span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
-    <span class="ident">encode</span>::{<span class="ident">ByteStream</span>, <span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
+    <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
     <span class="ident">encodings::png</span>,
     <span class="ident">error</span>::{
         <span class="ident">Error</span>::{<span class="self">self</span>, <span class="ident">InvalidExtension</span>},
@@ -968,7 +964,7 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * `DecodingError`: The image could not be decoded, maybe it is corrupt.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_from_bytes</span>(<span class="ident">format</span>: <span class="ident">ImageFormat</span>, <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ByteStream::new</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()))
+        <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>.<span class="ident">as_ref</span>())
     }
 
     <span class="doccomment">/// Decodes an image from the given bytes, inferring its encoding.</span>
@@ -981,7 +977,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No decoder implementation for the given encoding format.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_inferred_from_bytes</span>(<span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">ByteStream::new</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>());
+        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>.<span class="ident">as_ref</span>();
 
         <span class="kw">match</span> <span class="ident">ImageFormat::infer_encoding</span>(<span class="ident">stream</span>) {
             <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownEncodingFormat</span>),
@@ -1001,14 +997,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">map_err</span>(<span class="ident">Error::IOError</span>)<span class="question-mark">?</span>;
         <span class="ident">file</span>.<span class="ident">read_to_end</span>(<span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="ident">Error::IOError</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">ByteStream::new</span>(<span class="ident">buffer</span>);
-
         <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ImageFormat::from_path</span>(<span class="ident">path</span>)<span class="question-mark">?</span> {
-            <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="ident">ImageFormat::infer_encoding</span>(<span class="kw-2">&amp;</span><span class="ident">stream</span>),
+            <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="ident">ImageFormat::infer_encoding</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[<span class="number">0</span>..<span class="number">12</span>]),
             <span class="ident">format</span> =&gt; <span class="ident">format</span>,
         };
 
-        <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stream</span>)
+        <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="ident">buffer</span>.<span class="ident">as_slice</span>())
     }
 
     <span class="doccomment">/// Encodes the image with the given encoding and writes it to the given write buffer.</span>
@@ -1613,9 +1607,7 @@
 
     <span class="doccomment">/// Infers the encoding format from the given data via a byte stream.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">infer_encoding</span>(<span class="ident">stream</span>: <span class="kw-2">&amp;</span><span class="ident">ByteStream</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">sample</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">peek</span>(<span class="number">12</span>);
-
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">infer_encoding</span>(<span class="ident">sample</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="ident">sample</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\x89PNG\x0D\x0A\x1A\x0A&quot;</span>) {
             <span class="ident"><span class="self">Self</span>::Png</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">sample</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;\xFF\xD8\xFF&quot;</span>) {
@@ -1657,9 +1649,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No decoder implementation is found for this image encoding.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ByteStream</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
+            <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngDecoder</span>.<span class="ident">decode</span>(<span class="ident">stream</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
         }
     }
@@ -1689,15 +1681,15 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_encoding</span>() {
-        <span class="kw">let</span> <span class="ident">gradient</span> <span class="op">=</span> <span class="ident">Image::from_fn</span>(<span class="number">512</span>, <span class="number">512</span>, <span class="op">|</span><span class="ident">x</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">L</span>((<span class="ident">x</span> <span class="op">/</span> <span class="number">2</span>) <span class="kw">as</span> <span class="ident">u8</span>));
-        <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">512</span>, <span class="number">512</span>, <span class="ident">BitPixel</span>(<span class="bool-val">false</span>))
+        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/jay3332.png&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="ident">BitPixel</span>(<span class="bool-val">false</span>))
             .<span class="ident">with</span>(
-                <span class="kw-2">&amp;</span><span class="ident">Ellipse::from_bounding_box</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">512</span>, <span class="number">512</span>)
+                <span class="kw-2">&amp;</span><span class="ident">Ellipse::from_bounding_box</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>())
                     .<span class="ident">with_fill</span>(<span class="ident">BitPixel</span>(<span class="bool-val">true</span>)),
             );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">background</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">512</span>, <span class="number">512</span>, <span class="ident">L</span>(<span class="number">128</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">background</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="ident">Rgba::transparent</span>());
 
-        <span class="ident">background</span>.<span class="ident">paste_with_mask</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">gradient</span>, <span class="ident">mask</span>);
+        <span class="ident">background</span>.<span class="ident">paste_with_mask</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">image</span>, <span class="ident">mask</span>);
         <span class="ident">background</span>
             .<span class="ident">save_inferred</span>(<span class="string">&quot;test.png&quot;</span>)
             .<span class="ident">unwrap</span>();

@@ -104,37 +104,7 @@
 <span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">png</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">zlib</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ColorType</span> {
@@ -154,34 +124,6 @@
             <span class="ident"><span class="self">Self</span>::Rgb</span> =&gt; <span class="number">3</span>,
             <span class="ident"><span class="self">Self</span>::Rgba</span> =&gt; <span class="number">4</span>,
             <span class="ident"><span class="self">Self</span>::Palette</span> =&gt; <span class="number">1</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">png::ColorType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ColorType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">png::ColorType</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">png::ColorType</span>::{<span class="ident">Palette</span>, <span class="ident">L</span>, <span class="ident">LA</span>, <span class="ident">RGB</span>, <span class="ident">RGBA</span>};
-
-        <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">L</span> =&gt; <span class="ident"><span class="self">Self</span>::L</span>,
-            <span class="ident">LA</span> =&gt; <span class="ident"><span class="self">Self</span>::LA</span>,
-            <span class="ident">RGB</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>,
-            <span class="ident">RGBA</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>,
-            <span class="ident">Palette</span> =&gt; <span class="ident"><span class="self">Self</span>::Palette</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ColorType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">png::ColorType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">ColorType</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">ColorType</span>::{<span class="ident">Palette</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>, <span class="ident">LA</span>};
-
-        <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">L</span> =&gt; <span class="ident"><span class="self">Self</span>::L</span>,
-            <span class="ident">LA</span> =&gt; <span class="ident"><span class="self">Self</span>::LA</span>,
-            <span class="ident">Rgb</span> =&gt; <span class="ident"><span class="self">Self</span>::RGB</span>,
-            <span class="ident">Rgba</span> =&gt; <span class="ident"><span class="self">Self</span>::RGBA</span>,
-            <span class="ident">Palette</span> =&gt; <span class="ident"><span class="self">Self</span>::Palette</span>,
         }
     }
 }
@@ -212,7 +154,7 @@
         <span class="comment">// TODO: support 16-bit bit depths. right now, it scales down</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident">bit_depth</span>.<span class="ident">is_power_of_two</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::Error::DecodingError</span>(
-                <span class="string">&quot;bit depth must be a power of two&quot;</span>,
+                <span class="string">&quot;bit depth must be a power of two&quot;</span>.<span class="ident">to_string</span>(),
             ));
         }
 

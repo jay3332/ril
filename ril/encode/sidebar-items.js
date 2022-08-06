@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ByteStream",""]],"trait":[["Decoder",""],["Encoder",""]]});
+initSidebarItems({"trait":[["Decoder",""],["Encoder",""]]});
