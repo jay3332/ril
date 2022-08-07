@@ -1,13 +1,14 @@
 use crate::{
     draw::Draw,
     encode::{Decoder, Encoder},
-    encodings::png,
-    error::{
+    encodings::png, error::{
         Error::{self, InvalidExtension},
         Result,
     },
     pixel::Pixel,
-    Dynamic, ResizeAlgorithm,
+    Dynamic,
+    ResizeAlgorithm,
+    DynamicFrameIterator,
 };
 
 use std::{
@@ -111,15 +112,15 @@ impl<P: Pixel> Image<P> {
         }
     }
 
-    /// Decodes an image with the explicitly given image encoding from the raw bytes.
+    /// Decodes an image with the explicitly given image encoding from the raw byte stream.
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
-    pub fn decode_from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
-        format.run_decoder(&mut bytes.as_ref())
+    pub fn decode_from_bytes(format: ImageFormat, bytes: impl Read) -> Result<Self> {
+        format.run_decoder(bytes)
     }
 
-    /// Decodes an image from the given bytes, inferring its encoding.
+    /// Decodes an image from the given read stream of bytes, inferring its encoding.
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
@@ -128,12 +129,13 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    pub fn decode_inferred_from_bytes(bytes: impl AsRef<[u8]>) -> Result<Self> {
-        let stream = &mut bytes.as_ref();
+    pub fn decode_inferred_from_bytes(mut bytes: impl Read) -> Result<Self> {
+        let buf = &mut [0; 12];
+        let n = bytes.read(buf)?;
 
-        match ImageFormat::infer_encoding(stream) {
+        match ImageFormat::infer_encoding(buf) {
             ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
-            format => format.run_decoder(stream),
+            format => format.run_decoder((&buf[..n]).chain(bytes)),
         }
     }
 
@@ -146,11 +148,14 @@ impl<P: Pixel> Image<P> {
     /// todo!()
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let buffer = &mut Vec::new();
-        let mut file = File::open(path.as_ref()).map_err(Error::IOError)?;
-        file.read_to_end(buffer).map_err(Error::IOError)?;
+        let mut file = File::open(path.as_ref())?;
+        file.read_to_end(buffer)?;
 
         let format = match ImageFormat::from_path(path)? {
-            ImageFormat::Unknown => ImageFormat::infer_encoding(&buffer[0..12]),
+            ImageFormat::Unknown => match ImageFormat::infer_encoding(&buffer[0..12]) {
+                ImageFormat::Unknown => return Err(Error::UnknownEncodingFormat),
+                format => format,
+            },
             format => format,
         };
 
@@ -357,6 +362,9 @@ impl<P: Pixel> Image<P> {
     /// the data is the correct size.
     ///
     /// The function should take the current image data and return the new data.
+    ///
+    /// # Note
+    /// This resets the background color back to the default.
     pub fn map_data<T: Pixel>(self, f: impl FnOnce(Vec<P>) -> Vec<T>) -> Image<T> {
         Image {
             width: self.width,
@@ -364,7 +372,7 @@ impl<P: Pixel> Image<P> {
             data: f(self.data),
             format: self.format,
             overlay: self.overlay,
-            background: self.background,
+            background: T::default(),
         }
     }
 
@@ -635,6 +643,7 @@ macro_rules! map_idx {
                 .collect(),
             format: $image.format,
             overlay: $image.overlay,
+            background: Default::default(),
         }
     }};
 }
@@ -758,7 +767,7 @@ impl ImageFormat {
                 .to_ascii_lowercase()
                 .as_str()
             {
-                "png" => Self::Png,
+                "png" | "apng" => Self::Png,
                 "jpg" | "jpeg" => Self::Jpeg,
                 "gif" => Self::Gif,
                 "bmp" => Self::Bmp,
@@ -826,10 +835,10 @@ impl ImageFormat {
     /// Encodes the `Image` into raw bytes.
     ///
     /// # Errors
-    /// * An error occured while decoding.
+    /// * An error occured while encoding.
     ///
     /// # Panics
-    /// * Noenecoder implementation is found for this image encoding.
+    /// * No encoder implementation is found for this image encoding.
     pub fn run_encoder<P: Pixel>(&self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
         match self {
             Self::Png => png::PngEncoder::new().encode(image, dest),
@@ -837,7 +846,22 @@ impl ImageFormat {
         }
     }
 
-    /// Decodes the image data from a `ByteStream` into an image.
+    /// Encodes the `ImageSequence1 into raw bytes. If the encoding does not supported image
+    /// sequences (or multi-frame images), it will only encode the first frame.
+    ///
+    /// # Errors
+    /// * An error occured while encoding.
+    ///
+    /// # Panics
+    /// * No encoder implementation is found for this image encoding.
+    pub fn run_sequence_encoder<P: Pixel>(&self, seq: &crate::ImageSequence<P>, dest: &mut impl Write) -> Result<()> {
+        match self {
+            Self::Png => png::PngEncoder::new().encode_sequence(seq, dest),
+            _ => panic!("No encoder implementation is found for this image format"),
+        }
+    }
+
+    /// Decodes the image data from into an image.
     ///
     /// # Errors
     /// * An error occured while decoding.
@@ -846,9 +870,23 @@ impl ImageFormat {
     /// * No decoder implementation is found for this image encoding.
     pub fn run_decoder<P: Pixel>(&self, stream: impl Read) -> Result<Image<P>> {
         match self {
-            Self::Png => png::PngDecoder.decode(stream),
+            Self::Png => png::PngDecoder::new().decode(stream),
             _ => panic!("No decoder implementation for this image format"),
         }
+    }
+
+    /// Decodes the image sequence data into an image sequence.
+    ///
+    /// # Errors
+    /// * An error occured while decoding.
+    ///
+    /// # Panics
+    /// * No decoder implementation is found for this image encoding.
+    pub fn run_sequence_decoder<P: Pixel, R: Read>(&self, stream: R) -> Result<DynamicFrameIterator<P, R>> {
+        Ok(match self {
+            Self::Png => DynamicFrameIterator::Png(png::PngDecoder::new().decode_sequence(stream)?),
+            _ => panic!("No decoder implementation for this image format"),
+        })
     }
 }
 
@@ -872,6 +910,7 @@ impl Display for ImageFormat {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
     use crate::prelude::*;
 
     #[test]
@@ -885,5 +924,29 @@ mod tests {
 
         background.paste_with_mask(0, 0, image, mask);
         background.save_inferred("test.png").unwrap();
+    }
+
+    #[test]
+    fn test_sequence() {
+        let seq = ImageSequence::<Rgba>::new()
+            .with_frame(
+                Frame::from_image(
+                    Image::open("/Users/jay3332/Downloads/jay3332.png")
+                        .unwrap()
+                        .resized(256, 256, ResizeAlgorithm::Nearest),
+                )
+                .with_delay(Duration::from_millis(500)),
+            )
+            .with_frame(
+                Frame::from_image(
+                    Image::open("/Users/jay3332/Downloads/jay3332.png")
+                        .unwrap()
+                        .inverted()
+                        .resized(256, 256, ResizeAlgorithm::Nearest),
+                )
+                .with_delay(Duration::from_millis(500)),
+            );
+
+        seq.save_inferred("test.png").unwrap();
     }
 }

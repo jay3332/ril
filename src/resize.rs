@@ -40,12 +40,6 @@ pub enum FilterType {
     Lanczos3,
 }
 
-impl Default for FilterType {
-    fn default() -> Self {
-        FilterType::Bicubic
-    }
-}
-
 impl From<FilterType> for ResizeAlg {
     fn from(f: FilterType) -> Self {
         type F = ResizeFilterType;

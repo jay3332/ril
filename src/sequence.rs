@@ -1,5 +1,5 @@
-use crate::{Image, Pixel};
-use std::time::Duration;
+use crate::{DynamicFrameIterator, Error, Image, ImageFormat, Pixel, Result};
+use std::{fs::File, io::{Read, Write}, path::Path, time::Duration};
 
 /// The method used to dispose a frame before transitioning to the next frame in an image sequence.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
@@ -130,6 +130,24 @@ impl<P: Pixel> IntoIterator for ImageSequence<P> {
     }
 }
 
+impl<P: Pixel> FromIterator<Frame<P>> for ImageSequence<P> {
+    fn from_iter<T>(iter: T) -> Self
+    where
+        T: IntoIterator<Item = Frame<P>>,
+    {
+        Self::from_frames(iter.into_iter().collect())
+    }
+}
+
+impl<P: Pixel> FromIterator<Result<Frame<P>>> for ImageSequence<P> {
+    fn from_iter<T>(iter: T) -> Self
+    where
+        T: IntoIterator<Item = Result<Frame<P>>>,
+    {
+        Self::from_frames(iter.into_iter().collect::<Result<Vec<_>>>().unwrap())
+    }
+}
+
 impl<P: Pixel> ImageSequence<P> {
     /// Creates a new image sequence with no frames.
     ///
@@ -139,7 +157,132 @@ impl<P: Pixel> ImageSequence<P> {
         Self::default()
     }
 
-    /// Creates a new image sequence from the given frames.
+    /// Decodes the image sequence with the explicitly given image encoding from the raw bytes.
+    ///
+    /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
+    /// collect all frames greedily into an [`ImageSequence`].
+    ///
+    /// If the image sequence is a single-frame static image or if the encoding format does not
+    /// support animated images, this will just return an image sequence containing one frame.
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    pub fn decode_from_bytes<R: Read>(
+        format: ImageFormat,
+        bytes: R,
+    ) -> Result<DynamicFrameIterator<P, R>> {
+        format.run_sequence_decoder(bytes)
+    }
+
+    /// Decodes an image sequence from the given read stream of bytes, inferring its encoding.
+    ///
+    /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
+    /// collect all frames greedily into an [`ImageSequence`].
+    ///
+    /// If the image sequence is a single-frame static image or if the encoding format does not
+    /// support animated images, this will just return an image sequence containing one frame.
+    ///
+    /// # Note
+    /// The bound on `bytes` includes `Write` due to a Rust limitation. This will be looked into
+    /// in the future to not require `Write`.
+    ///
+    /// If you are limited by this trait bound, you can either specify the image format manually
+    /// using [`decode_from_bytes`], or you can try using [`ImageFormat::infer_encoding`] along
+    /// with [`decode_from_bytes`] manually instead.
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
+    /// specifying it.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    pub fn decode_inferred_from_bytes<R: Read + Write>(
+        mut bytes: R,
+    ) -> Result<DynamicFrameIterator<P, R>> {
+        let mut buffer = Vec::new();
+        bytes.read_to_end(&mut buffer)?;
+
+        match ImageFormat::infer_encoding(&buffer) {
+            ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
+            format => {
+                bytes.write_all(&buffer)?;
+                format.run_sequence_decoder(bytes)
+            },
+        }
+    }
+
+    /// Opens a file from the given path and decodes it, returning an iterator over its frames.
+    ///
+    /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
+    /// by using the [`decode_from_bytes`] method.
+    ///
+    /// # Note
+    /// Unlike the inference of [`Image::open`] this does **not** infer from raw bytes if inferring
+    /// from file extension fails; instead it immediately returns the error.
+    ///
+    /// # Errors
+    /// todo!()
+    pub fn open(path: impl AsRef<Path>) -> Result<DynamicFrameIterator<P, File>> {
+        let file = File::open(path.as_ref())?;
+
+        let format = match ImageFormat::from_path(path)? {
+            ImageFormat::Unknown => return Err(Error::UnknownEncodingFormat),
+            format => format,
+        };
+
+        format.run_sequence_decoder(file)
+    }
+
+    /// Encodes this image sequence with the given encoding and writes it to the given write buffer.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
+    ///
+    /// # Panics
+    /// * No encoder implementation for the given encoding format.
+    pub fn encode(&self, encoding: ImageFormat, dest: &mut impl Write) -> Result<()> {
+        encoding.run_sequence_encoder(self, dest)
+    }
+
+    /// Saves the image sequence with the given encoding to the given path.
+    /// You can try saving to a memory buffer by using the [`encode`] method.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
+    ///
+    /// # Panics
+    /// * No encoder implementation for the given encoding format.
+    pub fn save(&self, encoding: ImageFormat, path: impl AsRef<Path>) -> Result<()> {
+        let mut file = File::create(path).map_err(Error::IOError)?;
+        self.encode(encoding, &mut file)
+    }
+
+    /// Saves the image sequence to the given path, inferring the encoding from the given
+    /// path/filename extension.
+    ///
+    /// This is obviously slower than [`save`] since this method itself uses it. You should only
+    /// use this method if the filename is dynamic, or if you do not know the desired encoding
+    /// before runtime.
+    ///
+    /// See [`save`] for more information on how saving works.
+    ///
+    /// # Errors
+    /// * Could not infer encoding format.
+    /// * An error occured during encoding.
+    ///
+    /// # Panics
+    /// * No encoder implementation for the given encoding format.
+    pub fn save_inferred(&self, path: impl AsRef<Path>) -> Result<()> {
+        let encoding = ImageFormat::from_path(path.as_ref())?;
+
+        match encoding {
+            ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
+            _ => self.save(encoding, path),
+        }
+    }
+
+    /// Creates a new image sequence from the given frames
     pub fn from_frames(frames: Vec<Frame<P>>) -> Self {
         Self { frames, ..Self::default() }
     }
@@ -176,12 +319,12 @@ impl<P: Pixel> ImageSequence<P> {
     }
 
     /// Sets the exact number of loops this image sequence loops for.
-    pub fn looped_exactly(mut self, loops: u32) -> Self {
+    pub fn looped_exactly(self, loops: u32) -> Self {
         self.with_loop_count(LoopCount::Exactly(loops))
     }
 
     /// Sets the image sequence to loop infinitely.
-    pub fn looped_infinitely(mut self) -> Self {
+    pub fn looped_infinitely(self) -> Self {
         self.with_loop_count(LoopCount::Infinite)
     }
 
@@ -195,6 +338,11 @@ impl<P: Pixel> ImageSequence<P> {
         self.frames.iter()
     }
 
+    /// Iterates through the frames in this image sequence by mutable reference.
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Frame<P>> {
+        self.frames.iter_mut()
+    }
+
     /// Returns the number of frames in this image sequence.
     pub fn len(&self) -> usize {
         self.frames.len()
@@ -202,7 +350,7 @@ impl<P: Pixel> ImageSequence<P> {
 
     /// Consumes this image sequence and returns the first image.
     pub fn into_first_image(self) -> Image<P> {
-        self.frames[0].into_image()
+        self.into_frames().swap_remove(0).into_image()
     }
 
     /// Returns a reference to the first frame in the image sequence.

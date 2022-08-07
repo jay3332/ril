@@ -1,6 +1,6 @@
 use super::{ColorType, PixelData};
 use crate::{
-    encode::{Decoder, Encoder},
+    encode::{Decoder, Encoder, FrameIterator},
     DisposalMethod,
     Frame,
     Image,
@@ -83,7 +83,13 @@ impl PngEncoder {
         self
     }
 
-    fn prepare<P: Pixel, W: Write>(&mut self, width: u32, height: u32, sample: &P, dest: &mut W) -> png::Encoder<W> {
+    fn prepare<'a, P: Pixel, W: Write>(
+        &mut self,
+        width: u32,
+        height: u32,
+        sample: &P,
+        dest: &'a mut W,
+    ) -> png::Encoder<&'a mut W> {
         let mut encoder = png::Encoder::new(dest, width, height);
 
         encoder.set_adaptive_filter(self.adaptive_filter);
@@ -107,7 +113,7 @@ impl Encoder for PngEncoder {
             .flat_map(|pixel| pixel.as_pixel_data().data())
             .collect::<Vec<_>>();
 
-        let mut encoder = self.prepare(image.width(), image.height(), &image.data[0], dest);
+        let encoder = self.prepare(image.width(), image.height(), &image.data[0], dest);
         let mut writer = encoder.write_header()?;
         writer.write_image_data(&data)?;
         writer.finish()?;
@@ -116,9 +122,10 @@ impl Encoder for PngEncoder {
     }
 
     fn encode_sequence<P: Pixel>(&mut self, sequence: &ImageSequence<P>, dest: &mut impl Write) -> crate::Result<()> {
-        let sample = &sequence.first_frame().image().data[0];
+        let sample = sequence.first_frame().image();
+        let pixel = &sample.data[0];
 
-        let mut encoder = self.prepare(sequence.width(), sequence.height(), sample, dest);
+        let mut encoder = self.prepare(sample.width(), sample.height(), pixel, dest);
         encoder.set_animated(sequence.len() as u32, sequence.loop_count().count_or_zero())?;
 
         let mut writer = encoder.write_header()?;
@@ -146,32 +153,38 @@ impl Encoder for PngEncoder {
 }
 
 /// A PNG decoder interface around [`png::Decoder`].
-pub struct PngDecoder;
+pub struct PngDecoder<P: Pixel, R: Read> {
+    _marker: PhantomData<(P, R)>
+}
 
-impl PngDecoder {
+impl<P: Pixel, R: Read> PngDecoder<P, R> {
     /// Creates a new decoder with the default settings.
     #[must_use]
     pub fn new() -> Self {
-        Self
+        Self {
+            _marker: PhantomData,
+        }
     }
 
-    fn prepare<R: Read>(&mut self, stream: R) -> crate::Result<png::Reader<R>> {
+    fn prepare(&mut self, stream: R) -> crate::Result<png::Reader<R>> {
         let decoder = png::Decoder::new(stream);
         decoder.read_info().map_err(Into::into)
     }
 }
 
-impl Decoder for PngDecoder {
-    fn decode<P: Pixel>(&mut self, stream: impl Read) -> crate::Result<Image<P>> {
-        let mut reader = self.prepare(stream)?;
+impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
+    type Sequence = ApngFrameIterator<P, R>;
 
-        let info = reader.info();
-        let color_type: ColorType = info.color_type.into();
-        let bit_depth = info.bit_depth as u8;
+    fn decode(&mut self, stream: R) -> crate::Result<Image<P>> {
+        let mut reader = self.prepare(stream)?;
 
         // Here we are decoding a single image, so only capture the first frame:
         let buffer = &mut vec![0; reader.output_buffer_size()];
         reader.next_frame(buffer)?;
+
+        let info = reader.info();
+        let color_type: ColorType = info.color_type.into();
+        let bit_depth = info.bit_depth as u8;
 
         let data = buffer
             .chunks_exact(info.bytes_per_pixel())
@@ -190,10 +203,7 @@ impl Decoder for PngDecoder {
         })
     }
 
-    fn decode_sequence<P: Pixel, I>(&mut self, stream: impl Read) -> crate::Result<I>
-    where
-        I: Iterator<Item = Frame<P>>,
-    {
+    fn decode_sequence(&mut self, stream: R) -> crate::Result<Self::Sequence> {
         let reader = self.prepare(stream)?;
 
         Ok(ApngFrameIterator {
@@ -215,27 +225,46 @@ impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
         &self.reader.info()
     }
 
-    fn next_frame(&mut self) -> crate::Result<(&[u8], png::OutputInfo)> {
+    fn next_frame(&mut self) -> crate::Result<(Vec<P>, png::OutputInfo)> {
         let buffer = &mut vec![0; self.reader.output_buffer_size()];
         let info = self.reader.next_frame(buffer)?;
 
-        Ok((buffer, info))
-    }
+        let (color_type, bit_depth, bpp) = {
+            let info = self.info();
+            let color_type: ColorType = info.color_type.into();
+            let bit_depth = info.bit_depth as u8;
 
-    pub fn len(&self) -> u32 {
+            (color_type, bit_depth, info.bytes_per_pixel())
+        };
+
+        let data = buffer
+            .chunks_exact(bpp)
+            .map(|chunk| {
+                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
+            })
+            .collect::<crate::Result<Vec<_>>>()?;
+
+        Ok((data, info))
+    }
+}
+
+impl<P: Pixel, R: Read> FrameIterator<P> for ApngFrameIterator<P, R> {
+    fn len(&self) -> u32 {
         self.info().animation_control.map(|a| a.num_frames).unwrap_or(1)
     }
 
-    pub fn loop_count(&self) -> LoopCount {
-        match self.info().animation_control.map(|a| a.loop_count) {
-            Some(0) => LoopCount::Infinite,
+    fn loop_count(&self) -> LoopCount {
+        match self.info().animation_control.map(|a| a.num_plays) {
+            Some(0) | None => LoopCount::Infinite,
             Some(n) => LoopCount::Exactly(n),
-            None => LoopCount::Infinite,
         }
     }
 
-    pub fn into_sequence(self) -> ImageSequence<P> {
-        ImageSequence::from_frames(self.collect()).with_loop_count(self.loop_count())
+    fn into_sequence(self) -> crate::Result<ImageSequence<P>> {
+        let loop_count = self.loop_count();
+        let frames = self.collect::<crate::Result<Vec<_>>>()?;
+
+        Ok(ImageSequence::from_frames(frames).with_loop_count(loop_count))
     }
 }
 
@@ -247,18 +276,10 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
             return None;
         }
 
-        let (frame, output_info) = self.next_frame()?;
-
-        let info = self.info();
-        let color_type: ColorType = info.color_type.into();
-        let bit_depth = info.bit_depth as u8;
-
-        let data = frame
-            .chunks_exact(info.bytes_per_pixel())
-            .map(|chunk| {
-                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
-            })
-            .collect::<crate::Result<Vec<_>>>()?;
+        let (data, output_info) = match self.next_frame() {
+            Ok(o) => o,
+            Err(e) => return Some(Err(e)),
+        };
 
         let inner = Image {
             width: NonZeroU32::new(output_info.width).unwrap(),
@@ -270,14 +291,15 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
         };
 
         self.seq += 1;
+        let fc = self.info().frame_control();
 
         Some(Ok(
             Frame::from_image(inner)
-                .with_delay(info.frame_control
+                .with_delay(fc
                     .map(|f| Duration::from_secs_f64(f.delay_num as f64 / f.delay_den as f64))
                     .unwrap_or_else(Duration::default)
                 )
-                .with_disposal(info.frame_control
+                .with_disposal(fc
                     .map(|f| match f.dispose_op {
                         png::DisposeOp::None => DisposalMethod::None,
                         png::DisposeOp::Background => DisposalMethod::Background,
