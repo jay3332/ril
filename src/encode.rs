@@ -67,7 +67,15 @@ pub trait FrameIterator<P: Pixel>: Iterator<Item = crate::Result<Frame<P>>> {
     ///
     /// # Errors
     /// * An error occured during decoding one of the frames.
-    fn into_sequence(self) -> crate::Result<ImageSequence<P>>;
+    fn into_sequence(self) -> crate::Result<ImageSequence<P>>
+    where
+        Self: Sized,
+    {
+        let loop_count = self.loop_count();
+        let frames = self.collect::<crate::Result<Vec<_>>>()?;
+
+        Ok(ImageSequence::from_frames(frames).with_loop_count(loop_count))
+    }
 }
 
 /// Represents any one of the different types of frame iterators, compacted into one common enum

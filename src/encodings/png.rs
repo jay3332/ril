@@ -274,13 +274,6 @@ impl<P: Pixel, R: Read> FrameIterator<P> for ApngFrameIterator<P, R> {
             Some(n) => LoopCount::Exactly(n),
         }
     }
-
-    fn into_sequence(self) -> crate::Result<ImageSequence<P>> {
-        let loop_count = self.loop_count();
-        let frames = self.collect::<crate::Result<Vec<_>>>()?;
-
-        Ok(ImageSequence::from_frames(frames).with_loop_count(loop_count))
-    }
 }
 
 impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
