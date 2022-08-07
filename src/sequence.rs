@@ -38,14 +38,24 @@ impl<P: Pixel> Frame<P> {
         }
     }
 
-    /// Sets the frame delay to the given duration.
+    /// Sets the frame delay to the given duration in place.
+    pub fn set_delay(&mut self, delay: Duration) {
+        self.delay = delay;
+    }
+
+    /// Takes this frame and sets the frame delay to the given duration.
     #[must_use]
     pub const fn with_delay(mut self, delay: Duration) -> Self {
         self.delay = delay;
         self
     }
 
-    /// Sets the disposal method for this frame when transitioning to the next.
+    /// Sets the disposal method for this frame in place.
+    pub fn set_disposal(&mut self, disposal: DisposalMethod) {
+        self.disposal = disposal;
+    }
+
+    /// Takes this frame and sets the disposal method for this frame when transitioning to the next.
     #[must_use]
     pub const fn with_disposal(mut self, disposal: DisposalMethod) -> Self {
         self.disposal = disposal;
@@ -334,11 +344,16 @@ impl<P: Pixel> ImageSequence<P> {
         self.loops
     }
 
-    /// Sets how many times this image sequence loops for.
+    /// Takes this image and sets how many times this image sequence loops for.
     #[must_use]
     pub const fn with_loop_count(mut self, loops: LoopCount) -> Self {
         self.loops = loops;
         self
+    }
+
+    /// Sets how many times this image sequence loops for in place.
+    pub fn set_loop_count(&mut self, loops: LoopCount) {
+        self.loops = loops;
     }
 
     /// Sets the exact number of loops this image sequence loops for.

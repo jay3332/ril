@@ -51,7 +51,7 @@ TODO: proper installation instructions
 ## Examples
 
 #### Open an image, invert it, and then save it:
-```rs
+```rust
 use ril::prelude::*;
 
 fn main() -> ril::Result<()> {
@@ -64,28 +64,28 @@ fn main() -> ril::Result<()> {
 ```
 
 or, why not use method chaining?
-```rs
+```rust
 Image::open("sample.png")?
     .inverted()
     .save_inferred("inverted.png")?;
 ```
 
 #### Create a new black image, open the sample image, and paste it on top of the black image:
-```rs
+```rust
 let image = Image::new(600, 600, Rgb::black());
 image.paste(100, 100, Image::open("sample.png")?);
 image.save_inferred("sample_on_black.png")?;
 ```
 
 you can still use method chaining, but this accesses a lower level interface:
-```rs
+```rust
 let image = Image::new(600, 600, Rgb::black())
     .with(&Paste::new(Image::open("sample.png")?).with_position(100, 100))
     .save_inferred("sample_on_black.png")?;
 ```
 
 #### Open an image and mask it to a circle:
-```rs
+```rust
 let image = Image::<Rgba>::open("sample.png")?;
 let (width, height) = image.dimensions();
 
@@ -114,7 +114,7 @@ For times when you need to collect all frames of an image, `ImageSequence` is us
 interface around a sequence of images. This can hold extra metadata about the animation such as loop count.
 
 #### Open an animated image and invert each frame as they are decoded, then saving them:
-```rs
+```rust
 let mut output = ImageSequence::<Rgba>::new();
 
 // ImageSequence::open is lazy
@@ -126,7 +126,7 @@ output.save_inferred("inverted.gif")?;
 ```
 
 #### Open an animated image and save each frame into a separate PNG image as they are decoded:
-```rs
+```rust
 ImageSequence::<Rgba>::open("sample.gif")?
     .enumerate()
     .for_each(|(idx, frame)| {
