@@ -1,5 +1,10 @@
 use crate::{DynamicFrameIterator, Error, Image, ImageFormat, Pixel, Result};
-use std::{fs::File, io::{Read, Write}, path::Path, time::Duration};
+use std::{
+    fs::File,
+    io::{Read, Write},
+    path::Path,
+    time::Duration,
+};
 
 /// The method used to dispose a frame before transitioning to the next frame in an image sequence.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
@@ -208,7 +213,7 @@ impl<P: Pixel> ImageSequence<P> {
             format => {
                 bytes.write_all(&buffer)?;
                 format.run_sequence_decoder(bytes)
-            },
+            }
         }
     }
 
@@ -284,7 +289,10 @@ impl<P: Pixel> ImageSequence<P> {
 
     /// Creates a new image sequence from the given frames
     pub fn from_frames(frames: Vec<Frame<P>>) -> Self {
-        Self { frames, ..Self::default() }
+        Self {
+            frames,
+            ..Self::default()
+        }
     }
 
     /// Adds a new frame to this image sequence and returns this sequence. Useful for

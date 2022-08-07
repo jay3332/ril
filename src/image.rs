@@ -1,14 +1,13 @@
 use crate::{
     draw::Draw,
     encode::{Decoder, Encoder},
-    encodings::png, error::{
+    encodings::png,
+    error::{
         Error::{self, InvalidExtension},
         Result,
     },
     pixel::Pixel,
-    Dynamic,
-    ResizeAlgorithm,
-    DynamicFrameIterator,
+    Dynamic, DynamicFrameIterator, ResizeAlgorithm,
 };
 
 use std::{
@@ -854,7 +853,11 @@ impl ImageFormat {
     ///
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
-    pub fn run_sequence_encoder<P: Pixel>(&self, seq: &crate::ImageSequence<P>, dest: &mut impl Write) -> Result<()> {
+    pub fn run_sequence_encoder<P: Pixel>(
+        &self,
+        seq: &crate::ImageSequence<P>,
+        dest: &mut impl Write,
+    ) -> Result<()> {
         match self {
             Self::Png => png::PngEncoder::new().encode_sequence(seq, dest),
             _ => panic!("No encoder implementation is found for this image format"),
@@ -882,7 +885,10 @@ impl ImageFormat {
     ///
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
-    pub fn run_sequence_decoder<P: Pixel, R: Read>(&self, stream: R) -> Result<DynamicFrameIterator<P, R>> {
+    pub fn run_sequence_decoder<P: Pixel, R: Read>(
+        &self,
+        stream: R,
+    ) -> Result<DynamicFrameIterator<P, R>> {
         Ok(match self {
             Self::Png => DynamicFrameIterator::Png(png::PngDecoder::new().decode_sequence(stream)?),
             _ => panic!("No decoder implementation for this image format"),
@@ -910,8 +916,8 @@ impl Display for ImageFormat {
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
     use crate::prelude::*;
+    use std::time::Duration;
 
     #[test]
     fn test_encoding() {

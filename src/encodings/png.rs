@@ -1,13 +1,7 @@
 use super::{ColorType, PixelData};
 use crate::{
     encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod,
-    Frame,
-    Image,
-    ImageFormat,
-    ImageSequence,
-    LoopCount,
-    Pixel,
+    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, Pixel,
 };
 
 pub use png::{AdaptiveFilterType, Compression, FilterType};
@@ -121,7 +115,11 @@ impl Encoder for PngEncoder {
         Ok(())
     }
 
-    fn encode_sequence<P: Pixel>(&mut self, sequence: &ImageSequence<P>, dest: &mut impl Write) -> crate::Result<()> {
+    fn encode_sequence<P: Pixel>(
+        &mut self,
+        sequence: &ImageSequence<P>,
+        dest: &mut impl Write,
+    ) -> crate::Result<()> {
         let sample = sequence.first_frame().image();
         let pixel = &sample.data[0];
 
@@ -154,7 +152,7 @@ impl Encoder for PngEncoder {
 
 /// A PNG decoder interface around [`png::Decoder`].
 pub struct PngDecoder<P: Pixel, R: Read> {
-    _marker: PhantomData<(P, R)>
+    _marker: PhantomData<(P, R)>,
 }
 
 impl<P: Pixel, R: Read> PngDecoder<P, R> {
@@ -250,7 +248,10 @@ impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
 
 impl<P: Pixel, R: Read> FrameIterator<P> for ApngFrameIterator<P, R> {
     fn len(&self) -> u32 {
-        self.info().animation_control.map(|a| a.num_frames).unwrap_or(1)
+        self.info()
+            .animation_control
+            .map(|a| a.num_frames)
+            .unwrap_or(1)
     }
 
     fn loop_count(&self) -> LoopCount {
@@ -293,20 +294,18 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
         self.seq += 1;
         let fc = self.info().frame_control();
 
-        Some(Ok(
-            Frame::from_image(inner)
-                .with_delay(fc
-                    .map(|f| Duration::from_secs_f64(f.delay_num as f64 / f.delay_den as f64))
-                    .unwrap_or_else(Duration::default)
-                )
-                .with_disposal(fc
-                    .map(|f| match f.dispose_op {
-                        png::DisposeOp::None => DisposalMethod::None,
-                        png::DisposeOp::Background => DisposalMethod::Background,
-                        png::DisposeOp::Previous => DisposalMethod::Previous,
-                    })
-                    .unwrap_or_else(DisposalMethod::default)
-                )
-        ))
+        Some(Ok(Frame::from_image(inner)
+            .with_delay(
+                fc.map(|f| Duration::from_secs_f64(f.delay_num as f64 / f.delay_den as f64))
+                    .unwrap_or_else(Duration::default),
+            )
+            .with_disposal(
+                fc.map(|f| match f.dispose_op {
+                    png::DisposeOp::None => DisposalMethod::None,
+                    png::DisposeOp::Background => DisposalMethod::Background,
+                    png::DisposeOp::Previous => DisposalMethod::Previous,
+                })
+                .unwrap_or_else(DisposalMethod::default),
+            )))
     }
 }

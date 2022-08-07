@@ -1,16 +1,14 @@
-use crate::{
-    Frame,
-    Image,
-    ImageSequence,
-    Pixel,
-    encodings::png::ApngFrameIterator,
-};
+use crate::{encodings::png::ApngFrameIterator, Frame, Image, ImageSequence, Pixel};
 use std::io::{Read, Write};
 
 pub trait Encoder {
     fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()>;
 
-    fn encode_sequence<P: Pixel>(&mut self, sequence: &ImageSequence<P>, dest: &mut impl Write) -> crate::Result<()> {
+    fn encode_sequence<P: Pixel>(
+        &mut self,
+        sequence: &ImageSequence<P>,
+        dest: &mut impl Write,
+    ) -> crate::Result<()> {
         self.encode(sequence.first_frame().image(), dest)
     }
 }
