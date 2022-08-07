@@ -955,17 +955,22 @@
 <span id="950">950</span>
 <span id="951">951</span>
 <span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
-    <span class="ident">encodings::png</span>, <span class="ident">error</span>::{
+    <span class="ident">encodings::png</span>,
+    <span class="ident">error</span>::{
         <span class="ident">Error</span>::{<span class="self">self</span>, <span class="ident">InvalidExtension</span>},
         <span class="prelude-ty">Result</span>,
     },
     <span class="ident">pixel::Pixel</span>,
-    <span class="ident">Dynamic</span>,
-    <span class="ident">ResizeAlgorithm</span>,
-    <span class="ident">DynamicFrameIterator</span>,
+    <span class="ident">Dynamic</span>, <span class="ident">DynamicFrameIterator</span>, <span class="ident">ResizeAlgorithm</span>,
 };
 
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -1811,7 +1816,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No encoder implementation is found for this image encoding.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_encoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_encoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
+        <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No encoder implementation is found for this image format&quot;</span>),
@@ -1839,7 +1848,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No decoder implementation is found for this image encoding.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">R</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">stream</span>: <span class="ident">R</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">png::PngDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
@@ -1867,8 +1879,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_encoding</span>() {
