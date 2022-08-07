@@ -320,13 +320,6 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ColorType</span>, <span class="ident">PixelData</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>, <span class="ident">FrameIterator</span>},
@@ -602,13 +595,6 @@
             <span class="prelude-val">Some</span>(<span class="number">0</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="ident">LoopCount::Infinite</span>,
             <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="ident">LoopCount::Exactly</span>(<span class="ident">n</span>),
         }
-    }
-
-    <span class="kw">fn</span> <span class="ident">into_sequence</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">loop_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">loop_count</span>();
-        <span class="kw">let</span> <span class="ident">frames</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>(<span class="ident">ImageSequence::from_frames</span>(<span class="ident">frames</span>).<span class="ident">with_loop_count</span>(<span class="ident">loop_count</span>))
     }
 }
 

@@ -111,6 +111,14 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">encodings::png::ApngFrameIterator</span>, <span class="ident">Frame</span>, <span class="ident">Image</span>, <span class="ident">ImageSequence</span>, <span class="ident">Pixel</span>};
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">Read</span>, <span class="ident">Write</span>};
 
@@ -180,7 +188,15 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * An error occured during decoding one of the frames.</span>
-    <span class="kw">fn</span> <span class="ident">into_sequence</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">into_sequence</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    {
+        <span class="kw">let</span> <span class="ident">loop_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">loop_count</span>();
+        <span class="kw">let</span> <span class="ident">frames</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="ident">ImageSequence::from_frames</span>(<span class="ident">frames</span>).<span class="ident">with_loop_count</span>(<span class="ident">loop_count</span>))
+    }
 }
 
 <span class="doccomment">/// Represents any one of the different types of frame iterators, compacted into one common enum</span>
