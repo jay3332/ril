@@ -327,7 +327,6 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-<span id="325">325</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ColorType</span>, <span class="ident">PixelData</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>, <span class="ident">FrameIterator</span>},
@@ -595,9 +594,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">FrameIterator</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">info</span>()
-            .<span class="ident">animation_control</span>
-            .<span class="ident">map_or</span>(<span class="number">1</span>, <span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">num_frames</span>)
+        <span class="self">self</span>.<span class="ident">info</span>().<span class="ident">animation_control</span>.<span class="ident">map_or</span>(<span class="number">1</span>, <span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">num_frames</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">loop_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LoopCount</span> {
@@ -641,16 +638,17 @@
         <span class="kw">let</span> <span class="ident">fc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">info</span>().<span class="ident">frame_control</span>();
 
         <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">Frame::from_image</span>(<span class="ident">inner</span>)
-            .<span class="ident">with_delay</span>(
-                <span class="ident">fc</span>.<span class="ident">map_or_else</span>(<span class="ident">Duration::default</span>, <span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">Duration::from_secs_f64</span>(<span class="ident">f64::from</span>(<span class="ident">f</span>.<span class="ident">delay_num</span>) <span class="op">/</span> <span class="ident">f64::from</span>(<span class="ident">f</span>.<span class="ident">delay_den</span>))),
-            )
-            .<span class="ident">with_disposal</span>(
-                <span class="ident">fc</span>.<span class="ident">map_or_else</span>(<span class="ident">DisposalMethod::default</span>, <span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">dispose_op</span> {
+            .<span class="ident">with_delay</span>(<span class="ident">fc</span>.<span class="ident">map_or_else</span>(<span class="ident">Duration::default</span>, <span class="op">|</span><span class="ident">f</span><span class="op">|</span> {
+                <span class="ident">Duration::from_secs_f64</span>(<span class="ident">f64::from</span>(<span class="ident">f</span>.<span class="ident">delay_num</span>) <span class="op">/</span> <span class="ident">f64::from</span>(<span class="ident">f</span>.<span class="ident">delay_den</span>))
+            }))
+            .<span class="ident">with_disposal</span>(<span class="ident">fc</span>.<span class="ident">map_or_else</span>(
+                <span class="ident">DisposalMethod::default</span>,
+                <span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">dispose_op</span> {
                     <span class="ident">png::DisposeOp::None</span> =&gt; <span class="ident">DisposalMethod::None</span>,
                     <span class="ident">png::DisposeOp::Background</span> =&gt; <span class="ident">DisposalMethod::Background</span>,
                     <span class="ident">png::DisposeOp::Previous</span> =&gt; <span class="ident">DisposalMethod::Previous</span>,
-                }),
-            )))
+                },
+            ))))
     }
 }
 </code></pre></div>

@@ -704,6 +704,7 @@
 <span id="699">699</span>
 <span id="700">700</span>
 <span id="701">701</span>
+<span id="702">702</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image::OverlayMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Image</span>, <span class="ident">Pixel</span>};
 
@@ -1142,7 +1143,8 @@
             <span class="macro">line!</span>(<span class="ident">x</span>, <span class="ident">y</span>);
         }
 
-        <span class="ident">p</span> <span class="op">=</span> (<span class="ident">h2</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">mul_add</span>((<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">powi</span>(<span class="number">2</span>), (<span class="ident">w2</span> <span class="op">*</span> (<span class="ident">y</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">pow</span>(<span class="number">2</span>)) <span class="kw">as</span> <span class="ident">f32</span>) <span class="op">-</span> (<span class="ident">w2</span> <span class="op">*</span> <span class="ident">h2</span>) <span class="kw">as</span> <span class="ident">f32</span>;
+        <span class="ident">p</span> <span class="op">=</span> (<span class="ident">h2</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">mul_add</span>((<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">powi</span>(<span class="number">2</span>), (<span class="ident">w2</span> <span class="op">*</span> (<span class="ident">y</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">pow</span>(<span class="number">2</span>)) <span class="kw">as</span> <span class="ident">f32</span>)
+            <span class="op">-</span> (<span class="ident">w2</span> <span class="op">*</span> <span class="ident">h2</span>) <span class="kw">as</span> <span class="ident">f32</span>;
         <span class="kw">while</span> <span class="ident">y</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="ident">y</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">py</span> <span class="op">-</span><span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">w2</span>;
