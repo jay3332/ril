@@ -681,6 +681,29 @@
 <span id="676">676</span>
 <span id="677">677</span>
 <span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image::OverlayMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Image</span>, <span class="ident">Pixel</span>};
 
@@ -754,7 +777,7 @@
     }
 
     <span class="comment">// Bounds are inclusive</span>
-    <span class="kw">fn</span> <span class="ident">bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">P</span>) {
+    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">P</span>) {
         <span class="kw">let</span> <span class="self">Self</span> {
             <span class="ident">color</span>,
             <span class="ident">thickness</span>,
@@ -959,11 +982,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Finally, you must also specify a fill color with [`with_fill`] or a border color with</span>
     <span class="doccomment">/// [`with_border`] or else you will receive a panic at draw-time.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
 
     <span class="doccomment">/// Creates a new ellipse from the given bounding box.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * `x2 &lt; x1`</span>
+    <span class="doccomment">/// * `y2 &lt; y1`</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bounding_box</span>(<span class="ident">x1</span>: <span class="ident">u32</span>, <span class="ident">y1</span>: <span class="ident">u32</span>, <span class="ident">x2</span>: <span class="ident">u32</span>, <span class="ident">y2</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert!</span>(<span class="ident">x2</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">x1</span>, <span class="string">&quot;invalid bounding box&quot;</span>);
         <span class="macro">assert!</span>(<span class="ident">y2</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">y1</span>, <span class="string">&quot;invalid bounding box&quot;</span>);
@@ -975,6 +1004,7 @@
     }
 
     <span class="doccomment">/// Creates a new circle with the given center position and radius.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">circle</span>(<span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>, <span class="ident">radius</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
             .<span class="ident">with_position</span>(<span class="ident">x</span>, <span class="ident">y</span>)
@@ -982,42 +1012,49 @@
     }
 
     <span class="doccomment">/// Sets the position of the ellipse.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_position</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_position</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">position</span> <span class="op">=</span> (<span class="ident">x</span>, <span class="ident">y</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the radii of the ellipse in pixels.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_radii</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_radii</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">radii</span> <span class="op">=</span> (<span class="ident">width</span>, <span class="ident">height</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the diameters of the ellipse in pixels.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">radii</span> <span class="op">=</span> (<span class="ident">width</span> <span class="op">/</span> <span class="number">2</span>, <span class="ident">height</span> <span class="op">/</span> <span class="number">2</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the border of the ellipse.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_border</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">border</span>: <span class="ident">Border</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_border</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">border</span>: <span class="ident">Border</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">border</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">border</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the fill color of the ellipse.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_fill</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_fill</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">fill</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">fill</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the overlay mode of the ellipse.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_overlay_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_overlay_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">overlay</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>);
         <span class="self">self</span>
     }
 
     <span class="comment">// Used when there is no border</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_possible_wrap</span>)]</span>
     <span class="kw">fn</span> <span class="ident">rasterize_filled_circle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">radii</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">i32</span>;
 
@@ -1029,7 +1066,7 @@
         <span class="kw">let</span> (<span class="ident">h</span>, <span class="ident">k</span>) <span class="op">=</span> (<span class="ident">h</span> <span class="kw">as</span> <span class="ident">i32</span>, <span class="ident">k</span> <span class="kw">as</span> <span class="ident">i32</span>);
 
         <span class="kw">let</span> <span class="ident">fill</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fill</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay_mode</span>());
+        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay</span>);
 
         <span class="macro">macro_rules!</span> <span class="ident">line</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">from</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">y</span>:<span class="ident">expr</span>) =&gt; {{
@@ -1058,6 +1095,7 @@
     }
 
     <span class="comment">// Used when there is no border</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_possible_wrap</span>, <span class="ident">clippy::cast_precision_loss</span>)]</span>
     <span class="kw">fn</span> <span class="ident">rasterize_filled_ellipse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> (<span class="ident">ch</span>, <span class="ident">k</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">position</span>;
         <span class="kw">let</span> (<span class="ident">ch</span>, <span class="ident">k</span>) <span class="op">=</span> (<span class="ident">ch</span> <span class="kw">as</span> <span class="ident">i32</span>, <span class="ident">k</span> <span class="kw">as</span> <span class="ident">i32</span>);
@@ -1072,7 +1110,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">py</span> <span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">w2</span> <span class="op">*</span> <span class="ident">y</span>;
 
         <span class="kw">let</span> <span class="ident">fill</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fill</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay_mode</span>());
+        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay</span>);
 
         <span class="macro">macro_rules!</span> <span class="ident">line</span> {
             (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">from</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">to</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">y</span>:<span class="ident">expr</span>) =&gt; {{
@@ -1088,7 +1126,7 @@
             }};
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> (<span class="ident">h2</span> <span class="op">-</span> <span class="ident">w2</span> <span class="op">*</span> <span class="ident">h</span>) <span class="kw">as</span> <span class="ident">f32</span> <span class="op">+</span> <span class="number">0.25</span> <span class="op">*</span> <span class="ident">w2</span> <span class="kw">as</span> <span class="ident">f32</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="number">0.25_f32</span>.<span class="ident">mul_add</span>(<span class="ident">w2</span> <span class="kw">as</span> <span class="ident">f32</span>, (<span class="ident">h2</span> <span class="op">-</span> <span class="ident">w2</span> <span class="op">*</span> <span class="ident">h</span>) <span class="kw">as</span> <span class="ident">f32</span>);
         <span class="kw">while</span> <span class="ident">px</span> <span class="op">&lt;</span> <span class="ident">py</span> {
             <span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">px</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">h2</span>;
@@ -1104,7 +1142,7 @@
             <span class="macro">line!</span>(<span class="ident">x</span>, <span class="ident">y</span>);
         }
 
-        <span class="ident">p</span> <span class="op">=</span> <span class="ident">h2</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">*</span> (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="ident">w2</span> <span class="op">*</span> (<span class="ident">y</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">pow</span>(<span class="number">2</span>)) <span class="kw">as</span> <span class="ident">f32</span> <span class="op">-</span> (<span class="ident">w2</span> <span class="op">*</span> <span class="ident">h2</span>) <span class="kw">as</span> <span class="ident">f32</span>;
+        <span class="ident">p</span> <span class="op">=</span> (<span class="ident">h2</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">mul_add</span>((<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">powi</span>(<span class="number">2</span>), (<span class="ident">w2</span> <span class="op">*</span> (<span class="ident">y</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">pow</span>(<span class="number">2</span>)) <span class="kw">as</span> <span class="ident">f32</span>) <span class="op">-</span> (<span class="ident">w2</span> <span class="op">*</span> <span class="ident">h2</span>) <span class="kw">as</span> <span class="ident">f32</span>;
         <span class="kw">while</span> <span class="ident">y</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="ident">y</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             <span class="ident">py</span> <span class="op">-</span><span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">w2</span>;
@@ -1122,6 +1160,7 @@
     }
 
     <span class="comment">// Standard, slower brute force algorithm that iterates through all pixels</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_possible_wrap</span>)]</span>
     <span class="kw">fn</span> <span class="ident">render_circle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> (<span class="ident">h</span>, <span class="ident">k</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">position</span>;
         <span class="kw">let</span> (<span class="ident">h</span>, <span class="ident">k</span>) <span class="op">=</span> (<span class="ident">h</span> <span class="kw">as</span> <span class="ident">i32</span>, <span class="ident">k</span> <span class="kw">as</span> <span class="ident">i32</span>);
@@ -1131,7 +1170,7 @@
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x1</span>, <span class="kw-2">mut</span> <span class="ident">y1</span>) <span class="op">=</span> (<span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>, <span class="ident">k</span> <span class="op">-</span> <span class="ident">r</span>);
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x2</span>, <span class="kw-2">mut</span> <span class="ident">y2</span>) <span class="op">=</span> (<span class="ident">h</span> <span class="op">+</span> <span class="ident">r</span>, <span class="ident">k</span> <span class="op">+</span> <span class="ident">r</span>);
 
-        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay_mode</span>());
+        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay</span>);
         <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">border</span>
             .<span class="ident">as_ref</span>()
@@ -1173,6 +1212,7 @@
     }
 
     <span class="comment">// Standard, slower brute force algorithm that iterates through all pixels</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_possible_wrap</span>, <span class="ident">clippy::cast_precision_loss</span>)]</span>
     <span class="kw">fn</span> <span class="ident">render_ellipse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> (<span class="ident">h</span>, <span class="ident">k</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">position</span>;
         <span class="kw">let</span> (<span class="ident">h</span>, <span class="ident">k</span>) <span class="op">=</span> (<span class="ident">h</span> <span class="kw">as</span> <span class="ident">i32</span>, <span class="ident">k</span> <span class="kw">as</span> <span class="ident">i32</span>);
@@ -1183,7 +1223,7 @@
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x1</span>, <span class="kw-2">mut</span> <span class="ident">y1</span>) <span class="op">=</span> (<span class="ident">h</span> <span class="op">-</span> <span class="ident">a</span>, <span class="ident">k</span> <span class="op">-</span> <span class="ident">b</span>);
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x2</span>, <span class="kw-2">mut</span> <span class="ident">y2</span>) <span class="op">=</span> (<span class="ident">h</span> <span class="op">+</span> <span class="ident">a</span>, <span class="ident">k</span> <span class="op">+</span> <span class="ident">b</span>);
 
-        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay_mode</span>());
+        <span class="kw">let</span> <span class="ident">overlay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">overlay</span>.<span class="ident">unwrap_or</span>(<span class="ident">image</span>.<span class="ident">overlay</span>);
         <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">border</span>
             .<span class="ident">as_ref</span>()
@@ -1283,7 +1323,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Paste</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new image paste with from the given image with the position default to `(0, 0)`.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">position</span>: (<span class="number">0</span>, <span class="number">0</span>),
             <span class="ident">image</span>,
@@ -1294,7 +1334,8 @@
 
     <span class="doccomment">/// Sets the position of where to paste the image at. The position is where the top-left corner</span>
     <span class="doccomment">/// of the image will be pasted.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_position</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_position</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">position</span> <span class="op">=</span> (<span class="ident">x</span>, <span class="ident">y</span>);
         <span class="self">self</span>
     }
@@ -1306,6 +1347,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * The mask image has different dimensions than the foreground image.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_mask</span>(<span class="self">self</span>, <span class="ident">mask</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::BitPixel</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.<span class="ident">image</span>.<span class="ident">dimensions</span>(),
@@ -1322,17 +1364,21 @@
 
     <span class="doccomment">/// Sets the mask image to use. Currently this is only limited to [`BitPixel`] images.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
     <span class="doccomment">/// This should have the same dimensions as the base foreground image! This method does not</span>
     <span class="doccomment">/// check for that though, however if this is not the case, you may get undescriptive panics</span>
     <span class="doccomment">/// later. Use [`Paste::with_mask`] instead if you are not 100% sure that the mask dimensions</span>
     <span class="doccomment">/// are valid.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::missing_const_for_fn</span>)]</span>
     <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">with_mask_unchecked</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mask</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::BitPixel</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">mask</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">mask</span>);
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the overlay mode of the image.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_overlay_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_overlay_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">overlay</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>);
         <span class="self">self</span>
     }

@@ -371,6 +371,30 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DynamicFrameIterator</span>, <span class="ident">Error</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">fs::File</span>,
@@ -402,6 +426,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new frame with the given image and default metadata.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_image</span>(<span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">image</span>,
@@ -411,49 +436,52 @@
     }
 
     <span class="doccomment">/// Sets the frame delay to the given duration.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_delay</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delay</span>: <span class="ident">Duration</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_delay</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delay</span>: <span class="ident">Duration</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">delay</span> <span class="op">=</span> <span class="ident">delay</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the disposal method for this frame when transitioning to the next.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_disposal</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">disposal</span>: <span class="ident">DisposalMethod</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_disposal</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">disposal</span>: <span class="ident">DisposalMethod</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">disposal</span> <span class="op">=</span> <span class="ident">disposal</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Returns a reference to the image this frame contains.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">image</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
     }
 
     <span class="doccomment">/// Consumes this frame returning the inner image it represents.</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::missing_const_for_fn</span>)]</span> <span class="comment">// can&#39;t use destructors with const fn</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_image</span>(<span class="self">self</span>) -&gt; <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>
     }
 
     <span class="doccomment">/// Returns the width of this frame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">width</span>()
     }
 
     <span class="doccomment">/// Returns the height of this frame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">height</span>()
     }
 
     <span class="doccomment">/// Returns the dimensions of this frame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dimensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>) {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">dimensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>) {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">dimensions</span>()
     }
 
     <span class="doccomment">/// Returns the delay duration for this frame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delay</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Duration</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">delay</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Duration</span> {
         <span class="self">self</span>.<span class="ident">delay</span>
     }
 
     <span class="doccomment">/// Returns the disposal method for this frame.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disposal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DisposalMethod</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">disposal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DisposalMethod</span> {
         <span class="self">self</span>.<span class="ident">disposal</span>
     }
 }
@@ -481,10 +509,11 @@
 
 <span class="kw">impl</span> <span class="ident">LoopCount</span> {
     <span class="doccomment">/// Returns the exact number of times this loop should be repeated or 0.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_or_zero</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">count_or_zero</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">LoopCount::Infinite</span> =&gt; <span class="number">0</span>,
-            <span class="ident">LoopCount::Exactly</span>(<span class="ident">count</span>) =&gt; <span class="ident">count</span>,
+            <span class="ident"><span class="self">Self</span>::Infinite</span> =&gt; <span class="number">0</span>,
+            <span class="ident"><span class="self">Self</span>::Exactly</span>(<span class="ident">count</span>) =&gt; <span class="ident">count</span>,
         }
     }
 }
@@ -531,6 +560,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">/// A frameless image sequence is forbidden to be encoded and you will receive a panic.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
@@ -661,6 +691,7 @@
     }
 
     <span class="doccomment">/// Creates a new image sequence from the given frames</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_frames</span>(<span class="ident">frames</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">frames</span>,
@@ -670,6 +701,7 @@
 
     <span class="doccomment">/// Adds a new frame to this image sequence and returns this sequence. Useful for</span>
     <span class="doccomment">/// method-chaining.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_frame</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">frame</span>: <span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">frames</span>.<span class="ident">push</span>(<span class="ident">frame</span>);
         <span class="self">self</span>
@@ -689,27 +721,33 @@
     }
 
     <span class="doccomment">/// Returns how many times this image sequence loops for.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loop_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LoopCount</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">loop_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LoopCount</span> {
         <span class="self">self</span>.<span class="ident">loops</span>
     }
 
     <span class="doccomment">/// Sets how many times this image sequence loops for.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_loop_count</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">loops</span>: <span class="ident">LoopCount</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_loop_count</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">loops</span>: <span class="ident">LoopCount</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">loops</span> <span class="op">=</span> <span class="ident">loops</span>;
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Sets the exact number of loops this image sequence loops for.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">looped_exactly</span>(<span class="self">self</span>, <span class="ident">loops</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">looped_exactly</span>(<span class="self">self</span>, <span class="ident">loops</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">with_loop_count</span>(<span class="ident">LoopCount::Exactly</span>(<span class="ident">loops</span>))
     }
 
     <span class="doccomment">/// Sets the image sequence to loop infinitely.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">looped_infinitely</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">looped_infinitely</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">with_loop_count</span>(<span class="ident">LoopCount::Infinite</span>)
     }
 
     <span class="doccomment">/// Consumes this image sequence and returns the frames it contains.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::missing_const_for_fn</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_frames</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">frames</span>
     }
@@ -724,17 +762,27 @@
         <span class="self">self</span>.<span class="ident">frames</span>.<span class="ident">iter_mut</span>()
     }
 
+    <span class="doccomment">/// Returns whether there are no frames in the image sequence. If so, this will probably be</span>
+    <span class="doccomment">/// invalid to encode.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">frames</span>.<span class="ident">is_empty</span>()
+    }
+
     <span class="doccomment">/// Returns the number of frames in this image sequence.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">frames</span>.<span class="ident">len</span>()
     }
 
     <span class="doccomment">/// Consumes this image sequence and returns the first image.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_first_image</span>(<span class="self">self</span>) -&gt; <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">into_frames</span>().<span class="ident">swap_remove</span>(<span class="number">0</span>).<span class="ident">into_image</span>()
     }
 
     <span class="doccomment">/// Returns a reference to the first frame in the image sequence.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_frame</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">frames</span>[<span class="number">0</span>]
     }
