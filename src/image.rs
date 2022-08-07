@@ -587,13 +587,7 @@ impl<P: Pixel> Image<P> {
     /// Currently, only [`BitPixel`] images are supported for the masking image.
     ///
     /// This is a shorthand for using the [`draw`] method with [`Paste`].
-    pub fn paste_with_mask(
-        &mut self,
-        x: u32,
-        y: u32,
-        image: Self,
-        mask: Image<crate::BitPixel>,
-    ) {
+    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Self, mask: Image<crate::BitPixel>) {
         self.draw(&crate::Paste::new(image).with_position(x, y).with_mask(mask));
     }
 

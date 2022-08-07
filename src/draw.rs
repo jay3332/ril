@@ -436,7 +436,8 @@ impl<P: Pixel> Ellipse<P> {
             line!(x, y);
         }
 
-        p = (h2 as f32).mul_add((x as f32 + 0.5).powi(2), (w2 * (y - 1).pow(2)) as f32) - (w2 * h2) as f32;
+        p = (h2 as f32).mul_add((x as f32 + 0.5).powi(2), (w2 * (y - 1).pow(2)) as f32)
+            - (w2 * h2) as f32;
         while y > 0 {
             y -= 1;
             py -= 2 * w2;

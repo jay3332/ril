@@ -265,9 +265,7 @@ impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
 
 impl<P: Pixel, R: Read> FrameIterator<P> for ApngFrameIterator<P, R> {
     fn len(&self) -> u32 {
-        self.info()
-            .animation_control
-            .map_or(1, |a| a.num_frames)
+        self.info().animation_control.map_or(1, |a| a.num_frames)
     }
 
     fn loop_count(&self) -> LoopCount {
@@ -311,15 +309,16 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
         let fc = self.info().frame_control();
 
         Some(Ok(Frame::from_image(inner)
-            .with_delay(
-                fc.map_or_else(Duration::default, |f| Duration::from_secs_f64(f64::from(f.delay_num) / f64::from(f.delay_den))),
-            )
-            .with_disposal(
-                fc.map_or_else(DisposalMethod::default, |f| match f.dispose_op {
+            .with_delay(fc.map_or_else(Duration::default, |f| {
+                Duration::from_secs_f64(f64::from(f.delay_num) / f64::from(f.delay_den))
+            }))
+            .with_disposal(fc.map_or_else(
+                DisposalMethod::default,
+                |f| match f.dispose_op {
                     png::DisposeOp::None => DisposalMethod::None,
                     png::DisposeOp::Background => DisposalMethod::Background,
                     png::DisposeOp::Previous => DisposalMethod::Previous,
-                }),
-            )))
+                },
+            ))))
     }
 }
