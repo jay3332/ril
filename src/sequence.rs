@@ -57,6 +57,11 @@ impl<P: Pixel> Frame<P> {
         &self.inner
     }
 
+    /// Returns a mutable reference to the image this frame contains.
+    pub fn image_mut(&mut self) -> &mut Image<P> {
+        &mut self.inner
+    }
+
     /// Consumes this frame returning the inner image it represents.
     #[allow(clippy::missing_const_for_fn)] // can't use destructors with const fn
     pub fn into_image(self) -> Image<P> {

@@ -108,19 +108,35 @@ one by one as each frame is decoded. This can lead to huge performance and memor
 decoding all frames at once, processing those frames individually, and then encoding the image back to a file.
 
 For lazy animated image decoding, the `DynamicFrameIterator` is used as a high-level iterator interface
-to iterate through all frames of an animated image, lazily.
+to iterate through all frames of an animated image, lazily. These implement `Iterator<Item = Frame<_>>`.
 
 For times when you need to collect all frames of an image, `ImageSequence` is used as a high-level
 interface around a sequence of images. This can hold extra metadata about the animation such as loop count.
 
-#### Open an animated image, invert each frame, and save it:
+#### Open an animated image and invert each frame as they are decoded, then saving them:
 ```rs
 let mut output = ImageSequence::<Rgba>::new();
 
 // ImageSequence::open is lazy
 for frame in ImageSequence::<Rgba>::open("sample.gif")? {
-    output.push_frame(frame.unwrap().inverted());
+    output.push_frame(frame?.into_image().inverted());
 }
 
 output.save_inferred("inverted.gif")?;
 ```
+
+#### Open an animated image and save each frame into a separate PNG image as they are decoded:
+```rs
+ImageSequence::<Rgba>::open("sample.gif")?
+    .enumerate()
+    .for_each(|(idx, frame)| {
+        frame
+            .unwrap()
+            .image()
+            .save_inferred(format!("frames/{}.png", idx))
+            .unwrap();
+    });
+```
+
+Although a bit misleading a first, `ImageSequence::open` and `ImageSequence::decode_[inferred_]from_bytes`
+return lazy `DynamicFrameIterator`s.
