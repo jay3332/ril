@@ -119,7 +119,7 @@ let mut output = ImageSequence::<Rgba>::new();
 
 // ImageSequence::open is lazy
 for frame in ImageSequence::<Rgba>::open("sample.gif")? {
-    output.push_frame(frame.unwrap().nverted());
+    output.push_frame(frame.unwrap().inverted());
 }
 
 output.save_inferred("inverted.gif")?;
