@@ -56,6 +56,7 @@ pub struct Image<P: Pixel = Dynamic> {
     pub data: Vec<P>,
     pub(crate) format: ImageFormat,
     pub(crate) overlay: OverlayMode,
+    pub(crate) background: P,
 }
 
 impl<P: Pixel> Image<P> {
@@ -71,6 +72,7 @@ impl<P: Pixel> Image<P> {
             data: vec![fill; (width * height) as usize],
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
+            background: P::default(),
         }
     }
 
@@ -105,6 +107,7 @@ impl<P: Pixel> Image<P> {
             data: pixels.to_vec(),
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
+            background: P::default(),
         }
     }
 
@@ -251,6 +254,22 @@ impl<P: Pixel> Image<P> {
         self
     }
 
+    /// Returns the background color of the image.
+    ///
+    /// This can be thought of as the default color for this image when a pixel is missing a color.
+    #[inline]
+    #[must_use]
+    pub const fn background_color(&self) -> P {
+        self.background
+    }
+
+    /// Returns the same image with its background color set to the given value.
+    #[must_use]
+    pub const fn with_background_color(mut self, color: P) -> Self {
+        self.background = color;
+        self
+    }
+
     /// Returns the dimensions of the image.
     #[inline]
     #[must_use]
@@ -345,6 +364,7 @@ impl<P: Pixel> Image<P> {
             data: f(self.data),
             format: self.format,
             overlay: self.overlay,
+            background: self.background,
         }
     }
 
@@ -864,7 +884,6 @@ mod tests {
         let mut background = Image::new(image.width(), image.height(), Rgba::transparent());
 
         background.paste_with_mask(0, 0, image, mask);
-        background.resize(1024, 1024, ResizeAlgorithm::Nearest);
         background.save_inferred("test.png").unwrap();
     }
 }
