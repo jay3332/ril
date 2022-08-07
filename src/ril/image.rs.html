@@ -918,49 +918,6 @@
 <span id="913">913</span>
 <span id="914">914</span>
 <span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
-<span id="927">927</span>
-<span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
-<span id="946">946</span>
-<span id="947">947</span>
-<span id="948">948</span>
-<span id="949">949</span>
-<span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
-<span id="957">957</span>
-<span id="958">958</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
@@ -1874,49 +1831,6 @@
                 <span class="ident"><span class="self">Self</span>::Unknown</span> =&gt; <span class="string">&quot;&quot;</span>,
             }
         )
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_encoding</span>() {
-        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/jay3332.png&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="ident">BitPixel</span>(<span class="bool-val">false</span>)).<span class="ident">with</span>(
-            <span class="kw-2">&amp;</span><span class="ident">Ellipse::from_bounding_box</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>())
-                .<span class="ident">with_fill</span>(<span class="ident">BitPixel</span>(<span class="bool-val">true</span>)),
-        );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">background</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="ident">Rgba::transparent</span>());
-
-        <span class="ident">background</span>.<span class="ident">paste_with_mask</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">image</span>, <span class="ident">mask</span>);
-        <span class="ident">background</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;test.png&quot;</span>).<span class="ident">unwrap</span>();
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_sequence</span>() {
-        <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> <span class="ident">ImageSequence</span>::<span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span><span class="ident">::new</span>()
-            .<span class="ident">with_frame</span>(
-                <span class="ident">Frame::from_image</span>(
-                    <span class="ident">Image::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/jay3332.png&quot;</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">resized</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">ResizeAlgorithm::Nearest</span>),
-                )
-                .<span class="ident">with_delay</span>(<span class="ident">Duration::from_millis</span>(<span class="number">500</span>)),
-            )
-            .<span class="ident">with_frame</span>(
-                <span class="ident">Frame::from_image</span>(
-                    <span class="ident">Image::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/jay3332.png&quot;</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">inverted</span>()
-                        .<span class="ident">resized</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">ResizeAlgorithm::Nearest</span>),
-                )
-                .<span class="ident">with_delay</span>(<span class="ident">Duration::from_millis</span>(<span class="number">500</span>)),
-            );
-
-        <span class="ident">seq</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;test.png&quot;</span>).<span class="ident">unwrap</span>();
     }
 }
 </code></pre></div>
