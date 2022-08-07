@@ -849,16 +849,123 @@
 <span id="844">844</span>
 <span id="845">845</span>
 <span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
-    <span class="ident">encodings::png</span>,
-    <span class="ident">error</span>::{
+    <span class="ident">encodings::png</span>, <span class="ident">error</span>::{
         <span class="ident">Error</span>::{<span class="self">self</span>, <span class="ident">InvalidExtension</span>},
         <span class="prelude-ty">Result</span>,
     },
     <span class="ident">pixel::Pixel</span>,
     <span class="ident">Dynamic</span>,
+    <span class="ident">ResizeAlgorithm</span>,
+    <span class="ident">DynamicFrameIterator</span>,
 };
 
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -907,6 +1014,7 @@
     <span class="kw">pub</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">format</span>: <span class="ident">ImageFormat</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">overlay</span>: <span class="ident">OverlayMode</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">background</span>: <span class="ident">P</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
@@ -922,6 +1030,7 @@
             <span class="ident">data</span>: <span class="macro">vec!</span>[<span class="ident">fill</span>; (<span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>) <span class="kw">as</span> <span class="ident">usize</span>],
             <span class="ident">format</span>: <span class="ident">ImageFormat::default</span>(),
             <span class="ident">overlay</span>: <span class="ident">OverlayMode::default</span>(),
+            <span class="ident">background</span>: <span class="ident">P::default</span>(),
         }
     }
 
@@ -956,18 +1065,19 @@
             <span class="ident">data</span>: <span class="ident">pixels</span>.<span class="ident">to_vec</span>(),
             <span class="ident">format</span>: <span class="ident">ImageFormat::default</span>(),
             <span class="ident">overlay</span>: <span class="ident">OverlayMode::default</span>(),
+            <span class="ident">background</span>: <span class="ident">P::default</span>(),
         }
     }
 
-    <span class="doccomment">/// Decodes an image with the explicitly given image encoding from the raw bytes.</span>
+    <span class="doccomment">/// Decodes an image with the explicitly given image encoding from the raw byte stream.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * `DecodingError`: The image could not be decoded, maybe it is corrupt.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_from_bytes</span>(<span class="ident">format</span>: <span class="ident">ImageFormat</span>, <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>.<span class="ident">as_ref</span>())
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_from_bytes</span>(<span class="ident">format</span>: <span class="ident">ImageFormat</span>, <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="ident">bytes</span>)
     }
 
-    <span class="doccomment">/// Decodes an image from the given bytes, inferring its encoding.</span>
+    <span class="doccomment">/// Decodes an image from the given read stream of bytes, inferring its encoding.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * `DecodingError`: The image could not be decoded, maybe it is corrupt.</span>
@@ -976,12 +1086,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No decoder implementation for the given encoding format.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_inferred_from_bytes</span>(<span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">bytes</span>.<span class="ident">as_ref</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_inferred_from_bytes</span>(<span class="kw-2">mut</span> <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> [<span class="number">0</span>; <span class="number">12</span>];
+        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">read</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">match</span> <span class="ident">ImageFormat::infer_encoding</span>(<span class="ident">stream</span>) {
+        <span class="kw">match</span> <span class="ident">ImageFormat::infer_encoding</span>(<span class="ident">buf</span>) {
             <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownEncodingFormat</span>),
-            <span class="ident">format</span> =&gt; <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="ident">stream</span>),
+            <span class="ident">format</span> =&gt; <span class="ident">format</span>.<span class="ident">run_decoder</span>((<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">n</span>]).<span class="ident">chain</span>(<span class="ident">bytes</span>)),
         }
     }
 
@@ -994,11 +1105,14 @@
     <span class="doccomment">/// todo!()</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>()).<span class="ident">map_err</span>(<span class="ident">Error::IOError</span>)<span class="question-mark">?</span>;
-        <span class="ident">file</span>.<span class="ident">read_to_end</span>(<span class="ident">buffer</span>).<span class="ident">map_err</span>(<span class="ident">Error::IOError</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>())<span class="question-mark">?</span>;
+        <span class="ident">file</span>.<span class="ident">read_to_end</span>(<span class="ident">buffer</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ImageFormat::from_path</span>(<span class="ident">path</span>)<span class="question-mark">?</span> {
-            <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="ident">ImageFormat::infer_encoding</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[<span class="number">0</span>..<span class="number">12</span>]),
+            <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="kw">match</span> <span class="ident">ImageFormat::infer_encoding</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[<span class="number">0</span>..<span class="number">12</span>]) {
+                <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownEncodingFormat</span>),
+                <span class="ident">format</span> =&gt; <span class="ident">format</span>,
+            },
             <span class="ident">format</span> =&gt; <span class="ident">format</span>,
         };
 
@@ -1102,6 +1216,22 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Returns the background color of the image.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This can be thought of as the default color for this image when a pixel is missing a color.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">background_color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">P</span> {
+        <span class="self">self</span>.<span class="ident">background</span>
+    }
+
+    <span class="doccomment">/// Returns the same image with its background color set to the given value.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_background_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">background</span> <span class="op">=</span> <span class="ident">color</span>;
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// Returns the dimensions of the image.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
@@ -1189,6 +1319,9 @@
     <span class="doccomment">/// the data is the correct size.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The function should take the current image data and return the new data.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">/// This resets the background color back to the default.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_data</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Image</span> {
             <span class="ident">width</span>: <span class="self">self</span>.<span class="ident">width</span>,
@@ -1196,6 +1329,7 @@
             <span class="ident">data</span>: <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">data</span>),
             <span class="ident">format</span>: <span class="self">self</span>.<span class="ident">format</span>,
             <span class="ident">overlay</span>: <span class="self">self</span>.<span class="ident">overlay</span>,
+            <span class="ident">background</span>: <span class="ident">T::default</span>(),
         }
     }
 
@@ -1347,6 +1481,32 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Resizes this image in place to the given dimensions using the given resizing algorithm</span>
+    <span class="doccomment">/// in place.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>, <span class="ident">algorithm</span>: <span class="ident">ResizeAlgorithm</span>) {
+        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">width</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">height</span>).<span class="ident">unwrap</span>();
+
+        <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::resize::resize</span>(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>,
+            <span class="self">self</span>.<span class="ident">width</span>,
+            <span class="self">self</span>.<span class="ident">height</span>,
+            <span class="ident">width</span>,
+            <span class="ident">height</span>,
+            <span class="ident">algorithm</span>,
+        );
+        <span class="self">self</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
+        <span class="self">self</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">height</span>;
+    }
+
+    <span class="doccomment">/// Takes this image and resizes this image to the given dimensions using the given</span>
+    <span class="doccomment">/// resizing algorithm. Useful for method chaining.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resized</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>, <span class="ident">algorithm</span>: <span class="ident">ResizeAlgorithm</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">resize</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">algorithm</span>);
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// Draws an object or shape onto this image.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="kw">impl</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
         <span class="ident">entity</span>.<span class="ident">draw</span>(<span class="self">self</span>);
@@ -1440,6 +1600,7 @@
                 .<span class="ident">collect</span>(),
             <span class="ident">format</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">image</span>.<span class="ident">format</span>,
             <span class="ident">overlay</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">image</span>.<span class="ident">overlay</span>,
+            <span class="ident">background</span>: <span class="ident">Default::default</span>(),
         }
     }};
 }
@@ -1563,7 +1724,7 @@
                 .<span class="ident">to_ascii_lowercase</span>()
                 .<span class="ident">as_str</span>()
             {
-                <span class="string">&quot;png&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::Png</span>,
+                <span class="string">&quot;png&quot;</span> <span class="op">|</span> <span class="string">&quot;apng&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::Png</span>,
                 <span class="string">&quot;jpg&quot;</span> <span class="op">|</span> <span class="string">&quot;jpeg&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::Jpeg</span>,
                 <span class="string">&quot;gif&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::Gif</span>,
                 <span class="string">&quot;bmp&quot;</span> =&gt; <span class="ident"><span class="self">Self</span>::Bmp</span>,
@@ -1631,10 +1792,10 @@
     <span class="doccomment">/// Encodes the `Image` into raw bytes.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * An error occured while decoding.</span>
+    <span class="doccomment">/// * An error occured while encoding.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">/// * Noenecoder implementation is found for this image encoding.</span>
+    <span class="doccomment">/// * No encoder implementation is found for this image encoding.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_encoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngEncoder::new</span>().<span class="ident">encode</span>(<span class="ident">image</span>, <span class="ident">dest</span>),
@@ -1642,7 +1803,22 @@
         }
     }
 
-    <span class="doccomment">/// Decodes the image data from a `ByteStream` into an image.</span>
+    <span class="doccomment">/// Encodes the `ImageSequence1 into raw bytes. If the encoding does not supported image</span>
+    <span class="doccomment">/// sequences (or multi-frame images), it will only encode the first frame.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// * An error occured while encoding.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * No encoder implementation is found for this image encoding.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_encoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No encoder implementation is found for this image format&quot;</span>),
+        }
+    }
+
+    <span class="doccomment">/// Decodes the image data from into an image.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * An error occured while decoding.</span>
@@ -1651,9 +1827,23 @@
     <span class="doccomment">/// * No decoder implementation is found for this image encoding.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngDecoder</span>.<span class="ident">decode</span>(<span class="ident">stream</span>),
+            <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
         }
+    }
+
+    <span class="doccomment">/// Decodes the image sequence data into an image sequence.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// * An error occured while decoding.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * No decoder implementation is found for this image encoding.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">R</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">png::PngDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
+        })
     }
 }
 
@@ -1677,22 +1867,44 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_encoding</span>() {
         <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/jay3332.png&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="ident">BitPixel</span>(<span class="bool-val">false</span>))
-            .<span class="ident">with</span>(
-                <span class="kw-2">&amp;</span><span class="ident">Ellipse::from_bounding_box</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>())
-                    .<span class="ident">with_fill</span>(<span class="ident">BitPixel</span>(<span class="bool-val">true</span>)),
-            );
+        <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="ident">BitPixel</span>(<span class="bool-val">false</span>)).<span class="ident">with</span>(
+            <span class="kw-2">&amp;</span><span class="ident">Ellipse::from_bounding_box</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>())
+                .<span class="ident">with_fill</span>(<span class="ident">BitPixel</span>(<span class="bool-val">true</span>)),
+        );
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">background</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="ident">Rgba::transparent</span>());
 
         <span class="ident">background</span>.<span class="ident">paste_with_mask</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">image</span>, <span class="ident">mask</span>);
-        <span class="ident">background</span>
-            .<span class="ident">save_inferred</span>(<span class="string">&quot;test.png&quot;</span>)
-            .<span class="ident">unwrap</span>();
+        <span class="ident">background</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;test.png&quot;</span>).<span class="ident">unwrap</span>();
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_sequence</span>() {
+        <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> <span class="ident">ImageSequence</span>::<span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span><span class="ident">::new</span>()
+            .<span class="ident">with_frame</span>(
+                <span class="ident">Frame::from_image</span>(
+                    <span class="ident">Image::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/jay3332.png&quot;</span>)
+                        .<span class="ident">unwrap</span>()
+                        .<span class="ident">resized</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">ResizeAlgorithm::Nearest</span>),
+                )
+                .<span class="ident">with_delay</span>(<span class="ident">Duration::from_millis</span>(<span class="number">500</span>)),
+            )
+            .<span class="ident">with_frame</span>(
+                <span class="ident">Frame::from_image</span>(
+                    <span class="ident">Image::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/jay3332.png&quot;</span>)
+                        .<span class="ident">unwrap</span>()
+                        .<span class="ident">inverted</span>()
+                        .<span class="ident">resized</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">ResizeAlgorithm::Nearest</span>),
+                )
+                .<span class="ident">with_delay</span>(<span class="ident">Duration::from_millis</span>(<span class="number">500</span>)),
+            );
+
+        <span class="ident">seq</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;test.png&quot;</span>).<span class="ident">unwrap</span>();
     }
 }
 </code></pre></div>

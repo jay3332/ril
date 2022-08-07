@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Decoder",""],["Encoder",""]]});
+initSidebarItems({"enum":[["DynamicFrameIterator","Represents any one of the different types of frame iterators, compacted into one common enum with common methods."]],"trait":[["Decoder",""],["Encoder",""],["FrameIterator","Represents the lazy decoding of frames from an encoded image sequence, such as an animated image."]]});

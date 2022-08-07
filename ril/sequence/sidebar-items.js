@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DisposalMethod","The method used to dispose a frame before transitioning to the next frame in an image sequence."],["LoopCount",""]],"struct":[["Frame","Represents a frame in an image sequence. It encloses an [`Image`] and extra metadata about the frame."],["ImageSequence","Represents a sequence of image frames such as an animated image."]]});
