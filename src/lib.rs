@@ -1,5 +1,12 @@
-#![allow(clippy::module_name_repetitions)]
-#![allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+//! The Rust Imaging Library. A high-level image processing crate for Rust.
+
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::module_name_repetitions,
+    clippy::similar_names,
+    clippy::many_single_char_names,
+)]
 
 pub mod draw;
 pub mod encode;

@@ -71,7 +71,7 @@ impl<P: Pixel> Border<P> {
     }
 
     // Bounds are inclusive
-    fn bounds(&self) -> (u32, u32, P) {
+    const fn bounds(&self) -> (u32, u32, P) {
         let Self {
             color,
             thickness,
@@ -276,11 +276,17 @@ impl<P: Pixel> Ellipse<P> {
     ///
     /// Finally, you must also specify a fill color with [`with_fill`] or a border color with
     /// [`with_border`] or else you will receive a panic at draw-time.
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Creates a new ellipse from the given bounding box.
+    ///
+    /// # Panics
+    /// * `x2 < x1`
+    /// * `y2 < y1`
+    #[must_use]
     pub fn from_bounding_box(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
         assert!(x2 >= x1, "invalid bounding box");
         assert!(y2 >= y1, "invalid bounding box");
@@ -292,6 +298,7 @@ impl<P: Pixel> Ellipse<P> {
     }
 
     /// Creates a new circle with the given center position and radius.
+    #[must_use]
     pub fn circle(x: u32, y: u32, radius: u32) -> Self {
         Self::default()
             .with_position(x, y)
@@ -299,42 +306,49 @@ impl<P: Pixel> Ellipse<P> {
     }
 
     /// Sets the position of the ellipse.
-    pub fn with_position(mut self, x: u32, y: u32) -> Self {
+    #[must_use]
+    pub const fn with_position(mut self, x: u32, y: u32) -> Self {
         self.position = (x, y);
         self
     }
 
     /// Sets the radii of the ellipse in pixels.
-    pub fn with_radii(mut self, width: u32, height: u32) -> Self {
+    #[must_use]
+    pub const fn with_radii(mut self, width: u32, height: u32) -> Self {
         self.radii = (width, height);
         self
     }
 
     /// Sets the diameters of the ellipse in pixels.
-    pub fn with_size(mut self, width: u32, height: u32) -> Self {
+    #[must_use]
+    pub const fn with_size(mut self, width: u32, height: u32) -> Self {
         self.radii = (width / 2, height / 2);
         self
     }
 
     /// Sets the border of the ellipse.
-    pub fn with_border(mut self, border: Border<P>) -> Self {
+    #[must_use]
+    pub const fn with_border(mut self, border: Border<P>) -> Self {
         self.border = Some(border);
         self
     }
 
     /// Sets the fill color of the ellipse.
-    pub fn with_fill(mut self, fill: P) -> Self {
+    #[must_use]
+    pub const fn with_fill(mut self, fill: P) -> Self {
         self.fill = Some(fill);
         self
     }
 
     /// Sets the overlay mode of the ellipse.
-    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+    #[must_use]
+    pub const fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
         self.overlay = Some(mode);
         self
     }
 
     // Used when there is no border
+    #[allow(clippy::cast_possible_wrap)]
     fn rasterize_filled_circle(&self, image: &mut Image<P>) {
         let radius = self.radii.0 as i32;
 
@@ -346,7 +360,7 @@ impl<P: Pixel> Ellipse<P> {
         let (h, k) = (h as i32, k as i32);
 
         let fill = self.fill.unwrap();
-        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+        let overlay = self.overlay.unwrap_or(image.overlay);
 
         macro_rules! line {
             ($from:expr, $to:expr, $y:expr) => {{
@@ -375,6 +389,7 @@ impl<P: Pixel> Ellipse<P> {
     }
 
     // Used when there is no border
+    #[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
     fn rasterize_filled_ellipse(&self, image: &mut Image<P>) {
         let (ch, k) = self.position;
         let (ch, k) = (ch as i32, k as i32);
@@ -389,7 +404,7 @@ impl<P: Pixel> Ellipse<P> {
         let mut py = 2 * w2 * y;
 
         let fill = self.fill.unwrap();
-        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+        let overlay = self.overlay.unwrap_or(image.overlay);
 
         macro_rules! line {
             ($from:expr, $to:expr, $y:expr) => {{
@@ -405,7 +420,7 @@ impl<P: Pixel> Ellipse<P> {
             }};
         }
 
-        let mut p = (h2 - w2 * h) as f32 + 0.25 * w2 as f32;
+        let mut p = 0.25_f32.mul_add(w2 as f32, (h2 - w2 * h) as f32);
         while px < py {
             x += 1;
             px += 2 * h2;
@@ -421,7 +436,7 @@ impl<P: Pixel> Ellipse<P> {
             line!(x, y);
         }
 
-        p = h2 as f32 * (x as f32 + 0.5).powi(2) + (w2 * (y - 1).pow(2)) as f32 - (w2 * h2) as f32;
+        p = (h2 as f32).mul_add((x as f32 + 0.5).powi(2), (w2 * (y - 1).pow(2)) as f32) - (w2 * h2) as f32;
         while y > 0 {
             y -= 1;
             py -= 2 * w2;
@@ -439,6 +454,7 @@ impl<P: Pixel> Ellipse<P> {
     }
 
     // Standard, slower brute force algorithm that iterates through all pixels
+    #[allow(clippy::cast_possible_wrap)]
     fn render_circle(&self, image: &mut Image<P>) {
         let (h, k) = self.position;
         let (h, k) = (h as i32, k as i32);
@@ -448,7 +464,7 @@ impl<P: Pixel> Ellipse<P> {
         let (mut x1, mut y1) = (h - r, k - r);
         let (mut x2, mut y2) = (h + r, k + r);
 
-        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+        let overlay = self.overlay.unwrap_or(image.overlay);
         let border = self
             .border
             .as_ref()
@@ -490,6 +506,7 @@ impl<P: Pixel> Ellipse<P> {
     }
 
     // Standard, slower brute force algorithm that iterates through all pixels
+    #[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
     fn render_ellipse(&self, image: &mut Image<P>) {
         let (h, k) = self.position;
         let (h, k) = (h as i32, k as i32);
@@ -500,7 +517,7 @@ impl<P: Pixel> Ellipse<P> {
         let (mut x1, mut y1) = (h - a, k - b);
         let (mut x2, mut y2) = (h + a, k + b);
 
-        let overlay = self.overlay.unwrap_or(image.overlay_mode());
+        let overlay = self.overlay.unwrap_or(image.overlay);
         let border = self
             .border
             .as_ref()
@@ -600,7 +617,7 @@ pub struct Paste<P: Pixel> {
 impl<P: Pixel> Paste<P> {
     /// Creates a new image paste with from the given image with the position default to `(0, 0)`.
     #[must_use]
-    pub fn new(image: Image<P>) -> Self {
+    pub const fn new(image: Image<P>) -> Self {
         Self {
             position: (0, 0),
             image,
@@ -611,7 +628,8 @@ impl<P: Pixel> Paste<P> {
 
     /// Sets the position of where to paste the image at. The position is where the top-left corner
     /// of the image will be pasted.
-    pub fn with_position(mut self, x: u32, y: u32) -> Self {
+    #[must_use]
+    pub const fn with_position(mut self, x: u32, y: u32) -> Self {
         self.position = (x, y);
         self
     }
@@ -623,6 +641,7 @@ impl<P: Pixel> Paste<P> {
     ///
     /// # Panics
     /// * The mask image has different dimensions than the foreground image.
+    #[must_use]
     pub fn with_mask(self, mask: Image<crate::BitPixel>) -> Self {
         assert_eq!(
             self.image.dimensions(),
@@ -639,17 +658,21 @@ impl<P: Pixel> Paste<P> {
 
     /// Sets the mask image to use. Currently this is only limited to [`BitPixel`] images.
     ///
+    /// # Safety
     /// This should have the same dimensions as the base foreground image! This method does not
     /// check for that though, however if this is not the case, you may get undescriptive panics
     /// later. Use [`Paste::with_mask`] instead if you are not 100% sure that the mask dimensions
     /// are valid.
+    #[must_use]
+    #[allow(clippy::missing_const_for_fn)]
     pub unsafe fn with_mask_unchecked(mut self, mask: Image<crate::BitPixel>) -> Self {
         self.mask = Some(mask);
         self
     }
 
     /// Sets the overlay mode of the image.
-    pub fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
+    #[must_use]
+    pub const fn with_overlay_mode(mut self, mode: OverlayMode) -> Self {
         self.overlay = Some(mode);
         self
     }

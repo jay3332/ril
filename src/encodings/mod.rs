@@ -11,13 +11,12 @@ pub enum ColorType {
 
 impl ColorType {
     #[must_use]
-    pub fn channels(&self) -> usize {
+    pub const fn channels(&self) -> usize {
         match self {
-            Self::L => 1,
+            Self::L | Self::Palette => 1,
             Self::LA => 2,
             Self::Rgb => 3,
             Self::Rgba => 4,
-            Self::Palette => 1,
         }
     }
 }
@@ -33,7 +32,8 @@ pub enum PixelData {
 }
 
 impl PixelData {
-    pub fn type_data(&self) -> (ColorType, u8) {
+    #[must_use]
+    pub const fn type_data(&self) -> (ColorType, u8) {
         match self {
             Self::Bit(_) => (ColorType::L, 1),
             Self::L(_) => (ColorType::L, 8),
@@ -44,6 +44,11 @@ impl PixelData {
         }
     }
 
+    /// Creates the pixel from raw data.
+    ///
+    /// # Errors
+    /// * Bit depth is not a power of two
+    /// * An error occured while decoding the pixel data
     pub fn from_raw(color_type: ColorType, bit_depth: u8, data: &[u8]) -> crate::Result<Self> {
         // TODO: support 16-bit bit depths. right now, it scales down
         if !bit_depth.is_power_of_two() {
@@ -88,6 +93,8 @@ impl PixelData {
         })
     }
 
+    /// Returns the raw data of the pixel.
+    #[must_use]
     pub fn data(&self) -> Vec<u8> {
         match *self {
             Self::Bit(value) => vec![value.then_some(255).unwrap_or(0)],

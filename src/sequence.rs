@@ -29,6 +29,7 @@ pub struct Frame<P: Pixel> {
 
 impl<P: Pixel> Frame<P> {
     /// Creates a new frame with the given image and default metadata.
+    #[must_use]
     pub fn from_image(image: Image<P>) -> Self {
         Self {
             inner: image,
@@ -38,49 +39,52 @@ impl<P: Pixel> Frame<P> {
     }
 
     /// Sets the frame delay to the given duration.
-    pub fn with_delay(mut self, delay: Duration) -> Self {
+    #[must_use]
+    pub const fn with_delay(mut self, delay: Duration) -> Self {
         self.delay = delay;
         self
     }
 
     /// Sets the disposal method for this frame when transitioning to the next.
-    pub fn with_disposal(mut self, disposal: DisposalMethod) -> Self {
+    #[must_use]
+    pub const fn with_disposal(mut self, disposal: DisposalMethod) -> Self {
         self.disposal = disposal;
         self
     }
 
     /// Returns a reference to the image this frame contains.
-    pub fn image(&self) -> &Image<P> {
+    pub const fn image(&self) -> &Image<P> {
         &self.inner
     }
 
     /// Consumes this frame returning the inner image it represents.
+    #[allow(clippy::missing_const_for_fn)] // can't use destructors with const fn
     pub fn into_image(self) -> Image<P> {
         self.inner
     }
 
     /// Returns the width of this frame.
-    pub fn width(&self) -> u32 {
+    pub const fn width(&self) -> u32 {
         self.inner.width()
     }
 
     /// Returns the height of this frame.
-    pub fn height(&self) -> u32 {
+    pub const fn height(&self) -> u32 {
         self.inner.height()
     }
 
     /// Returns the dimensions of this frame.
-    pub fn dimensions(&self) -> (u32, u32) {
+    pub const fn dimensions(&self) -> (u32, u32) {
         self.inner.dimensions()
     }
 
     /// Returns the delay duration for this frame.
-    pub fn delay(&self) -> Duration {
+    pub const fn delay(&self) -> Duration {
         self.delay
     }
 
     /// Returns the disposal method for this frame.
-    pub fn disposal(&self) -> DisposalMethod {
+    pub const fn disposal(&self) -> DisposalMethod {
         self.disposal
     }
 }
@@ -108,10 +112,11 @@ pub enum LoopCount {
 
 impl LoopCount {
     /// Returns the exact number of times this loop should be repeated or 0.
-    pub fn count_or_zero(self) -> u32 {
+    #[must_use]
+    pub const fn count_or_zero(self) -> u32 {
         match self {
-            LoopCount::Infinite => 0,
-            LoopCount::Exactly(count) => count,
+            Self::Infinite => 0,
+            Self::Exactly(count) => count,
         }
     }
 }
@@ -158,6 +163,7 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Note
     /// A frameless image sequence is forbidden to be encoded and you will receive a panic.
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -288,6 +294,7 @@ impl<P: Pixel> ImageSequence<P> {
     }
 
     /// Creates a new image sequence from the given frames
+    #[must_use]
     pub fn from_frames(frames: Vec<Frame<P>>) -> Self {
         Self {
             frames,
@@ -297,6 +304,7 @@ impl<P: Pixel> ImageSequence<P> {
 
     /// Adds a new frame to this image sequence and returns this sequence. Useful for
     /// method-chaining.
+    #[must_use]
     pub fn with_frame(mut self, frame: Frame<P>) -> Self {
         self.frames.push(frame);
         self
@@ -316,27 +324,33 @@ impl<P: Pixel> ImageSequence<P> {
     }
 
     /// Returns how many times this image sequence loops for.
-    pub fn loop_count(&self) -> LoopCount {
+    #[must_use]
+    pub const fn loop_count(&self) -> LoopCount {
         self.loops
     }
 
     /// Sets how many times this image sequence loops for.
-    pub fn with_loop_count(mut self, loops: LoopCount) -> Self {
+    #[must_use]
+    pub const fn with_loop_count(mut self, loops: LoopCount) -> Self {
         self.loops = loops;
         self
     }
 
     /// Sets the exact number of loops this image sequence loops for.
-    pub fn looped_exactly(self, loops: u32) -> Self {
+    #[must_use]
+    pub const fn looped_exactly(self, loops: u32) -> Self {
         self.with_loop_count(LoopCount::Exactly(loops))
     }
 
     /// Sets the image sequence to loop infinitely.
-    pub fn looped_infinitely(self) -> Self {
+    #[must_use]
+    pub const fn looped_infinitely(self) -> Self {
         self.with_loop_count(LoopCount::Infinite)
     }
 
     /// Consumes this image sequence and returns the frames it contains.
+    #[must_use]
+    #[allow(clippy::missing_const_for_fn)]
     pub fn into_frames(self) -> Vec<Frame<P>> {
         self.frames
     }
@@ -351,17 +365,27 @@ impl<P: Pixel> ImageSequence<P> {
         self.frames.iter_mut()
     }
 
+    /// Returns whether there are no frames in the image sequence. If so, this will probably be
+    /// invalid to encode.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.frames.is_empty()
+    }
+
     /// Returns the number of frames in this image sequence.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.frames.len()
     }
 
     /// Consumes this image sequence and returns the first image.
+    #[must_use]
     pub fn into_first_image(self) -> Image<P> {
         self.into_frames().swap_remove(0).into_image()
     }
 
     /// Returns a reference to the first frame in the image sequence.
+    #[must_use]
     pub fn first_frame(&self) -> &Frame<P> {
         &self.frames[0]
     }

@@ -1,4 +1,4 @@
-//! An interfacing layer between fast_image_resize and this crate.
+//! An interfacing layer between `fast_image_resize` and this crate.
 
 use crate::{
     encodings::{ColorType, PixelData},
@@ -44,8 +44,8 @@ impl From<FilterType> for ResizeAlg {
     fn from(f: FilterType) -> Self {
         type F = ResizeFilterType;
 
-        ResizeAlg::Convolution(match f {
-            FilterType::Nearest => return ResizeAlg::Nearest,
+        Self::Convolution(match f {
+            FilterType::Nearest => return Self::Nearest,
             FilterType::Box => F::Box,
             FilterType::Bilinear => F::Bilinear,
             FilterType::Hamming => F::Hamming,
@@ -56,6 +56,7 @@ impl From<FilterType> for ResizeAlg {
     }
 }
 
+#[allow(clippy::ptr_arg)]
 pub(crate) fn resize<P: Pixel>(
     data: &Vec<P>,
     src_width: NonZeroU32,
@@ -67,18 +68,16 @@ pub(crate) fn resize<P: Pixel>(
     let (color_type, bit_depth) = data[0].as_pixel_data().type_data();
     let pixel_type = match bit_depth {
         1 | 2 | 4 | 8 => match color_type {
-            ColorType::L => ResizePixelType::U8,
+            ColorType::L | ColorType::Palette => ResizePixelType::U8,
             ColorType::LA => ResizePixelType::U8x2,
             ColorType::Rgb => ResizePixelType::U8x3,
             ColorType::Rgba => ResizePixelType::U8x4,
-            ColorType::Palette => ResizePixelType::U8,
         },
         16 => match color_type {
-            ColorType::L => ResizePixelType::U16,
+            ColorType::L | ColorType::Palette => ResizePixelType::U16,
             ColorType::LA => ResizePixelType::U16x2,
             ColorType::Rgb => ResizePixelType::U16x3,
             ColorType::Rgba => ResizePixelType::U16x4,
-            ColorType::Palette => ResizePixelType::U16,
         },
         _ => panic!("Unsupported bit depth"),
     };

@@ -1,7 +1,7 @@
 use super::{ColorType, PixelData};
 use crate::{
     encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, Pixel,
+    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel,
 };
 
 pub use png::{AdaptiveFilterType, Compression, FilterType};
@@ -13,6 +13,7 @@ use std::{
 };
 
 impl From<png::ColorType> for ColorType {
+    #[allow(clippy::enum_glob_use)]
     fn from(value: png::ColorType) -> Self {
         use png::ColorType::*;
 
@@ -26,7 +27,8 @@ impl From<png::ColorType> for ColorType {
     }
 }
 
-fn get_png_color_type(src: ColorType) -> png::ColorType {
+#[allow(clippy::enum_glob_use)]
+const fn get_png_color_type(src: ColorType) -> png::ColorType {
     use png::ColorType::*;
 
     match src {
@@ -51,7 +53,7 @@ pub struct PngEncoder {
 impl PngEncoder {
     /// Creates a new encoder with the default settings.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             adaptive_filter: AdaptiveFilterType::NonAdaptive,
             filter: FilterType::NoFilter,
@@ -60,19 +62,22 @@ impl PngEncoder {
     }
 
     /// Sets the adaptive filter type to use.
-    pub fn with_adaptive_filter(mut self, value: AdaptiveFilterType) -> Self {
+    #[must_use]
+    pub const fn with_adaptive_filter(mut self, value: AdaptiveFilterType) -> Self {
         self.adaptive_filter = value;
         self
     }
 
     /// Sets the filter type to use.
-    pub fn with_filter(mut self, value: FilterType) -> Self {
+    #[must_use]
+    pub const fn with_filter(mut self, value: FilterType) -> Self {
         self.filter = value;
         self
     }
 
     /// Sets the compression level to use.
-    pub fn with_compression(mut self, value: Compression) -> Self {
+    #[must_use]
+    pub const fn with_compression(mut self, value: Compression) -> Self {
         self.compression = value;
         self
     }
@@ -150,6 +155,12 @@ impl Encoder for PngEncoder {
     }
 }
 
+impl Default for PngEncoder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// A PNG decoder interface around [`png::Decoder`].
 pub struct PngDecoder<P: Pixel, R: Read> {
     _marker: PhantomData<(P, R)>,
@@ -158,13 +169,13 @@ pub struct PngDecoder<P: Pixel, R: Read> {
 impl<P: Pixel, R: Read> PngDecoder<P, R> {
     /// Creates a new decoder with the default settings.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             _marker: PhantomData,
         }
     }
 
-    fn prepare(&mut self, stream: R) -> crate::Result<png::Reader<R>> {
+    fn prepare(stream: R) -> crate::Result<png::Reader<R>> {
         let decoder = png::Decoder::new(stream);
         decoder.read_info().map_err(Into::into)
     }
@@ -174,7 +185,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
     type Sequence = ApngFrameIterator<P, R>;
 
     fn decode(&mut self, stream: R) -> crate::Result<Image<P>> {
-        let mut reader = self.prepare(stream)?;
+        let mut reader = Self::prepare(stream)?;
 
         // Here we are decoding a single image, so only capture the first frame:
         let buffer = &mut vec![0; reader.output_buffer_size()];
@@ -196,19 +207,25 @@ impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
             height: NonZeroU32::new(info.height).unwrap(),
             data,
             format: ImageFormat::Png,
-            overlay: Default::default(),
-            background: Default::default(),
+            overlay: OverlayMode::default(),
+            background: P::default(),
         })
     }
 
     fn decode_sequence(&mut self, stream: R) -> crate::Result<Self::Sequence> {
-        let reader = self.prepare(stream)?;
+        let reader = Self::prepare(stream)?;
 
         Ok(ApngFrameIterator {
             seq: 0,
             reader,
             _marker: PhantomData,
         })
+    }
+}
+
+impl<P: Pixel, R: Read> Default for PngDecoder<P, R> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -220,7 +237,7 @@ pub struct ApngFrameIterator<P: Pixel, R: Read> {
 
 impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
     fn info(&self) -> &png::Info {
-        &self.reader.info()
+        self.reader.info()
     }
 
     fn next_frame(&mut self) -> crate::Result<(Vec<P>, png::OutputInfo)> {
@@ -250,8 +267,7 @@ impl<P: Pixel, R: Read> FrameIterator<P> for ApngFrameIterator<P, R> {
     fn len(&self) -> u32 {
         self.info()
             .animation_control
-            .map(|a| a.num_frames)
-            .unwrap_or(1)
+            .map_or(1, |a| a.num_frames)
     }
 
     fn loop_count(&self) -> LoopCount {
@@ -287,8 +303,8 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
             height: NonZeroU32::new(output_info.height).unwrap(),
             data,
             format: ImageFormat::Png,
-            overlay: Default::default(),
-            background: Default::default(),
+            overlay: OverlayMode::default(),
+            background: P::default(),
         };
 
         self.seq += 1;
@@ -296,16 +312,14 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
 
         Some(Ok(Frame::from_image(inner)
             .with_delay(
-                fc.map(|f| Duration::from_secs_f64(f.delay_num as f64 / f.delay_den as f64))
-                    .unwrap_or_else(Duration::default),
+                fc.map_or_else(Duration::default, |f| Duration::from_secs_f64(f64::from(f.delay_num) / f64::from(f.delay_den))),
             )
             .with_disposal(
-                fc.map(|f| match f.dispose_op {
+                fc.map_or_else(DisposalMethod::default, |f| match f.dispose_op {
                     png::DisposeOp::None => DisposalMethod::None,
                     png::DisposeOp::Background => DisposalMethod::Background,
                     png::DisposeOp::Previous => DisposalMethod::Previous,
-                })
-                .unwrap_or_else(DisposalMethod::default),
+                }),
             )))
     }
 }

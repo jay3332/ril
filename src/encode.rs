@@ -1,9 +1,18 @@
 use crate::{encodings::png::ApngFrameIterator, Frame, Image, ImageSequence, Pixel};
 use std::io::{Read, Write};
 
+/// Low-level encoder interface around an image format.
 pub trait Encoder {
+    /// Encodes the given image into the given writer.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
     fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()>;
 
+    /// Encodes the given image sequence into the given writer.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
     fn encode_sequence<P: Pixel>(
         &mut self,
         sequence: &ImageSequence<P>,
@@ -13,11 +22,21 @@ pub trait Encoder {
     }
 }
 
+/// Low-level decoder interface around an image format.
 pub trait Decoder<P: Pixel, R: Read> {
+    /// The type of the iterator returned by `decode_sequence`.
     type Sequence: FrameIterator<P>;
 
+    /// Decodes the given stream into an image.
+    ///
+    /// # Errors
+    /// * An error occured during decoding.
     fn decode(&mut self, stream: R) -> crate::Result<Image<P>>;
 
+    /// Decodes the given stream into a frame iterator.
+    ///
+    /// # Errors
+    /// * An error occured during decoding.
     fn decode_sequence(&mut self, stream: R) -> crate::Result<Self::Sequence>;
 }
 
@@ -34,12 +53,20 @@ pub trait FrameIterator<P: Pixel>: Iterator<Item = crate::Result<Frame<P>>> {
     /// decoding.
     fn len(&self) -> u32;
 
+    /// Returns if there are no frames in the sequence. In this case, the image is probably
+    /// invalid to be encoded again.
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// Returns the amount of times this sequence will loop over itself.
     fn loop_count(&self) -> crate::LoopCount;
 
     /// Collects all frames in this iterator and turns it into a high level [`ImageSequence`].
-    ///
     /// If any frame fails, that error is returned.
+    ///
+    /// # Errors
+    /// * An error occured during decoding one of the frames.
     fn into_sequence(self) -> crate::Result<ImageSequence<P>>;
 }
 

@@ -64,6 +64,9 @@ impl<P: Pixel> Image<P> {
     /// intially to `fill`.
     ///
     /// Both the width and height must be non-zero.
+    ///
+    /// # Panics
+    /// * `width` or `height` is zero.
     #[must_use]
     pub fn new(width: u32, height: u32, fill: P) -> Self {
         Self {
@@ -329,7 +332,7 @@ impl<P: Pixel> Image<P> {
     /// mode.
     #[inline]
     pub fn overlay_pixel(&mut self, x: u32, y: u32, pixel: P) {
-        self.overlay_pixel_with_mode(x, y, pixel, self.overlay)
+        self.overlay_pixel_with_mode(x, y, pixel, self.overlay);
     }
 
     /// Overlays the pixel at the given coordinates with the given pixel according to the specified
@@ -464,6 +467,9 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Crops this image in place to the given bounding box.
+    ///
+    /// # Panics
+    /// * The width or height of the bounding box is less than 1.
     pub fn crop(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
         self.width = NonZeroU32::new(x2 - x1).unwrap();
         self.height = NonZeroU32::new(y2 - y1).unwrap();
@@ -513,7 +519,7 @@ impl<P: Pixel> Image<P> {
 
         self.data = (0..self.height() as usize)
             .flat_map(|i| flipped.iter().map(|c| c[i]).collect::<Vec<_>>())
-            .collect()
+            .collect();
     }
 
     /// Takes this image and flips it vertically, or about the x-axis. Useful for method chaining.
@@ -525,6 +531,9 @@ impl<P: Pixel> Image<P> {
 
     /// Resizes this image in place to the given dimensions using the given resizing algorithm
     /// in place.
+    ///
+    /// # Panics
+    /// * `width` or `height` is zero.
     pub fn resize(&mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) {
         let width = NonZeroU32::new(width).unwrap();
         let height = NonZeroU32::new(height).unwrap();
@@ -543,6 +552,9 @@ impl<P: Pixel> Image<P> {
 
     /// Takes this image and resizes this image to the given dimensions using the given
     /// resizing algorithm. Useful for method chaining.
+    ///
+    /// # Panics
+    /// * `width` or `height` is zero.
     #[must_use]
     pub fn resized(mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) -> Self {
         self.resize(width, height, algorithm);
@@ -565,7 +577,7 @@ impl<P: Pixel> Image<P> {
     /// Pastes the given image onto this image at the given x and y coordinates.
     ///
     /// This is a shorthand for using the [`draw`] method with [`Paste`].
-    pub fn paste(&mut self, x: u32, y: u32, image: Image<P>) {
+    pub fn paste(&mut self, x: u32, y: u32, image: Self) {
         self.draw(&crate::Paste::new(image).with_position(x, y));
     }
 
@@ -579,7 +591,7 @@ impl<P: Pixel> Image<P> {
         &mut self,
         x: u32,
         y: u32,
-        image: Image<P>,
+        image: Self,
         mask: Image<crate::BitPixel>,
     ) {
         self.draw(&crate::Paste::new(image).with_position(x, y).with_mask(mask));
@@ -593,6 +605,9 @@ impl<P: Pixel> Image<P> {
     ///
     /// This masking image must have the same dimensions as this image. If it doesn't, you will
     /// receive a panic.
+    ///
+    /// # Panics
+    /// * The masking image has different dimensions from this image.
     pub fn mask_alpha(&mut self, mask: &Image<crate::L>)
     where
         P: crate::Alpha,
@@ -845,7 +860,7 @@ impl ImageFormat {
         }
     }
 
-    /// Encodes the `ImageSequence1 into raw bytes. If the encoding does not supported image
+    /// Encodes the `ImageSequence` into raw bytes. If the encoding does not supported image
     /// sequences (or multi-frame images), it will only encode the first frame.
     ///
     /// # Errors
