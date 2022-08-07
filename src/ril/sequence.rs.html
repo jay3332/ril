@@ -400,6 +400,21 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DynamicFrameIterator</span>, <span class="ident">Error</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">fs::File</span>,
@@ -440,14 +455,24 @@
         }
     }
 
-    <span class="doccomment">/// Sets the frame delay to the given duration.</span>
+    <span class="doccomment">/// Sets the frame delay to the given duration in place.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_delay</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">delay</span>: <span class="ident">Duration</span>) {
+        <span class="self">self</span>.<span class="ident">delay</span> <span class="op">=</span> <span class="ident">delay</span>;
+    }
+
+    <span class="doccomment">/// Takes this frame and sets the frame delay to the given duration.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_delay</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delay</span>: <span class="ident">Duration</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">delay</span> <span class="op">=</span> <span class="ident">delay</span>;
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Sets the disposal method for this frame when transitioning to the next.</span>
+    <span class="doccomment">/// Sets the disposal method for this frame in place.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_disposal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">disposal</span>: <span class="ident">DisposalMethod</span>) {
+        <span class="self">self</span>.<span class="ident">disposal</span> <span class="op">=</span> <span class="ident">disposal</span>;
+    }
+
+    <span class="doccomment">/// Takes this frame and sets the disposal method for this frame when transitioning to the next.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_disposal</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">disposal</span>: <span class="ident">DisposalMethod</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">disposal</span> <span class="op">=</span> <span class="ident">disposal</span>;
@@ -736,11 +761,16 @@
         <span class="self">self</span>.<span class="ident">loops</span>
     }
 
-    <span class="doccomment">/// Sets how many times this image sequence loops for.</span>
+    <span class="doccomment">/// Takes this image and sets how many times this image sequence loops for.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_loop_count</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">loops</span>: <span class="ident">LoopCount</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">loops</span> <span class="op">=</span> <span class="ident">loops</span>;
         <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Sets how many times this image sequence loops for in place.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_loop_count</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">loops</span>: <span class="ident">LoopCount</span>) {
+        <span class="self">self</span>.<span class="ident">loops</span> <span class="op">=</span> <span class="ident">loops</span>;
     }
 
     <span class="doccomment">/// Sets the exact number of loops this image sequence loops for.</span>
