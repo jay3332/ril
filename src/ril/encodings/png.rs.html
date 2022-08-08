@@ -318,6 +318,12 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ColorType</span>, <span class="ident">PixelData</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>, <span class="ident">FrameIterator</span>},
@@ -631,6 +637,12 @@
                     <span class="ident">png::DisposeOp::Previous</span> =&gt; <span class="ident">DisposalMethod::Previous</span>,
                 },
             ))))
+    }
+
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> <span class="ident">remaining</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">seq</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+
+        (<span class="ident">remaining</span>, <span class="prelude-val">Some</span>(<span class="ident">remaining</span>))
     }
 }
 </code></pre></div>
