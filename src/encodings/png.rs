@@ -208,7 +208,6 @@ impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
             data,
             format: ImageFormat::Png,
             overlay: OverlayMode::default(),
-            background: P::default(),
         })
     }
 
@@ -295,7 +294,6 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
             data,
             format: ImageFormat::Png,
             overlay: OverlayMode::default(),
-            background: P::default(),
         };
 
         self.seq += 1;

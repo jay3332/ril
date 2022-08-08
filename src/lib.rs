@@ -32,12 +32,10 @@ pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
 /// ```rust
 /// use ril::prelude::*;
 ///
-/// fn main() {
-///     // Prelude imported Image and Rgb
-///     let image = Image::new(100, 100, Rgb::red());
-///     // Prelude imported the Banded trait
-///     let (r, g, b) = image.bands();
-/// }
+/// // Prelude imported Image and Rgb
+/// let image = Image::new(100, 100, Rgb::red());
+/// // Prelude imported the Banded trait
+/// let (r, g, b) = image.bands();
 /// ```
 pub mod prelude {
     pub use super::{

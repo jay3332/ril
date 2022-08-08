@@ -57,7 +57,7 @@ impl From<FilterType> for ResizeAlg {
 }
 
 #[allow(clippy::ptr_arg)]
-pub(crate) fn resize<P: Pixel>(
+pub fn resize<P: Pixel>(
     data: &Vec<P>,
     src_width: NonZeroU32,
     src_height: NonZeroU32,

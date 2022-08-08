@@ -63,6 +63,7 @@ impl<P: Pixel> Frame<P> {
     }
 
     /// Returns a reference to the image this frame contains.
+    #[must_use]
     pub const fn image(&self) -> &Image<P> {
         &self.inner
     }
@@ -74,31 +75,37 @@ impl<P: Pixel> Frame<P> {
 
     /// Consumes this frame returning the inner image it represents.
     #[allow(clippy::missing_const_for_fn)] // can't use destructors with const fn
+    #[must_use]
     pub fn into_image(self) -> Image<P> {
         self.inner
     }
 
     /// Returns the width of this frame.
+    #[must_use]
     pub const fn width(&self) -> u32 {
         self.inner.width()
     }
 
     /// Returns the height of this frame.
+    #[must_use]
     pub const fn height(&self) -> u32 {
         self.inner.height()
     }
 
     /// Returns the dimensions of this frame.
+    #[must_use]
     pub const fn dimensions(&self) -> (u32, u32) {
         self.inner.dimensions()
     }
 
     /// Returns the delay duration for this frame.
+    #[must_use]
     pub const fn delay(&self) -> Duration {
         self.delay
     }
 
     /// Returns the disposal method for this frame.
+    #[must_use]
     pub const fn disposal(&self) -> DisposalMethod {
         self.disposal
     }
