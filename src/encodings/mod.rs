@@ -1,3 +1,4 @@
+pub mod jpeg;
 pub mod png;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]

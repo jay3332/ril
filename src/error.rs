@@ -1,6 +1,5 @@
 use std::ffi::OsString;
 use std::fmt;
-
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Represents an error that occurs within the crate.
@@ -111,6 +110,15 @@ impl From<png::DecodingError> for Error {
                 Self::DecodingError("limits exceeded".to_string())
             }
             png::DecodingError::Parameter(err) => Self::DecodingError(err.to_string()),
+        }
+    }
+}
+
+impl From<jpeg_decoder::Error> for Error {
+    fn from(err: jpeg_decoder::Error) -> Self {
+        match err {
+            jpeg_decoder::Error::Io(err) => Self::IOError(err),
+            err => Self::DecodingError(err.to_string()),
         }
     }
 }

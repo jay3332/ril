@@ -81,25 +81,42 @@ pub trait FrameIterator<P: Pixel>: Iterator<Item = crate::Result<Frame<P>>> {
 /// Represents any one of the different types of frame iterators, compacted into one common enum
 /// with common methods.
 pub enum DynamicFrameIterator<P: Pixel, R: Read> {
+    /// A single static image frame.
+    Single(Option<Image<P>>),
     /// A PNG or APNG frame iterator.
     Png(ApngFrameIterator<P, R>),
+}
+
+impl<P: Pixel, R: Read> DynamicFrameIterator<P, R> {
+    /// Create a new single static image frame iterator.
+    pub fn single(image: Image<P>) -> Self {
+        Self::Single(Some(image))
+    }
 }
 
 impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
     fn len(&self) -> u32 {
         match self {
+            DynamicFrameIterator::Single(_) => 1,
             DynamicFrameIterator::Png(it) => it.len(),
         }
     }
 
     fn loop_count(&self) -> crate::LoopCount {
         match self {
+            DynamicFrameIterator::Single(_) => crate::LoopCount::Exactly(1),
             DynamicFrameIterator::Png(it) => it.loop_count(),
         }
     }
 
     fn into_sequence(self) -> crate::Result<ImageSequence<P>> {
         match self {
+            DynamicFrameIterator::Single(mut it) => {
+                let image = it.take().unwrap();
+                let frame = Frame::from_image(image);
+
+                Ok(ImageSequence::new().with_frame(frame))
+            },
             DynamicFrameIterator::Png(it) => it.into_sequence(),
         }
     }
@@ -110,7 +127,18 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
+            DynamicFrameIterator::Single(it) => {
+                it.take().map(|image| Ok(Frame::from_image(image)))
+            },
             DynamicFrameIterator::Png(it) => it.next(),
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        match self {
+            DynamicFrameIterator::Single(Some(_)) => (1, Some(1)),
+            DynamicFrameIterator::Single(None) => (0, Some(0)),
+            DynamicFrameIterator::Png(it) => it.size_hint(),
         }
     }
 }

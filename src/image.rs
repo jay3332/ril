@@ -1,7 +1,7 @@
 use crate::{
     draw::Draw,
     encode::{Decoder, Encoder},
-    encodings::png,
+    encodings::{jpeg, png},
     error::{
         Error::{self, InvalidExtension},
         Result,
@@ -862,6 +862,7 @@ impl ImageFormat {
     pub fn run_decoder<P: Pixel>(&self, stream: impl Read) -> Result<Image<P>> {
         match self {
             Self::Png => png::PngDecoder::new().decode(stream),
+            Self::Jpeg => jpeg::JpegDecoder::new().decode(stream),
             _ => panic!("No decoder implementation for this image format"),
         }
     }
@@ -879,6 +880,7 @@ impl ImageFormat {
     ) -> Result<DynamicFrameIterator<P, R>> {
         Ok(match self {
             Self::Png => DynamicFrameIterator::Png(png::PngDecoder::new().decode_sequence(stream)?),
+            Self::Jpeg => jpeg::JpegDecoder::new().decode_sequence(stream)?,
             _ => panic!("No decoder implementation for this image format"),
         })
     }
@@ -899,5 +901,15 @@ impl Display for ImageFormat {
                 Self::Unknown => "",
             }
         )
+    }
+}
+
+mod tests {
+    use crate::prelude::*;
+
+    #[test]
+    fn test_jpeg() {
+        let image = Image::<Rgba>::open("/Users/jay3332/Downloads/ttbschoolpicture.jpg").unwrap();
+        image.save_inferred("test.png").unwrap();
     }
 }

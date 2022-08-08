@@ -14,6 +14,7 @@ categories = ["encoding", "graphics", "multimedia", "visualization"]
 [dependencies]
 fast_image_resize = "^1"
 png = "^0.17"
+jpeg-decoder = "^0.2"
 
 [dev-dependencies]
 criterion = "^0.3"
