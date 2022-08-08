@@ -14,7 +14,7 @@ pub mod encodings;
 pub mod error;
 pub mod image;
 pub mod pixel;
-pub mod resize;
+mod resize;
 pub mod sequence;
 
 pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
@@ -25,6 +25,20 @@ pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
 pub use resize::FilterType as ResizeAlgorithm;
 pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
 
+/// The crate prelude exports. Importing this with a wildcard will import most items from RIL that
+/// can be useful for image processing, along with bringing crucial traits into scope.
+///
+/// # Example
+/// ```rust
+/// use ril::prelude::*;
+///
+/// fn main() {
+///     // Prelude imported Image and Rgb
+///     let image = Image::new(100, 100, Rgb::red());
+///     // Prelude imported the Banded trait
+///     let (r, g, b) = image.bands();
+/// }
+/// ```
 pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, DisposalMethod, Draw, Dynamic,
