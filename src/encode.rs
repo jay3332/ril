@@ -89,7 +89,8 @@ pub enum DynamicFrameIterator<P: Pixel, R: Read> {
 
 impl<P: Pixel, R: Read> DynamicFrameIterator<P, R> {
     /// Create a new single static image frame iterator.
-    pub fn single(image: Image<P>) -> Self {
+    #[must_use]
+    pub const fn single(image: Image<P>) -> Self {
         Self::Single(Some(image))
     }
 }
@@ -116,7 +117,7 @@ impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
                 let frame = Frame::from_image(image);
 
                 Ok(ImageSequence::new().with_frame(frame))
-            },
+            }
             DynamicFrameIterator::Png(it) => it.into_sequence(),
         }
     }
@@ -127,9 +128,7 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            DynamicFrameIterator::Single(it) => {
-                it.take().map(|image| Ok(Frame::from_image(image)))
-            },
+            DynamicFrameIterator::Single(it) => it.take().map(|image| Ok(Frame::from_image(image))),
             DynamicFrameIterator::Png(it) => it.next(),
         }
     }

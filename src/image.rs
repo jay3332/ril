@@ -903,13 +903,3 @@ impl Display for ImageFormat {
         )
     }
 }
-
-mod tests {
-    use crate::prelude::*;
-
-    #[test]
-    fn test_jpeg() {
-        let image = Image::<Rgba>::open("/Users/jay3332/Downloads/ttbschoolpicture.jpg").unwrap();
-        image.save_inferred("test.png").unwrap();
-    }
-}

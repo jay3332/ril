@@ -1,25 +1,20 @@
-use crate::{
-    DynamicFrameIterator,
-    Image,
-    ImageFormat,
-    OverlayMode,
-    Pixel,
-    Result,
-    encode::Decoder,
-};
 use super::{ColorType, PixelData};
+use crate::{
+    encode::Decoder, DynamicFrameIterator, Error, Image, ImageFormat, OverlayMode, Pixel, Result,
+};
 
+use jpeg_decoder::PixelFormat as DecoderPixelFormat;
 use std::{io::Read, marker::PhantomData, num::NonZeroU32};
 
-impl From<ColorType> for jpeg_decoder::PixelFormat {
-    fn from(ty: ColorType) -> Self {
-        type C = jpeg_decoder::PixelFormat;
+impl TryFrom<ColorType> for DecoderPixelFormat {
+    type Error = Error;
 
-        match ty {
-            ColorType::L | ColorType::LA => C::L8,
-            ColorType::Rgb | ColorType::Rgba => C::RGB24,
-            ColorType::Palette => panic!("Palette color type is not supported"),
-        }
+    fn try_from(ty: ColorType) -> Result<Self> {
+        Ok(match ty {
+            ColorType::L | ColorType::LA => Self::L8,
+            ColorType::Rgb | ColorType::Rgba => Self::RGB24,
+            ColorType::Palette => return Err(Error::UnsupportedColorType),
+        })
     }
 }
 
@@ -41,22 +36,21 @@ impl<P: Pixel, R: Read> JpegDecoder<P, R> {
 impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
     type Sequence = DynamicFrameIterator<P, R>;
 
+    #[allow(clippy::cast_lossless)]
     fn decode(&mut self, stream: R) -> Result<Image<P>> {
         let mut decoder = jpeg_decoder::Decoder::new(stream);
         let data = decoder.decode()?;
 
         let info = decoder.info().unwrap();
         let (color_type, bit_depth) = match info.pixel_format {
-            jpeg_decoder::PixelFormat::L8 => (ColorType::L, 8),
-            jpeg_decoder::PixelFormat::L16 => (ColorType::L, 16),
-            jpeg_decoder::PixelFormat::RGB24 => (ColorType::Rgb, 8),
-            // Perform a conversion later
-            jpeg_decoder::PixelFormat::CMYK32 => (ColorType::Rgb, 8),
+            DecoderPixelFormat::L8 => (ColorType::L, 8),
+            DecoderPixelFormat::L16 => (ColorType::L, 16),
+            DecoderPixelFormat::RGB24 | DecoderPixelFormat::CMYK32 => (ColorType::Rgb, 8),
         };
         let perform_conversion = info.pixel_format == jpeg_decoder::PixelFormat::CMYK32;
 
-        let inst = std::time::Instant::now();
-        let data = data.as_slice()
+        let data = data
+            .as_slice()
             .chunks_exact(info.pixel_format.pixel_bytes())
             .map(|chunk| {
                 let chunk = &if perform_conversion {
