@@ -38,4 +38,4 @@ jobs:
         path: BENCHMARKS.md
     
     - name: Add output markdown to job summary
-      run: echo BENCHMARKS.md >> $GITHUB_STEP_SUMMARY
+      run: cat BENCHMARKS.md >> $GITHUB_STEP_SUMMARY
