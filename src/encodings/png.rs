@@ -312,4 +312,10 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
                 },
             ))))
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = (self.len() - self.seq) as usize;
+
+        (remaining, Some(remaining))
+    }
 }
