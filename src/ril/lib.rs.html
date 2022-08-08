@@ -49,8 +49,6 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A high-level image processing crate for Rust.</span>
 
 <span class="attribute">#![<span class="ident">allow</span>(
@@ -85,12 +83,10 @@
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// use ril::prelude::*;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     // Prelude imported Image and Rgb</span>
-<span class="doccomment">///     let image = Image::new(100, 100, Rgb::red());</span>
-<span class="doccomment">///     // Prelude imported the Banded trait</span>
-<span class="doccomment">///     let (r, g, b) = image.bands();</span>
-<span class="doccomment">/// }</span>
+<span class="doccomment">/// // Prelude imported Image and Rgb</span>
+<span class="doccomment">/// let image = Image::new(100, 100, Rgb::red());</span>
+<span class="doccomment">/// // Prelude imported the Banded trait</span>
+<span class="doccomment">/// let (r, g, b) = image.bands();</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span> {
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
