@@ -24,6 +24,9 @@ jobs:
 
     - name: Setup cache
       uses: Swatinem/rust-cache@v1
+    
+    - name: Install gnuplot
+      run: sudo apt install gnuplot
 
     - name: Install tools
       run: cargo install cargo-criterion criterion-table
