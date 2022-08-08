@@ -146,7 +146,6 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
-<span id="144">144</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">encodings::png::ApngFrameIterator</span>, <span class="ident">Frame</span>, <span class="ident">Image</span>, <span class="ident">ImageSequence</span>, <span class="ident">Pixel</span>};
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">Read</span>, <span class="ident">Write</span>};
 
@@ -238,7 +237,8 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Create a new single static image frame iterator.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single</span>(<span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">single</span>(<span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::Single</span>(<span class="prelude-val">Some</span>(<span class="ident">image</span>))
     }
 }
@@ -265,7 +265,7 @@
                 <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">Frame::from_image</span>(<span class="ident">image</span>);
 
                 <span class="prelude-val">Ok</span>(<span class="ident">ImageSequence::new</span>().<span class="ident">with_frame</span>(<span class="ident">frame</span>))
-            },
+            }
             <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">into_sequence</span>(),
         }
     }
@@ -276,9 +276,7 @@
 
     <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicFrameIterator::Single</span>(<span class="ident">it</span>) =&gt; {
-                <span class="ident">it</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">Frame::from_image</span>(<span class="ident">image</span>)))
-            },
+            <span class="ident">DynamicFrameIterator::Single</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">Frame::from_image</span>(<span class="ident">image</span>))),
             <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">next</span>(),
         }
     }

@@ -908,16 +908,6 @@
 <span id="903">903</span>
 <span id="904">904</span>
 <span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
@@ -1821,16 +1811,6 @@
                 <span class="ident"><span class="self">Self</span>::Unknown</span> =&gt; <span class="string">&quot;&quot;</span>,
             }
         )
-    }
-}
-
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_jpeg</span>() {
-        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span><span class="ident">::open</span>(<span class="string">&quot;/Users/jay3332/Downloads/ttbschoolpicture.jpg&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="ident">image</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;test.png&quot;</span>).<span class="ident">unwrap</span>();
     }
 }
 </code></pre></div>
