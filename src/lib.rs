@@ -33,7 +33,7 @@ pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
 /// use ril::prelude::*;
 ///
 /// // Prelude imported Image and Rgb
-/// let image = Image::new(100, 100, Rgb::red());
+/// let image = Image::new(100, 100, Rgb::new(255, 0, 0));
 /// // Prelude imported the Banded trait
 /// let (r, g, b) = image.bands();
 /// ```
