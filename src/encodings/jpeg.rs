@@ -1,18 +1,16 @@
 use super::{ColorType, PixelData};
 use crate::{
     encode::{Decoder, Encoder},
-    DynamicFrameIterator,
-    Error,
-    Image,
-    ImageFormat,
-    OverlayMode,
-    Pixel,
-    Result,
+    DynamicFrameIterator, Error, Image, ImageFormat, OverlayMode, Pixel, Result,
 };
 
-use jpeg_encoder::ColorType as EncoderColorType;
 use jpeg_decoder::PixelFormat as DecoderPixelFormat;
-use std::{io::{Read, Write}, marker::PhantomData, num::NonZeroU32};
+use jpeg_encoder::ColorType as EncoderColorType;
+use std::{
+    io::{Read, Write},
+    marker::PhantomData,
+    num::NonZeroU32,
+};
 
 /// A JPEG encoder interface over [`jpeg_encoder::Encoder`].
 pub struct JpegEncoder {
@@ -23,9 +21,7 @@ impl JpegEncoder {
     /// Creates a new encoder with default settings.
     #[must_use]
     pub const fn new() -> Self {
-        Self {
-            quality: 90,
-        }
+        Self { quality: 90 }
     }
 
     /// Sets the quality of the encoded image. Must be between 0 and 100.
@@ -42,6 +38,9 @@ impl JpegEncoder {
     /// Sets the quality of the encoded image. Should be between 0 and 100, but this doesn't
     /// check for that.
     ///
+    /// # Safety
+    /// Make sure `quality` is at most 100.
+    ///
     /// # See Also
     /// * [`with_quality`] for the safe, checked version of this method.
     #[must_use]
@@ -57,28 +56,33 @@ impl Encoder for JpegEncoder {
         let color_type = match sample {
             (ColorType::Rgb, 8) => EncoderColorType::Rgb,
             (ColorType::Rgba, 8) => EncoderColorType::Rgba,
-            (ColorType::L, 8) => EncoderColorType::Luma,
             // Just like how Rgba strips into Rgb, perform the same thing here manually
-            (ColorType::L, 1) => EncoderColorType::Luma,
-            (ColorType::LA, 8) => EncoderColorType::Luma,
+            (ColorType::L, 1 | 8) | (ColorType::LA, 8) => EncoderColorType::Luma,
             (ColorType::Palette, 8) => unimplemented!("should flatten palette"),
             _ => return Err(Error::UnsupportedColorType),
         };
 
-        let mut data = image.data
+        let mut data = image
+            .data
             .iter()
             .flat_map(|p| p.as_pixel_data().data())
             .collect::<Vec<_>>();
 
         if sample == (ColorType::L, 1) {
-            data.iter_mut().for_each(|p| *p = if *p > 0 { 255 } else { 0 });
+            data.iter_mut()
+                .for_each(|p| *p = if *p > 0 { 255 } else { 0 });
         }
         if sample == (ColorType::LA, 1) {
             data = data.into_iter().step_by(2).collect();
         }
 
         let encoder = jpeg_encoder::Encoder::new(dest, self.quality);
-        encoder.encode(&data, image.width() as u16, image.height() as u16, color_type)?;
+        encoder.encode(
+            &data,
+            image.width() as u16,
+            image.height() as u16,
+            color_type,
+        )?;
 
         Ok(())
     }
