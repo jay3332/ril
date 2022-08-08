@@ -10,7 +10,7 @@ can be useful for image processing, along with bringing crucial traits into scop
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="comment">// Prelude imported Image and Rgb</span>
-<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">100</span>, <span class="number">100</span>, <span class="ident">Rgb::red</span>());
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">100</span>, <span class="number">100</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));
 <span class="comment">// Prelude imported the Banded trait</span>
 <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) <span class="op">=</span> <span class="ident">image</span>.<span class="ident">bands</span>();</code></pre></div>
 </div></details><h2 id="reexports" class="small-section-header"><a href="#reexports">Re-exports</a></h2>
