@@ -829,6 +829,7 @@ impl ImageFormat {
     pub fn run_encoder<P: Pixel>(&self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
         match self {
             Self::Png => png::PngEncoder::new().encode(image, dest),
+            Self::Jpeg => jpeg::JpegEncoder::new().encode(image, dest),
             _ => panic!("No encoder implementation is found for this image format"),
         }
     }
@@ -848,6 +849,7 @@ impl ImageFormat {
     ) -> Result<()> {
         match self {
             Self::Png => png::PngEncoder::new().encode_sequence(seq, dest),
+            Self::Jpeg => jpeg::JpegEncoder::new().encode_sequence(seq, dest),
             _ => panic!("No encoder implementation is found for this image format"),
         }
     }

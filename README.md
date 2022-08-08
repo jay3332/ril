@@ -21,14 +21,14 @@ animated images such as GIFs or APNGs that have multiple frames.
 
 By the first stable release, we plan to support the following image encodings:
 
-| Encoding Format | Current Status     |
-|-----------------|--------------------|
-| PNG/APNG        | Supported          |
-| JPEG            | Decoding supported |
-| GIF             | Not yet supported  |
-| WebP            | Not yet supported  |
-| BMP             | Not yet supported  |
-| TIFF            | Not yet supported  |
+| Encoding Format | Current Status    |
+|-----------------|-------------------|
+| PNG/APNG        | Supported         |
+| JPEG            | Supported         |
+| GIF             | Not yet supported |
+| WebP            | Not yet supported |
+| BMP             | Not yet supported |
+| TIFF            | Not yet supported |
 
 Additionally, we also plan to support the following pixel formats:
 

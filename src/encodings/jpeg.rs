@@ -1,10 +1,88 @@
 use super::{ColorType, PixelData};
 use crate::{
-    encode::Decoder, DynamicFrameIterator, Error, Image, ImageFormat, OverlayMode, Pixel, Result,
+    encode::{Decoder, Encoder},
+    DynamicFrameIterator,
+    Error,
+    Image,
+    ImageFormat,
+    OverlayMode,
+    Pixel,
+    Result,
 };
 
+use jpeg_encoder::ColorType as EncoderColorType;
 use jpeg_decoder::PixelFormat as DecoderPixelFormat;
-use std::{io::Read, marker::PhantomData, num::NonZeroU32};
+use std::{io::{Read, Write}, marker::PhantomData, num::NonZeroU32};
+
+/// A JPEG encoder interface over [`jpeg_encoder::Encoder`].
+pub struct JpegEncoder {
+    quality: u8,
+}
+
+impl JpegEncoder {
+    /// Creates a new encoder with default settings.
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            quality: 90,
+        }
+    }
+
+    /// Sets the quality of the encoded image. Must be between 0 and 100.
+    ///
+    /// # Panics
+    /// * Quality is not between 0 and 100.
+    #[must_use]
+    pub fn with_quality(self, quality: u8) -> Self {
+        assert!(quality <= 100, "quality must be between 0 and 100");
+
+        unsafe { self.with_quality_unchecked(quality) }
+    }
+
+    /// Sets the quality of the encoded image. Should be between 0 and 100, but this doesn't
+    /// check for that.
+    ///
+    /// # See Also
+    /// * [`with_quality`] for the safe, checked version of this method.
+    #[must_use]
+    pub const unsafe fn with_quality_unchecked(mut self, quality: u8) -> Self {
+        self.quality = quality;
+        self
+    }
+}
+
+impl Encoder for JpegEncoder {
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
+        let sample = image.data[0].as_pixel_data().type_data();
+        let color_type = match sample {
+            (ColorType::Rgb, 8) => EncoderColorType::Rgb,
+            (ColorType::Rgba, 8) => EncoderColorType::Rgba,
+            (ColorType::L, 8) => EncoderColorType::Luma,
+            // Just like how Rgba strips into Rgb, perform the same thing here manually
+            (ColorType::L, 1) => EncoderColorType::Luma,
+            (ColorType::LA, 8) => EncoderColorType::Luma,
+            (ColorType::Palette, 8) => unimplemented!("should flatten palette"),
+            _ => return Err(Error::UnsupportedColorType),
+        };
+
+        let mut data = image.data
+            .iter()
+            .flat_map(|p| p.as_pixel_data().data())
+            .collect::<Vec<_>>();
+
+        if sample == (ColorType::L, 1) {
+            data.iter_mut().for_each(|p| *p = if *p > 0 { 255 } else { 0 });
+        }
+        if sample == (ColorType::LA, 1) {
+            data = data.into_iter().step_by(2).collect();
+        }
+
+        let encoder = jpeg_encoder::Encoder::new(dest, self.quality);
+        encoder.encode(&data, image.width() as u16, image.height() as u16, color_type)?;
+
+        Ok(())
+    }
+}
 
 impl TryFrom<ColorType> for DecoderPixelFormat {
     type Error = Error;
@@ -18,7 +96,7 @@ impl TryFrom<ColorType> for DecoderPixelFormat {
     }
 }
 
-/// A JPEG decoder interface over [`zune_jpeg::Decoder`].
+/// A JPEG decoder interface over [`jpeg_decoder::Decoder`].
 pub struct JpegDecoder<P: Pixel, R: Read> {
     _marker: PhantomData<(P, R)>,
 }

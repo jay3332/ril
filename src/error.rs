@@ -1,5 +1,6 @@
 use std::ffi::OsString;
 use std::fmt;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Represents an error that occurs within the crate.
@@ -119,6 +120,15 @@ impl From<jpeg_decoder::Error> for Error {
         match err {
             jpeg_decoder::Error::Io(err) => Self::IOError(err),
             err => Self::DecodingError(err.to_string()),
+        }
+    }
+}
+
+impl From<jpeg_encoder::EncodingError> for Error {
+    fn from(err: jpeg_encoder::EncodingError) -> Self {
+        match err {
+            jpeg_encoder::EncodingError::IoError(err) => Self::IOError(err),
+            err => Self::EncodingError(err.to_string()),
         }
     }
 }
