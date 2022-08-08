@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["JpegDecoder","A JPEG decoder interface over [`zune_jpeg::Decoder`]."]]});

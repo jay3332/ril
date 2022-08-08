@@ -119,9 +119,16 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
-
 <span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Represents an error that occurs within the crate.</span>
@@ -232,6 +239,15 @@
                 <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="string">&quot;limits exceeded&quot;</span>.<span class="ident">to_string</span>())
             }
             <span class="ident">png::DecodingError::Parameter</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">jpeg_decoder::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">jpeg_decoder::Error</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">err</span> {
+            <span class="ident">jpeg_decoder::Error::Io</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
+            <span class="ident">err</span> =&gt; <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
         }
     }
 }
