@@ -37,6 +37,20 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A high-level image processing crate for Rust.</span>
 
 <span class="attribute">#![<span class="ident">allow</span>(
@@ -53,7 +67,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">image</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pixel</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">resize</span>;
+<span class="kw">mod</span> <span class="ident">resize</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sequence</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">draw</span>::{<span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">Draw</span>, <span class="ident">Ellipse</span>, <span class="ident">Paste</span>, <span class="ident">Rectangle</span>};
@@ -64,6 +78,20 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">resize::FilterType</span> <span class="kw">as</span> <span class="ident">ResizeAlgorithm</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sequence</span>::{<span class="ident">DisposalMethod</span>, <span class="ident">Frame</span>, <span class="ident">ImageSequence</span>, <span class="ident">LoopCount</span>};
 
+<span class="doccomment">/// The crate prelude exports. Importing this with a wildcard will import most items from RIL that</span>
+<span class="doccomment">/// can be useful for image processing, along with bringing crucial traits into scope.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use ril::prelude::*;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// fn main() {</span>
+<span class="doccomment">///     // Prelude imported Image and Rgb</span>
+<span class="doccomment">///     let image = Image::new(100, 100, Rgb::red());</span>
+<span class="doccomment">///     // Prelude imported the Banded trait</span>
+<span class="doccomment">///     let (r, g, b) = image.bands();</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span> {
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
         <span class="ident">Alpha</span>, <span class="ident">Banded</span>, <span class="ident">BitPixel</span>, <span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">DisposalMethod</span>, <span class="ident">Draw</span>, <span class="ident">Dynamic</span>,
