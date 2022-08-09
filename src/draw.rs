@@ -7,7 +7,7 @@ pub trait Draw<P: Pixel> {
 }
 
 /// Represents whether a border is inset, outset, or if it lays in the center.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum BorderPosition {
     /// An inset border. May overlap the contents of inside the shape.
     Inset,
@@ -15,8 +15,13 @@ pub enum BorderPosition {
     Center,
     /// An outset border. May overlap the contents of outside the shape. This is the default
     /// behavior because it is usually what you would expect.
-    #[default]
     Outset,
+}
+
+impl Default for BorderPosition {
+    fn default() -> Self {
+        Self::Outset
+    }
 }
 
 /// Represents a shape border.

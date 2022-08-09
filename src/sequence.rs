@@ -7,15 +7,20 @@ use std::{
 };
 
 /// The method used to dispose a frame before transitioning to the next frame in an image sequence.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum DisposalMethod {
     /// Do not dispose the current frame. Usually not desired for transparent images.
-    #[default]
     None,
     /// Dispose the current frame completely and replace it with the image's background color.
     Background,
     /// Dispose and replace the current frame with the previous frame.
     Previous,
+}
+
+impl Default for DisposalMethod {
+    fn default() -> Self {
+        Self::None
+    }
 }
 
 /// Represents a frame in an image sequence. It encloses an [`Image`] and extra metadata
@@ -129,13 +134,18 @@ impl<P: Pixel> std::ops::DerefMut for Frame<P> {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum LoopCount {
     /// Loops infinitely.
-    #[default]
     Infinite,
     /// Loops the specified amount of times.
     Exactly(u32),
+}
+
+impl Default for LoopCount {
+    fn default() -> Self {
+        Self::Infinite
+    }
 }
 
 impl LoopCount {

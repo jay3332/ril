@@ -99,7 +99,7 @@ impl PixelData {
     #[must_use]
     pub fn data(&self) -> Vec<u8> {
         match *self {
-            Self::Bit(value) => vec![value.then_some(255).unwrap_or(0)],
+            Self::Bit(value) => vec![if value { 255 } else { 0 }],
             Self::L(l) => vec![l],
             Self::LA(l, a) => vec![l, a],
             Self::Rgb(r, g, b) => vec![r, g, b],

@@ -20,14 +20,19 @@ use std::{
 };
 
 /// The behavior to use when overlaying images on top of each other.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum OverlayMode {
     /// Replace alpha values with the alpha values of the overlay image. This is the default
     /// behavior.
-    #[default]
     Replace,
     /// Merge the alpha values of overlay image with the alpha values of the base image.
     Merge,
+}
+
+impl Default for OverlayMode {
+    fn default() -> Self {
+        Self::Replace
+    }
 }
 
 impl Display for OverlayMode {
@@ -700,13 +705,12 @@ impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
 }
 
 /// Represents the underlying encoding format of an image.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ImageFormat {
     /// No known encoding is known for the image.
     ///
     /// This is usually because the image was created manually. See [`Image::set_format`]
     /// to manually set the encoding format.
-    #[default]
     Unknown,
 
     /// The image is encoded in the PNG format.
@@ -726,6 +730,12 @@ pub enum ImageFormat {
 
     /// The image is encoded in the WebP format.
     WebP,
+}
+
+impl Default for ImageFormat {
+    fn default() -> Self {
+        Self::Unknown
+    }
 }
 
 impl ImageFormat {

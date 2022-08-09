@@ -143,7 +143,7 @@ impl Pixel for BitPixel {
     }
 
     fn as_bytes(&self) -> Self::Data {
-        [self.0.then_some(255).unwrap_or(0)]
+        [if self.0 { 255 } else { 0 }]
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -179,7 +179,7 @@ impl Pixel for L {
             // Currently, losing alpha implicitly is allowed, but I may change my mind about this
             // in the future.
             PixelData::L(value) | PixelData::LA(value, _) => Ok(Self(value)),
-            PixelData::Bit(value) => Ok(Self(value.then_some(255).unwrap_or(0))),
+            PixelData::Bit(value) => Ok(Self(if value { 255 } else { 0 })),
             _ => Err(UnsupportedColorType),
         }
     }
@@ -659,7 +659,7 @@ impl_from_bitpixel!(Rgb, Rgba);
 
 impl From<BitPixel> for L {
     fn from(bit: BitPixel) -> Self {
-        Self(bit.value().then_some(255).unwrap_or(0))
+        Self(if bit.value() { 255 } else { 0 })
     }
 }
 

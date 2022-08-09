@@ -12,13 +12,12 @@ use fast_image_resize::{
 use std::num::NonZeroU32;
 
 /// A filtering algorithm that is used to resize an image.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum FilterType {
     /// A simple nearest neighbor algorithm. Although the fastest, this gives the lowest quality
     /// resizings.
     ///
     /// When upscaling this is good if you want a "pixelated" effect with no aliasing.
-    #[default]
     Nearest,
     /// A box filter algorithm. Equivalent to the [`Nearest`] filter if you are upscaling.
     Box,
@@ -38,6 +37,12 @@ pub enum FilterType {
     /// A Lanczos filter with a window of 3. Calculates output pixel value using a high-quality
     /// Lanczos filter on all pixels.
     Lanczos3,
+}
+
+impl Default for FilterType {
+    fn default() -> Self {
+        Self::Nearest
+    }
 }
 
 impl From<FilterType> for ResizeAlg {
