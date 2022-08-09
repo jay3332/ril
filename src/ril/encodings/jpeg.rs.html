@@ -170,10 +170,6 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ColorType</span>, <span class="ident">PixelData</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
@@ -238,11 +234,7 @@
             <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::UnsupportedColorType</span>),
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">image</span>
-            .<span class="ident">data</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">as_pixel_data</span>().<span class="ident">data</span>())
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">data</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="ident">P::as_bytes</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="kw">if</span> <span class="ident">sample</span> <span class="op">==</span> (<span class="ident">ColorType::L</span>, <span class="number">1</span>) {
             <span class="ident">data</span>.<span class="ident">iter_mut</span>()

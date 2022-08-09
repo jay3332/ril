@@ -680,6 +680,41 @@
 <span id="675">675</span>
 <span id="676">676</span>
 <span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">encodings::PixelData</span>,
     <span class="ident">image::OverlayMode</span>,
@@ -691,6 +726,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Pixel</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Eq</span> {
+    <span class="kw">type</span> <span class="ident">Data</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">u8</span><span class="op">&gt;</span>;
+
     <span class="doccomment">/// Returns the inverted value of this pixel.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This does not independently invert the alpha value, instead you may need to</span>
@@ -731,6 +768,9 @@
 
     <span class="doccomment">/// Creates raw pixel data from this pixel type.</span>
     <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span>;
+
+    <span class="doccomment">/// Turns this pixel into bytes.</span>
+    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span>;
 
     <span class="doccomment">/// Merges this pixel with the given overlay pixel, taking into account alpha.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
@@ -800,6 +840,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">BitPixel</span> {
+    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">1</span>];
+
     <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="op">!</span><span class="self">self</span>.<span class="number">0</span>)
     }
@@ -815,6 +857,10 @@
 
     <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
         <span class="ident">PixelData::Bit</span>(<span class="self">self</span>.<span class="number">0</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
+        [<span class="self">self</span>.<span class="number">0</span>.<span class="ident">then_some</span>(<span class="number">255</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)]
     }
 
     <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
@@ -839,8 +885,10 @@
 );
 
 <span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">L</span> {
+    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">1</span>];
+
     <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="number">255</span> <span class="op">-</span> <span class="self">self</span>.<span class="number">0</span>)
+        <span class="self">Self</span>(<span class="op">!</span><span class="self">self</span>.<span class="number">0</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
@@ -855,6 +903,10 @@
 
     <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
         <span class="ident">PixelData::L</span>(<span class="self">self</span>.<span class="number">0</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
+        [<span class="self">self</span>.<span class="number">0</span>]
     }
 
     <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
@@ -893,11 +945,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">Rgb</span> {
+    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">3</span>];
+
     <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="number">255</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">r</span>,
-            <span class="ident">g</span>: <span class="number">255</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">g</span>,
-            <span class="ident">b</span>: <span class="number">255</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">b</span>,
+            <span class="ident">r</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">r</span>,
+            <span class="ident">g</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">g</span>,
+            <span class="ident">b</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">b</span>,
         }
     }
 
@@ -913,6 +967,10 @@
 
     <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
         <span class="ident">PixelData::Rgb</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
+        [<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>]
     }
 
     <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
@@ -1004,11 +1062,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">Rgba</span> {
+    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">4</span>];
+
     <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="number">255</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">r</span>,
-            <span class="ident">g</span>: <span class="number">255</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">g</span>,
-            <span class="ident">b</span>: <span class="number">255</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">b</span>,
+            <span class="ident">r</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">r</span>,
+            <span class="ident">g</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">g</span>,
+            <span class="ident">b</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">b</span>,
             <span class="ident">a</span>: <span class="self">self</span>.<span class="ident">a</span>,
         }
     }
@@ -1030,13 +1090,17 @@
                 <span class="ident">b</span>: <span class="ident">l</span>,
                 <span class="ident">a</span>,
             }),
-            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">value</span> { <span class="ident"><span class="self">Self</span>::white</span>() } <span class="kw">else</span> { <span class="ident"><span class="self">Self</span>::black</span>() }),
+            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">then</span>(<span class="ident"><span class="self">Self</span>::white</span>).<span class="ident">unwrap_or_else</span>(<span class="ident"><span class="self">Self</span>::black</span>)),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
         <span class="ident">PixelData::Rgba</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
+        [<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span>]
     }
 
     <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
@@ -1187,6 +1251,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
+    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
+
     <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">pixel</span>.<span class="ident">inverted</span>()),
@@ -1216,6 +1282,10 @@
             <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }) =&gt; <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>),
             <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }) =&gt; <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>),
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
+        <span class="self">self</span>.<span class="ident">as_pixel_data</span>().<span class="ident">data</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
