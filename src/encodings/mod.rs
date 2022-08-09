@@ -78,7 +78,7 @@ impl PixelData {
         }
         // Scale up to 8-bit
         else if bit_depth == 2 || bit_depth == 4 {
-            let factor = 8 / bit_depth;
+            let factor = if bit_depth == 2 { 4 } else { 2 };
 
             data.iter().map(|&x| x * factor).collect::<Vec<_>>()
         } else {

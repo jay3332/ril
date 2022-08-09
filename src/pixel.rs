@@ -9,6 +9,8 @@ use crate::{
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
 pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
+    type Data: IntoIterator<Item = u8>;
+
     /// Returns the inverted value of this pixel.
     ///
     /// This does not independently invert the alpha value, instead you may need to
@@ -49,6 +51,9 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
 
     /// Creates raw pixel data from this pixel type.
     fn as_pixel_data(&self) -> PixelData;
+
+    /// Turns this pixel into bytes.
+    fn as_bytes(&self) -> Self::Data;
 
     /// Merges this pixel with the given overlay pixel, taking into account alpha.
     #[must_use]
@@ -118,6 +123,8 @@ impl BitPixel {
 }
 
 impl Pixel for BitPixel {
+    type Data = [u8; 1];
+
     fn inverted(&self) -> Self {
         Self(!self.0)
     }
@@ -133,6 +140,10 @@ impl Pixel for BitPixel {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::Bit(self.0)
+    }
+
+    fn as_bytes(&self) -> Self::Data {
+        [self.0.then_some(255).unwrap_or(0)]
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -157,8 +168,10 @@ pub struct L(
 );
 
 impl Pixel for L {
+    type Data = [u8; 1];
+
     fn inverted(&self) -> Self {
-        Self(255 - self.0)
+        Self(!self.0)
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
@@ -173,6 +186,10 @@ impl Pixel for L {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::L(self.0)
+    }
+
+    fn as_bytes(&self) -> Self::Data {
+       [self.0]
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -211,11 +228,13 @@ pub struct Rgb {
 }
 
 impl Pixel for Rgb {
+    type Data = [u8; 3];
+
     fn inverted(&self) -> Self {
         Self {
-            r: 255 - self.r,
-            g: 255 - self.g,
-            b: 255 - self.b,
+            r: !self.r,
+            g: !self.g,
+            b: !self.b,
         }
     }
 
@@ -231,6 +250,10 @@ impl Pixel for Rgb {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::Rgb(self.r, self.g, self.b)
+    }
+
+    fn as_bytes(&self) -> Self::Data {
+        [self.r, self.g, self.b]
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -322,11 +345,13 @@ pub struct Rgba {
 }
 
 impl Pixel for Rgba {
+    type Data = [u8; 4];
+
     fn inverted(&self) -> Self {
         Self {
-            r: 255 - self.r,
-            g: 255 - self.g,
-            b: 255 - self.b,
+            r: !self.r,
+            g: !self.g,
+            b: !self.b,
             a: self.a,
         }
     }
@@ -348,13 +373,17 @@ impl Pixel for Rgba {
                 b: l,
                 a,
             }),
-            PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
+            PixelData::Bit(value) => Ok(value.then(Self::white).unwrap_or_else(Self::black)),
             _ => Err(UnsupportedColorType),
         }
     }
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::Rgba(self.r, self.g, self.b, self.a)
+    }
+
+    fn as_bytes(&self) -> Self::Data {
+        [self.r, self.g, self.b, self.a]
     }
 
     fn merge(self, other: Self) -> Self {
@@ -505,6 +534,8 @@ impl Default for Dynamic {
 }
 
 impl Pixel for Dynamic {
+    type Data = Vec<u8>;
+
     fn inverted(&self) -> Self {
         match self {
             Self::BitPixel(pixel) => Self::BitPixel(pixel.inverted()),
@@ -534,6 +565,10 @@ impl Pixel for Dynamic {
             Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(r, g, b),
             Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(r, g, b, a),
         }
+    }
+
+    fn as_bytes(&self) -> Self::Data {
+        self.as_pixel_data().data()
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {

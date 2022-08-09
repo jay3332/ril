@@ -109,7 +109,7 @@ impl Encoder for PngEncoder {
         let data = image
             .data
             .iter()
-            .flat_map(|pixel| pixel.as_pixel_data().data())
+            .flat_map(P::as_bytes)
             .collect::<Vec<_>>();
 
         let encoder = self.prepare(image.width(), image.height(), &image.data[0], dest);
@@ -138,7 +138,7 @@ impl Encoder for PngEncoder {
                 .image()
                 .data
                 .iter()
-                .flat_map(|pixel| pixel.as_pixel_data().data())
+                .flat_map(P::as_bytes)
                 .collect::<Vec<_>>();
 
             writer.set_frame_delay(frame.delay().as_millis() as u16, 1000)?;

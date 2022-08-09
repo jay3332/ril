@@ -1,5 +1,5 @@
 # ril
-**R**ust **I**maging **L**ibrary: A high-level Rust imaging crate.
+**R**ust **I**maging **L**ibrary: A performant and high-level Rust imaging crate.
 
 ## What's this?
 This is a Rust crate designed to provide an easy-to-use, high-level interface
@@ -7,14 +7,19 @@ around image processing in Rust. Image and animation processing has never been
 this easy before, and it's hard to find a good crate for it.
 
 RIL was designed not only for static single-frame images in mind, but also for
-animated images such as GIFs or APNGs that have multiple frames.
+animated images such as GIFs or APNGs that have multiple frames. RIL provides a
+streamlined API for this.
+
+Even better, benchmarks prove that RIL, even with its high-level interface, is as
+performant and usually even faster than leading imaging crates such as `image-rs`. See
+[benchmarks](#benchmarks) for more information.
 
 ## Features
 - Support for encoding from/decoding to a wide range of image formats
 - Variety of image processing and manipulation operations, including drawing
 - Robust support for animated images such as GIFs via FrameIterator and ImageSequence
   - See [Animated Image Support](#animated-image-support) for more information.
-- High-level and straightforward front-facing interface
+- A streamlined front-facing interface
 
 ## Support
 ⚠ This crate is a work in progress
@@ -50,6 +55,19 @@ ril = "0"
 ```
 
 Or, you can run `cargo add ril` if you have Rust 1.62.0 or newer.
+
+## Benchmarks
+
+### Decode GIF + Invert each frame + Encode GIF (600x600, 77 frames)
+Performed locally on Apple Macbook Pro 2021 (10-cores) ([Source](https://github.com/jay3332/ril/blob/main/benches/invert_comparison.rs))
+
+| Benchmark                                     | Time (average of 10, lower is better) |
+|-----------------------------------------------|---------------------------------------|
+| ril (combinator)                              | 902.54 ms                             |
+| ril (for-loop)                                | 922.08 ms                             |
+| ril (low-level hardcoded GIF en/decoder)      | 902.28 ms                             |
+| image-rs (low-level hardcoded GIF en/decoder) | 940.42 ms                             |
+| Python, wand (ImageMagick)                    | 1049.09 ms                            |
 
 ## Examples
 
@@ -117,12 +135,18 @@ For times when you need to collect all frames of an image, `ImageSequence` is us
 interface around a sequence of images. This can hold extra metadata about the animation such as loop count.
 
 #### Open an animated image and invert each frame as they are decoded, then saving them:
+
 ```rust
 let mut output = ImageSequence::<Rgba>::new();
 
 // ImageSequence::open is lazy
 for frame in ImageSequence::<Rgba>::open("sample.gif")? {
-    output.push_frame(frame?.into_image().inverted());
+    let frame = frame?;
+    frame.invert();
+    output.push(frame);
+
+    // or...
+    output.push_frame(frame?.map_image(|image| image.inverted()));
 }
 
 output.save_inferred("inverted.gif")?;
@@ -135,7 +159,6 @@ ImageSequence::<Rgba>::open("sample.gif")?
     .for_each(|(idx, frame)| {
         frame
             .unwrap()
-            .image()
             .save_inferred(format!("frames/{}.png", idx))
             .unwrap();
     });
@@ -143,3 +166,6 @@ ImageSequence::<Rgba>::open("sample.gif")?
 
 Although a bit misleading a first, `ImageSequence::open` and `ImageSequence::decode_[inferred_]from_bytes`
 return lazy `DynamicFrameIterator`s.
+
+Additionally, `Frame`s house `Image`s, but they are not `Image`s themselves. However, `Frame`s are able
+to dereference into `Image`s, so calling image methods on frames will seem transparent.

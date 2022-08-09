@@ -1,7 +1,7 @@
 // TODO: paletted images. GIF has native support for this.
 
 use crate::{
-    encodings::{ColorType, PixelData},
+    encodings::ColorType,
     Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator, Image, ImageFormat,
     ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
 };
@@ -64,9 +64,7 @@ impl Encoder for GifEncoder {
                     .data
                     .iter()
                     .flat_map(|p| {
-                        <$t>::from(Dynamic::from_pixel(*p).unwrap())
-                            .as_pixel_data()
-                            .data()
+                        <$t>::from(Dynamic::from_pixel(*p).unwrap()).as_bytes()
                     })
                     .collect::<Vec<_>>()
             }};
@@ -74,7 +72,7 @@ impl Encoder for GifEncoder {
                 image
                     .data
                     .iter()
-                    .flat_map(|p| p.as_pixel_data().data())
+                    .flat_map(|p| p.as_bytes())
                     .collect::<Vec<_>>()
             }};
         }
@@ -138,16 +136,14 @@ impl Encoder for GifEncoder {
                 ($data)
                     .iter()
                     .flat_map(|p| {
-                        <$t>::from(Dynamic::from_pixel(*p).unwrap())
-                            .as_pixel_data()
-                            .data()
+                        <$t>::from(Dynamic::from_pixel(*p).unwrap()).as_bytes()
                     })
                     .collect::<Vec<_>>()
             }};
             ($data:expr) => {{
                 ($data)
                     .iter()
-                    .flat_map(|p| p.as_pixel_data().data())
+                    .flat_map(|p| p.as_bytes())
                     .collect::<Vec<_>>()
             }};
         }
@@ -247,12 +243,14 @@ impl<P: Pixel, R: Read> Decoder<P, R> for GifDecoder<P, R> {
             .buffer
             .chunks(4)
             .map(|p| {
-                PixelData::from_raw(ColorType::Rgba, 8, p)
-                    .and_then(Rgba::from_pixel_data)
-                    .map(Dynamic::Rgba)
-                    .map(P::from_dynamic)
+                P::from_dynamic(Dynamic::Rgba(Rgba {
+                    r: p[0],
+                    g: p[1],
+                    b: p[2],
+                    a: p[3],
+                }))
             })
-            .collect::<crate::Result<Vec<_>>>()?;
+            .collect::<Vec<_>>();
 
         Ok(Image {
             width: NonZeroU32::new(decoder.width() as u32).unwrap(),
@@ -310,17 +308,14 @@ impl<P: Pixel, R: Read> Iterator for GifFrameIterator<P, R> {
             .buffer
             .chunks(4)
             .map(|p| {
-                PixelData::from_raw(ColorType::Rgba, 8, p)
-                    .and_then(Rgba::from_pixel_data)
-                    .map(Dynamic::Rgba)
-                    .map(P::from_dynamic)
+                P::from_dynamic(Dynamic::Rgba(Rgba {
+                    r: p[0],
+                    g: p[1],
+                    b: p[2],
+                    a: p[3],
+                }))
             })
-            .collect::<crate::Result<Vec<_>>>();
-
-        let data = match data {
-            Ok(data) => data,
-            Err(e) => return Some(Err(e)),
-        };
+            .collect::<Vec<_>>();
 
         let image = Image {
             width: NonZeroU32::new(width).unwrap(),

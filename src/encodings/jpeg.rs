@@ -65,7 +65,7 @@ impl Encoder for JpegEncoder {
         let mut data = image
             .data
             .iter()
-            .flat_map(|p| p.as_pixel_data().data())
+            .flat_map(P::as_bytes)
             .collect::<Vec<_>>();
 
         if sample == (ColorType::L, 1) {

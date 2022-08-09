@@ -68,6 +68,16 @@ impl<P: Pixel> Frame<P> {
         &self.inner
     }
 
+    /// Maps the inner image to the given function.
+    #[must_use]
+    pub fn map_image<T: Pixel>(self, f: impl FnOnce(Image<P>) -> Image<T>) -> Frame<T> {
+        Frame {
+            inner: f(self.inner),
+            delay: self.delay,
+            disposal: self.disposal,
+        }
+    }
+    
     /// Returns a mutable reference to the image this frame contains.
     pub fn image_mut(&mut self) -> &mut Image<P> {
         &mut self.inner
@@ -78,24 +88,6 @@ impl<P: Pixel> Frame<P> {
     #[must_use]
     pub fn into_image(self) -> Image<P> {
         self.inner
-    }
-
-    /// Returns the width of this frame.
-    #[must_use]
-    pub const fn width(&self) -> u32 {
-        self.inner.width()
-    }
-
-    /// Returns the height of this frame.
-    #[must_use]
-    pub const fn height(&self) -> u32 {
-        self.inner.height()
-    }
-
-    /// Returns the dimensions of this frame.
-    #[must_use]
-    pub const fn dimensions(&self) -> (u32, u32) {
-        self.inner.dimensions()
     }
 
     /// Returns the delay duration for this frame.
@@ -120,6 +112,20 @@ impl<P: Pixel> From<Image<P>> for Frame<P> {
 impl<P: Pixel> From<Frame<P>> for Image<P> {
     fn from(frame: Frame<P>) -> Self {
         frame.into_image()
+    }
+}
+
+impl<P: Pixel> std::ops::Deref for Frame<P> {
+    type Target = Image<P>;
+
+    fn deref(&self) -> &Self::Target {
+        self.image()
+    }
+}
+
+impl<P: Pixel> std::ops::DerefMut for Frame<P> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.image_mut()
     }
 }
 

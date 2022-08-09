@@ -4,7 +4,7 @@ authors = ["jay3332"]
 version = "0.1.0"
 license = "MIT"
 edition = "2021"
-description = "Rust Imaging Library: A high-level image processing crate for Rust"
+description = "Rust Imaging Library: A performant and high-level image processing crate for Rust"
 repository = "https://github.com/jay3332/ril"
 homepage = "https://github.com/jay3332/ril"
 readme = "README.md"
@@ -20,8 +20,14 @@ gif = "^0.11"
 
 [dev-dependencies]
 criterion = "^0.3"
+image = "*"
 
 [[bench]]
 path = "benches/invert.rs"
 name = "invert"
+harness = false
+
+[[bench]]
+path = "benches/invert_comparison.rs"
+name = "comparison"
 harness = false
