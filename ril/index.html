@@ -1,10 +1,157 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The Rust Imaging Library. A high-level image processing crate for Rust."><meta name="keywords" content="rust, rustlang, rust-lang, ril"><title>ril - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The Rust Imaging Library. A performant and high-level image processing crate for Rust."><meta name="keywords" content="rust, rustlang, rust-lang, ril"><title>ril - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
     <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Crate ril</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.2.0</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div></section><div id="sidebar-vars" data-name="ril" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../ril/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">ril</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ril/lib.rs.html#1-54">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The Rust Imaging Library. A high-level image processing crate for Rust.</p>
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">ril</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ril/lib.rs.html#1-266">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The Rust Imaging Library. A performant and high-level image processing crate for Rust.</p>
+<p>See benchmarks and more by viewing the <a href="https://github.com/jay3332/ril#ril">README</a>.</p>
+<h2 id="installation"><a href="#installation">Installation</a></h2>
+<p>The MSRV (Minimum Support Rust Version) of this crate is <strong>v1.61.0</strong>.</p>
+<p>Add the following to your <code>Cargo.toml</code> dependencies:</p>
+<div class="example-wrap"><pre class="language-toml"><code>ril = &quot;0&quot;</code></pre></div><h3 id="installing-from-github"><a href="#installing-from-github">Installing from GitHub</a></h3>
+<p>You can also use the unstable but latest version by installing from GitHub:</p>
+<div class="example-wrap"><pre class="language-toml"><code>ril = { git = &quot;https://github.com/jay3332/ril&quot;, branch = &quot;main&quot; }</code></pre></div><h3 id="using-cargo-add"><a href="#using-cargo-add">Using <code>cargo add</code></a></h3>
+<p>If you have cargo &gt;= 1.62.0, you can use <code>cargo add ril</code>.</p>
+<h2 id="getting-started"><a href="#getting-started">Getting Started</a></h2>
+<p>Import the prelude which brings commonly used types and crucial traits into scope:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;</code></pre></div>
+<p>Because all errors from this crate are of the same type, ril provides a <code>Result</code> type
+which you can use in any function that leverages ril, such as the <code>main</code> function:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="ident">ril::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// code goes here...</span>
+
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<p>Now you can use the <code>?</code> operator on anything that returns a <code>Result</code> for convenience.</p>
+<h2 id="brief-guide"><a href="#brief-guide">Brief Guide</a></h2>
+<p>A quick guide and overview of ril’s interface.</p>
+<h3 id="opening-an-image"><a href="#opening-an-image">Opening an image</a></h3>
+<p>The <a href="struct.Image.html#method.open" title="Image::open"><code>open</code></a> method should suit your needs:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::open</span>(<span class="string">&quot;my_image.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p>The sole argument can be anything that implements <a href="https://doc.rust-lang.org/1.62.1/core/convert/trait.AsRef.html" title="AsRef"><code>AsRef&lt;Path&gt;</code></a>, such as
+a string or a file.</p>
+<p>You might have also noticed that <a href="struct.Image.html" title="Image"><code>Image</code></a> is generic with one type parameter,
+which can be anything that implements <a href="trait.Pixel.html" title="Pixel"><code>Pixel</code></a>. It represents what type of pixel
+this image has - in this case, the image has RGB pixels.</p>
+<p>Common pixel formats are <a href="struct.Rgb.html" title="Rgb"><code>Rgb</code></a> (colored) and <a href="struct.Rgba.html" title="Rgba"><code>Rgba</code></a> (colored with transparency),
+which are found in the prelude. There are also grayscale counterparts, such as <a href="struct.L.html" title="L"><code>L</code></a>.</p>
+<h4 id="reading-from-a-byte-stream"><a href="#reading-from-a-byte-stream">Reading from a byte stream</a></h4>
+<p>You can also read from a byte stream using <a href="struct.Image.html#method.decode_from_bytes" title="Image::decode_from_bytes"><code>decode_from_bytes</code></a>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="number">0</span>; <span class="number">10000</span>]; <span class="comment">// Replace this with your own image data</span>
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::decode_from_bytes</span>(<span class="ident">ImageFormat::Png</span>, <span class="ident">bytes</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p>The first argument is the encoding of the image, and the second is the byte stream
+that implements <a href="https://doc.rust-lang.org/1.62.1/std/io/trait.Read.html" title="std::io::Read"><code>Read</code></a>.</p>
+<p>You can also use <a href="struct.Image.html#method.decode_inferred_from_bytes" title="Image::decode_inferred_from_bytes"><code>decode_inferred_from_bytes</code></a> to
+infer the format from the byte stream without having to explicitly provide an encoding:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="number">0</span>; <span class="number">10000</span>]; <span class="comment">// Replace this with your own image data</span>
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::decode_inferred_from_bytes</span>(<span class="ident">bytes</span>)<span class="question-mark">?</span>;</code></pre></div>
+<h3 id="creating-your-own-image"><a href="#creating-your-own-image">Creating your own image</a></h3>
+<p>You can create your own image using the <a href="struct.Image.html#method.new" title="Image::new"><code>Image::new</code></a> method:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));</code></pre></div>
+<p>The above creates a 256x256 RGB image with all pixels set to red.</p>
+<p>The first argument is the width of the image, the second is the height, and the third is the
+fill color. The pixel type of the image can be inferred from this argument, which is why we
+don’t have to specify it explicitly as a type argument - Rust type inference is powerful and
+infers this for us.</p>
+<h4 id="the-from_fn-method"><a href="#the-from_fn-method">The <code>from_fn</code> method</a></h4>
+<p>The <a href="struct.Image.html#method.from_fn" title="Image::from_fn"><code>from_fn</code></a> method is a shortcut for creating an image from a function:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_fn</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="op">|</span><span class="ident">x</span>, <span class="ident">y</span><span class="op">|</span> {
+    <span class="comment">// Do something, maybe with `x` and `y`, and return a pixel</span>
+    <span class="ident">Rgb::new</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="ident">y</span> <span class="kw">as</span> <span class="ident">u8</span>, <span class="number">0</span>)
+});</code></pre></div>
+<p>The above is just an example. You specify the width, height, and the function that
+generates the pixels. It should take two parameters - <code>x</code> and <code>y</code>, which specify the position
+of the pixel to generate - and return a pixel.</p>
+<h3 id="encoding-and-saving-images"><a href="#encoding-and-saving-images">Encoding and saving images</a></h3>
+<p>You can encode and save an image to a file with the <a href="struct.Image.html#method.save" title="Image::save"><code>save</code></a> method:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// Here&#39;s the red image from before:</span>
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));
+
+<span class="ident">image</span>.<span class="ident">save</span>(<span class="ident">ImageFormat::Png</span>, <span class="string">&quot;output.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p>The first argument is the encoding of the image, and the second is the path to the file.</p>
+<p>You may have noticed this is a bit repetitive, and that it is possible to infer the encoding
+from the file extension. In cases like this, you can use the slightly slower
+<a href="struct.Image.html#method.save_inferred" title="Image::save_inferred"><code>save_inferred</code></a> method:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// Here&#39;s the red image from before:</span>
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));
+
+<span class="ident">image</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;output.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p>Now, you do not have to explicitly specify the encoding as it is inferred from the output path.</p>
+<h4 id="encoding-and-saving-images-to-memory"><a href="#encoding-and-saving-images-to-memory">Encoding and saving images to memory</a></h4>
+<p>You can encode images to a memory buffer by using the <a href="struct.Image.html#method.encode" title="Image::encode"><code>encode</code></a> method:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// Here&#39;s the red image from before:</span>
+<span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="ident">image</span>.<span class="ident">encode</span>(<span class="ident">ImageFormat::Png</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)<span class="question-mark">?</span>;
+
+<span class="comment">// Do something with `out`</span></code></pre></div>
+<p>The first argument is the encoding of the image, and the second is the output buffer that must
+implement <a href="https://doc.rust-lang.org/1.62.1/std/io/trait.Write.html" title="std::io::Write"><code>Write</code></a>.</p>
+<p>There is no filename to infer the encoding from, so in this case you have to explicitly
+specify the encoding.</p>
+<h3 id="manipulating-images"><a href="#manipulating-images">Manipulating images</a></h3>
+<p>Now that you know how to create and save images, let’s look at some of the ways we can modify
+them!</p>
+<h4 id="inverting-images"><a href="#inverting-images">Inverting images</a></h4>
+<p>A common manipulation method would be inverting every pixel in the image. To do this, there are
+two methods which you can use:</p>
+<ul>
+<li><a href="struct.Image.html#method.invert" title="Image::invert"><code>invert</code></a>: Inverts the image in-place</li>
+<li><a href="struct.Image.html#method.inverted" title="Image::inverted"><code>inverted</code></a>: Consumes the image and returns a new image with the inverted pixels</li>
+</ul>
+<p>A common pattern you’ll see in this crate is that many methods have an in-place method and a
+not-in-place counterpart, in which the former can be useful for method chaining. One usually does
+not have any memory or performance benefits than the other.</p>
+<p>Anyhow, here’s how you’d invert an image:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));
+<span class="ident">image</span>.<span class="ident">invert</span>();
+<span class="ident">image</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;output.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p><code>(255, 0, 0)</code> (red) inverts to <code>(0, 255, 255)</code> (cyan), so that should be the color of the
+output image.</p>
+<p>We can also use <a href="struct.Image.html#method.inverted" title="Image::inverted"><code>inverted</code></a> to use method chaining:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ril::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>))
+    .<span class="ident">inverted</span>()
+    .<span class="ident">save_inferred</span>(<span class="string">&quot;output.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
+<p>Seems to be a bit cleaner than the first way, but it really just comes down to preference…
+and whether or not you have ownership of the image object - you likely want to stay away from
+cloning images for no benefit as it is a very expensive operation.</p>
+<p>TODO: finish guide</p>
 </div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="draw/index.html" title="ril::draw mod">draw</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="encode/index.html" title="ril::encode mod">encode</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="encodings/index.html" title="ril::encodings mod">encodings</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="error/index.html" title="ril::error mod">error</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="image/index.html" title="ril::image mod">image</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="pixel/index.html" title="ril::pixel mod">pixel</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="ril::prelude mod">prelude</a></div><div class="item-right docblock-short"><p>The crate prelude exports. Importing this with a wildcard will import most items from RIL that
 can be useful for image processing, along with bringing crucial traits into scope.</p>
