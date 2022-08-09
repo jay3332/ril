@@ -49,6 +49,14 @@
 <span id="44">44</span>
 <span id="45">45</span>
 <span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A high-level image processing crate for Rust.</span>
 
 <span class="attribute">#![<span class="ident">allow</span>(
@@ -68,13 +76,21 @@
 <span class="kw">mod</span> <span class="ident">resize</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sequence</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image</span>::{<span class="ident">Banded</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">OverlayMode</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">draw</span>::{<span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">Draw</span>, <span class="ident">Ellipse</span>, <span class="ident">Paste</span>, <span class="ident">Rectangle</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">DynamicFrameIterator</span>, <span class="ident">Encoder</span>, <span class="ident">FrameIterator</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pixel</span>::{<span class="ident">Alpha</span>, <span class="ident">BitPixel</span>, <span class="ident">Dynamic</span>, <span class="ident">Pixel</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">resize::FilterType</span> <span class="kw">as</span> <span class="ident">ResizeAlgorithm</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sequence</span>::{<span class="ident">DisposalMethod</span>, <span class="ident">Frame</span>, <span class="ident">ImageSequence</span>, <span class="ident">LoopCount</span>};
+<span class="macro">macro_rules!</span> <span class="ident">inline_doc</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">token</span>:<span class="ident">item</span>)<span class="kw-2">*</span>) =&gt; {
+        $(<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">token</span>)<span class="op">*</span>
+    }
+}
+
+<span class="macro">inline_doc!</span> {
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image</span>::{<span class="ident">Banded</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">OverlayMode</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">draw</span>::{<span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">Draw</span>, <span class="ident">Ellipse</span>, <span class="ident">Paste</span>, <span class="ident">Rectangle</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">DynamicFrameIterator</span>, <span class="ident">Encoder</span>, <span class="ident">FrameIterator</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pixel</span>::{<span class="ident">Alpha</span>, <span class="ident">BitPixel</span>, <span class="ident">Dynamic</span>, <span class="ident">Pixel</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">resize::FilterType</span> <span class="kw">as</span> <span class="ident">ResizeAlgorithm</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sequence</span>::{<span class="ident">DisposalMethod</span>, <span class="ident">Frame</span>, <span class="ident">ImageSequence</span>, <span class="ident">LoopCount</span>};
+}
 
 <span class="doccomment">/// The crate prelude exports. Importing this with a wildcard will import most items from RIL that</span>
 <span class="doccomment">/// can be useful for image processing, along with bringing crucial traits into scope.</span>
