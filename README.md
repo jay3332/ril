@@ -1,12 +1,13 @@
 <h1 align="center" id="ril">ril</h1>
-<sub>
-  <p align="center">
+<p align="center">
+  <sup>
     <b>R</b>ust <b>I</b>maging <b>L</b>ibrary: A performant and high-level Rust imaging crate.
     <br>
-    <a href="https://crates.io/crates/ril"><b>crates.io</b></a> •
-    <a href="https://docs.rs/ril"><b>Documentation</b></a>
-  </p>
-</sub>
+    <a href="https://docs.rs/ril"><b>Documentation</b></a> •
+    <a href="https://crates.io/crates/ril"><b>Crates.io</b></a> •
+    <a href="https://discord.gg/FqtZ6akWpd"><b>Discord</b></a>
+  </sup>
+</p>
 
 ## What's this?
 This is a Rust crate designed to provide an easy-to-use, high-level interface
