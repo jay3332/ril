@@ -48,6 +48,9 @@ Additionally, we also plan to support the following pixel formats:
 16-bit pixel formats are currently downscaled to 8-bits. We do plan to
 have actual support 16-bit pixel formats in the future.
 
+## Requirements
+MSRV (Minimum Supported Rust Version) is v1.61.0.
+
 ## Installation
 Add the following to your `Cargo.toml` dependencies:
 ```toml

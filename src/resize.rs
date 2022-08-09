@@ -87,10 +87,7 @@ pub fn resize<P: Pixel>(
         _ => panic!("Unsupported bit depth"),
     };
 
-    let buffer = data
-        .iter()
-        .flat_map(|p| p.as_pixel_data().data())
-        .collect::<Vec<_>>();
+    let buffer = data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
     // We are able to unwrap here since we validated the buffer throughout the creation of the image.
     let image = ResizeImage::from_vec_u8(src_width, src_height, buffer, pixel_type).unwrap();
     let view = image.view();
