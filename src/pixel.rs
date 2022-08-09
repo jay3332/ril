@@ -64,6 +64,10 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
             OverlayMode::Merge => self.merge(other),
         }
     }
+
+    /// Creates this pixel from any dynamic pixel...dynamically at runtime. Different from the
+    /// From/Into traits.
+    fn from_dynamic(dynamic: Dynamic) -> Self;
 }
 
 /// Represents a pixel that supports alpha, or transparency values.
@@ -130,6 +134,15 @@ impl Pixel for BitPixel {
     fn as_pixel_data(&self) -> PixelData {
         PixelData::Bit(self.0)
     }
+
+    fn from_dynamic(dynamic: Dynamic) -> Self {
+        match dynamic {
+            Dynamic::BitPixel(value) => value,
+            Dynamic::L(value) => value.into(),
+            Dynamic::Rgb(value) => value.into(),
+            Dynamic::Rgba(value) => value.into(),
+        }
+    }
 }
 
 /// Represents an L, or luminance pixel that is stored as only one single
@@ -160,6 +173,15 @@ impl Pixel for L {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::L(self.0)
+    }
+
+    fn from_dynamic(dynamic: Dynamic) -> Self {
+        match dynamic {
+            Dynamic::L(value) => value,
+            Dynamic::BitPixel(value) => value.into(),
+            Dynamic::Rgb(value) => value.into(),
+            Dynamic::Rgba(value) => value.into(),
+        }
     }
 }
 
@@ -209,6 +231,15 @@ impl Pixel for Rgb {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::Rgb(self.r, self.g, self.b)
+    }
+
+    fn from_dynamic(dynamic: Dynamic) -> Self {
+        match dynamic {
+            Dynamic::Rgb(value) => value,
+            Dynamic::Rgba(value) => value.into(),
+            Dynamic::BitPixel(value) => value.into(),
+            Dynamic::L(value) => value.into(),
+        }
     }
 }
 
@@ -360,6 +391,15 @@ impl Pixel for Rgba {
             a: (a * 255.) as u8,
         }
     }
+
+    fn from_dynamic(dynamic: Dynamic) -> Self {
+        match dynamic {
+            Dynamic::Rgba(value) => value,
+            Dynamic::Rgb(value) => value.into(),
+            Dynamic::L(value) => value.into(),
+            Dynamic::BitPixel(value) => value.into(),
+        }
+    }
 }
 
 impl Alpha for Rgba {
@@ -495,6 +535,10 @@ impl Pixel for Dynamic {
             Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(r, g, b, a),
         }
     }
+
+    fn from_dynamic(dynamic: Dynamic) -> Self {
+        dynamic
+    }
 }
 
 impl Alpha for Dynamic {
@@ -510,6 +554,16 @@ impl Alpha for Dynamic {
             Self::Rgba(pixel) => Self::Rgba(pixel.with_alpha(alpha)),
             pixel => pixel,
         }
+    }
+}
+
+impl Dynamic {
+    /// Creates a new dynamic pixel...dynamically, from a concrete pixel.
+    ///
+    /// # Errors
+    /// * The pixel type is not supported.
+    pub fn from_pixel<P: Pixel>(pixel: P) -> Result<Self> {
+        Self::from_pixel_data(pixel.as_pixel_data())
     }
 }
 

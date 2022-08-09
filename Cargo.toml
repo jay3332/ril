@@ -16,6 +16,7 @@ fast_image_resize = "^1"
 png = "^0.17"
 jpeg-decoder = "^0.2"
 jpeg-encoder = { version = "^0.5", features = ["simd"] }
+gif = "^0.11"
 
 [dev-dependencies]
 criterion = "^0.3"

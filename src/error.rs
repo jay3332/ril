@@ -132,3 +132,21 @@ impl From<jpeg_encoder::EncodingError> for Error {
         }
     }
 }
+
+impl From<gif::EncodingError> for Error {
+    fn from(err: gif::EncodingError) -> Self {
+        match err {
+            gif::EncodingError::Io(err) => Self::IOError(err),
+            gif::EncodingError::Format(err) => Self::EncodingError(err.to_string()),
+        }
+    }
+}
+
+impl From<gif::DecodingError> for Error {
+    fn from(err: gif::DecodingError) -> Self {
+        match err {
+            gif::DecodingError::Io(err) => Self::IOError(err),
+            gif::DecodingError::Format(err) => Self::DecodingError(err.to_string()),
+        }
+    }
+}

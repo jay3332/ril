@@ -1,4 +1,7 @@
-use crate::{encodings::png::ApngFrameIterator, Frame, Image, ImageSequence, Pixel};
+use crate::{
+    encodings::{gif::GifFrameIterator, png::ApngFrameIterator},
+    Frame, Image, ImageSequence, Pixel,
+};
 use std::io::{Read, Write};
 
 /// Low-level encoder interface around an image format.
@@ -85,6 +88,8 @@ pub enum DynamicFrameIterator<P: Pixel, R: Read> {
     Single(Option<Image<P>>),
     /// A PNG or APNG frame iterator.
     Png(ApngFrameIterator<P, R>),
+    /// A GIF frame iterator.
+    Gif(GifFrameIterator<P, R>),
 }
 
 impl<P: Pixel, R: Read> DynamicFrameIterator<P, R> {
@@ -100,6 +105,7 @@ impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
         match self {
             DynamicFrameIterator::Single(_) => 1,
             DynamicFrameIterator::Png(it) => it.len(),
+            DynamicFrameIterator::Gif(it) => it.len(),
         }
     }
 
@@ -107,6 +113,7 @@ impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
         match self {
             DynamicFrameIterator::Single(_) => crate::LoopCount::Exactly(1),
             DynamicFrameIterator::Png(it) => it.loop_count(),
+            DynamicFrameIterator::Gif(it) => it.loop_count(),
         }
     }
 
@@ -119,6 +126,7 @@ impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
                 Ok(ImageSequence::new().with_frame(frame))
             }
             DynamicFrameIterator::Png(it) => it.into_sequence(),
+            DynamicFrameIterator::Gif(it) => it.into_sequence(),
         }
     }
 }
@@ -130,6 +138,7 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
         match self {
             DynamicFrameIterator::Single(it) => it.take().map(|image| Ok(Frame::from_image(image))),
             DynamicFrameIterator::Png(it) => it.next(),
+            DynamicFrameIterator::Gif(it) => it.next(),
         }
     }
 
@@ -138,6 +147,7 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
             DynamicFrameIterator::Single(Some(_)) => (1, Some(1)),
             DynamicFrameIterator::Single(None) => (0, Some(0)),
             DynamicFrameIterator::Png(it) => it.size_hint(),
+            DynamicFrameIterator::Gif(it) => it.size_hint(),
         }
     }
 }

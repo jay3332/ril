@@ -1,7 +1,7 @@
 use crate::{
     draw::Draw,
     encode::{Decoder, Encoder},
-    encodings::{jpeg, png},
+    encodings::{gif, jpeg, png},
     error::{
         Error::{self, InvalidExtension},
         Result,
@@ -830,6 +830,7 @@ impl ImageFormat {
         match self {
             Self::Png => png::PngEncoder::new().encode(image, dest),
             Self::Jpeg => jpeg::JpegEncoder::new().encode(image, dest),
+            Self::Gif => gif::GifEncoder::new().encode(image, dest),
             _ => panic!("No encoder implementation is found for this image format"),
         }
     }
@@ -850,6 +851,7 @@ impl ImageFormat {
         match self {
             Self::Png => png::PngEncoder::new().encode_sequence(seq, dest),
             Self::Jpeg => jpeg::JpegEncoder::new().encode_sequence(seq, dest),
+            Self::Gif => gif::GifEncoder::new().encode_sequence(seq, dest),
             _ => panic!("No encoder implementation is found for this image format"),
         }
     }
@@ -865,6 +867,7 @@ impl ImageFormat {
         match self {
             Self::Png => png::PngDecoder::new().decode(stream),
             Self::Jpeg => jpeg::JpegDecoder::new().decode(stream),
+            Self::Gif => gif::GifDecoder::new().decode(stream),
             _ => panic!("No decoder implementation for this image format"),
         }
     }
@@ -883,6 +886,7 @@ impl ImageFormat {
         Ok(match self {
             Self::Png => DynamicFrameIterator::Png(png::PngDecoder::new().decode_sequence(stream)?),
             Self::Jpeg => jpeg::JpegDecoder::new().decode_sequence(stream)?,
+            Self::Gif => DynamicFrameIterator::Gif(gif::GifDecoder::new().decode_sequence(stream)?),
             _ => panic!("No decoder implementation for this image format"),
         })
     }

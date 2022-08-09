@@ -25,7 +25,7 @@ By the first stable release, we plan to support the following image encodings:
 |-----------------|-------------------|
 | PNG/APNG        | Supported         |
 | JPEG            | Supported         |
-| GIF             | Not yet supported |
+| GIF             | Supported         |
 | WebP            | Not yet supported |
 | BMP             | Not yet supported |
 | TIFF            | Not yet supported |
@@ -44,9 +44,12 @@ Additionally, we also plan to support the following pixel formats:
 have actual support 16-bit pixel formats in the future.
 
 ## Installation
-Use GitHub until stable release.
+Add the following to your `Cargo.toml` dependencies:
+```toml
+ril = "0"
+```
 
-TODO: proper installation instructions
+Or, you can run `cargo add ril` if you have Rust 1.62.0 or newer.
 
 ## Examples
 
