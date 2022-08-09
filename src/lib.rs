@@ -17,10 +17,10 @@ pub mod pixel;
 mod resize;
 pub mod sequence;
 
+pub use crate::image::{Banded, Image, ImageFormat, OverlayMode};
 pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
 pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
 pub use error::{Error, Result};
-pub use crate::image::{Banded, Image, ImageFormat, OverlayMode};
 pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
 pub use resize::FilterType as ResizeAlgorithm;
 pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};

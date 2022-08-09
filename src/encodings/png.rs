@@ -106,11 +106,7 @@ impl PngEncoder {
 
 impl Encoder for PngEncoder {
     fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
-        let data = image
-            .data
-            .iter()
-            .flat_map(P::as_bytes)
-            .collect::<Vec<_>>();
+        let data = image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
 
         let encoder = self.prepare(image.width(), image.height(), &image.data[0], dest);
         let mut writer = encoder.write_header()?;

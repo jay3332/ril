@@ -62,11 +62,7 @@ impl Encoder for JpegEncoder {
             _ => return Err(Error::UnsupportedColorType),
         };
 
-        let mut data = image
-            .data
-            .iter()
-            .flat_map(P::as_bytes)
-            .collect::<Vec<_>>();
+        let mut data = image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
 
         if sample == (ColorType::L, 1) {
             data.iter_mut()

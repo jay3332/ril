@@ -189,7 +189,7 @@ impl Pixel for L {
     }
 
     fn as_bytes(&self) -> Self::Data {
-       [self.0]
+        [self.0]
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {

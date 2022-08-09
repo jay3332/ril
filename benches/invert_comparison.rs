@@ -1,10 +1,10 @@
+use criterion::{criterion_group, criterion_main, Criterion};
 use std::time::Duration;
-use criterion::{Criterion, criterion_main, criterion_group};
 
-use ril::prelude::*;
-use gif::{Encoder, DecodeOptions};
+use gif::{DecodeOptions, Encoder};
 use image::codecs::gif::{GifDecoder, GifEncoder};
 use image::AnimationDecoder;
+use ril::prelude::*;
 
 pub fn bench_invert_gif(c: &mut Criterion) {
     let mut c = c.benchmark_group("invert_gif");
@@ -16,9 +16,7 @@ pub fn bench_invert_gif(c: &mut Criterion) {
         b.iter(|| {
             ImageSequence::open("benches/invert_sample.gif")
                 .unwrap()
-                .map(|frame| {
-                    frame.unwrap().map_image(|img| img.inverted())
-                })
+                .map(|frame| frame.unwrap().map_image(|img| img.inverted()))
                 .collect::<ImageSequence<Rgb>>()
                 .save_inferred("benches/out/invert_ril_combinator.gif")
                 .unwrap();
@@ -42,10 +40,9 @@ pub fn bench_invert_gif(c: &mut Criterion) {
             let mut decoder = DecodeOptions::new();
             decoder.set_color_output(gif::ColorOutput::RGBA);
 
-            let mut decoder = decoder.read_info(
-                std::fs::File::open("benches/invert_sample.gif").unwrap(),
-            )
-            .unwrap();
+            let mut decoder = decoder
+                .read_info(std::fs::File::open("benches/invert_sample.gif").unwrap())
+                .unwrap();
 
             let mut encoder = Encoder::new(
                 std::fs::File::create("benches/out/invert_ril_raw.gif").unwrap(),
@@ -59,28 +56,23 @@ pub fn bench_invert_gif(c: &mut Criterion) {
                 let data = frame
                     .buffer
                     .chunks(4)
-                    .map(|p| {
-                        Rgba {
-                            r: p[0],
-                            g: p[1],
-                            b: p[2],
-                            a: p[3],
-                        }
+                    .map(|p| Rgba {
+                        r: p[0],
+                        g: p[1],
+                        b: p[2],
+                        a: p[3],
                     })
                     .collect::<Vec<_>>();
 
-                let image = Image::<Rgba>::from_pixels(
-                    decoder.width() as u32,
-                    data,
-                );
-                let mut data = image.data.iter().flat_map(|p| p.inverted().as_bytes()).collect::<Vec<_>>();
+                let image = Image::<Rgba>::from_pixels(decoder.width() as u32, data);
+                let mut data = image
+                    .data
+                    .iter()
+                    .flat_map(|p| p.inverted().as_bytes())
+                    .collect::<Vec<_>>();
 
-                let frame = gif::Frame::from_rgba_speed(
-                    decoder.width(),
-                    decoder.height(),
-                    &mut data,
-                    30,
-                );
+                let frame =
+                    gif::Frame::from_rgba_speed(decoder.width(), decoder.height(), &mut data, 30);
 
                 encoder.write_frame(&frame).unwrap();
             }
@@ -91,9 +83,8 @@ pub fn bench_invert_gif(c: &mut Criterion) {
         b.iter(|| {
             let file = std::fs::File::open("benches/invert_sample.gif").unwrap();
             let decoder = GifDecoder::new(file).unwrap();
-            let mut out = GifEncoder::new(
-                std::fs::File::create("benches/out/invert_image-rs.gif").unwrap(),
-            );
+            let mut out =
+                GifEncoder::new(std::fs::File::create("benches/out/invert_image-rs.gif").unwrap());
 
             decoder.into_frames().for_each(|frame| {
                 let mut frame = frame.unwrap();

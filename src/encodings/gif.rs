@@ -1,9 +1,8 @@
 // TODO: paletted images. GIF has native support for this.
 
 use crate::{
-    encodings::ColorType,
-    Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator, Image, ImageFormat,
-    ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
+    encodings::ColorType, Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator,
+    Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
 };
 use std::{
     io::{Read, Write},
@@ -63,9 +62,7 @@ impl Encoder for GifEncoder {
                 image
                     .data
                     .iter()
-                    .flat_map(|p| {
-                        <$t>::from(Dynamic::from_pixel(*p).unwrap()).as_bytes()
-                    })
+                    .flat_map(|p| <$t>::from(Dynamic::from_pixel(*p).unwrap()).as_bytes())
                     .collect::<Vec<_>>()
             }};
             () => {{
@@ -135,9 +132,7 @@ impl Encoder for GifEncoder {
             ($data:expr, $t:ty) => {{
                 ($data)
                     .iter()
-                    .flat_map(|p| {
-                        <$t>::from(Dynamic::from_pixel(*p).unwrap()).as_bytes()
-                    })
+                    .flat_map(|p| <$t>::from(Dynamic::from_pixel(*p).unwrap()).as_bytes())
                     .collect::<Vec<_>>()
             }};
             ($data:expr) => {{

@@ -77,7 +77,7 @@ impl<P: Pixel> Frame<P> {
             disposal: self.disposal,
         }
     }
-    
+
     /// Returns a mutable reference to the image this frame contains.
     pub fn image_mut(&mut self) -> &mut Image<P> {
         &mut self.inner

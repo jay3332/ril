@@ -20,7 +20,7 @@ gif = "^0.11"
 
 [dev-dependencies]
 criterion = "^0.3"
-image = "*"
+image = "^0"
 
 [[bench]]
 path = "benches/invert.rs"
