@@ -860,7 +860,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
-        [<span class="self">self</span>.<span class="number">0</span>.<span class="ident">then_some</span>(<span class="number">255</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>)]
+        [<span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> { <span class="number">255</span> } <span class="kw">else</span> { <span class="number">0</span> }]
     }
 
     <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
@@ -896,7 +896,7 @@
             <span class="comment">// Currently, losing alpha implicitly is allowed, but I may change my mind about this</span>
             <span class="comment">// in the future.</span>
             <span class="ident">PixelData::L</span>(<span class="ident">value</span>) <span class="op">|</span> <span class="ident">PixelData::LA</span>(<span class="ident">value</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>)),
-            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>.<span class="ident">then_some</span>(<span class="number">255</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))),
+            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="kw">if</span> <span class="ident">value</span> { <span class="number">255</span> } <span class="kw">else</span> { <span class="number">0</span> })),
             <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
         }
     }
@@ -1376,7 +1376,7 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BitPixel</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">L</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bit</span>: <span class="ident">BitPixel</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">bit</span>.<span class="ident">value</span>().<span class="ident">then_some</span>(<span class="number">255</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>))
+        <span class="self">Self</span>(<span class="kw">if</span> <span class="ident">bit</span>.<span class="ident">value</span>() { <span class="number">255</span> } <span class="kw">else</span> { <span class="number">0</span> })
     }
 }
 

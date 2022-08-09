@@ -914,6 +914,16 @@
 <span id="909">909</span>
 <span id="910">910</span>
 <span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
@@ -936,14 +946,19 @@
 };
 
 <span class="doccomment">/// The behavior to use when overlaying images on top of each other.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">OverlayMode</span> {
     <span class="doccomment">/// Replace alpha values with the alpha values of the overlay image. This is the default</span>
     <span class="doccomment">/// behavior.</span>
-    <span class="attribute">#[<span class="ident">default</span>]</span>
     <span class="ident">Replace</span>,
     <span class="doccomment">/// Merge the alpha values of overlay image with the alpha values of the base image.</span>
     <span class="ident">Merge</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">OverlayMode</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Replace</span>
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">OverlayMode</span> {
@@ -1616,13 +1631,12 @@
 }
 
 <span class="doccomment">/// Represents the underlying encoding format of an image.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ImageFormat</span> {
     <span class="doccomment">/// No known encoding is known for the image.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is usually because the image was created manually. See [`Image::set_format`]</span>
     <span class="doccomment">/// to manually set the encoding format.</span>
-    <span class="attribute">#[<span class="ident">default</span>]</span>
     <span class="ident">Unknown</span>,
 
     <span class="doccomment">/// The image is encoded in the PNG format.</span>
@@ -1642,6 +1656,12 @@
 
     <span class="doccomment">/// The image is encoded in the WebP format.</span>
     <span class="ident">WebP</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ImageFormat</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Unknown</span>
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">ImageFormat</span> {
