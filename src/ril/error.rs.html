@@ -137,6 +137,24 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -268,6 +286,24 @@
         <span class="kw">match</span> <span class="ident">err</span> {
             <span class="ident">jpeg_encoder::EncodingError::IoError</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
             <span class="ident">err</span> =&gt; <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gif::EncodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">gif::EncodingError</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">err</span> {
+            <span class="ident">gif::EncodingError::Io</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
+            <span class="ident">gif::EncodingError::Format</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gif::DecodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">gif::DecodingError</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">err</span> {
+            <span class="ident">gif::DecodingError::Io</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
+            <span class="ident">gif::DecodingError::Format</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
         }
     }
 }

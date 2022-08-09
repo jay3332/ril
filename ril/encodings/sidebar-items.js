@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ColorType",""],["PixelData",""]],"mod":[["jpeg",""],["png",""]]});
+initSidebarItems({"enum":[["ColorType",""],["PixelData",""]],"mod":[["gif",""],["jpeg",""],["png",""]]});

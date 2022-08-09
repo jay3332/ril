@@ -910,10 +910,14 @@
 <span id="905">905</span>
 <span id="906">906</span>
 <span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
-    <span class="ident">encodings</span>::{<span class="ident">jpeg</span>, <span class="ident">png</span>},
+    <span class="ident">encodings</span>::{<span class="ident">gif</span>, <span class="ident">jpeg</span>, <span class="ident">png</span>},
     <span class="ident">error</span>::{
         <span class="ident">Error</span>::{<span class="self">self</span>, <span class="ident">InvalidExtension</span>},
         <span class="prelude-ty">Result</span>,
@@ -1742,6 +1746,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngEncoder::new</span>().<span class="ident">encode</span>(<span class="ident">image</span>, <span class="ident">dest</span>),
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegEncoder::new</span>().<span class="ident">encode</span>(<span class="ident">image</span>, <span class="ident">dest</span>),
+            <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">gif::GifEncoder::new</span>().<span class="ident">encode</span>(<span class="ident">image</span>, <span class="ident">dest</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No encoder implementation is found for this image format&quot;</span>),
         }
     }
@@ -1762,6 +1767,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
+            <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">gif::GifEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No encoder implementation is found for this image format&quot;</span>),
         }
     }
@@ -1777,6 +1783,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
+            <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">gif::GifDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
         }
     }
@@ -1795,6 +1802,7 @@
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">png::PngDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>),
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>,
+            <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">DynamicFrameIterator::Gif</span>(<span class="ident">gif::GifDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>),
             <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
         })
     }
