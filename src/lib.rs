@@ -17,13 +17,21 @@ pub mod pixel;
 mod resize;
 pub mod sequence;
 
-pub use crate::image::{Banded, Image, ImageFormat, OverlayMode};
-pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
-pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
-pub use error::{Error, Result};
-pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
-pub use resize::FilterType as ResizeAlgorithm;
-pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
+macro_rules! inline_doc {
+    ($($token:item)*) => {
+        $(#[doc(inline)] $token)*
+    }
+}
+
+inline_doc! {
+    pub use crate::image::{Banded, Image, ImageFormat, OverlayMode};
+    pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
+    pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
+    pub use error::{Error, Result};
+    pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
+    pub use resize::FilterType as ResizeAlgorithm;
+    pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
+}
 
 /// The crate prelude exports. Importing this with a wildcard will import most items from RIL that
 /// can be useful for image processing, along with bringing crucial traits into scope.
