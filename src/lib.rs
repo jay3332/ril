@@ -48,9 +48,10 @@
 //! The [`open`][Image::open] method should suit your needs:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
 //! let image = Image::<Rgb>::open("my_image.png")?;
+//! # Ok(()) }
 //! ```
 //!
 //! The sole argument can be anything that implements [`AsRef<Path>`][AsRef], such as
@@ -67,10 +68,11 @@
 //! You can also read from a byte stream using [`decode_from_bytes`][Image::decode_from_bytes]:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
 //! let bytes = &[0; 10000]; // Replace this with your own image data
 //! let image = Image::<Rgb>::decode_from_bytes(ImageFormat::Png, bytes)?;
+//! # Ok(()) }
 //! ```
 //!
 //! The first argument is the encoding of the image, and the second is the byte stream
@@ -80,18 +82,18 @@
 //! infer the format from the byte stream without having to explicitly provide an encoding:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
-//! let bytes = &[0; 10000]; // Replace this with your own image data
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
+//! # let bytes = &[0; 10000]; // Replace this with your own image data
 //! let image = Image::<Rgb>::decode_inferred_from_bytes(bytes)?;
+//! # Ok(()) }
 //! ```
 //!
 //! ## Creating your own image
 //! You can create your own image using the [`Image::new`][Image::new] method:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
+//! # use ril::prelude::*;
 //! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
 //! ```
 //!
@@ -106,8 +108,7 @@
 //! The [`from_fn`][Image::from_fn] method is a shortcut for creating an image from a function:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
+//! # use ril::prelude::*;
 //! let image = Image::from_fn(256, 256, |x, y| {
 //!     // Do something, maybe with `x` and `y`, and return a pixel
 //!     Rgb::new(x as u8, y as u8, 0)
@@ -122,12 +123,13 @@
 //! You can encode and save an image to a file with the [`save`][Image::save] method:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
 //! // Here's the red image from before:
 //! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
 //!
 //! image.save(ImageFormat::Png, "output.png")?;
+//! # Ok(()) }
 //! ```
 //!
 //! The first argument is the encoding of the image, and the second is the path to the file.
@@ -137,12 +139,11 @@
 //! [`save_inferred`][Image::save_inferred] method:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
-//! // Here's the red image from before:
-//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
-//!
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
+//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));
 //! image.save_inferred("output.png")?;
+//! # Ok(()) }
 //! ```
 //!
 //! Now, you do not have to explicitly specify the encoding as it is inferred from the output path.
@@ -151,13 +152,12 @@
 //! You can encode images to a memory buffer by using the [`encode`][Image::encode] method:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
-//! // Here's the red image from before:
-//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
-//!
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
+//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));
 //! let mut out = Vec::new();
 //! image.encode(ImageFormat::Png, &mut out)?;
+//! # Ok(()) }
 //!
 //! // Do something with `out`
 //! ```
@@ -186,11 +186,12 @@
 //! Anyhow, here's how you'd invert an image:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
 //! let mut image = Image::new(256, 256, Rgb::new(255, 0, 0));
 //! image.invert();
 //! image.save_inferred("output.png")?;
+//! # Ok(()) }
 //! ```
 //!
 //! `(255, 0, 0)` (red) inverts to `(0, 255, 255)` (cyan), so that should be the color of the
@@ -199,11 +200,12 @@
 //! We can also use [`inverted`][Image::inverted] to use method chaining:
 //!
 //! ```rust
-//! use ril::prelude::*;
-//!
+//! # use ril::prelude::*;
+//! # fn main() -> ril::Result<()> {
 //! Image::new(256, 256, Rgb::new(255, 0, 0))
 //!     .inverted()
 //!     .save_inferred("output.png")?;
+//! # Ok(()) }
 //! ```
 //!
 //! Seems to be a bit cleaner than the first way, but it really just comes down to preference...
