@@ -70,7 +70,7 @@
 //! ```rust
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
-//! let bytes = &[0; 10000]; // Replace this with your own image data
+//! let bytes = [0; 10000].as_slice(); // Replace this with your own image data
 //! let image = Image::<Rgb>::decode_from_bytes(ImageFormat::Png, bytes)?;
 //! # Ok(()) }
 //! ```
@@ -84,7 +84,7 @@
 //! ```rust
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
-//! # let bytes = &[0; 10000]; // Replace this with your own image data
+//! # let bytes = [0].as_slice();
 //! let image = Image::<Rgb>::decode_inferred_from_bytes(bytes)?;
 //! # Ok(()) }
 //! ```
