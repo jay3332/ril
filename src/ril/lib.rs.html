@@ -295,14 +295,14 @@
 <span class="doccomment">//! # Getting Started</span>
 <span class="doccomment">//! Import the prelude which brings commonly used types and crucial traits into scope:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! use ril::prelude::*;</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Because all errors from this crate are of the same type, ril provides a `Result` type</span>
 <span class="doccomment">//! which you can use in any function that leverages ril, such as the `main` function:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! use ril::prelude::*;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! fn main() -&gt; ril::Result&lt;()&gt; {</span>
@@ -320,7 +320,7 @@
 <span class="doccomment">//! ## Opening an image</span>
 <span class="doccomment">//! The [`open`][Image::open] method should suit your needs:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! let image = Image::&lt;Rgb&gt;::open(&quot;my_image.png&quot;)?;</span>
@@ -340,7 +340,7 @@
 <span class="doccomment">//! ### Reading from a byte stream</span>
 <span class="doccomment">//! You can also read from a byte stream using [`decode_from_bytes`][Image::decode_from_bytes]:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! let bytes = [0; 10000].as_slice(); // Replace this with your own image data</span>
@@ -354,7 +354,7 @@
 <span class="doccomment">//! You can also use [`decode_inferred_from_bytes`][Image::decode_inferred_from_bytes] to</span>
 <span class="doccomment">//! infer the format from the byte stream without having to explicitly provide an encoding:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! # let bytes = [0].as_slice();</span>
@@ -365,7 +365,7 @@
 <span class="doccomment">//! ## Creating your own image</span>
 <span class="doccomment">//! You can create your own image using the [`Image::new`][Image::new] method:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
 <span class="doccomment">//! ```</span>
@@ -380,7 +380,7 @@
 <span class="doccomment">//! ### The `from_fn` method</span>
 <span class="doccomment">//! The [`from_fn`][Image::from_fn] method is a shortcut for creating an image from a function:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! let image = Image::from_fn(256, 256, |x, y| {</span>
 <span class="doccomment">//!     // Do something, maybe with `x` and `y`, and return a pixel</span>
@@ -395,7 +395,7 @@
 <span class="doccomment">//! ## Encoding and saving images</span>
 <span class="doccomment">//! You can encode and save an image to a file with the [`save`][Image::save] method:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! // Here&#39;s the red image from before:</span>
@@ -411,7 +411,7 @@
 <span class="doccomment">//! from the file extension. In cases like this, you can use the slightly slower</span>
 <span class="doccomment">//! [`save_inferred`][Image::save_inferred] method:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
@@ -424,7 +424,7 @@
 <span class="doccomment">//! ### Encoding and saving images to memory</span>
 <span class="doccomment">//! You can encode images to a memory buffer by using the [`encode`][Image::encode] method:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
@@ -458,7 +458,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Anyhow, here&#39;s how you&#39;d invert an image:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! let mut image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
@@ -472,7 +472,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! We can also use [`inverted`][Image::inverted] to use method chaining:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! Image::new(256, 256, Rgb::new(255, 0, 0))</span>
@@ -524,7 +524,7 @@
 <span class="doccomment">/// can be useful for image processing, along with bringing crucial traits into scope.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Example</span>
-<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// ```no_run</span>
 <span class="doccomment">/// use ril::prelude::*;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// // Prelude imported Image and Rgb</span>
