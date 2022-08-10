@@ -22,14 +22,14 @@
 //! # Getting Started
 //! Import the prelude which brings commonly used types and crucial traits into scope:
 //!
-//! ```rust
+//! ```no_run
 //! use ril::prelude::*;
 //! ```
 //!
 //! Because all errors from this crate are of the same type, ril provides a `Result` type
 //! which you can use in any function that leverages ril, such as the `main` function:
 //!
-//! ```rust
+//! ```no_run
 //! use ril::prelude::*;
 //!
 //! fn main() -> ril::Result<()> {
@@ -47,7 +47,7 @@
 //! ## Opening an image
 //! The [`open`][Image::open] method should suit your needs:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! let image = Image::<Rgb>::open("my_image.png")?;
@@ -67,7 +67,7 @@
 //! ### Reading from a byte stream
 //! You can also read from a byte stream using [`decode_from_bytes`][Image::decode_from_bytes]:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! let bytes = [0; 10000].as_slice(); // Replace this with your own image data
@@ -81,7 +81,7 @@
 //! You can also use [`decode_inferred_from_bytes`][Image::decode_inferred_from_bytes] to
 //! infer the format from the byte stream without having to explicitly provide an encoding:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! # let bytes = [0].as_slice();
@@ -92,7 +92,7 @@
 //! ## Creating your own image
 //! You can create your own image using the [`Image::new`][Image::new] method:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
 //! ```
@@ -107,7 +107,7 @@
 //! ### The `from_fn` method
 //! The [`from_fn`][Image::from_fn] method is a shortcut for creating an image from a function:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! let image = Image::from_fn(256, 256, |x, y| {
 //!     // Do something, maybe with `x` and `y`, and return a pixel
@@ -122,7 +122,7 @@
 //! ## Encoding and saving images
 //! You can encode and save an image to a file with the [`save`][Image::save] method:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! // Here's the red image from before:
@@ -138,7 +138,7 @@
 //! from the file extension. In cases like this, you can use the slightly slower
 //! [`save_inferred`][Image::save_inferred] method:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));
@@ -151,7 +151,7 @@
 //! ### Encoding and saving images to memory
 //! You can encode images to a memory buffer by using the [`encode`][Image::encode] method:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));
@@ -185,7 +185,7 @@
 //!
 //! Anyhow, here's how you'd invert an image:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! let mut image = Image::new(256, 256, Rgb::new(255, 0, 0));
@@ -199,7 +199,7 @@
 //!
 //! We can also use [`inverted`][Image::inverted] to use method chaining:
 //!
-//! ```rust
+//! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! Image::new(256, 256, Rgb::new(255, 0, 0))
@@ -251,7 +251,7 @@ inline_doc! {
 /// can be useful for image processing, along with bringing crucial traits into scope.
 ///
 /// # Example
-/// ```rust
+/// ```no_run
 /// use ril::prelude::*;
 ///
 /// // Prelude imported Image and Rgb
