@@ -269,6 +269,8 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril).</span>
@@ -319,9 +321,10 @@
 <span class="doccomment">//! The [`open`][Image::open] method should suit your needs:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! let image = Image::&lt;Rgb&gt;::open(&quot;my_image.png&quot;)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The sole argument can be anything that implements [`AsRef&lt;Path&gt;`][AsRef], such as</span>
@@ -338,10 +341,11 @@
 <span class="doccomment">//! You can also read from a byte stream using [`decode_from_bytes`][Image::decode_from_bytes]:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! let bytes = &amp;[0; 10000]; // Replace this with your own image data</span>
 <span class="doccomment">//! let image = Image::&lt;Rgb&gt;::decode_from_bytes(ImageFormat::Png, bytes)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The first argument is the encoding of the image, and the second is the byte stream</span>
@@ -351,18 +355,18 @@
 <span class="doccomment">//! infer the format from the byte stream without having to explicitly provide an encoding:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let bytes = &amp;[0; 10000]; // Replace this with your own image data</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
+<span class="doccomment">//! # let bytes = &amp;[0; 10000]; // Replace this with your own image data</span>
 <span class="doccomment">//! let image = Image::&lt;Rgb&gt;::decode_inferred_from_bytes(bytes)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Creating your own image</span>
 <span class="doccomment">//! You can create your own image using the [`Image::new`][Image::new] method:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
@@ -377,8 +381,7 @@
 <span class="doccomment">//! The [`from_fn`][Image::from_fn] method is a shortcut for creating an image from a function:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! let image = Image::from_fn(256, 256, |x, y| {</span>
 <span class="doccomment">//!     // Do something, maybe with `x` and `y`, and return a pixel</span>
 <span class="doccomment">//!     Rgb::new(x as u8, y as u8, 0)</span>
@@ -393,12 +396,13 @@
 <span class="doccomment">//! You can encode and save an image to a file with the [`save`][Image::save] method:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! // Here&#39;s the red image from before:</span>
 <span class="doccomment">//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! image.save(ImageFormat::Png, &quot;output.png&quot;)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The first argument is the encoding of the image, and the second is the path to the file.</span>
@@ -408,12 +412,11 @@
 <span class="doccomment">//! [`save_inferred`][Image::save_inferred] method:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Here&#39;s the red image from before:</span>
-<span class="doccomment">//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
+<span class="doccomment">//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
 <span class="doccomment">//! image.save_inferred(&quot;output.png&quot;)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Now, you do not have to explicitly specify the encoding as it is inferred from the output path.</span>
@@ -422,13 +425,12 @@
 <span class="doccomment">//! You can encode images to a memory buffer by using the [`encode`][Image::encode] method:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Here&#39;s the red image from before:</span>
-<span class="doccomment">//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
+<span class="doccomment">//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
 <span class="doccomment">//! let mut out = Vec::new();</span>
 <span class="doccomment">//! image.encode(ImageFormat::Png, &amp;mut out)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! // Do something with `out`</span>
 <span class="doccomment">//! ```</span>
@@ -457,11 +459,12 @@
 <span class="doccomment">//! Anyhow, here&#39;s how you&#39;d invert an image:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! let mut image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
 <span class="doccomment">//! image.invert();</span>
 <span class="doccomment">//! image.save_inferred(&quot;output.png&quot;)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! `(255, 0, 0)` (red) inverts to `(0, 255, 255)` (cyan), so that should be the color of the</span>
@@ -470,11 +473,12 @@
 <span class="doccomment">//! We can also use [`inverted`][Image::inverted] to use method chaining:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
+<span class="doccomment">//! # use ril::prelude::*;</span>
+<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! Image::new(256, 256, Rgb::new(255, 0, 0))</span>
 <span class="doccomment">//!     .inverted()</span>
 <span class="doccomment">//!     .save_inferred(&quot;output.png&quot;)?;</span>
+<span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Seems to be a bit cleaner than the first way, but it really just comes down to preference...</span>
