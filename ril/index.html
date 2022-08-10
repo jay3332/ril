@@ -44,7 +44,7 @@ which are found in the prelude. There are also grayscale counterparts, such as <
 <h4 id="reading-from-a-byte-stream"><a href="#reading-from-a-byte-stream">Reading from a byte stream</a></h4>
 <p>You can also read from a byte stream using <a href="struct.Image.html#method.decode_from_bytes" title="Image::decode_from_bytes"><code>decode_from_bytes</code></a>:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="number">0</span>; <span class="number">10000</span>]; <span class="comment">// Replace this with your own image data</span>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">10000</span>].<span class="ident">as_slice</span>(); <span class="comment">// Replace this with your own image data</span>
 <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::decode_from_bytes</span>(<span class="ident">ImageFormat::Png</span>, <span class="ident">bytes</span>)<span class="question-mark">?</span>;</code></pre></div>
 <p>The first argument is the encoding of the image, and the second is the byte stream
 that implements <a href="https://doc.rust-lang.org/1.62.1/std/io/trait.Read.html" title="std::io::Read"><code>Read</code></a>.</p>

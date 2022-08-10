@@ -343,7 +343,7 @@
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! let bytes = &amp;[0; 10000]; // Replace this with your own image data</span>
+<span class="doccomment">//! let bytes = [0; 10000].as_slice(); // Replace this with your own image data</span>
 <span class="doccomment">//! let image = Image::&lt;Rgb&gt;::decode_from_bytes(ImageFormat::Png, bytes)?;</span>
 <span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
@@ -357,7 +357,7 @@
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! # let bytes = &amp;[0; 10000]; // Replace this with your own image data</span>
+<span class="doccomment">//! # let bytes = [0].as_slice();</span>
 <span class="doccomment">//! let image = Image::&lt;Rgb&gt;::decode_inferred_from_bytes(bytes)?;</span>
 <span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
