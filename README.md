@@ -194,19 +194,19 @@ to dereference into `Image`s, so calling image methods on frames will seem trans
 ### Rendering Text
 RIL provides a streamlined interface for rendering text.
 
-There are two ways to render text: with a `FontSegment` or with a `FontLayout`. A `FontSegment`
-is faster and more lightweight than a `FontLayout` (and it's cloneable, unlike `FontLayout`), but
-lacks many of the features of a `FontLayout`.
+There are two ways to render text: with a `TextSegment` or with a `TextLayout`. A `TextSegment`
+is faster and more lightweight than a `TextLayout` (and it's cloneable, unlike `TextLayout`), but
+lacks many of the features of a `TextLayout`.
 
-A `FontSegment` supports only one font and either represents a segment in a `FontLayout`, or it can
-be directly rendered more efficiently than a `FontLayout`. You should only use `FontLayout` if you 
-need what `FontSegment` can't provide.
+A `TextSegment` supports only one font and either represents a segment in a `TextLayout`, or it can
+be directly rendered more efficiently than a `TextLayout`. You should only use `TextLayout` if you 
+need what `TextSegment` can't provide.
 
-`FontLayout`s support anchor-style text-alignment, and can be used to render text with multiple fonts
+`TextLayout`s support anchor-style text-alignment, and can be used to render text with multiple fonts
 and styles, such as different sizes or colors. It also provides the ability to grab the dimensions
-of the text before rendering such as width and height. `FontSegment` cannot do this.
+of the text before rendering such as width and height. `TextSegment` cannot do this.
 
-#### Render text with a `FontSegment`:
+#### Render text with a `TextSegment`:
 ```rust
 let mut image = Image::new(512, 256, Rgb::black());
 // Open the font at the given path. You can try using `Font::from_bytes` along with the `include_bytes!` macro
@@ -227,14 +227,14 @@ image.draw(&text);
 image.save_inferred("text.png")?;
 ```
 
-#### Render text in the center of the image with a `FontLayout`:
+#### Render text in the center of the image with a `TextLayout`:
 ```rust
 let mut image = Image::new(512, 256, Rgb::black());
 let font = Font::open("Arial.ttf", 36.0)?;
 let bold = Font::open("Arial Bold.ttf", 36.0)?;
 
 let (x, y) = image.center();
-let layout = FontLayout::new()
+let layout = TextLayout::new()
     .centered() // Shorthand for centering horizontally and vertically
     .with_wrap(WrapStyle::Word) // RIL supports word wrapping
     .with_width(image.width()) // This is the width to wrap text at. Only required if you want to wrap text.
