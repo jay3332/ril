@@ -1,3 +1,5 @@
+//! Implements the animated image and image sequence interface.
+
 use crate::{DynamicFrameIterator, Error, Image, ImageFormat, Pixel, Result};
 use std::{
     fs::File,

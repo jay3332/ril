@@ -1,4 +1,4 @@
-/// Houses Encoder, Decoder, and frame iterator traits.
+//! Houses Encoder, Decoder, and frame iterator traits.
 
 use crate::{
     encodings::{gif::GifFrameIterator, png::ApngFrameIterator},

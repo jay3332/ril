@@ -1,3 +1,5 @@
+//! Implements the font/text rasterizing and layout interface.
+
 #![allow(clippy::cast_precision_loss, clippy::too_many_arguments)]
 
 use crate::{Draw, Error::FontError, Image, OverlayMode, Pixel};
