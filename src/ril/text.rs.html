@@ -687,6 +687,7 @@
 <span id="682">682</span>
 <span id="683">683</span>
 <span id="684">684</span>
+<span id="685">685</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::cast_precision_loss</span>, <span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Draw</span>, <span class="ident">Error::FontError</span>, <span class="ident">Image</span>, <span class="ident">OverlayMode</span>, <span class="ident">Pixel</span>};
@@ -794,6 +795,7 @@
     }
 }
 
+<span class="doccomment">/// Determines how text should be wrapped.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WrapStyle</span> {
     <span class="doccomment">/// Do not wrap the text.</span>

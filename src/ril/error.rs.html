@@ -159,9 +159,15 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Common error types.</span>
+
+<span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
+<span class="doccomment">/// A shortcut type equivalent to `Result&lt;T, ril::Error&gt;`.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Represents an error that occurs within the crate.</span>

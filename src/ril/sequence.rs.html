@@ -438,6 +438,8 @@
 <span id="433">433</span>
 <span id="434">434</span>
 <span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DynamicFrameIterator</span>, <span class="ident">Error</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">fs::File</span>,
@@ -574,6 +576,8 @@
     }
 }
 
+<span class="doccomment">/// Determines how many times an image sequence should repeat itself, or if it</span>
+<span class="doccomment">/// should repeat infinitely.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LoopCount</span> {
     <span class="doccomment">/// Loops infinitely.</span>

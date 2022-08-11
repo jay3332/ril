@@ -31,29 +31,29 @@ which you can use in any function that leverages ril, such as the <code>main</co
 <h2 id="brief-guide"><a href="#brief-guide">Brief Guide</a></h2>
 <p>A quick guide and overview of ril’s interface.</p>
 <h3 id="opening-an-image"><a href="#opening-an-image">Opening an image</a></h3>
-<p>The <a href="struct.Image.html#method.open" title="Image::open"><code>open</code></a> method should suit your needs:</p>
+<p>The <a href="prelude/struct.Image.html#method.open" title="Image::open"><code>open</code></a> method should suit your needs:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::open</span>(<span class="string">&quot;my_image.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
 <p>The sole argument can be anything that implements <a href="https://doc.rust-lang.org/1.62.1/core/convert/trait.AsRef.html" title="AsRef"><code>AsRef&lt;Path&gt;</code></a>, such as
 a string or a file.</p>
-<p>You might have also noticed that <a href="struct.Image.html" title="Image"><code>Image</code></a> is generic with one type parameter,
+<p>You might have also noticed that <a href="prelude/struct.Image.html" title="Image"><code>Image</code></a> is generic with one type parameter,
 which can be anything that implements <a href="trait.Pixel.html" title="Pixel"><code>Pixel</code></a>. It represents what type of pixel
 this image has - in this case, the image has RGB pixels.</p>
 <p>Common pixel formats are <a href="struct.Rgb.html" title="Rgb"><code>Rgb</code></a> (colored) and <a href="struct.Rgba.html" title="Rgba"><code>Rgba</code></a> (colored with transparency),
 which are found in the prelude. There are also grayscale counterparts, such as <a href="struct.L.html" title="L"><code>L</code></a>.</p>
 <h4 id="reading-from-a-byte-stream"><a href="#reading-from-a-byte-stream">Reading from a byte stream</a></h4>
-<p>You can also read from a byte stream using <a href="struct.Image.html#method.decode_from_bytes" title="Image::decode_from_bytes"><code>decode_from_bytes</code></a>:</p>
+<p>You can also read from a byte stream using <a href="prelude/struct.Image.html#method.decode_from_bytes" title="Image::decode_from_bytes"><code>decode_from_bytes</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">10000</span>].<span class="ident">as_slice</span>(); <span class="comment">// Replace this with your own image data</span>
 <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::decode_from_bytes</span>(<span class="ident">ImageFormat::Png</span>, <span class="ident">bytes</span>)<span class="question-mark">?</span>;</code></pre></div>
 <p>The first argument is the encoding of the image, and the second is the byte stream
 that implements <a href="https://doc.rust-lang.org/1.62.1/std/io/trait.Read.html" title="std::io::Read"><code>Read</code></a>.</p>
-<p>You can also use <a href="struct.Image.html#method.decode_inferred_from_bytes" title="Image::decode_inferred_from_bytes"><code>decode_inferred_from_bytes</code></a> to
+<p>You can also use <a href="prelude/struct.Image.html#method.decode_inferred_from_bytes" title="Image::decode_inferred_from_bytes"><code>decode_inferred_from_bytes</code></a> to
 infer the format from the byte stream without having to explicitly provide an encoding:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::decode_inferred_from_bytes</span>(<span class="ident">bytes</span>)<span class="question-mark">?</span>;</code></pre></div>
 <h3 id="creating-your-own-image"><a href="#creating-your-own-image">Creating your own image</a></h3>
-<p>You can create your own image using the <a href="struct.Image.html#method.new" title="Image::new"><code>Image::new</code></a> method:</p>
+<p>You can create your own image using the <a href="prelude/struct.Image.html#method.new" title="Image::new"><code>Image::new</code></a> method:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));</code></pre></div>
 <p>The above creates a 256x256 RGB image with all pixels set to red.</p>
@@ -62,7 +62,7 @@ fill color. The pixel type of the image can be inferred from this argument, whic
 don’t have to specify it explicitly as a type argument - Rust type inference is powerful and
 infers this for us.</p>
 <h4 id="the-from_fn-method"><a href="#the-from_fn-method">The <code>from_fn</code> method</a></h4>
-<p>The <a href="struct.Image.html#method.from_fn" title="Image::from_fn"><code>from_fn</code></a> method is a shortcut for creating an image from a function:</p>
+<p>The <a href="prelude/struct.Image.html#method.from_fn" title="Image::from_fn"><code>from_fn</code></a> method is a shortcut for creating an image from a function:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_fn</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="op">|</span><span class="ident">x</span>, <span class="ident">y</span><span class="op">|</span> {
     <span class="comment">// Do something, maybe with `x` and `y`, and return a pixel</span>
@@ -72,7 +72,7 @@ infers this for us.</p>
 generates the pixels. It should take two parameters - <code>x</code> and <code>y</code>, which specify the position
 of the pixel to generate - and return a pixel.</p>
 <h3 id="encoding-and-saving-images"><a href="#encoding-and-saving-images">Encoding and saving images</a></h3>
-<p>You can encode and save an image to a file with the <a href="struct.Image.html#method.save" title="Image::save"><code>save</code></a> method:</p>
+<p>You can encode and save an image to a file with the <a href="prelude/struct.Image.html#method.save" title="Image::save"><code>save</code></a> method:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Here&#39;s the red image from before:</span>
 <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>));
@@ -81,12 +81,12 @@ of the pixel to generate - and return a pixel.</p>
 <p>The first argument is the encoding of the image, and the second is the path to the file.</p>
 <p>You may have noticed this is a bit repetitive, and that it is possible to infer the encoding
 from the file extension. In cases like this, you can use the slightly slower
-<a href="struct.Image.html#method.save_inferred" title="Image::save_inferred"><code>save_inferred</code></a> method:</p>
+<a href="prelude/struct.Image.html#method.save_inferred" title="Image::save_inferred"><code>save_inferred</code></a> method:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">image</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;output.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
 <p>Now, you do not have to explicitly specify the encoding as it is inferred from the output path.</p>
 <h4 id="encoding-and-saving-images-to-memory"><a href="#encoding-and-saving-images-to-memory">Encoding and saving images to memory</a></h4>
-<p>You can encode images to a memory buffer by using the <a href="struct.Image.html#method.encode" title="Image::encode"><code>encode</code></a> method:</p>
+<p>You can encode images to a memory buffer by using the <a href="prelude/struct.Image.html#method.encode" title="Image::encode"><code>encode</code></a> method:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 <span class="ident">image</span>.<span class="ident">encode</span>(<span class="ident">ImageFormat::Png</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>)<span class="question-mark">?</span>;
@@ -103,8 +103,8 @@ them!</p>
 <p>A common manipulation method would be inverting every pixel in the image. To do this, there are
 two methods which you can use:</p>
 <ul>
-<li><a href="struct.Image.html#method.invert" title="Image::invert"><code>invert</code></a>: Inverts the image in-place</li>
-<li><a href="struct.Image.html#method.inverted" title="Image::inverted"><code>inverted</code></a>: Consumes the image and returns a new image with the inverted pixels</li>
+<li><a href="prelude/struct.Image.html#method.invert" title="Image::invert"><code>invert</code></a>: Inverts the image in-place</li>
+<li><a href="prelude/struct.Image.html#method.inverted" title="Image::inverted"><code>inverted</code></a>: Consumes the image and returns a new image with the inverted pixels</li>
 </ul>
 <p>A common pattern you’ll see in this crate is that many methods have an in-place method and a
 not-in-place counterpart, in which the former can be useful for method chaining. One usually does
@@ -116,7 +116,7 @@ not have any memory or performance benefits than the other.</p>
 <span class="ident">image</span>.<span class="ident">save_inferred</span>(<span class="string">&quot;output.png&quot;</span>)<span class="question-mark">?</span>;</code></pre></div>
 <p><code>(255, 0, 0)</code> (red) inverts to <code>(0, 255, 255)</code> (cyan), so that should be the color of the
 output image.</p>
-<p>We can also use <a href="struct.Image.html#method.inverted" title="Image::inverted"><code>inverted</code></a> to use method chaining:</p>
+<p>We can also use <a href="prelude/struct.Image.html#method.inverted" title="Image::inverted"><code>inverted</code></a> to use method chaining:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">Image::new</span>(<span class="number">256</span>, <span class="number">256</span>, <span class="ident">Rgb::new</span>(<span class="number">255</span>, <span class="number">0</span>, <span class="number">0</span>))
     .<span class="ident">inverted</span>()
@@ -126,7 +126,11 @@ and whether or not you have ownership of the image object - you likely want to s
 cloning images for no benefit as it is a very expensive operation.</p>
 <p>TODO: finish guide</p>
 </div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="draw/index.html" title="ril::draw mod">draw</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="encode/index.html" title="ril::encode mod">encode</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="encodings/index.html" title="ril::encodings mod">encodings</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="error/index.html" title="ril::error mod">error</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="image/index.html" title="ril::image mod">image</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="pixel/index.html" title="ril::pixel mod">pixel</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="ril::prelude mod">prelude</a></div><div class="item-right docblock-short"><p>The crate prelude exports. Importing this with a wildcard will import most items from RIL that
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="draw/index.html" title="ril::draw mod">draw</a></div><div class="item-right docblock-short"><p>Encloses most drawing implementations and drawable objects.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="encode/index.html" title="ril::encode mod">encode</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="encodings/index.html" title="ril::encodings mod">encodings</a></div><div class="item-right docblock-short"><p>Contains encoder and decoder implementations for various image formats.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="error/index.html" title="ril::error mod">error</a></div><div class="item-right docblock-short"><p>Common error types.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="pixel/index.html" title="ril::pixel mod">pixel</a></div><div class="item-right docblock-short"><p>Encloses pixel-related traits and pixel type implementations.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="ril::prelude mod">prelude</a></div><div class="item-right docblock-short"><p>The crate prelude exports. Importing this with a wildcard will import most items from RIL that
 can be useful for image processing, along with bringing crucial traits into scope.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="sequence/index.html" title="ril::sequence mod">sequence</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="text/index.html" title="ril::text mod">text</a></div><div class="item-right docblock-short"></div></div></div><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.BitPixel.html" title="ril::BitPixel struct">BitPixel</a></div><div class="item-right docblock-short"><p>Represents a single-bit pixel that represents either a pixel that is on or off.</p>
@@ -134,7 +138,7 @@ can be useful for image processing, along with bringing crucial traits into scop
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Ellipse.html" title="ril::Ellipse struct">Ellipse</a></div><div class="item-right docblock-short"><p>An ellipse, which could be a circle.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Font.html" title="ril::Font struct">Font</a></div><div class="item-right docblock-short"><p>Represents a single font along with its alternatives used to render text.
 Currently, this supports TrueType and OpenType fonts.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Frame.html" title="ril::Frame struct">Frame</a></div><div class="item-right docblock-short"><p>Represents a frame in an image sequence. It encloses an <a href="struct.Image.html" title="Image"><code>Image</code></a> and extra metadata
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Frame.html" title="ril::Frame struct">Frame</a></div><div class="item-right docblock-short"><p>Represents a frame in an image sequence. It encloses an <a href="prelude/struct.Image.html" title="Image"><code>Image</code></a> and extra metadata
 about the frame.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Image.html" title="ril::Image struct">Image</a></div><div class="item-right docblock-short"><p>A high-level image representation.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ImageSequence.html" title="ril::ImageSequence struct">ImageSequence</a></div><div class="item-right docblock-short"><p>Represents a sequence of image frames such as an animated image.</p>
@@ -155,17 +159,22 @@ with common methods.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Error.html" title="ril::Error enum">Error</a></div><div class="item-right docblock-short"><p>Represents an error that occurs within the crate.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.HorizontalAnchor.html" title="ril::HorizontalAnchor enum">HorizontalAnchor</a></div><div class="item-right docblock-short"><p>Represents where text is anchored horizontally.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ImageFormat.html" title="ril::ImageFormat enum">ImageFormat</a></div><div class="item-right docblock-short"><p>Represents the underlying encoding format of an image.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.LoopCount.html" title="ril::LoopCount enum">LoopCount</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.OverlayMode.html" title="ril::OverlayMode enum">OverlayMode</a></div><div class="item-right docblock-short"><p>The behavior to use when overlaying images on top of each other.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.LoopCount.html" title="ril::LoopCount enum">LoopCount</a></div><div class="item-right docblock-short"><p>Determines how many times an image sequence should repeat itself, or if it
+should repeat infinitely.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.OverlayMode.html" title="ril::OverlayMode enum">OverlayMode</a></div><div class="item-right docblock-short"><p>The behavior to use when overlaying images on top of each other.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ResizeAlgorithm.html" title="ril::ResizeAlgorithm enum">ResizeAlgorithm</a></div><div class="item-right docblock-short"><p>A filtering algorithm that is used to resize an image.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.VerticalAnchor.html" title="ril::VerticalAnchor enum">VerticalAnchor</a></div><div class="item-right docblock-short"><p>Represents where text is anchored vertically.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.WrapStyle.html" title="ril::WrapStyle enum">WrapStyle</a></div><div class="item-right docblock-short"></div></div></div><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.WrapStyle.html" title="ril::WrapStyle enum">WrapStyle</a></div><div class="item-right docblock-short"><p>Determines how text should be wrapped.</p>
+</div></div></div><h2 id="traits" class="small-section-header"><a href="#traits">Traits</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Alpha.html" title="ril::Alpha trait">Alpha</a></div><div class="item-right docblock-short"><p>Represents a pixel that supports alpha, or transparency values.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Banded.html" title="ril::Banded trait">Banded</a></div><div class="item-right docblock-short"><p>Represents an image with multiple channels, called bands.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Decoder.html" title="ril::Decoder trait">Decoder</a></div><div class="item-right docblock-short"><p>Low-level decoder interface around an image format.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Draw.html" title="ril::Draw trait">Draw</a></div><div class="item-right docblock-short"></div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Encoder.html" title="ril::Encoder trait">Encoder</a></div><div class="item-right docblock-short"><p>Low-level encoder interface around an image format.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Draw.html" title="ril::Draw trait">Draw</a></div><div class="item-right docblock-short"><p>A common trait for all objects able to be drawn on an image.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Encoder.html" title="ril::Encoder trait">Encoder</a></div><div class="item-right docblock-short"><p>Low-level encoder interface around an image format.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.FrameIterator.html" title="ril::FrameIterator trait">FrameIterator</a></div><div class="item-right docblock-short"><p>Represents the lazy decoding of frames from an encoded image sequence, such as an animated
 image.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.Pixel.html" title="ril::Pixel trait">Pixel</a></div><div class="item-right docblock-short"><p>Represents any type of pixel in an image.</p>
 </div></div></div><h2 id="types" class="small-section-header"><a href="#types">Type Definitions</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.Result.html" title="ril::Result type">Result</a></div><div class="item-right docblock-short"></div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.Result.html" title="ril::Result type">Result</a></div><div class="item-right docblock-short"><p>A shortcut type equivalent to <code>Result&lt;T, ril::Error&gt;</code>.</p>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>
