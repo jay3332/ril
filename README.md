@@ -200,7 +200,7 @@ lacks many of the features of a `FontLayout`.
 
 A `FontSegment` supports only one font and either represents a segment in a `FontLayout`, or it can
 be directly rendered more efficiently than a `FontLayout`. You should only use `FontLayout` if you 
-need what `FontSegment` doesn't.
+need what `FontSegment` can't provide.
 
 `FontLayout`s support anchor-style text-alignment, and can be used to render text with multiple fonts
 and styles, such as different sizes or colors. It also provides the ability to grab the dimensions
