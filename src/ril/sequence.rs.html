@@ -440,7 +440,11 @@
 <span id="435">435</span>
 <span id="436">436</span>
 <span id="437">437</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DynamicFrameIterator</span>, <span class="ident">Error</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="prelude-ty">Result</span>};
+<span id="438">438</span>
+<span id="439">439</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Implements the animated image and image sequence interface.</span>
+
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DynamicFrameIterator</span>, <span class="ident">Error</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">fs::File</span>,
     <span class="ident">io</span>::{<span class="ident">Read</span>, <span class="ident">Write</span>},
