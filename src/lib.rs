@@ -226,7 +226,7 @@ pub mod draw;
 pub mod encode;
 pub mod encodings;
 pub mod error;
-pub mod image;
+mod image;
 pub mod pixel;
 mod resize;
 pub mod sequence;

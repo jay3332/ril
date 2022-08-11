@@ -105,6 +105,7 @@ impl Font {
     }
 }
 
+/// Determines how text should be wrapped.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum WrapStyle {
     /// Do not wrap the text.

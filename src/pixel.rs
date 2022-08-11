@@ -1,3 +1,5 @@
+//! Encloses pixel-related traits and pixel type implementations.
+
 use crate::{
     encodings::PixelData,
     image::OverlayMode,

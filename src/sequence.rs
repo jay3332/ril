@@ -134,6 +134,8 @@ impl<P: Pixel> std::ops::DerefMut for Frame<P> {
     }
 }
 
+/// Determines how many times an image sequence should repeat itself, or if it
+/// should repeat infinitely.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum LoopCount {
     /// Loops infinitely.

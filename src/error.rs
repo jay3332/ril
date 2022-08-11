@@ -1,6 +1,9 @@
+//! Common error types.
+
 use std::ffi::OsString;
 use std::fmt;
 
+/// A shortcut type equivalent to `Result<T, ril::Error>`.
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Represents an error that occurs within the crate.

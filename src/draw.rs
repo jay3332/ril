@@ -1,6 +1,11 @@
+//! Encloses most drawing implementations and drawable objects.
+
 use crate::image::OverlayMode;
 use crate::{Image, Pixel};
 
+/// A common trait for all objects able to be drawn on an image.
+///
+/// Whether or not to implement this trait is more or less a matter of semantics.
 pub trait Draw<P: Pixel> {
     /// Draws the object to the given image.
     fn draw(&self, image: &mut Image<P>);

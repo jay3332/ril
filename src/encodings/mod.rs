@@ -1,3 +1,5 @@
+//! Contains encoder and decoder implementations for various image formats.
+
 pub mod gif;
 pub mod jpeg;
 pub mod png;
