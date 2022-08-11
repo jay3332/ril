@@ -17,10 +17,13 @@ png = "^0.17"
 jpeg-decoder = "^0.2"
 jpeg-encoder = { version = "^0.5", features = ["simd"] }
 gif = "^0.11"
+fontdue = "^0.7"
 
 [dev-dependencies]
 criterion = "^0.3"
 image = "^0"
+imageproc = "^0.23"
+rusttype = "^0.9"
 
 [[bench]]
 path = "benches/invert.rs"
@@ -29,5 +32,10 @@ harness = false
 
 [[bench]]
 path = "benches/invert_comparison.rs"
-name = "comparison"
+name = "invert_comparison"
+harness = false
+
+[[bench]]
+path = "benches/text_comparison.rs"
+name = "text_comparison"
 harness = false

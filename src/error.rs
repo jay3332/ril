@@ -27,6 +27,9 @@ pub enum Error {
     /// an error message.
     DecodingError(String),
 
+    /// An error occured while trying to render or rasterize a font.
+    FontError(&'static str),
+
     /// No encoding format could be inferred for the given image.
     UnknownEncodingFormat,
 
@@ -59,7 +62,8 @@ impl fmt::Display for Error {
                 write!(f, "Invalid extension: {}", ext.to_string_lossy())
             }
             Self::EncodingError(msg) => write!(f, "Encoding error: {}", msg),
-            Self::DecodingError(message) => write!(f, "Decoding error: {}", message),
+            Self::DecodingError(msg) => write!(f, "Decoding error: {}", msg),
+            Self::FontError(msg) => write!(f, "Font error: {}", msg),
             Self::UnknownEncodingFormat => write!(f, "Could not infer encoding format"),
             Self::UnsupportedColorType => write!(
                 f,

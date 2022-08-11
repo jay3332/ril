@@ -70,6 +70,23 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
         }
     }
 
+    /// Merges this pixel with the given overlay pixel, where the alpha of the overlay pixel is
+    /// known. This is used in anti-aliasing.
+    #[must_use]
+    fn merge_with_alpha(self, other: Self, alpha: u8) -> Self;
+
+    /// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode with
+    /// the given alpha.
+    ///
+    /// This is used in anti-aliasing.
+    #[must_use]
+    fn overlay_with_alpha(self, other: Self, mode: OverlayMode, alpha: u8) -> Self {
+        match mode {
+            OverlayMode::Replace => other,
+            OverlayMode::Merge => self.merge_with_alpha(other, alpha),
+        }
+    }
+
     /// Creates this pixel from any dynamic pixel...dynamically at runtime. Different from the
     /// From/Into traits.
     fn from_dynamic(dynamic: Dynamic) -> Self;
@@ -146,6 +163,14 @@ impl Pixel for BitPixel {
         [if self.0 { 255 } else { 0 }]
     }
 
+    fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
+        if alpha < 128 {
+            self
+        } else {
+            other
+        }
+    }
+
     fn from_dynamic(dynamic: Dynamic) -> Self {
         match dynamic {
             Dynamic::BitPixel(value) => value,
@@ -190,6 +215,19 @@ impl Pixel for L {
 
     fn as_bytes(&self) -> Self::Data {
         [self.0]
+    }
+
+    #[allow(clippy::cast_lossless)]
+    fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
+        let alpha = alpha as f32 / 255.;
+        let base_l = self.0 as f32 / 255.;
+        let overlay_l = other.0 as f32 / 255.;
+
+        let a_diff = 1. - alpha;
+        let a = a_diff.mul_add(255., alpha);
+        let l = (a_diff * 255.).mul_add(base_l, alpha * overlay_l) / a;
+
+        Self((l * 255.) as u8)
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -254,6 +292,12 @@ impl Pixel for Rgb {
 
     fn as_bytes(&self) -> Self::Data {
         [self.r, self.g, self.b]
+    }
+
+    fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
+        Rgba::from_rgb(self)
+            .merge_with_alpha(Rgba::from_rgb(other), alpha)
+            .into()
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -386,6 +430,7 @@ impl Pixel for Rgba {
         [self.r, self.g, self.b, self.a]
     }
 
+    #[allow(clippy::cast_lossless)]
     fn merge(self, other: Self) -> Self {
         // Optimize for common cases
         if other.a == 255 {
@@ -395,23 +440,26 @@ impl Pixel for Rgba {
         }
 
         let (base_r, base_g, base_b, base_a) = (
-            f32::from(self.r) / 255.,
-            f32::from(self.g) / 255.,
-            f32::from(self.b) / 255.,
-            f32::from(self.a) / 255.,
+            self.r as f32 / 255.,
+            self.g as f32 / 255.,
+            self.b as f32 / 255.,
+            self.a as f32 / 255.,
         );
 
         let (overlay_r, overlay_g, overlay_b, overlay_a) = (
-            f32::from(other.r) / 255.,
-            f32::from(other.g) / 255.,
-            f32::from(other.b) / 255.,
-            f32::from(other.a) / 255.,
+            other.r as f32 / 255.,
+            other.g as f32 / 255.,
+            other.b as f32 / 255.,
+            other.a as f32 / 255.,
         );
 
-        let a = (1. - overlay_a).mul_add(base_a, overlay_a);
-        let r = ((1. - overlay_a) * base_a).mul_add(base_r, overlay_a * overlay_r) / a;
-        let g = ((1. - overlay_a) * base_a).mul_add(base_g, overlay_a * overlay_g) / a;
-        let b = ((1. - overlay_a) * base_a).mul_add(base_b, overlay_a * overlay_b) / a;
+        let a_diff = 1. - overlay_a;
+        let a = a_diff.mul_add(base_a, overlay_a);
+
+        let a_ratio = a_diff * base_a;
+        let r = a_ratio.mul_add(base_r, overlay_a * overlay_r) / a;
+        let g = a_ratio.mul_add(base_g, overlay_a * overlay_g) / a;
+        let b = a_ratio.mul_add(base_b, overlay_a * overlay_b) / a;
 
         Self {
             r: (r * 255.) as u8,
@@ -419,6 +467,11 @@ impl Pixel for Rgba {
             b: (b * 255.) as u8,
             a: (a * 255.) as u8,
         }
+    }
+
+    #[allow(clippy::cast_lossless)]
+    fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
+        self.merge(other.with_alpha((other.a as f32 * (alpha as f32 / 255.)) as u8))
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -569,6 +622,20 @@ impl Pixel for Dynamic {
 
     fn as_bytes(&self) -> Self::Data {
         self.as_pixel_data().data()
+    }
+
+    fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
+        match (self, other) {
+            (Self::BitPixel(pixel), Self::BitPixel(other)) => {
+                Self::BitPixel(pixel.merge_with_alpha(other, alpha))
+            }
+            (Self::L(pixel), Self::L(other)) => Self::L(pixel.merge_with_alpha(other, alpha)),
+            (Self::Rgb(pixel), Self::Rgb(other)) => Self::Rgb(pixel.merge_with_alpha(other, alpha)),
+            (Self::Rgba(pixel), Self::Rgba(other)) => {
+                Self::Rgba(pixel.merge_with_alpha(other, alpha))
+            }
+            _ => panic!("Cannot overlay two foreign pixel types"),
+        }
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {

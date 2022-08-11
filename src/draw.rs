@@ -364,7 +364,9 @@ impl<P: Pixel> Ellipse<P> {
         let (h, k) = self.position;
         let (h, k) = (h as i32, k as i32);
 
+        #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let fill = self.fill.unwrap();
+        #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let overlay = self.overlay.unwrap_or(image.overlay);
 
         macro_rules! line {
@@ -397,6 +399,7 @@ impl<P: Pixel> Ellipse<P> {
     #[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
     fn rasterize_filled_ellipse(&self, image: &mut Image<P>) {
         let (ch, k) = self.position;
+        #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let (ch, k) = (ch as i32, k as i32);
 
         let (w, h) = self.radii;
@@ -408,7 +411,9 @@ impl<P: Pixel> Ellipse<P> {
         let mut px = 0;
         let mut py = 2 * w2 * y;
 
+        #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let fill = self.fill.unwrap();
+        #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let overlay = self.overlay.unwrap_or(image.overlay);
 
         macro_rules! line {

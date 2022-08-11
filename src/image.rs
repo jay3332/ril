@@ -216,7 +216,11 @@ impl<P: Pixel> Image<P> {
     #[inline]
     #[must_use]
     const fn resolve_coordinate(&self, x: u32, y: u32) -> usize {
-        (y * self.width() + x) as usize
+        if x >= self.width() || y >= self.height() {
+            usize::MAX
+        } else {
+            (y * self.width() + x) as usize
+        }
     }
 
     /// Returns the width of the image.
@@ -231,6 +235,16 @@ impl<P: Pixel> Image<P> {
     #[must_use]
     pub const fn height(&self) -> u32 {
         self.height.get()
+    }
+
+    /// Returns the nearest pixel coordinates to the center of the image.
+    ///
+    /// This uses integer division which means if an image dimension is not even, then the value is
+    /// rounded down - e.g. a 5x5 image returns ``(2, 2)``, rounded down from ``(2.5, 2.5)``.
+    #[inline]
+    #[must_use]
+    pub const fn center(&self) -> (u32, u32) {
+        (self.width() / 2, self.height() / 2)
     }
 
     /// Returns a Vec of slices representing the pixels of the image.

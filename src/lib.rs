@@ -230,6 +230,7 @@ pub mod image;
 pub mod pixel;
 mod resize;
 pub mod sequence;
+pub mod text;
 
 macro_rules! inline_doc {
     ($($token:item)*) => {
@@ -245,6 +246,7 @@ inline_doc! {
     pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
     pub use resize::FilterType as ResizeAlgorithm;
     pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
+    pub use text::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
 }
 
 /// The crate prelude exports. Importing this with a wildcard will import most items from RIL that
@@ -262,7 +264,8 @@ inline_doc! {
 pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, Ellipse, Frame, FrameIterator, Image, ImageFormat, ImageSequence,
-        LoopCount, OverlayMode, Paste, Pixel, Rectangle, ResizeAlgorithm, Rgb, Rgba, L,
+        DynamicFrameIterator, Ellipse, Font, Frame, FrameIterator, HorizontalAnchor, Image,
+        ImageFormat, ImageSequence, LoopCount, OverlayMode, Paste, Pixel, Rectangle,
+        ResizeAlgorithm, Rgb, Rgba, TextLayout, TextSegment, VerticalAnchor, WrapStyle, L,
     };
 }

@@ -27,6 +27,8 @@ performant and usually even faster than leading imaging crates such as `image-rs
 - Variety of image processing and manipulation operations, including drawing
 - Robust support for animated images such as GIFs via FrameIterator and ImageSequence
   - See [Animated Image Support](#animated-image-support) for more information.
+- Robust and performant support for fonts and text rendering
+  - See [Rendering Text](#rendering-text) for more information.
 - A streamlined front-facing interface
 
 ## Support
@@ -70,15 +72,23 @@ Or, you can run `cargo add ril` if you have Rust 1.62.0 or newer.
 ## Benchmarks
 
 ### Decode GIF + Invert each frame + Encode GIF (600x600, 77 frames)
-Performed locally on Apple Macbook Pro 2021 (10-cores) ([Source](https://github.com/jay3332/ril/blob/main/benches/invert_comparison.rs))
+Performed locally (10-cores) ([Source](https://github.com/jay3332/ril/blob/main/benches/invert_comparison.rs))
 
-| Benchmark                                     | Time (average of 10, lower is better) |
-|-----------------------------------------------|---------------------------------------|
-| ril (combinator)                              | 902.54 ms                             |
-| ril (for-loop)                                | 922.08 ms                             |
-| ril (low-level hardcoded GIF en/decoder)      | 902.28 ms                             |
-| image-rs (low-level hardcoded GIF en/decoder) | 940.42 ms                             |
-| Python, wand (ImageMagick)                    | 1049.09 ms                            |
+| Benchmark                                     | Time (average of runs in 10 seconds, lower is better) |
+|-----------------------------------------------|-------------------------------------------------------|
+| ril (combinator)                              | 902.54 ms                                             |
+| ril (for-loop)                                | 922.08 ms                                             |
+| ril (low-level hardcoded GIF en/decoder)      | 902.28 ms                                             |
+| image-rs (low-level hardcoded GIF en/decoder) | 940.42 ms                                             |
+| Python, wand (ImageMagick)                    | 1049.09 ms                                            |
+
+### Rasterize and render text (Inter font, 20px, 1715 glyphs)
+Performed locally (10-cores) ([Source](https://github.com/jay3332/ril/blob/main/benches/text_comparison.rs))
+
+| Benchmark                                     | Time (average of runs in 10 seconds, lower is better) |
+|-----------------------------------------------|-------------------------------------------------------|
+| ril (combinator)                              | 1.5317 ms                                             |
+| image-rs + imageproc                          | 2.4332 ms                                             |
 
 ## Examples
 
@@ -180,3 +190,58 @@ return lazy `DynamicFrameIterator`s.
 
 Additionally, `Frame`s house `Image`s, but they are not `Image`s themselves. However, `Frame`s are able
 to dereference into `Image`s, so calling image methods on frames will seem transparent.
+
+### Rendering Text
+RIL provides a streamlined interface for rendering text.
+
+There are two ways to render text: with a `FontSegment` or with a `FontLayout`. A `FontSegment`
+is faster and more lightweight than a `FontLayout` (and it's cloneable, unlike `FontLayout`), but
+lacks many of the features of a `FontLayout`.
+
+A `FontSegment` supports only one font and either represents a segment in a `FontLayout`, or it can
+be directly rendered more efficiently than a `FontLayout`. You should only use `FontLayout` if you 
+need what `FontSegment` doesn't.
+
+`FontLayout`s support anchor-style text-alignment, and can be used to render text with multiple fonts
+and styles, such as different sizes or colors. It also provides the ability to grab the dimensions
+of the text before rendering such as width and height. `FontSegment` cannot do this.
+
+#### Render text with a `FontSegment`:
+```rust
+let mut image = Image::new(512, 256, Rgb::black());
+// Open the font at the given path. You can try using `Font::from_bytes` along with the `include_bytes!` macro
+// since fonts can usually be statically loaded.
+let font = Font::open(
+    "Arial.ttf",
+    // Do note that the following is a specified optimal size
+    // and not a fixed size for the font. It specifies what size
+    // to optimize rasterizing for. You do not have to load the same
+    // font multiple times for different sizes.
+    36.0,
+)?;
+
+let text = TextSegment::new(&font, "Hello, world", Rgb::white())
+    .with_position(20, 20);
+
+image.draw(&text);
+image.save_inferred("text.png")?;
+```
+
+#### Render text in the center of the image with a `FontLayout`:
+```rust
+let mut image = Image::new(512, 256, Rgb::black());
+let font = Font::open("Arial.ttf", 36.0)?;
+let bold = Font::open("Arial Bold.ttf", 36.0)?;
+
+let (x, y) = image.center();
+let layout = FontLayout::new()
+    .centered() // Shorthand for centering horizontally and vertically
+    .with_wrap(WrapStyle::Word) // RIL supports word wrapping
+    .with_width(image.width()) // This is the width to wrap text at. Only required if you want to wrap text.
+    .with_position(x, y); // Position the anchor (which is the center) at the center of the image
+    .with_segment(&TextSegment::new(&font, "Here is some ", Rgb::white()))
+    .with_segment(&TextSegment::new(&bold, "bold ", Rgb::white()))
+    .with_segment(&TextSegment::new(&font, "text.", Rgb::white()));
+
+image.draw(&layout);
+```
