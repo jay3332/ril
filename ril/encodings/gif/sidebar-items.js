@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["GifDecoder","A decoder for GIF images."],["GifEncoder","A GIF encoder interface over [`gif::Encoder`]."],["GifFrameIterator",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["GifDecoder","A decoder for GIF images."],["GifEncoder","A GIF encoder interface over [`gif::Encoder`]."],["GifFrameIterator",""]]};
