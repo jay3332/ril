@@ -924,6 +924,20 @@
 <span id="919">919</span>
 <span id="920">920</span>
 <span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
@@ -1142,7 +1156,11 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">resolve_coordinate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) -&gt; <span class="ident">usize</span> {
-        (<span class="ident">y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">width</span>() <span class="op">+</span> <span class="ident">x</span>) <span class="kw">as</span> <span class="ident">usize</span>
+        <span class="kw">if</span> <span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">width</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">y</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">height</span>() {
+            <span class="ident">usize::MAX</span>
+        } <span class="kw">else</span> {
+            (<span class="ident">y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">width</span>() <span class="op">+</span> <span class="ident">x</span>) <span class="kw">as</span> <span class="ident">usize</span>
+        }
     }
 
     <span class="doccomment">/// Returns the width of the image.</span>
@@ -1157,6 +1175,16 @@
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">height</span>.<span class="ident">get</span>()
+    }
+
+    <span class="doccomment">/// Returns the nearest pixel coordinates to the center of the image.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This uses integer division which means if an image dimension is not even, then the value is</span>
+    <span class="doccomment">/// rounded down - e.g. a 5x5 image returns ``(2, 2)``, rounded down from ``(2.5, 2.5)``.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>) {
+        (<span class="self">self</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2</span>, <span class="self">self</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2</span>)
     }
 
     <span class="doccomment">/// Returns a Vec of slices representing the pixels of the image.</span>

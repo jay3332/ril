@@ -271,6 +271,9 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril).</span>
@@ -503,6 +506,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pixel</span>;
 <span class="kw">mod</span> <span class="ident">resize</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sequence</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">text</span>;
 
 <span class="macro">macro_rules!</span> <span class="ident">inline_doc</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">token</span>:<span class="ident">item</span>)<span class="kw-2">*</span>) =&gt; {
@@ -518,6 +522,7 @@
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pixel</span>::{<span class="ident">Alpha</span>, <span class="ident">BitPixel</span>, <span class="ident">Dynamic</span>, <span class="ident">Pixel</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>};
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">resize::FilterType</span> <span class="kw">as</span> <span class="ident">ResizeAlgorithm</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sequence</span>::{<span class="ident">DisposalMethod</span>, <span class="ident">Frame</span>, <span class="ident">ImageSequence</span>, <span class="ident">LoopCount</span>};
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">text</span>::{<span class="ident">Font</span>, <span class="ident">HorizontalAnchor</span>, <span class="ident">TextLayout</span>, <span class="ident">TextSegment</span>, <span class="ident">VerticalAnchor</span>, <span class="ident">WrapStyle</span>};
 }
 
 <span class="doccomment">/// The crate prelude exports. Importing this with a wildcard will import most items from RIL that</span>
@@ -535,8 +540,9 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span> {
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
         <span class="ident">Alpha</span>, <span class="ident">Banded</span>, <span class="ident">BitPixel</span>, <span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">DisposalMethod</span>, <span class="ident">Draw</span>, <span class="ident">Dynamic</span>,
-        <span class="ident">DynamicFrameIterator</span>, <span class="ident">Ellipse</span>, <span class="ident">Frame</span>, <span class="ident">FrameIterator</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">ImageSequence</span>,
-        <span class="ident">LoopCount</span>, <span class="ident">OverlayMode</span>, <span class="ident">Paste</span>, <span class="ident">Pixel</span>, <span class="ident">Rectangle</span>, <span class="ident">ResizeAlgorithm</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">L</span>,
+        <span class="ident">DynamicFrameIterator</span>, <span class="ident">Ellipse</span>, <span class="ident">Font</span>, <span class="ident">Frame</span>, <span class="ident">FrameIterator</span>, <span class="ident">HorizontalAnchor</span>, <span class="ident">Image</span>,
+        <span class="ident">ImageFormat</span>, <span class="ident">ImageSequence</span>, <span class="ident">LoopCount</span>, <span class="ident">OverlayMode</span>, <span class="ident">Paste</span>, <span class="ident">Pixel</span>, <span class="ident">Rectangle</span>,
+        <span class="ident">ResizeAlgorithm</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">TextLayout</span>, <span class="ident">TextSegment</span>, <span class="ident">VerticalAnchor</span>, <span class="ident">WrapStyle</span>, <span class="ident">L</span>,
     };
 }
 </code></pre></div>

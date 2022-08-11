@@ -155,6 +155,10 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -183,6 +187,9 @@
     <span class="doccomment">/// Errors can differ across encodings, so the inner ``&amp;&#39;static str`` here is nothing more than</span>
     <span class="doccomment">/// an error message.</span>
     <span class="ident">DecodingError</span>(<span class="ident">String</span>),
+
+    <span class="doccomment">/// An error occured while trying to render or rasterize a font.</span>
+    <span class="ident">FontError</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
 
     <span class="doccomment">/// No encoding format could be inferred for the given image.</span>
     <span class="ident">UnknownEncodingFormat</span>,
@@ -216,7 +223,8 @@
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid extension: {}&quot;</span>, <span class="ident">ext</span>.<span class="ident">to_string_lossy</span>())
             }
             <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Encoding error: {}&quot;</span>, <span class="ident">msg</span>),
-            <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">message</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Decoding error: {}&quot;</span>, <span class="ident">message</span>),
+            <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Decoding error: {}&quot;</span>, <span class="ident">msg</span>),
+            <span class="ident"><span class="self">Self</span>::FontError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Font error: {}&quot;</span>, <span class="ident">msg</span>),
             <span class="ident"><span class="self">Self</span>::UnknownEncodingFormat</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Could not infer encoding format&quot;</span>),
             <span class="ident"><span class="self">Self</span>::UnsupportedColorType</span> =&gt; <span class="macro">write!</span>(
                 <span class="ident">f</span>,
