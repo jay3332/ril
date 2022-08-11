@@ -21,7 +21,9 @@ jobs:
       with:
         toolchain: stable
         override: true
-        target: wasm32-unknown-unknown wasm32-wasi
+    
+    - name: Add wasm targets
+      run: rustup target add wasm32-unknown-unknown wasm32-wasi
 
     - name: Setup cache
       uses: Swatinem/rust-cache@v1
