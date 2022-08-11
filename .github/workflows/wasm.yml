@@ -1,0 +1,33 @@
+name: Wasm
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install latest stable Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        targets: wasm32-unknown-unknown wasm32-wasi
+
+    - name: Setup cache
+      uses: Swatinem/rust-cache@v1
+     
+    - name: Build wasm32-unknown-unknown
+      run: cargo build --target wasm32-unknown-unknown
+     
+    - name: Build wasm32-wasi
+      run: cargo build --target wasm32-wasi
