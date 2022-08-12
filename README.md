@@ -116,7 +116,7 @@ Other features:
 |-----------------------------------------------------------|----------|---------------------|----------|
 | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
 | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
-| Enable all features,<br/> including all encoding features | `all`    | no                  | no       |
+| Enable all features,<br/> including all encoding features | `all`    |                     | no       |
 
 ## Examples
 
