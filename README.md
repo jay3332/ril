@@ -108,7 +108,6 @@ For every image encoding that requires a dependency, a corresponding feature can
 | PNG and APNG  | `png`   | `png`                          | no       |
 | JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
 | GIF           | `gif`   | `gif`                          | no       |
-| All encodings | `all`   |                                | no       |
 
 Other features:
 
