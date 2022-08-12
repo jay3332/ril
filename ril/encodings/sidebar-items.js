@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ColorType",""],["PixelData",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["ColorType",""],["PixelData",""]],"mod":[["gif",""],["jpeg",""],["png",""]]};
