@@ -110,36 +110,36 @@ impl<P: Pixel, R: Read> DynamicFrameIterator<P, R> {
 impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
     fn len(&self) -> u32 {
         match self {
-            DynamicFrameIterator::Single(..) => 1,
+            Self::Single(..) => 1,
             #[cfg(feature = "png")]
-            DynamicFrameIterator::Png(it) => it.len(),
+            Self::Png(it) => it.len(),
             #[cfg(feature = "gif")]
-            DynamicFrameIterator::Gif(it) => it.len(),
+            Self::Gif(it) => it.len(),
         }
     }
 
     fn loop_count(&self) -> crate::LoopCount {
         match self {
-            DynamicFrameIterator::Single(..) => crate::LoopCount::Exactly(1),
+            Self::Single(..) => crate::LoopCount::Exactly(1),
             #[cfg(feature = "png")]
-            DynamicFrameIterator::Png(it) => it.loop_count(),
+            Self::Png(it) => it.loop_count(),
             #[cfg(feature = "gif")]
-            DynamicFrameIterator::Gif(it) => it.loop_count(),
+            Self::Gif(it) => it.loop_count(),
         }
     }
 
     fn into_sequence(self) -> crate::Result<ImageSequence<P>> {
         match self {
-            DynamicFrameIterator::Single(mut it, _) => {
+            Self::Single(mut it, _) => {
                 let image = it.take().unwrap();
                 let frame = Frame::from_image(image);
 
                 Ok(ImageSequence::new().with_frame(frame))
             }
             #[cfg(feature = "png")]
-            DynamicFrameIterator::Png(it) => it.into_sequence(),
+            Self::Png(it) => it.into_sequence(),
             #[cfg(feature = "gif")]
-            DynamicFrameIterator::Gif(it) => it.into_sequence(),
+            Self::Gif(it) => it.into_sequence(),
         }
     }
 }
@@ -149,24 +149,22 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            DynamicFrameIterator::Single(it, _) => {
-                it.take().map(|image| Ok(Frame::from_image(image)))
-            }
+            Self::Single(it, _) => it.take().map(|image| Ok(Frame::from_image(image))),
             #[cfg(feature = "png")]
-            DynamicFrameIterator::Png(it) => it.next(),
+            Self::Png(it) => it.next(),
             #[cfg(feature = "gif")]
-            DynamicFrameIterator::Gif(it) => it.next(),
+            Self::Gif(it) => it.next(),
         }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self {
-            DynamicFrameIterator::Single(Some(_), _) => (1, Some(1)),
-            DynamicFrameIterator::Single(None, _) => (0, Some(0)),
+            Self::Single(Some(_), _) => (1, Some(1)),
+            Self::Single(None, _) => (0, Some(0)),
             #[cfg(feature = "png")]
-            DynamicFrameIterator::Png(it) => it.size_hint(),
+            Self::Png(it) => it.size_hint(),
             #[cfg(feature = "gif")]
-            DynamicFrameIterator::Gif(it) => it.size_hint(),
+            Self::Gif(it) => it.size_hint(),
         }
     }
 }
