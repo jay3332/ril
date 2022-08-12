@@ -26,7 +26,11 @@ jobs:
     - name: Setup cache
       uses: Swatinem/rust-cache@v1
 
-    - run: cargo doc --no-deps
+    - name: Build rustdocs
+      run: cargo doc --no-deps --all-features
+      env:
+        RUSTDOCFLAGS: --cfg docsrs
+
     - run: echo "<meta http-equiv=\"refresh\" content=\"0; url=ril\">" > target/doc/index.html
     - run: cp -r target/doc ./docs
 
