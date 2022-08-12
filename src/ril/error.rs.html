@@ -163,6 +163,14 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Common error types.</span>
 
 <span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
@@ -196,6 +204,7 @@
     <span class="ident">DecodingError</span>(<span class="ident">String</span>),
 
     <span class="doccomment">/// An error occured while trying to render or rasterize a font.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;text&quot;</span>)]</span>
     <span class="ident">FontError</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
 
     <span class="doccomment">/// No encoding format could be inferred for the given image.</span>
@@ -231,6 +240,7 @@
             }
             <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Encoding error: {}&quot;</span>, <span class="ident">msg</span>),
             <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Decoding error: {}&quot;</span>, <span class="ident">msg</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;text&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::FontError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Font error: {}&quot;</span>, <span class="ident">msg</span>),
             <span class="ident"><span class="self">Self</span>::UnknownEncodingFormat</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Could not infer encoding format&quot;</span>),
             <span class="ident"><span class="self">Self</span>::UnsupportedColorType</span> =&gt; <span class="macro">write!</span>(
@@ -261,6 +271,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">png::EncodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">png::EncodingError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
@@ -274,6 +285,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">png::DecodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">png::DecodingError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
@@ -287,6 +299,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">jpeg_decoder::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">jpeg_decoder::Error</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
@@ -296,6 +309,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">jpeg_encoder::EncodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">jpeg_encoder::EncodingError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
@@ -305,6 +319,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gif::EncodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">gif::EncodingError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
@@ -314,6 +329,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gif::DecodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">gif::DecodingError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {

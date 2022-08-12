@@ -159,13 +159,33 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Houses Encoder, Decoder, and frame iterator traits.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">encodings</span>::{<span class="ident">gif::GifFrameIterator</span>, <span class="ident">png::ApngFrameIterator</span>},
-    <span class="ident">Frame</span>, <span class="ident">Image</span>, <span class="ident">ImageSequence</span>, <span class="ident">Pixel</span>,
-};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Frame</span>, <span class="ident">Image</span>, <span class="ident">ImageSequence</span>, <span class="ident">Pixel</span>};
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">Read</span>, <span class="ident">Write</span>};
+<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encodings::gif::GifFrameIterator</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encodings::png::ApngFrameIterator</span>;
 
 <span class="doccomment">/// Low-level encoder interface around an image format.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Encoder</span> {
@@ -248,10 +268,12 @@
 <span class="doccomment">/// with common methods.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A single static image frame.</span>
-    <span class="ident">Single</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">Single</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A PNG or APNG frame iterator.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
     <span class="ident">Png</span>(<span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A GIF frame iterator.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
     <span class="ident">Gif</span>(<span class="ident">GifFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>),
 }
 
@@ -259,36 +281,42 @@
     <span class="doccomment">/// Create a new single static image frame iterator.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">single</span>(<span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Single</span>(<span class="prelude-val">Some</span>(<span class="ident">image</span>))
+        <span class="ident"><span class="self">Self</span>::Single</span>(<span class="prelude-val">Some</span>(<span class="ident">image</span>), <span class="ident">PhantomData</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">FrameIterator</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicFrameIterator::Single</span>(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
+            <span class="ident">DynamicFrameIterator::Single</span>(..) =&gt; <span class="number">1</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">len</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">len</span>(),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">loop_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::LoopCount</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicFrameIterator::Single</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="kw">crate</span>::LoopCount::Exactly</span>(<span class="number">1</span>),
+            <span class="ident">DynamicFrameIterator::Single</span>(..) =&gt; <span class="ident"><span class="kw">crate</span>::LoopCount::Exactly</span>(<span class="number">1</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">loop_count</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">loop_count</span>(),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">into_sequence</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicFrameIterator::Single</span>(<span class="kw-2">mut</span> <span class="ident">it</span>) =&gt; {
+            <span class="ident">DynamicFrameIterator::Single</span>(<span class="kw-2">mut</span> <span class="ident">it</span>, <span class="kw">_</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">Frame::from_image</span>(<span class="ident">image</span>);
 
                 <span class="prelude-val">Ok</span>(<span class="ident">ImageSequence::new</span>().<span class="ident">with_frame</span>(<span class="ident">frame</span>))
             }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">into_sequence</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">into_sequence</span>(),
         }
     }
@@ -299,17 +327,23 @@
 
     <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicFrameIterator::Single</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">Frame::from_image</span>(<span class="ident">image</span>))),
+            <span class="ident">DynamicFrameIterator::Single</span>(<span class="ident">it</span>, <span class="kw">_</span>) =&gt; {
+                <span class="ident">it</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">Frame::from_image</span>(<span class="ident">image</span>)))
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">next</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">next</span>(),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicFrameIterator::Single</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
-            <span class="ident">DynamicFrameIterator::Single</span>(<span class="prelude-val">None</span>) =&gt; (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
+            <span class="ident">DynamicFrameIterator::Single</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
+            <span class="ident">DynamicFrameIterator::Single</span>(<span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">size_hint</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident">DynamicFrameIterator::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">size_hint</span>(),
         }
     }

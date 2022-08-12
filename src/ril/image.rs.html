@@ -939,17 +939,77 @@
 <span id="933">933</span>
 <span id="934">934</span>
 <span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
-    <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>},
-    <span class="ident">encodings</span>::{<span class="ident">gif</span>, <span class="ident">jpeg</span>, <span class="ident">png</span>},
     <span class="ident">error</span>::{
         <span class="ident">Error</span>::{<span class="self">self</span>, <span class="ident">InvalidExtension</span>},
         <span class="prelude-ty">Result</span>,
     },
     <span class="ident">pixel::Pixel</span>,
-    <span class="ident">Dynamic</span>, <span class="ident">DynamicFrameIterator</span>, <span class="ident">ResizeAlgorithm</span>,
+    <span class="ident">Dynamic</span>, <span class="ident">DynamicFrameIterator</span>,
 };
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encodings::gif</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encodings::jpeg</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encodings::png</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;resize&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ResizeAlgorithm</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>))]</span>
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>};
 
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">ffi::OsStr</span>,
@@ -1474,6 +1534,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * `width` or `height` is zero.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;resize&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>, <span class="ident">algorithm</span>: <span class="ident">ResizeAlgorithm</span>) {
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">width</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">height</span>).<span class="ident">unwrap</span>();
@@ -1496,6 +1557,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * `width` or `height` is zero.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;resize&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resized</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>, <span class="ident">algorithm</span>: <span class="ident">ResizeAlgorithm</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">resize</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">algorithm</span>);
         <span class="self">self</span>
@@ -1791,12 +1853,22 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No encoder implementation is found for this image encoding.</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)),
+        <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unreachable_code</span>)
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_encoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngEncoder::new</span>().<span class="ident">encode</span>(<span class="ident">image</span>, <span class="ident">dest</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegEncoder::new</span>().<span class="ident">encode</span>(<span class="ident">image</span>, <span class="ident">dest</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">gif::GifEncoder::new</span>().<span class="ident">encode</span>(<span class="ident">image</span>, <span class="ident">dest</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No encoder implementation is found for this image format&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(
+                <span class="string">&quot;No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?&quot;</span>
+            ),
         }
     }
 
@@ -1808,16 +1880,26 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No encoder implementation is found for this image encoding.</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)),
+        <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unreachable_code</span>)
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_encoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">seq</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
         <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">gif::GifEncoder::new</span>().<span class="ident">encode_sequence</span>(<span class="ident">seq</span>, <span class="ident">dest</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No encoder implementation is found for this image format&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(
+                <span class="string">&quot;No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?&quot;</span>
+            ),
         }
     }
 
@@ -1828,12 +1910,22 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No decoder implementation is found for this image encoding.</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)),
+        <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unreachable_code</span>)
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stream</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">png::PngDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">gif::GifDecoder::new</span>().<span class="ident">decode</span>(<span class="ident">stream</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(
+                <span class="string">&quot;No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?&quot;</span>
+            ),
         }
     }
 
@@ -1844,15 +1936,25 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No decoder implementation is found for this image encoding.</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)),
+        <span class="ident">allow</span>(<span class="ident">unused_variables</span>, <span class="ident">unreachable_code</span>)
+    )]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_sequence_decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">stream</span>: <span class="ident">R</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="self">self</span> {
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Png</span> =&gt; <span class="ident">DynamicFrameIterator::Png</span>(<span class="ident">png::PngDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Jpeg</span> =&gt; <span class="ident">jpeg::JpegDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
             <span class="ident"><span class="self">Self</span>::Gif</span> =&gt; <span class="ident">DynamicFrameIterator::Gif</span>(<span class="ident">gif::GifDecoder::new</span>().<span class="ident">decode_sequence</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;No decoder implementation for this image format&quot;</span>),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(
+                <span class="string">&quot;No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?&quot;</span>
+            ),
         })
     }
 }
