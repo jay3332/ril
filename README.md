@@ -64,10 +64,13 @@ MSRV (Minimum Supported Rust Version) is v1.61.0.
 ## Installation
 Add the following to your `Cargo.toml` dependencies:
 ```toml
-ril = "0"
+ril = { version = "0", features = ["all"] }
 ```
 
-Or, you can run `cargo add ril` if you have Rust 1.62.0 or newer.
+Or, you can run `cargo add ril --features=all` if you have Rust 1.62.0 or newer.
+
+The above enables all features. See [Cargo Features](#cargo-features) for more information on how you can
+tune these features to reduce dependencies.
 
 ## Benchmarks
 
@@ -89,6 +92,31 @@ Performed locally (10-cores) ([Source](https://github.com/jay3332/ril/blob/main/
 |-----------------------------------------------|-------------------------------------------------------|
 | ril (combinator)                              | 1.5317 ms                                             |
 | image-rs + imageproc                          | 2.4332 ms                                             |
+
+## Cargo Features
+RIL currently depends on a few dependencies for certain features - especially for various image encodings.
+By default RIL comes with no encoding dependencies but with the `text` and `resize` dependencies, which give you text
+and resizing capabilities respectively.
+
+You can use the `all` feature to enable all features, including encoding features. This enables the widest range of
+image format support, but adds a lot of dependencies you may not need.
+
+For every image encoding that requires a dependency, a corresponding feature can be enabled for it:
+
+| Encoding      | Feature | Dependencies                   | Default? |
+|---------------|---------|--------------------------------|----------|
+| PNG and APNG  | `png`   | `png`                          | no       |
+| JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
+| GIF           | `gif`   | `gif`                          | no       |
+| All encodings | `all`   |                                | no       |
+
+Other features:
+
+| Description                                               | Feature  | Dependencies        | Default? |
+|-----------------------------------------------------------|----------|---------------------|----------|
+| Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
+| Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
+| Enable all features,<br/> including all encoding features | `all`    | no                  | no       |
 
 ## Examples
 
@@ -245,3 +273,6 @@ let layout = TextLayout::new()
 
 image.draw(&layout);
 ```
+
+## Contributing
+See [CONTRIBUTING.md](https://github.com/jay3332/ril/blob/main/CONTRIBUTING.md) for more information.

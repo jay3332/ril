@@ -1,10 +1,13 @@
 //! Houses Encoder, Decoder, and frame iterator traits.
 
-use crate::{
-    encodings::{gif::GifFrameIterator, png::ApngFrameIterator},
-    Frame, Image, ImageSequence, Pixel,
-};
+use crate::{Frame, Image, ImageSequence, Pixel};
 use std::io::{Read, Write};
+use std::marker::PhantomData;
+
+#[cfg(feature = "gif")]
+use crate::encodings::gif::GifFrameIterator;
+#[cfg(feature = "png")]
+use crate::encodings::png::ApngFrameIterator;
 
 /// Low-level encoder interface around an image format.
 pub trait Encoder {
@@ -87,10 +90,12 @@ pub trait FrameIterator<P: Pixel>: Iterator<Item = crate::Result<Frame<P>>> {
 /// with common methods.
 pub enum DynamicFrameIterator<P: Pixel, R: Read> {
     /// A single static image frame.
-    Single(Option<Image<P>>),
+    Single(Option<Image<P>>, PhantomData<R>),
     /// A PNG or APNG frame iterator.
+    #[cfg(feature = "png")]
     Png(ApngFrameIterator<P, R>),
     /// A GIF frame iterator.
+    #[cfg(feature = "gif")]
     Gif(GifFrameIterator<P, R>),
 }
 
@@ -98,36 +103,42 @@ impl<P: Pixel, R: Read> DynamicFrameIterator<P, R> {
     /// Create a new single static image frame iterator.
     #[must_use]
     pub const fn single(image: Image<P>) -> Self {
-        Self::Single(Some(image))
+        Self::Single(Some(image), PhantomData)
     }
 }
 
 impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
     fn len(&self) -> u32 {
         match self {
-            DynamicFrameIterator::Single(_) => 1,
+            DynamicFrameIterator::Single(..) => 1,
+            #[cfg(feature = "png")]
             DynamicFrameIterator::Png(it) => it.len(),
+            #[cfg(feature = "gif")]
             DynamicFrameIterator::Gif(it) => it.len(),
         }
     }
 
     fn loop_count(&self) -> crate::LoopCount {
         match self {
-            DynamicFrameIterator::Single(_) => crate::LoopCount::Exactly(1),
+            DynamicFrameIterator::Single(..) => crate::LoopCount::Exactly(1),
+            #[cfg(feature = "png")]
             DynamicFrameIterator::Png(it) => it.loop_count(),
+            #[cfg(feature = "gif")]
             DynamicFrameIterator::Gif(it) => it.loop_count(),
         }
     }
 
     fn into_sequence(self) -> crate::Result<ImageSequence<P>> {
         match self {
-            DynamicFrameIterator::Single(mut it) => {
+            DynamicFrameIterator::Single(mut it, _) => {
                 let image = it.take().unwrap();
                 let frame = Frame::from_image(image);
 
                 Ok(ImageSequence::new().with_frame(frame))
             }
+            #[cfg(feature = "png")]
             DynamicFrameIterator::Png(it) => it.into_sequence(),
+            #[cfg(feature = "gif")]
             DynamicFrameIterator::Gif(it) => it.into_sequence(),
         }
     }
@@ -138,17 +149,23 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            DynamicFrameIterator::Single(it) => it.take().map(|image| Ok(Frame::from_image(image))),
+            DynamicFrameIterator::Single(it, _) => {
+                it.take().map(|image| Ok(Frame::from_image(image)))
+            }
+            #[cfg(feature = "png")]
             DynamicFrameIterator::Png(it) => it.next(),
+            #[cfg(feature = "gif")]
             DynamicFrameIterator::Gif(it) => it.next(),
         }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self {
-            DynamicFrameIterator::Single(Some(_)) => (1, Some(1)),
-            DynamicFrameIterator::Single(None) => (0, Some(0)),
+            DynamicFrameIterator::Single(Some(_), _) => (1, Some(1)),
+            DynamicFrameIterator::Single(None, _) => (0, Some(0)),
+            #[cfg(feature = "png")]
             DynamicFrameIterator::Png(it) => it.size_hint(),
+            #[cfg(feature = "gif")]
             DynamicFrameIterator::Gif(it) => it.size_hint(),
         }
     }

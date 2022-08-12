@@ -31,6 +31,7 @@ pub enum Error {
     DecodingError(String),
 
     /// An error occured while trying to render or rasterize a font.
+    #[cfg(feature = "text")]
     FontError(&'static str),
 
     /// No encoding format could be inferred for the given image.
@@ -66,6 +67,7 @@ impl fmt::Display for Error {
             }
             Self::EncodingError(msg) => write!(f, "Encoding error: {}", msg),
             Self::DecodingError(msg) => write!(f, "Decoding error: {}", msg),
+            #[cfg(feature = "text")]
             Self::FontError(msg) => write!(f, "Font error: {}", msg),
             Self::UnknownEncodingFormat => write!(f, "Could not infer encoding format"),
             Self::UnsupportedColorType => write!(
@@ -96,6 +98,7 @@ impl From<std::io::Error> for Error {
     }
 }
 
+#[cfg(feature = "png")]
 impl From<png::EncodingError> for Error {
     fn from(err: png::EncodingError) -> Self {
         match err {
@@ -109,6 +112,7 @@ impl From<png::EncodingError> for Error {
     }
 }
 
+#[cfg(feature = "png")]
 impl From<png::DecodingError> for Error {
     fn from(err: png::DecodingError) -> Self {
         match err {
@@ -122,6 +126,7 @@ impl From<png::DecodingError> for Error {
     }
 }
 
+#[cfg(feature = "jpeg")]
 impl From<jpeg_decoder::Error> for Error {
     fn from(err: jpeg_decoder::Error) -> Self {
         match err {
@@ -131,6 +136,7 @@ impl From<jpeg_decoder::Error> for Error {
     }
 }
 
+#[cfg(feature = "gif")]
 impl From<jpeg_encoder::EncodingError> for Error {
     fn from(err: jpeg_encoder::EncodingError) -> Self {
         match err {
@@ -140,6 +146,7 @@ impl From<jpeg_encoder::EncodingError> for Error {
     }
 }
 
+#[cfg(feature = "gif")]
 impl From<gif::EncodingError> for Error {
     fn from(err: gif::EncodingError) -> Self {
         match err {
@@ -149,6 +156,7 @@ impl From<gif::EncodingError> for Error {
     }
 }
 
+#[cfg(feature = "gif")]
 impl From<gif::DecodingError> for Error {
     fn from(err: gif::DecodingError) -> Self {
         match err {

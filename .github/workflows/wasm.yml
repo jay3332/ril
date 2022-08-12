@@ -29,7 +29,7 @@ jobs:
       uses: Swatinem/rust-cache@v1
      
     - name: Build wasm32-unknown-unknown
-      run: cargo build --target wasm32-unknown-unknown
+      run: cargo build --all-features --target wasm32-unknown-unknown
      
     - name: Build wasm32-wasi
-      run: cargo build --target wasm32-wasi
+      run: cargo build --all-features --target wasm32-wasi

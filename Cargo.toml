@@ -12,12 +12,19 @@ keywords = ["ril", "imaging", "image", "processing", "editing"]
 categories = ["encoding", "graphics", "multimedia", "visualization"]
 
 [dependencies]
-fast_image_resize = "^1"
-png = "^0.17"
-jpeg-decoder = "^0.2"
-jpeg-encoder = { version = "^0.5", features = ["simd"] }
-gif = "^0.11"
-fontdue = "^0.7"
+fast_image_resize = { version = "^1", optional = true }
+png = { version = "^0.17", optional = true }
+jpeg-decoder = { version = "^0.2", optional = true }
+jpeg-encoder = { version = "^0.5", features = ["simd"], optional = true }
+gif = { version = "^0.11", optional = true }
+fontdue = { version = "^0.7", optional = true }
+
+[features]
+default = ["resize", "text"]
+all = ["resize", "png", "jpeg", "gif", "text"]
+jpeg = ["dep:jpeg-decoder", "dep:jpeg-encoder"]
+resize = ["dep:fast_image_resize"]
+text = ["dep:fontdue"]
 
 [dev-dependencies]
 criterion = "^0.3"

@@ -1,7 +1,10 @@
 //! Contains encoder and decoder implementations for various image formats.
 
+#[cfg(feature = "gif")]
 pub mod gif;
+#[cfg(feature = "jpeg")]
 pub mod jpeg;
+#[cfg(feature = "png")]
 pub mod png;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]

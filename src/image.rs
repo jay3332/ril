@@ -1,14 +1,23 @@
 use crate::{
     draw::Draw,
-    encode::{Decoder, Encoder},
-    encodings::{gif, jpeg, png},
     error::{
         Error::{self, InvalidExtension},
         Result,
     },
     pixel::Pixel,
-    Dynamic, DynamicFrameIterator, ResizeAlgorithm,
+    Dynamic, DynamicFrameIterator,
 };
+
+#[cfg(feature = "gif")]
+use crate::encodings::gif;
+#[cfg(feature = "jpeg")]
+use crate::encodings::jpeg;
+#[cfg(feature = "png")]
+use crate::encodings::png;
+#[cfg(feature = "resize")]
+use crate::ResizeAlgorithm;
+#[cfg(any(feature = "png", feature = "gif", feature = "jpeg"))]
+use crate::{Decoder, Encoder};
 
 use std::{
     ffi::OsStr,
@@ -533,6 +542,7 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * `width` or `height` is zero.
+    #[cfg(feature = "resize")]
     pub fn resize(&mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) {
         let width = NonZeroU32::new(width).unwrap();
         let height = NonZeroU32::new(height).unwrap();
@@ -555,6 +565,7 @@ impl<P: Pixel> Image<P> {
     /// # Panics
     /// * `width` or `height` is zero.
     #[must_use]
+    #[cfg(feature = "resize")]
     pub fn resized(mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) -> Self {
         self.resize(width, height, algorithm);
         self
@@ -850,12 +861,22 @@ impl ImageFormat {
     ///
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
+    #[cfg_attr(
+        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        allow(unused_variables, unreachable_code)
+    )]
     pub fn run_encoder<P: Pixel>(&self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
         match self {
+            #[cfg(feature = "png")]
             Self::Png => png::PngEncoder::new().encode(image, dest),
+            #[cfg(feature = "jpeg")]
             Self::Jpeg => jpeg::JpegEncoder::new().encode(image, dest),
+            #[cfg(feature = "gif")]
             Self::Gif => gif::GifEncoder::new().encode(image, dest),
-            _ => panic!("No encoder implementation is found for this image format"),
+            _ => panic!(
+                "No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
+            ),
         }
     }
 
@@ -867,16 +888,26 @@ impl ImageFormat {
     ///
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
+    #[cfg_attr(
+        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        allow(unused_variables, unreachable_code)
+    )]
     pub fn run_sequence_encoder<P: Pixel>(
         &self,
         seq: &crate::ImageSequence<P>,
         dest: &mut impl Write,
     ) -> Result<()> {
         match self {
+            #[cfg(feature = "png")]
             Self::Png => png::PngEncoder::new().encode_sequence(seq, dest),
+            #[cfg(feature = "jpeg")]
             Self::Jpeg => jpeg::JpegEncoder::new().encode_sequence(seq, dest),
+            #[cfg(feature = "gif")]
             Self::Gif => gif::GifEncoder::new().encode_sequence(seq, dest),
-            _ => panic!("No encoder implementation is found for this image format"),
+            _ => panic!(
+                "No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
+            ),
         }
     }
 
@@ -887,12 +918,22 @@ impl ImageFormat {
     ///
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
+    #[cfg_attr(
+        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        allow(unused_variables, unreachable_code)
+    )]
     pub fn run_decoder<P: Pixel>(&self, stream: impl Read) -> Result<Image<P>> {
         match self {
+            #[cfg(feature = "png")]
             Self::Png => png::PngDecoder::new().decode(stream),
+            #[cfg(feature = "jpeg")]
             Self::Jpeg => jpeg::JpegDecoder::new().decode(stream),
+            #[cfg(feature = "gif")]
             Self::Gif => gif::GifDecoder::new().decode(stream),
-            _ => panic!("No decoder implementation for this image format"),
+            _ => panic!(
+                "No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
+            ),
         }
     }
 
@@ -903,15 +944,25 @@ impl ImageFormat {
     ///
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
+    #[cfg_attr(
+        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        allow(unused_variables, unreachable_code)
+    )]
     pub fn run_sequence_decoder<P: Pixel, R: Read>(
         &self,
         stream: R,
     ) -> Result<DynamicFrameIterator<P, R>> {
         Ok(match self {
+            #[cfg(feature = "png")]
             Self::Png => DynamicFrameIterator::Png(png::PngDecoder::new().decode_sequence(stream)?),
+            #[cfg(feature = "jpeg")]
             Self::Jpeg => jpeg::JpegDecoder::new().decode_sequence(stream)?,
+            #[cfg(feature = "gif")]
             Self::Gif => DynamicFrameIterator::Gif(gif::GifDecoder::new().decode_sequence(stream)?),
-            _ => panic!("No decoder implementation for this image format"),
+            _ => panic!(
+                "No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
+            ),
         })
     }
 }

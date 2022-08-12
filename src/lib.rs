@@ -7,17 +7,42 @@
 //!
 //! Add the following to your `Cargo.toml` dependencies:
 //! ```toml
-//! ril = "0"
+//! ril = { version = "0", features = ["all"] ]
 //! ```
 //!
 //! ## Installing from GitHub
 //! You can also use the unstable but latest version by installing from GitHub:
 //! ```toml
-//! ril = { git = "https://github.com/jay3332/ril", branch = "main" }
+//! ril = { git = "https://github.com/jay3332/ril", branch = "main", features = ["all"] }
 //! ```
 //!
 //! ## Using `cargo add`
-//! If you have cargo >= 1.62.0, you can use `cargo add ril`.
+//! If you have cargo >= 1.62.0, you can use `cargo add ril --features=all`.
+//!
+//! ## Cargo Features
+//! RIL currently depends on a few dependencies for certain features - especially for various image encodings.
+//! By default RIL comes with no encoding dependencies but with the `text` and `resize` dependencies, which give you text
+//! and resizing capabilities respectively.
+//!
+//! You can use the `all` feature to enable all features, including encoding features. This enables the widest range of
+//! image format support, but adds a lot of dependencies you may not need.
+//!
+//! For every image encoding that requires a dependency, a corresponding feature can be enabled for it:
+//!
+//! | Encoding      | Feature | Dependencies                   | Default? |
+//! |---------------|---------|--------------------------------|----------|
+//! | PNG and APNG  | `png`   | `png`                          | no       |
+//! | JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
+//! | GIF           | `gif`   | `gif`                          | no       |
+//! | All encodings | `all`   |                                | no       |
+//!
+//! Other features:
+//!
+//! | Description                                               | Feature  | Dependencies        | Default? |
+//! |-----------------------------------------------------------|----------|---------------------|----------|
+//! | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
+//! | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
+//! | Enable all features,<br/> including all encoding features | `all`    | no                  | no       |
 //!
 //! # Getting Started
 //! Import the prelude which brings commonly used types and crucial traits into scope:
@@ -228,8 +253,10 @@ pub mod encodings;
 pub mod error;
 mod image;
 pub mod pixel;
+#[cfg(feature = "resize")]
 mod resize;
 pub mod sequence;
+#[cfg(feature = "text")]
 pub mod text;
 
 macro_rules! inline_doc {
@@ -244,8 +271,10 @@ inline_doc! {
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     pub use error::{Error, Result};
     pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
+    #[cfg(feature = "resize")]
     pub use resize::FilterType as ResizeAlgorithm;
     pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
+    #[cfg(feature = "text")]
     pub use text::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
 }
 
@@ -264,8 +293,12 @@ inline_doc! {
 pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, Ellipse, Font, Frame, FrameIterator, HorizontalAnchor, Image,
-        ImageFormat, ImageSequence, LoopCount, OverlayMode, Paste, Pixel, Rectangle,
-        ResizeAlgorithm, Rgb, Rgba, TextLayout, TextSegment, VerticalAnchor, WrapStyle, L,
+        DynamicFrameIterator, Ellipse, Frame, FrameIterator, Image, ImageFormat, ImageSequence,
+        LoopCount, OverlayMode, Paste, Pixel, Rectangle, Rgb, Rgba, L,
     };
+
+    #[cfg(feature = "resize")]
+    pub use super::ResizeAlgorithm;
+    #[cfg(feature = "text")]
+    pub use super::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
 }
