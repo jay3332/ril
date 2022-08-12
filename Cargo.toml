@@ -27,6 +27,7 @@ jpeg = ["dep:jpeg-decoder", "dep:jpeg-encoder"]
 gif = ["dep:gif"]
 resize = ["dep:fast_image_resize"]
 text = ["dep:fontdue"]
+simd = []
 
 [dev-dependencies]
 criterion = "^0.3"
