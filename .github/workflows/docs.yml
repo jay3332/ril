@@ -26,7 +26,7 @@ jobs:
     - name: Setup cache
       uses: Swatinem/rust-cache@v1
 
-    - run: cargo doc --all-features --no-deps
+    - run: cargo doc --no-deps
     - run: echo "<meta http-equiv=\"refresh\" content=\"0; url=ril\">" > target/doc/index.html
     - run: cp -r target/doc ./docs
 
