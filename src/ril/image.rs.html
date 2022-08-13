@@ -1039,6 +1039,36 @@
 <span id="1033">1033</span>
 <span id="1034">1034</span>
 <span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">error</span>::{
@@ -1170,7 +1200,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * `DecodingError`: The image could not be decoded, maybe it is corrupt.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_from_bytes</span>(<span class="ident">format</span>: <span class="ident">ImageFormat</span>, <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_reader</span>(<span class="ident">format</span>: <span class="ident">ImageFormat</span>, <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="ident">bytes</span>)
     }
 
@@ -1183,13 +1213,43 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * No decoder implementation for the given encoding format.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_inferred_from_bytes</span>(<span class="kw-2">mut</span> <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_reader_inferred</span>(<span class="kw-2">mut</span> <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">Read</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> [<span class="number">0</span>; <span class="number">12</span>];
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">read</span>(<span class="ident">buf</span>)<span class="question-mark">?</span>;
 
         <span class="kw">match</span> <span class="ident">ImageFormat::infer_encoding</span>(<span class="ident">buf</span>) {
             <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownEncodingFormat</span>),
             <span class="ident">format</span> =&gt; <span class="ident">format</span>.<span class="ident">run_decoder</span>((<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">n</span>]).<span class="ident">chain</span>(<span class="ident">bytes</span>)),
+        }
+    }
+
+    <span class="doccomment">/// Decodes an image with the explicitly given image encoding from the given bytes.</span>
+    <span class="doccomment">/// Could be useful in conjunction with the `include_bytes!` macro.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Currently, this is not any different from [`from_reader`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// * `DecodingError`: The image could not be decoded, maybe it is corrupt.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">format</span>: <span class="ident">ImageFormat</span>, <span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>())
+    }
+
+    <span class="doccomment">/// Decodes an image from the given bytes, inferring its encoding.</span>
+    <span class="doccomment">/// Could be useful in conjunction with the `include_bytes!` macro.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is more efficient than [`from_reader_inferred`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">/// * `DecodingError`: The image could not be decoded, maybe it is corrupt.</span>
+    <span class="doccomment">/// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly</span>
+    <span class="doccomment">/// specifying it.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// * No decoder implementation for the given encoding format.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bytes_inferred</span>(<span class="ident">bytes</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">ImageFormat::infer_encoding</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()) {
+            <span class="ident">ImageFormat::Unknown</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::UnknownEncodingFormat</span>),
+            <span class="ident">format</span> =&gt; <span class="ident">format</span>.<span class="ident">run_decoder</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
         }
     }
 

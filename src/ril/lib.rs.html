@@ -400,27 +400,27 @@
 <span class="doccomment">//! which are found in the prelude. There are also grayscale counterparts, such as [`L`].</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ### Reading from a byte stream</span>
-<span class="doccomment">//! You can also read from a byte stream using [`decode_from_bytes`][Image::decode_from_bytes]:</span>
+<span class="doccomment">//! You can also read from raw bytes using [`from_bytes`][Image::decode_from_bytes]:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
+<span class="doccomment">//! ```ignore</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! let bytes = [0; 10000].as_slice(); // Replace this with your own image data</span>
-<span class="doccomment">//! let image = Image::&lt;Rgb&gt;::decode_from_bytes(ImageFormat::Png, bytes)?;</span>
+<span class="doccomment">//! let bytes = include_bytes!(&quot;image.png&quot;) as &amp;[u8]; // Replace this with your own image data</span>
+<span class="doccomment">//! let image = Image::&lt;Rgb&gt;::from_bytes(ImageFormat::Png, bytes)?;</span>
 <span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! The first argument is the encoding of the image, and the second is the byte stream</span>
-<span class="doccomment">//! that implements [`Read`][std::io::Read].</span>
+<span class="doccomment">//! The first argument is the encoding of the image, and the second is a slice of bytes, or anything</span>
+<span class="doccomment">//! that implements [`AsRef&lt;[u8]&gt;`].</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! You can also use [`decode_inferred_from_bytes`][Image::decode_inferred_from_bytes] to</span>
-<span class="doccomment">//! infer the format from the byte stream without having to explicitly provide an encoding:</span>
+<span class="doccomment">//! You can also use [`from_bytes_inferred`][Image::from_bytes_inferred] to</span>
+<span class="doccomment">//! infer the format from the byte slice without having to explicitly provide an encoding:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```no_run</span>
 <span class="doccomment">//! # use ril::prelude::*;</span>
 <span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
 <span class="doccomment">//! # let bytes = [0].as_slice();</span>
-<span class="doccomment">//! let image = Image::&lt;Rgb&gt;::decode_inferred_from_bytes(bytes)?;</span>
+<span class="doccomment">//! let image = Image::&lt;Rgb&gt;::from_bytes_inferred(bytes)?;</span>
 <span class="doccomment">//! # Ok(()) }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
