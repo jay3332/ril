@@ -185,7 +185,7 @@ impl<P: Pixel> Image<P> {
     /// Opens a file from the given path and decodes it into an image.
     ///
     /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
-    /// by using the [`decode_from_bytes`] method.
+    /// by using the [`from_reader`] method.
     ///
     /// # Errors
     /// todo!()

@@ -241,8 +241,10 @@ impl<P: Pixel> ImageSequence<P> {
     /// in the future to not require `Write`.
     ///
     /// If you are limited by this trait bound, you can either specify the image format manually
-    /// using [`decode_from_bytes`], or you can try using [`ImageFormat::infer_encoding`] along
-    /// with [`decode_from_bytes`] manually instead.
+    /// using [`from_reader`], or you can try using [`ImageFormat::infer_encoding`] along with
+    /// [`from_reader`] manually instead. If you are able to use [`from_bytes`] instead, which takes
+    /// a byte slice instead of a `Read` stream, you can either that or [`from_bytes_inferred`],
+    /// too, which does not require a `Write` bound either.
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
@@ -323,7 +325,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// Opens a file from the given path and decodes it, returning an iterator over its frames.
     ///
     /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
-    /// by using the [`decode_from_bytes`] method.
+    /// by using the [`from_reader`] method.
     ///
     /// # Note
     /// Unlike the inference of [`Image::open`] this does **not** infer from raw bytes if inferring
