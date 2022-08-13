@@ -537,6 +537,55 @@ impl<P: Pixel> Image<P> {
         self
     }
 
+    fn rotate_iterator(&self) -> impl Iterator<Item = P> + DoubleEndedIterator + '_ {
+        (0..self.width() as usize).flat_map(move |i| {
+            (0..self.height() as usize)
+                .map(move |j| self.data[j * self.width() as usize + i])
+                .rev()
+        })
+    }
+
+    fn rotate_90(&mut self) {
+        self.data = self.rotate_iterator().collect();
+        std::mem::swap(&mut self.width, &mut self.height);
+    }
+
+    fn rotate_180(&mut self) {
+        self.data.reverse();
+    }
+
+    fn rotate_270(&mut self) {
+        self.data = self.rotate_iterator().rev().collect();
+        std::mem::swap(&mut self.width, &mut self.height);
+    }
+
+    /// Rotates this image in place about its center. There are optimized rotating algorithms for 90,
+    /// 180, and 270 degree rotations.
+    ///
+    /// As mentioned, the argument is specified in degrees.
+    pub fn rotate(&mut self, mut degrees: i32) {
+        degrees %= 360;
+
+        match degrees {
+            0 => (),
+            90 => self.rotate_90(),
+            180 => self.rotate_180(),
+            270 => self.rotate_270(),
+            _ => unimplemented!(
+                "currently only rotations of 0, 90, 180, and 270 degrees are supported",
+            ),
+        }
+    }
+
+    /// Takes the image and rotates it by the specified amount of degrees about its center. Useful
+    /// for method chaining. There are optimized rotating algorithms for 90, 180, and 270 degree
+    /// rotations.
+    #[must_use]
+    pub fn rotated(mut self, degrees: i32) -> Self {
+        self.rotate(degrees);
+        self
+    }
+
     /// Resizes this image in place to the given dimensions using the given resizing algorithm
     /// in place.
     ///
