@@ -498,6 +498,8 @@
 <span id="492">492</span>
 <span id="493">493</span>
 <span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the animated image and image sequence interface.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DynamicFrameIterator</span>, <span class="ident">Error</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">Pixel</span>, <span class="prelude-ty">Result</span>};
@@ -741,8 +743,10 @@
     <span class="doccomment">/// in the future to not require `Write`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If you are limited by this trait bound, you can either specify the image format manually</span>
-    <span class="doccomment">/// using [`decode_from_bytes`], or you can try using [`ImageFormat::infer_encoding`] along</span>
-    <span class="doccomment">/// with [`decode_from_bytes`] manually instead.</span>
+    <span class="doccomment">/// using [`from_reader`], or you can try using [`ImageFormat::infer_encoding`] along with</span>
+    <span class="doccomment">/// [`from_reader`] manually instead. If you are able to use [`from_bytes`] instead, which takes</span>
+    <span class="doccomment">/// a byte slice instead of a `Read` stream, you can either that or [`from_bytes_inferred`],</span>
+    <span class="doccomment">/// too, which does not require a `Write` bound either.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">/// * `DecodingError`: The image could not be decoded, maybe it is corrupt.</span>
@@ -823,7 +827,7 @@
     <span class="doccomment">/// Opens a file from the given path and decodes it, returning an iterator over its frames.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The encoding of the image is automatically inferred. You can explicitly pass in an encoding</span>
-    <span class="doccomment">/// by using the [`decode_from_bytes`] method.</span>
+    <span class="doccomment">/// by using the [`from_reader`] method.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">/// Unlike the inference of [`Image::open`] this does **not** infer from raw bytes if inferring</span>
