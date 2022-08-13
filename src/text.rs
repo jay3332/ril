@@ -11,6 +11,7 @@ use std::{fs::File, io::Read, path::Path};
 /// Represents a single font along with its alternatives used to render text.
 /// Currently, this supports TrueType and OpenType fonts.
 #[allow(clippy::doc_markdown)]
+#[derive(Clone)]
 pub struct Font {
     inner: fontdue::Font,
     settings: FontSettings,
