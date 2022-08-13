@@ -210,7 +210,8 @@ impl<P: Pixel> ImageSequence<P> {
         Self::default()
     }
 
-    /// Decodes the image sequence with the explicitly given image encoding from the raw bytes.
+    /// Decodes the image sequence with the explicitly given image encoding from the raw byte
+    /// reader.
     ///
     /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
     /// collect all frames greedily into an [`ImageSequence`].
@@ -220,7 +221,7 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
-    pub fn decode_from_bytes<R: Read>(
+    pub fn from_reader<R: Read>(
         format: ImageFormat,
         bytes: R,
     ) -> Result<DynamicFrameIterator<P, R>> {
@@ -250,7 +251,7 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    pub fn decode_inferred_from_bytes<R: Read + Write>(
+    pub fn from_reader_inferred<R: Read + Write>(
         mut bytes: R,
     ) -> Result<DynamicFrameIterator<P, R>> {
         let mut buffer = Vec::new();
@@ -262,6 +263,60 @@ impl<P: Pixel> ImageSequence<P> {
                 bytes.write_all(&buffer)?;
                 format.run_sequence_decoder(bytes)
             }
+        }
+    }
+
+    /// Decodes an image sequence with the explicitly given image encoding from the byte slice.
+    /// Could be useful in conjunction with the `include_bytes!` macro.
+    ///
+    /// Currently, this is not any different than [`from_reader`].
+    ///
+    /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
+    /// collect all frames greedily into an [`ImageSequence`].
+    ///
+    /// If the image sequence is a single-frame static image or if the encoding format does not
+    /// support animated images, this will just return an image sequence containing one frame.
+    ///
+    /// # Note
+    /// This takes different parameters than [`Image::from_bytes`] - that takes any `AsRef<[u8]>`
+    /// while this strictly only takes byte slices (`&[u8]`).
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    pub fn from_bytes(format: ImageFormat, bytes: &[u8]) -> Result<DynamicFrameIterator<P, &[u8]>> {
+        format.run_sequence_decoder(bytes)
+    }
+
+    /// Decodes an image sequence from the given byte slice, inferring its encoding.
+    /// Could be useful in conjunction with the `include_bytes!` macro.
+    ///
+    /// This is more efficient than [`from_reader_inferred`], and can act as a workaround for
+    /// bypassing the `Write` trait bound.
+    ///
+    /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
+    /// collect all frames greedily into an [`ImageSequence`].
+    ///
+    /// If the image sequence is a single-frame static image or if the encoding format does not
+    /// support animated images, this will just return an image sequence containing one frame.
+    ///
+    /// # Note
+    /// This takes different parameters than [`Image::from_bytes`] - that takes any `AsRef<[u8]>`
+    /// while this strictly only takes byte slices (`&[u8]`).
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
+    /// specifying it.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    pub fn from_bytes_inferred(bytes: &[u8]) -> Result<DynamicFrameIterator<P, &[u8]>> {
+        match ImageFormat::infer_encoding(bytes) {
+            ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
+            format => format.run_sequence_decoder(bytes),
         }
     }
 

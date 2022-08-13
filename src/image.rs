@@ -129,7 +129,7 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
-    pub fn decode_from_bytes(format: ImageFormat, bytes: impl Read) -> Result<Self> {
+    pub fn from_reader(format: ImageFormat, bytes: impl Read) -> Result<Self> {
         format.run_decoder(bytes)
     }
 
@@ -142,13 +142,43 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    pub fn decode_inferred_from_bytes(mut bytes: impl Read) -> Result<Self> {
+    pub fn from_reader_inferred(mut bytes: impl Read) -> Result<Self> {
         let buf = &mut [0; 12];
         let n = bytes.read(buf)?;
 
         match ImageFormat::infer_encoding(buf) {
             ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
             format => format.run_decoder((&buf[..n]).chain(bytes)),
+        }
+    }
+
+    /// Decodes an image with the explicitly given image encoding from the given bytes.
+    /// Could be useful in conjunction with the `include_bytes!` macro.
+    ///
+    /// Currently, this is not any different from [`from_reader`].
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    pub fn from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
+        format.run_decoder(bytes.as_ref())
+    }
+
+    /// Decodes an image from the given bytes, inferring its encoding.
+    /// Could be useful in conjunction with the `include_bytes!` macro.
+    ///
+    /// This is more efficient than [`from_reader_inferred`].
+    ///
+    /// # Errors
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
+    /// specifying it.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    pub fn from_bytes_inferred(bytes: impl AsRef<[u8]>) -> Result<Self> {
+        match ImageFormat::infer_encoding(bytes.as_ref()) {
+            ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
+            format => format.run_decoder(bytes.as_ref()),
         }
     }
 

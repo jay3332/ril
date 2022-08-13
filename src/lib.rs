@@ -90,27 +90,27 @@
 //! which are found in the prelude. There are also grayscale counterparts, such as [`L`].
 //!
 //! ### Reading from a byte stream
-//! You can also read from a byte stream using [`decode_from_bytes`][Image::decode_from_bytes]:
+//! You can also read from raw bytes using [`from_bytes`][Image::decode_from_bytes]:
 //!
-//! ```no_run
+//! ```ignore
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
-//! let bytes = [0; 10000].as_slice(); // Replace this with your own image data
-//! let image = Image::<Rgb>::decode_from_bytes(ImageFormat::Png, bytes)?;
+//! let bytes = include_bytes!("image.png") as &[u8]; // Replace this with your own image data
+//! let image = Image::<Rgb>::from_bytes(ImageFormat::Png, bytes)?;
 //! # Ok(()) }
 //! ```
 //!
-//! The first argument is the encoding of the image, and the second is the byte stream
-//! that implements [`Read`][std::io::Read].
+//! The first argument is the encoding of the image, and the second is a slice of bytes, or anything
+//! that implements [`AsRef<[u8]>`].
 //!
-//! You can also use [`decode_inferred_from_bytes`][Image::decode_inferred_from_bytes] to
-//! infer the format from the byte stream without having to explicitly provide an encoding:
+//! You can also use [`from_bytes_inferred`][Image::from_bytes_inferred] to
+//! infer the format from the byte slice without having to explicitly provide an encoding:
 //!
 //! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
 //! # let bytes = [0].as_slice();
-//! let image = Image::<Rgb>::decode_inferred_from_bytes(bytes)?;
+//! let image = Image::<Rgb>::from_bytes_inferred(bytes)?;
 //! # Ok(()) }
 //! ```
 //!
