@@ -691,6 +691,7 @@
 <span id="685">685</span>
 <span id="686">686</span>
 <span id="687">687</span>
+<span id="688">688</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the font/text rasterizing and layout interface.</span>
 
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::cast_precision_loss</span>, <span class="ident">clippy::too_many_arguments</span>)]</span>
@@ -704,6 +705,7 @@
 <span class="doccomment">/// Represents a single font along with its alternatives used to render text.</span>
 <span class="doccomment">/// Currently, this supports TrueType and OpenType fonts.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::doc_markdown</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Font</span> {
     <span class="ident">inner</span>: <span class="ident">fontdue::Font</span>,
     <span class="ident">settings</span>: <span class="ident">FontSettings</span>,
