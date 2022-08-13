@@ -990,6 +990,55 @@
 <span id="984">984</span>
 <span id="985">985</span>
 <span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
+<span id="995">995</span>
+<span id="996">996</span>
+<span id="997">997</span>
+<span id="998">998</span>
+<span id="999">999</span>
+<span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">error</span>::{
@@ -1526,6 +1575,55 @@
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flipped</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">flip</span>();
+        <span class="self">self</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">rotate_iterator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">P</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">DoubleEndedIterator</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+        (<span class="number">0</span>..<span class="self">self</span>.<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">flat_map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
+            (<span class="number">0</span>..<span class="self">self</span>.<span class="ident">height</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+                .<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">j</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">data</span>[<span class="ident">j</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="ident">i</span>])
+                .<span class="ident">rev</span>()
+        })
+    }
+
+    <span class="kw">fn</span> <span class="ident">rotate_90</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rotate_iterator</span>().<span class="ident">collect</span>();
+        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">width</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">height</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">rotate_180</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">reverse</span>();
+    }
+
+    <span class="kw">fn</span> <span class="ident">rotate_270</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rotate_iterator</span>().<span class="ident">rev</span>().<span class="ident">collect</span>();
+        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">width</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">height</span>);
+    }
+
+    <span class="doccomment">/// Rotates this image in place about its center. There are optimized rotating algorithms for 90,</span>
+    <span class="doccomment">/// 180, and 270 degree rotations.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// As mentioned, the argument is specified in degrees.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">degrees</span>: <span class="ident">i32</span>) {
+        <span class="ident">degrees</span> <span class="op">%</span><span class="op">=</span> <span class="number">360</span>;
+
+        <span class="kw">match</span> <span class="ident">degrees</span> {
+            <span class="number">0</span> =&gt; (),
+            <span class="number">90</span> =&gt; <span class="self">self</span>.<span class="ident">rotate_90</span>(),
+            <span class="number">180</span> =&gt; <span class="self">self</span>.<span class="ident">rotate_180</span>(),
+            <span class="number">270</span> =&gt; <span class="self">self</span>.<span class="ident">rotate_270</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(
+                <span class="string">&quot;currently only rotations of 0, 90, 180, and 270 degrees are supported&quot;</span>,
+            ),
+        }
+    }
+
+    <span class="doccomment">/// Takes the image and rotates it by the specified amount of degrees about its center. Useful</span>
+    <span class="doccomment">/// for method chaining. There are optimized rotating algorithms for 90, 180, and 270 degree</span>
+    <span class="doccomment">/// rotations.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotated</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">degrees</span>: <span class="ident">i32</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">rotate</span>(<span class="ident">degrees</span>);
         <span class="self">self</span>
     }
 
