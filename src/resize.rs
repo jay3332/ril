@@ -1,9 +1,6 @@
 //! An interfacing layer between `fast_image_resize` and this crate.
 
-use crate::{
-    encodings::{ColorType, PixelData},
-    Pixel,
-};
+use crate::{encodings::ColorType, Pixel};
 
 use fast_image_resize::{
     FilterType as ResizeFilterType, Image as ResizeImage, PixelType as ResizePixelType, ResizeAlg,
@@ -102,7 +99,6 @@ pub fn resize<P: Pixel>(
     let bpp = color_type.channels() * ((bit_depth as usize + 7) >> 3);
     dest.into_vec()
         .chunks_exact(bpp)
-        .map(|c| PixelData::from_raw(color_type, bit_depth, c).and_then(P::from_pixel_data))
-        .collect::<crate::Result<Vec<_>>>()
-        .unwrap()
+        .map(P::from_bytes)
+        .collect()
 }

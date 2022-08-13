@@ -54,6 +54,10 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     /// Creates raw pixel data from this pixel type.
     fn as_pixel_data(&self) -> PixelData;
 
+    /// Creates this pixel from a raw bytes. This is used internally and is unchecked - it panics
+    /// if the data is not of the correct length.
+    fn from_bytes(bytes: &[u8]) -> Self;
+
     /// Turns this pixel into bytes.
     fn as_bytes(&self) -> Self::Data;
 
@@ -161,6 +165,10 @@ impl Pixel for BitPixel {
         PixelData::Bit(self.0)
     }
 
+    fn from_bytes(bytes: &[u8]) -> Self {
+        Self(bytes[0] > 127)
+    }
+
     fn as_bytes(&self) -> Self::Data {
         [if self.0 { 255 } else { 0 }]
     }
@@ -213,6 +221,10 @@ impl Pixel for L {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::L(self.0)
+    }
+
+    fn from_bytes(bytes: &[u8]) -> Self {
+        Self(bytes[0])
     }
 
     fn as_bytes(&self) -> Self::Data {
@@ -290,6 +302,14 @@ impl Pixel for Rgb {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::Rgb(self.r, self.g, self.b)
+    }
+
+    fn from_bytes(bytes: &[u8]) -> Self {
+        Self {
+            r: bytes[0],
+            g: bytes[1],
+            b: bytes[2],
+        }
     }
 
     fn as_bytes(&self) -> Self::Data {
@@ -426,6 +446,15 @@ impl Pixel for Rgba {
 
     fn as_pixel_data(&self) -> PixelData {
         PixelData::Rgba(self.r, self.g, self.b, self.a)
+    }
+
+    fn from_bytes(bytes: &[u8]) -> Self {
+        Self {
+            r: bytes[0],
+            g: bytes[1],
+            b: bytes[2],
+            a: bytes[3],
+        }
     }
 
     fn as_bytes(&self) -> Self::Data {
@@ -619,6 +648,15 @@ impl Pixel for Dynamic {
             Self::L(L(l)) => PixelData::L(l),
             Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(r, g, b),
             Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(r, g, b, a),
+        }
+    }
+
+    fn from_bytes(bytes: &[u8]) -> Self {
+        match bytes.len() {
+            1 => Self::L(Pixel::from_bytes(bytes)),
+            3 => Self::Rgb(Pixel::from_bytes(bytes)),
+            4 => Self::Rgba(Pixel::from_bytes(bytes)),
+            _ => panic!("Invalid pixel data length"),
         }
     }
 

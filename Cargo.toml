@@ -49,6 +49,11 @@ path = "benches/text_comparison.rs"
 name = "text_comparison"
 harness = false
 
+[[bench]]
+path = "benches/resize_comparison.rs"
+name = "resize_comparison"
+harness = false
+
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
