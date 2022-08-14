@@ -1069,6 +1069,16 @@
 <span id="1063">1063</span>
 <span id="1064">1064</span>
 <span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">draw::Draw</span>,
     <span class="ident">error</span>::{
@@ -1357,12 +1367,11 @@
         (<span class="self">self</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2</span>, <span class="self">self</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2</span>)
     }
 
-    <span class="doccomment">/// Returns a Vec of slices representing the pixels of the image.</span>
+    <span class="doccomment">/// Returns an iterator of slices representing the pixels of the image.</span>
     <span class="doccomment">/// Each slice in the Vec is a row. The returned slice should be of ``Vec&lt;&amp;[P; width]&gt;``.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pixels</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">P</span>]<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">chunks_exact</span>(<span class="self">self</span>.<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">collect</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pixels</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="ident">P</span>]<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">chunks_exact</span>(<span class="self">self</span>.<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span>)
     }
 
     <span class="doccomment">/// Returns the encoding format of the image. This is nothing more but metadata about the image.</span>
@@ -1580,16 +1589,16 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">/// * The width or height of the bounding box is less than 1.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">x1</span>: <span class="ident">u32</span>, <span class="ident">y1</span>: <span class="ident">u32</span>, <span class="ident">x2</span>: <span class="ident">u32</span>, <span class="ident">y2</span>: <span class="ident">u32</span>) {
-        <span class="self">self</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">x2</span> <span class="op">-</span> <span class="ident">x1</span>).<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">y2</span> <span class="op">-</span> <span class="ident">y1</span>).<span class="ident">unwrap</span>();
         <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">pixels</span>()
-            .<span class="ident">into_iter</span>()
             .<span class="ident">skip</span>(<span class="ident">y1</span> <span class="kw">as</span> <span class="ident">usize</span>)
             .<span class="ident">zip</span>(<span class="ident">y1</span>..<span class="ident">y2</span>)
             .<span class="ident">flat_map</span>(<span class="op">|</span>(<span class="ident">row</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">row</span>[<span class="ident">x1</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">x2</span> <span class="kw">as</span> <span class="ident">usize</span>])
             .<span class="ident">copied</span>()
             .<span class="ident">collect</span>();
+
+        <span class="self">self</span>.<span class="ident">width</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">x2</span> <span class="op">-</span> <span class="ident">x1</span>).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">y2</span> <span class="op">-</span> <span class="ident">y1</span>).<span class="ident">unwrap</span>();
     }
 
     <span class="doccomment">/// Takes this image and crops it to the given box. Useful for method chaining.</span>
@@ -1617,18 +1626,8 @@
 
     <span class="doccomment">/// Flips this image vertically (about the x-axis) in place.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">chunks</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">data</span>
-            .<span class="ident">chunks_exact</span>(<span class="self">self</span>.<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-
-        <span class="kw">let</span> <span class="ident">flipped</span> <span class="op">=</span> (<span class="number">0</span>..<span class="self">self</span>.<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">chunks</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>[<span class="ident">i</span>]).<span class="ident">rev</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-
-        <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> (<span class="number">0</span>..<span class="self">self</span>.<span class="ident">height</span>() <span class="kw">as</span> <span class="ident">usize</span>)
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">flipped</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>[<span class="ident">i</span>]).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
-            .<span class="ident">collect</span>();
+        <span class="self">self</span>.<span class="ident">mirror</span>();
+        <span class="self">self</span>.<span class="ident">rotate_180</span>();
     }
 
     <span class="doccomment">/// Takes this image and flips it vertically, or about the x-axis. Useful for method chaining.</span>
@@ -1646,24 +1645,45 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">rotate_90</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+    <span class="doccomment">/// Rotates this image by 90 degrees clockwise, or 270 degrees counterclockwise, in place.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # See Also</span>
+    <span class="doccomment">/// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees</span>
+    <span class="doccomment">/// - [`Self::rotated`] for the above method which does operate in-place - useful for method</span>
+    <span class="doccomment">/// chaining</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_90</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rotate_iterator</span>().<span class="ident">collect</span>();
         <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">width</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">height</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">rotate_180</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+    <span class="doccomment">/// Rotates this image by 180 degrees in place.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # See Also</span>
+    <span class="doccomment">/// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees</span>
+    <span class="doccomment">/// - [`Self::rotated`] for the above method which does operate in-place - useful for method</span>
+    <span class="doccomment">/// chaining</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_180</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">reverse</span>();
     }
 
-    <span class="kw">fn</span> <span class="ident">rotate_270</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+    <span class="doccomment">/// Rotates this image by 270 degrees clockwise, or 90 degrees counterclockwise, in place.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # See Also</span>
+    <span class="doccomment">/// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees</span>
+    <span class="doccomment">/// - [`Self::rotated`] for the above method which does operate in-place - useful for method</span>
+    <span class="doccomment">/// chaining</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_270</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rotate_iterator</span>().<span class="ident">rev</span>().<span class="ident">collect</span>();
         <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">width</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">height</span>);
     }
 
-    <span class="doccomment">/// Rotates this image in place about its center. There are optimized rotating algorithms for 90,</span>
-    <span class="doccomment">/// 180, and 270 degree rotations.</span>
+    <span class="doccomment">/// Rotates this image in place about its center. There are optimized rotating algorithms for</span>
+    <span class="doccomment">/// 90, 180, and 270 degree rotations (clockwise).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// As mentioned, the argument is specified in degrees.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # See Also</span>
+    <span class="doccomment">/// - [`Self::rotated`] for this method which does operate in-place - useful for method chaining</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">degrees</span>: <span class="ident">i32</span>) {
         <span class="ident">degrees</span> <span class="op">%</span><span class="op">=</span> <span class="number">360</span>;
 
