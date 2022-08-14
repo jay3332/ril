@@ -4,7 +4,7 @@ use crate::{
         Error::{self, InvalidExtension},
         Result,
     },
-    pixel::Pixel,
+    pixel::{Pixel, TrueColor},
     Dynamic, DynamicFrameIterator,
 };
 
@@ -19,6 +19,7 @@ use crate::ResizeAlgorithm;
 #[cfg(any(feature = "png", feature = "gif", feature = "jpeg"))]
 use crate::{Decoder, Encoder};
 
+use num_traits::{SaturatingAdd, SaturatingSub};
 use std::{
     ffi::OsStr,
     fmt::{self, Display},
@@ -396,6 +397,129 @@ impl<P: Pixel> Image<P> {
     #[must_use]
     pub fn inverted(self) -> Self {
         self.map_pixels(|pixel| pixel.inverted())
+    }
+
+    /// Brightens the image by increasing all pixels by the specified amount of subpixels in place.
+    /// See [`darken`] to darken the image, since this usually does not take any negative values.
+    ///
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value
+    /// of either R, G, or B.
+    ///
+    /// For anything with alpha, alpha is not brightened.
+    pub fn brighten(&mut self, amount: P::Subpixel)
+    where
+        P::Subpixel: SaturatingAdd + Copy,
+    {
+        self.data
+            .iter_mut()
+            .for_each(|p| *p = p.map_subpixels(|value| value.saturating_add(&amount), |a| a));
+    }
+
+    /// Darkens the image by decreasing all pixels by the specified amount of subpixels in place.
+    /// See [`brighten`] to brighten the image, since this usually does not take any negative values.
+    ///
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value
+    /// of either R, G, or B.
+    ///
+    /// For anything with alpha, alpha is not brightened.
+    pub fn darken(&mut self, amount: P::Subpixel)
+    where
+        P::Subpixel: SaturatingSub + Copy,
+    {
+        self.data
+            .iter_mut()
+            .for_each(|p| *p = p.map_subpixels(|value| value.saturating_sub(&amount), |a| a));
+    }
+
+    /// Takes this image and brightens it by increasing all pixels by the specified amount of
+    /// subpixels. Negative values will darken the image. Useful for method chaining.
+    ///
+    /// See [`darkened`] to darken the image, since this usually does not take any negative values.
+    ///
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value.
+    ///
+    /// For anything with alpha, alpha is not brightened.
+    #[must_use]
+    pub fn brightened(self, amount: P::Subpixel) -> Self
+    where
+        P::Subpixel: SaturatingAdd + Copy,
+    {
+        self.map_pixels(|pixel| pixel.map_subpixels(|value| value.saturating_add(&amount), |a| a))
+    }
+
+    /// Takes this image and darkens it by decreasing all pixels by the specified amount of
+    /// subpixels. Negative values will brighten the image. Useful for method chaining.
+    ///
+    /// See [`brightened`] to brighten the image, since this usually does not take any negative
+    /// values.
+    ///
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value.
+    ///
+    /// For anything with alpha, alpha is not brightened.
+    #[must_use]
+    pub fn darkened(self, amount: P::Subpixel) -> Self
+    where
+        P::Subpixel: SaturatingSub + Copy,
+    {
+        self.map_pixels(|pixel| pixel.map_subpixels(|value| value.saturating_sub(&amount), |a| a))
+    }
+
+    #[allow(clippy::cast_lossless)]
+    fn prepare_hue_matrix(degrees: i32) -> (f64, f64, f64, f64, f64, f64, f64, f64, f64) {
+        let degrees = (degrees % 360) as f64;
+        let radians = degrees.to_radians();
+        let sinv = radians.sin();
+        let cosv = radians.cos();
+
+        (
+            (0.213 + cosv * 0.787 - sinv * 0.213),
+            (0.715 - cosv * 0.715 - sinv * 0.715),
+            (0.072 - cosv * 0.072 + sinv * 0.928),
+            (0.213 - cosv * 0.213 + sinv * 0.143),
+            (0.715 + cosv * 0.285 + sinv * 0.140),
+            (0.072 - cosv * 0.072 - sinv * 0.283),
+            (0.213 - cosv * 0.213 - sinv * 0.787),
+            (0.715 - cosv * 0.715 + sinv * 0.715),
+            (0.072 + cosv * 0.928 + sinv * 0.072),
+        )
+    }
+
+    /// Hue rotates the image by the specified amount of degrees in place.
+    ///
+    /// The hue is a standard angle degree, that is a value between 0 and 360, although values
+    /// below and above will be wrapped using the modulo operator.
+    ///
+    /// For anything with alpha, alpha is not rotated.
+    pub fn hue_rotate(&mut self, degrees: i32)
+    where
+        P: TrueColor,
+    {
+        let mat = Self::prepare_hue_matrix(degrees);
+
+        self.data.iter_mut().for_each(|p| {
+            let (r, g, b, a) = p.as_rgba_tuple();
+            let (r, g, b) = (r as f64, g as f64, b as f64);
+
+            *p = P::from_rgba_tuple((
+                (mat.0 * r + mat.1 * g + mat.2 * b) as u8,
+                (mat.3 * r + mat.4 * g + mat.5 * b) as u8,
+                (mat.6 * r + mat.7 * g + mat.8 * b) as u8,
+                a,
+            ));
+        });
+    }
+
+    /// Takes this image and hue rotates it by the specified amount of degrees.
+    /// Useful for method chaining.
+    ///
+    /// See [`Self::hue_rotate`] for more information.
+    #[must_use]
+    pub fn hue_rotated(mut self, degrees: i32) -> Self
+    where
+        P: TrueColor,
+    {
+        self.hue_rotate(degrees);
+        self
     }
 
     /// Returns the image replaced with the given data. It is up to you to make sure

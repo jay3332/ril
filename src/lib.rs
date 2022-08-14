@@ -270,7 +270,7 @@ inline_doc! {
     pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     pub use error::{Error, Result};
-    pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, L};
+    pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, TrueColor, L};
     #[cfg(feature = "resize")]
     pub use resize::FilterType as ResizeAlgorithm;
     pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
@@ -294,7 +294,7 @@ pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, DisposalMethod, Draw, Dynamic,
         DynamicFrameIterator, Ellipse, Frame, FrameIterator, Image, ImageFormat, ImageSequence,
-        LoopCount, OverlayMode, Paste, Pixel, Rectangle, Rgb, Rgba, L,
+        LoopCount, OverlayMode, Paste, Pixel, Rectangle, TrueColor, Rgb, Rgba, L,
     };
 
     #[cfg(feature = "resize")]

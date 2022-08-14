@@ -11,6 +11,10 @@ use crate::{
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
 pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
+    /// The type of a single component in the pixel.
+    type Subpixel;
+
+    /// The iterator type this pixel uses.
     type Data: IntoIterator<Item = u8>;
 
     /// Returns the inverted value of this pixel.
@@ -44,6 +48,16 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
 
         value
     }
+
+    /// Maps the pixel's components and returns a new pixel with the mapped components.
+    ///
+    /// Alpha is intentionally mapped separately. If no alpha component exists, the alpha function
+    /// is ignored.
+    #[must_use]
+    fn map_subpixels<F, A>(self, f: F, a: A) -> Self
+    where
+        F: Fn(Self::Subpixel) -> Self::Subpixel,
+        A: Fn(Self::Subpixel) -> Self::Subpixel;
 
     /// Creates this pixel from raw data.
     ///
@@ -146,10 +160,19 @@ impl BitPixel {
 }
 
 impl Pixel for BitPixel {
+    type Subpixel = bool;
     type Data = [u8; 1];
 
     fn inverted(&self) -> Self {
         Self(!self.0)
+    }
+
+    fn map_subpixels<F, A>(self, f: F, _: A) -> Self
+    where
+        F: Fn(Self::Subpixel) -> Self::Subpixel,
+        A: Fn(Self::Subpixel) -> Self::Subpixel,
+    {
+        Self(f(self.0))
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
@@ -203,10 +226,19 @@ pub struct L(
 );
 
 impl Pixel for L {
+    type Subpixel = u8;
     type Data = [u8; 1];
 
     fn inverted(&self) -> Self {
         Self(!self.0)
+    }
+
+    fn map_subpixels<F, A>(self, f: F, _: A) -> Self
+    where
+        F: Fn(Self::Subpixel) -> Self::Subpixel,
+        A: Fn(Self::Subpixel) -> Self::Subpixel,
+    {
+        Self(f(self.0))
     }
 
     fn from_pixel_data(data: PixelData) -> Result<Self> {
@@ -280,6 +312,7 @@ pub struct Rgb {
 }
 
 impl Pixel for Rgb {
+    type Subpixel = u8;
     type Data = [u8; 3];
 
     fn inverted(&self) -> Self {
@@ -287,6 +320,18 @@ impl Pixel for Rgb {
             r: !self.r,
             g: !self.g,
             b: !self.b,
+        }
+    }
+
+    fn map_subpixels<F, A>(self, f: F, _: A) -> Self
+    where
+        F: Fn(Self::Subpixel) -> Self::Subpixel,
+        A: Fn(Self::Subpixel) -> Self::Subpixel,
+    {
+        Self {
+            r: f(self.r),
+            g: f(self.g),
+            b: f(self.b),
         }
     }
 
@@ -411,6 +456,7 @@ pub struct Rgba {
 }
 
 impl Pixel for Rgba {
+    type Subpixel = u8;
     type Data = [u8; 4];
 
     fn inverted(&self) -> Self {
@@ -419,6 +465,19 @@ impl Pixel for Rgba {
             g: !self.g,
             b: !self.b,
             a: self.a,
+        }
+    }
+
+    fn map_subpixels<F, A>(self, f: F, a: A) -> Self
+    where
+        F: Fn(Self::Subpixel) -> Self::Subpixel,
+        A: Fn(Self::Subpixel) -> Self::Subpixel,
+    {
+        Self {
+            r: f(self.r),
+            g: f(self.g),
+            b: f(self.b),
+            a: a(self.a),
         }
     }
 
@@ -602,6 +661,121 @@ impl Rgba {
     }
 }
 
+/// Represents a subpixel of a dynamic pixel.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum DynamicSubpixel {
+    /// A u8 subpixel.
+    U8(u8),
+    /// A boolean subpixel.
+    Bool(bool),
+}
+
+macro_rules! impl_num_op {
+    ($err:literal; $self:expr, $other:expr; $a:ident, $b:ident; $out:expr) => {{
+        match ($self, $other) {
+            (DynamicSubpixel::U8($a), DynamicSubpixel::U8($b)) => DynamicSubpixel::U8($out),
+            (DynamicSubpixel::Bool(_), DynamicSubpixel::Bool(_)) => panic!(
+                "cannot {} DynamicPixel boolean variants. You should try converting to a \
+                    concrete pixel type so these runtime panics are not triggered.",
+                $err,
+            ),
+            _ => panic!(
+                "cannot {} different or incompatible DynamicSubpixel variants. You should \
+                    try converting to a concrete pixel type so these runtime panics are not \
+                    triggered.",
+                $err,
+            ),
+        }
+    }};
+}
+
+impl std::ops::Add for DynamicSubpixel {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        impl_num_op!("add"; self, other; a, b; a + b)
+    }
+}
+
+impl std::ops::AddAssign for DynamicSubpixel {
+    fn add_assign(&mut self, other: Self) {
+        *self = *self + other;
+    }
+}
+
+impl std::ops::Sub for DynamicSubpixel {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        impl_num_op!("subtract"; self, other; a, b; a - b)
+    }
+}
+
+impl std::ops::SubAssign for DynamicSubpixel {
+    fn sub_assign(&mut self, other: Self) {
+        *self = *self - other;
+    }
+}
+
+impl std::ops::Mul for DynamicSubpixel {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self {
+        impl_num_op!("multiply"; self, other; a, b; a * b)
+    }
+}
+
+impl std::ops::MulAssign for DynamicSubpixel {
+    fn mul_assign(&mut self, other: Self) {
+        *self = *self * other;
+    }
+}
+
+impl std::ops::Div for DynamicSubpixel {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self {
+        impl_num_op!("divide"; self, other; a, b; a / b)
+    }
+}
+
+impl std::ops::DivAssign for DynamicSubpixel {
+    fn div_assign(&mut self, other: Self) {
+        *self = *self / other;
+    }
+}
+
+impl std::ops::Rem for DynamicSubpixel {
+    type Output = Self;
+    fn rem(self, other: Self) -> Self {
+        impl_num_op!("remainder"; self, other; a, b; a % b)
+    }
+}
+
+impl std::ops::RemAssign for DynamicSubpixel {
+    fn rem_assign(&mut self, other: Self) {
+        *self = *self % other;
+    }
+}
+
+impl num_traits::SaturatingAdd for DynamicSubpixel {
+    fn saturating_add(&self, v: &Self) -> Self {
+        impl_num_op!("saturating_add"; self, v; a, b; a.saturating_add(b))
+    }
+}
+
+impl num_traits::SaturatingSub for DynamicSubpixel {
+    fn saturating_sub(&self, v: &Self) -> Self {
+        impl_num_op!("saturating_sub"; self, v; a, b; a.saturating_sub(b))
+    }
+}
+
+impl num_traits::SaturatingMul for DynamicSubpixel {
+    fn saturating_mul(&self, v: &Self) -> Self {
+        impl_num_op!("saturating_mul"; self, v; a, b; a.saturating_mul(b))
+    }
+}
+
 /// Represents a pixel type that is dynamically resolved.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Dynamic {
@@ -613,11 +787,15 @@ pub enum Dynamic {
 
 impl Default for Dynamic {
     fn default() -> Self {
-        panic!("Dynamic pixel type must be known, try using a concrete pixel type instead");
+        panic!(
+            "Dynamic pixel type must be known, try using a concrete pixel type instead so these \
+                runtime panics are not triggered."
+        );
     }
 }
 
 impl Pixel for Dynamic {
+    type Subpixel = DynamicSubpixel;
     type Data = Vec<u8>;
 
     fn inverted(&self) -> Self {
@@ -626,6 +804,35 @@ impl Pixel for Dynamic {
             Self::L(pixel) => Self::L(pixel.inverted()),
             Self::Rgb(pixel) => Self::Rgb(pixel.inverted()),
             Self::Rgba(pixel) => Self::Rgba(pixel.inverted()),
+        }
+    }
+
+    // noinspection ALL
+    fn map_subpixels<F, A>(self, f: F, a: A) -> Self
+    where
+        F: Fn(Self::Subpixel) -> Self::Subpixel,
+        A: Fn(Self::Subpixel) -> Self::Subpixel,
+    {
+        macro_rules! subpixel {
+            ($pixel:expr, $variant:ident) => {{
+                ($pixel).map_subpixels(
+                    |pixel| match f(DynamicSubpixel::$variant(pixel)) {
+                        DynamicSubpixel::$variant(pixel) => pixel,
+                        _ => panic!("dynamic subpixel map returned something different"),
+                    },
+                    |alpha| match a(DynamicSubpixel::$variant(alpha)) {
+                        DynamicSubpixel::$variant(alpha) => alpha,
+                        _ => panic!("dynamic subpixel map returned something different"),
+                    },
+                )
+            }};
+        }
+
+        match self {
+            Self::BitPixel(pixel) => Self::BitPixel(subpixel!(pixel, Bool)),
+            Self::L(pixel) => Self::L(subpixel!(pixel, U8)),
+            Self::Rgb(pixel) => Self::Rgb(subpixel!(pixel, U8)),
+            Self::Rgba(pixel) => Self::Rgba(subpixel!(pixel, U8)),
         }
     }
 
@@ -817,3 +1024,40 @@ impl From<Rgb> for Rgba {
         Self { r, g, b, a: 255 }
     }
 }
+
+/// A trait representing all pixels that can be represented as either RGB or RGBA true color.
+pub trait TrueColor {
+    /// Returns the pixel as an (r, g, b) tuple.
+    fn as_rgb_tuple(&self) -> (u8, u8, u8);
+    
+    /// Returns the pixel as an (r, g, b, a) tuple.
+    fn as_rgba_tuple(&self) -> (u8, u8, u8, u8);
+    
+    /// Creates a new pixel from an (r, g, b) tuple.
+    fn from_rgb_tuple(rgb: (u8, u8, u8)) -> Self;
+    
+    /// Creates a new pixel from an (r, g, b, a) tuple.
+    fn from_rgba_tuple(rgba: (u8, u8, u8, u8)) -> Self;
+}
+
+impl<P: Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColor for P {
+    fn as_rgb_tuple(&self) -> (u8, u8, u8) {
+        let Rgb { r, g, b } = (*self).into();
+        
+        (r, g, b)
+    }
+    
+    fn as_rgba_tuple(&self) -> (u8, u8, u8, u8) {
+        let Rgba { r, g, b, a } = (*self).into();
+        
+        (r, g, b, a)
+    }
+    
+    fn from_rgb_tuple((r, g, b): (u8, u8, u8)) -> Self {
+        From::<Rgb>::from(Rgb { r, g, b })
+    }
+    
+    fn from_rgba_tuple((r, g, b, a): (u8, u8, u8, u8)) -> Self {
+        From::<Rgba>::from(Rgba { r, g, b, a })
+    }
+} 
