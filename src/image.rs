@@ -286,12 +286,11 @@ impl<P: Pixel> Image<P> {
         (self.width() / 2, self.height() / 2)
     }
 
-    /// Returns a Vec of slices representing the pixels of the image.
+    /// Returns an iterator of slices representing the pixels of the image.
     /// Each slice in the Vec is a row. The returned slice should be of ``Vec<&[P; width]>``.
     #[inline]
-    #[must_use]
-    pub fn pixels(&self) -> Vec<&[P]> {
-        self.data.chunks_exact(self.width() as usize).collect()
+    pub fn pixels(&self) -> impl Iterator<Item = &[P]> {
+        self.data.chunks_exact(self.width() as usize)
     }
 
     /// Returns the encoding format of the image. This is nothing more but metadata about the image.
@@ -509,16 +508,16 @@ impl<P: Pixel> Image<P> {
     /// # Panics
     /// * The width or height of the bounding box is less than 1.
     pub fn crop(&mut self, x1: u32, y1: u32, x2: u32, y2: u32) {
-        self.width = NonZeroU32::new(x2 - x1).unwrap();
-        self.height = NonZeroU32::new(y2 - y1).unwrap();
         self.data = self
             .pixels()
-            .into_iter()
             .skip(y1 as usize)
             .zip(y1..y2)
             .flat_map(|(row, _)| &row[x1 as usize..x2 as usize])
             .copied()
             .collect();
+
+        self.width = NonZeroU32::new(x2 - x1).unwrap();
+        self.height = NonZeroU32::new(y2 - y1).unwrap();
     }
 
     /// Takes this image and crops it to the given box. Useful for method chaining.
@@ -546,18 +545,8 @@ impl<P: Pixel> Image<P> {
 
     /// Flips this image vertically (about the x-axis) in place.
     pub fn flip(&mut self) {
-        let chunks = self
-            .data
-            .chunks_exact(self.width() as usize)
-            .collect::<Vec<_>>();
-
-        let flipped = (0..self.width() as usize)
-            .map(|i| chunks.iter().map(|c| c[i]).rev().collect::<Vec<_>>())
-            .collect::<Vec<_>>();
-
-        self.data = (0..self.height() as usize)
-            .flat_map(|i| flipped.iter().map(|c| c[i]).collect::<Vec<_>>())
-            .collect();
+        self.mirror();
+        self.rotate_180();
     }
 
     /// Takes this image and flips it vertically, or about the x-axis. Useful for method chaining.
@@ -575,24 +564,45 @@ impl<P: Pixel> Image<P> {
         })
     }
 
-    fn rotate_90(&mut self) {
+    /// Rotates this image by 90 degrees clockwise, or 270 degrees counterclockwise, in place.
+    ///
+    /// # See Also
+    /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
+    /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
+    /// chaining
+    pub fn rotate_90(&mut self) {
         self.data = self.rotate_iterator().collect();
         std::mem::swap(&mut self.width, &mut self.height);
     }
 
-    fn rotate_180(&mut self) {
+    /// Rotates this image by 180 degrees in place.
+    ///
+    /// # See Also
+    /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
+    /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
+    /// chaining
+    pub fn rotate_180(&mut self) {
         self.data.reverse();
     }
 
-    fn rotate_270(&mut self) {
+    /// Rotates this image by 270 degrees clockwise, or 90 degrees counterclockwise, in place.
+    ///
+    /// # See Also
+    /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
+    /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
+    /// chaining
+    pub fn rotate_270(&mut self) {
         self.data = self.rotate_iterator().rev().collect();
         std::mem::swap(&mut self.width, &mut self.height);
     }
 
-    /// Rotates this image in place about its center. There are optimized rotating algorithms for 90,
-    /// 180, and 270 degree rotations.
+    /// Rotates this image in place about its center. There are optimized rotating algorithms for
+    /// 90, 180, and 270 degree rotations (clockwise).
     ///
     /// As mentioned, the argument is specified in degrees.
+    ///
+    /// # See Also
+    /// - [`Self::rotated`] for this method which does operate in-place - useful for method chaining
     pub fn rotate(&mut self, mut degrees: i32) {
         degrees %= 360;
 
