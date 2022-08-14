@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["ril"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.63.0/core/ops/arith/trait.Mul.html\" title=\"trait core::ops::arith::Mul\">Mul</a>&lt;<a class=\"enum\" href=\"ril/pixel/enum.DynamicSubpixel.html\" title=\"enum ril::pixel::DynamicSubpixel\">DynamicSubpixel</a>&gt; for <a class=\"enum\" href=\"ril/pixel/enum.DynamicSubpixel.html\" title=\"enum ril::pixel::DynamicSubpixel\">DynamicSubpixel</a>","synthetic":false,"types":["ril::pixel::DynamicSubpixel"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
