@@ -16,7 +16,7 @@ pub fn bench_invert_gif(c: &mut Criterion) {
         b.iter(|| {
             ImageSequence::open("benches/invert_sample.gif")
                 .unwrap()
-                .map(|frame| frame.unwrap().map_image(|img| img.inverted()))
+                .map(|frame| frame.unwrap().map_image(Image::inverted))
                 .collect::<ImageSequence<Rgb>>()
                 .save_inferred("benches/out/invert_ril_combinator.gif")
                 .unwrap();
@@ -28,7 +28,7 @@ pub fn bench_invert_gif(c: &mut Criterion) {
             let mut out = ImageSequence::<Rgb>::new();
 
             for frame in ImageSequence::open("benches/invert_sample.gif").unwrap() {
-                out.push_frame(frame.unwrap().map_image(|img| img.inverted()));
+                out.push_frame(frame.unwrap().map_image(Image::inverted));
             }
 
             out.save_inferred("benches/out/invert_ril_for.gif").unwrap();
@@ -64,7 +64,7 @@ pub fn bench_invert_gif(c: &mut Criterion) {
                     })
                     .collect::<Vec<_>>();
 
-                let image = Image::<Rgba>::from_pixels(decoder.width() as u32, data);
+                let image = Image::<Rgba>::from_pixels(u32::from(decoder.width()), data);
                 let mut data = image
                     .data
                     .iter()

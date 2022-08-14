@@ -20,11 +20,11 @@ const COLORS: [Rgb; 12] = [
 fn test_gif_encode() -> ril::Result<()> {
     let mut seq = ImageSequence::new();
 
-    COLORS.into_iter().for_each(|color| {
+    for color in COLORS.into_iter() {
         seq.push_frame(
             Frame::from_image(Image::new(256, 256, color)).with_delay(Duration::from_millis(100)),
         )
-    });
+    }
 
     seq.save_inferred("tests/out/gif_encode_output.gif")?;
 

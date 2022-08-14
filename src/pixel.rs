@@ -1029,35 +1029,36 @@ impl From<Rgb> for Rgba {
 pub trait TrueColor {
     /// Returns the pixel as an (r, g, b) tuple.
     fn as_rgb_tuple(&self) -> (u8, u8, u8);
-    
+
     /// Returns the pixel as an (r, g, b, a) tuple.
     fn as_rgba_tuple(&self) -> (u8, u8, u8, u8);
-    
+
     /// Creates a new pixel from an (r, g, b) tuple.
     fn from_rgb_tuple(rgb: (u8, u8, u8)) -> Self;
-    
+
     /// Creates a new pixel from an (r, g, b, a) tuple.
     fn from_rgba_tuple(rgba: (u8, u8, u8, u8)) -> Self;
 }
 
+#[allow(clippy::trait_duplication_in_bounds)]
 impl<P: Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColor for P {
     fn as_rgb_tuple(&self) -> (u8, u8, u8) {
         let Rgb { r, g, b } = (*self).into();
-        
+
         (r, g, b)
     }
-    
+
     fn as_rgba_tuple(&self) -> (u8, u8, u8, u8) {
         let Rgba { r, g, b, a } = (*self).into();
-        
+
         (r, g, b, a)
     }
-    
+
     fn from_rgb_tuple((r, g, b): (u8, u8, u8)) -> Self {
         From::<Rgb>::from(Rgb { r, g, b })
     }
-    
+
     fn from_rgba_tuple((r, g, b, a): (u8, u8, u8, u8)) -> Self {
         From::<Rgba>::from(Rgba { r, g, b, a })
     }
-} 
+}

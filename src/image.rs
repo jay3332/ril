@@ -472,15 +472,15 @@ impl<P: Pixel> Image<P> {
         let cosv = radians.cos();
 
         (
-            (0.213 + cosv * 0.787 - sinv * 0.213),
+            (cosv.mul_add(0.787, 0.213) - sinv * 0.213),
             (0.715 - cosv * 0.715 - sinv * 0.715),
-            (0.072 - cosv * 0.072 + sinv * 0.928),
-            (0.213 - cosv * 0.213 + sinv * 0.143),
-            (0.715 + cosv * 0.285 + sinv * 0.140),
+            sinv.mul_add(0.928, 0.072 - cosv * 0.072),
+            sinv.mul_add(0.143, 0.213 - cosv * 0.213),
+            sinv.mul_add(0.140, cosv.mul_add(0.285, 0.715)),
             (0.072 - cosv * 0.072 - sinv * 0.283),
             (0.213 - cosv * 0.213 - sinv * 0.787),
-            (0.715 - cosv * 0.715 + sinv * 0.715),
-            (0.072 + cosv * 0.928 + sinv * 0.072),
+            sinv.mul_add(0.715, 0.715 - cosv * 0.715),
+            sinv.mul_add(0.072, cosv.mul_add(0.928, 0.072)),
         )
     }
 
@@ -498,12 +498,12 @@ impl<P: Pixel> Image<P> {
 
         self.data.iter_mut().for_each(|p| {
             let (r, g, b, a) = p.as_rgba_tuple();
-            let (r, g, b) = (r as f64, g as f64, b as f64);
+            let (r, g, b) = (f64::from(r), f64::from(g), f64::from(b));
 
             *p = P::from_rgba_tuple((
-                (mat.0 * r + mat.1 * g + mat.2 * b) as u8,
-                (mat.3 * r + mat.4 * g + mat.5 * b) as u8,
-                (mat.6 * r + mat.7 * g + mat.8 * b) as u8,
+                mat.2.mul_add(b, mat.0.mul_add(r, mat.1 * g)) as u8,
+                mat.5.mul_add(b, mat.3.mul_add(r, mat.4 * g)) as u8,
+                mat.8.mul_add(b, mat.6.mul_add(r, mat.7 * g)) as u8,
                 a,
             ));
         });
