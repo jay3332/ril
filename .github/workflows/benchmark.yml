@@ -63,4 +63,4 @@ jobs:
         destination_dir: benchmark
     
     - name: Set output URL
-      run: echo "::set-output name=env_url::https://jay3332.github.io/ril/benchmark/index.html
+      run: echo "::set-output name=env_url::https://jay3332.github.io/ril/benchmark/index.html"
