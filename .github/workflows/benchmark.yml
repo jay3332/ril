@@ -31,8 +31,15 @@ jobs:
     - name: Show system specs
       run: neofetch --stdout
 
-    - name: Install tools
-      run: cargo install cargo-criterion criterion-table
+    - name: Install cargo-criterion
+      uses: zbraniecki/cached-cargo-install@v0
+      with:
+        crate-name: cargo-criterion
+
+    - name: Install criterion-table
+      uses: zbraniecki/cached-cargo-install@v0
+      with:
+        crate-name: criterion-table
 
     - name: Run benchmark
       run: cargo criterion --all-features --message-format=json | criterion-table > BENCHMARKS.md
