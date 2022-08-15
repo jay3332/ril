@@ -52,3 +52,15 @@ jobs:
     
     - name: Add output markdown to job summary
       run: cat BENCHMARKS.md >> $GITHUB_STEP_SUMMARY
+    
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.ref == 'refs/heads/main' }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./target/criterion/report/index.html
+        keep_files: true
+        destination_dir: benchmark
+    
+    - name: Set output URL
+      run: echo "::set-output name=env_url::https://jay3332.github.io/ril/benchmark/index.html
