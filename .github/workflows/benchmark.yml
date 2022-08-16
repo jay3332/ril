@@ -31,8 +31,18 @@ jobs:
     - name: Show system specs
       run: neofetch --stdout
 
-    - name: Install tools
-      run: cargo install cargo-criterion criterion-table
+    - name: Install cargo-criterion
+      uses: zbraniecki/cached-cargo-install@v0
+      with:
+        crate-name: cargo-criterion
+
+    - name: Install criterion-table
+      uses: zbraniecki/cached-cargo-install@v0
+      with:
+        crate-name: criterion-table
+    
+    - name: Pull benchmarks data
+      run: git clone -b benchmarks https://github.com/jay3332/ril target/criterion
 
     - name: Run benchmark
       run: cargo criterion --all-features --message-format=json | criterion-table > BENCHMARKS.md
@@ -45,3 +55,27 @@ jobs:
     
     - name: Add output markdown to job summary
       run: cat BENCHMARKS.md >> $GITHUB_STEP_SUMMARY
+    
+    - name: Append benchmark webpage to job summary
+      run: echo "For more details, visit [https://jay3332.github.io/ril/benchmark/index.html](https://jay3332.github.io/ril/benchmark/index.html)" > $GITHUB_STEP_SUMMARY
+    
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.ref == 'refs/heads/main' }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./target/criterion/reports
+        keep_files: true
+        destination_dir: benchmark
+
+    - name: Save data
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.ref == 'refs/heads/main' }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./target/criterion
+        keep_files: true
+        publish_branch: benchmarks
+    
+    - name: Set output URL
+      run: echo "::set-output name=env_url::https://jay3332.github.io/ril/benchmark/index.html"
