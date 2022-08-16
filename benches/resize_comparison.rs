@@ -62,6 +62,10 @@ pub fn bench_resize(c: &mut Criterion) {
     bench_ril!(c, 2048, 2048, Lanczos3);
     bench_image_rs!(c, 2048, 2048, Lanczos3);
 
+    // Stress
+    bench_ril!(c, 16384, 16384, Lanczos3);
+    bench_image_rs!(c, 16384, 16384, Lanczos3);
+
     c.finish();
 }
 
