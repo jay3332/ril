@@ -91,18 +91,23 @@
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M293.0,582.4 L293.0,573.4  '/>	<g transform="translate(293.0,604.3)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M239.8,582.4 L239.8,573.4  '/>	<g transform="translate(239.8,604.3)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="middle">
 		<text><tspan font-family="Helvetica" >#1</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M505.7,582.4 L505.7,573.4  '/>	<g transform="translate(505.7,604.3)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M399.4,582.4 L399.4,573.4  '/>	<g transform="translate(399.4,604.3)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="middle">
 		<text><tspan font-family="Helvetica" >#2</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M718.5,582.4 L718.5,573.4  '/>	<g transform="translate(718.5,604.3)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M558.9,582.4 L558.9,573.4  '/>	<g transform="translate(558.9,604.3)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="middle">
 		<text><tspan font-family="Helvetica" >#3</tspan></text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='black'  d='M718.5,582.4 L718.5,573.4  '/>	<g transform="translate(718.5,604.3)" stroke="none" fill="black" font-family="Helvetica" font-size="12.00"  text-anchor="middle">
+		<text><tspan font-family="Helvetica" >#4</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -135,7 +140,7 @@
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb( 31, 120, 180)'  d='M743.4,63.1 L785.6,63.1 M80.2,550.9 L293.0,552.9 L505.7,544.2 L718.5,131.3  '/></g>
+	<path stroke='rgb( 31, 120, 180)'  d='M743.4,63.1 L785.6,63.1 M80.2,550.9 L239.8,552.9 L399.4,544.2 L558.9,131.3 L718.5,364.5  '/></g>
 	</g>
 	<g id="gnuplot_plot_2" ><title>Confidence Interval</title>
 <g fill="none" color="white" stroke="rgb( 31, 120, 180)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -148,7 +153,7 @@
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
 		<polygon fill = 'rgb( 31, 120, 180)' fill-opacity = '0.500000' points = '743.4,85.6 785.6,85.6 785.6,76.6 743.4,76.6 '/>
-		<polygon fill = 'rgb( 31, 120, 180)' fill-opacity = '0.500000' points = '80.2,550.1 293.0,551.9 505.7,543.0 718.5,115.2 718.5,148.7 505.7,545.5 293.0,553.9 80.2,551.9 '/>
+		<polygon fill = 'rgb( 31, 120, 180)' fill-opacity = '0.500000' points = '80.2,550.1 239.8,551.9 399.4,543.0 558.9,115.2 718.5,342.8 718.5,385.6 558.9,148.7 399.4,545.5 239.8,553.9 80.2,551.9 '/>
 	</g>
 </g>
 	</g>
