@@ -695,19 +695,6 @@
 <span id="689">689</span>
 <span id="690">690</span>
 <span id="691">691</span>
-<span id="692">692</span>
-<span id="693">693</span>
-<span id="694">694</span>
-<span id="695">695</span>
-<span id="696">696</span>
-<span id="697">697</span>
-<span id="698">698</span>
-<span id="699">699</span>
-<span id="700">700</span>
-<span id="701">701</span>
-<span id="702">702</span>
-<span id="703">703</span>
-<span id="704">704</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the font/text rasterizing and layout interface.</span>
 
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::cast_precision_loss</span>, <span class="ident">clippy::too_many_arguments</span>)]</span>
@@ -715,14 +702,11 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Draw</span>, <span class="ident">Error::FontError</span>, <span class="ident">Image</span>, <span class="ident">OverlayMode</span>, <span class="ident">Pixel</span>};
 
 <span class="kw">use</span> <span class="ident">fontdue::layout</span>::{<span class="ident">CoordinateSystem</span>, <span class="ident">TextStyle</span>};
-<span class="kw">use</span> <span class="ident">fontdue</span>::{<span class="ident">layout::Layout</span>, <span class="ident">FontSettings</span>};
+<span class="kw">use</span> <span class="ident">fontdue</span>::{
+    <span class="ident">layout</span>::{<span class="ident">Layout</span>, <span class="ident">LayoutSettings</span>},
+    <span class="ident">FontSettings</span>,
+};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fs::File</span>, <span class="ident">io::Read</span>, <span class="ident">path::Path</span>};
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_internal&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">fontdue::layout::LayoutSettings</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_internal&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">fontdue::layout::LayoutSettings</span>;
 
 <span class="doccomment">/// Represents a single font along with its alternatives used to render text.</span>
 <span class="doccomment">/// Currently, this supports TrueType and OpenType fonts.</span>
@@ -806,7 +790,7 @@
     <span class="doccomment">/// It contains technical information about the font.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::missing_const_for_fn</span>)]</span> <span class="comment">// no destructors</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_primary</span>(<span class="self">self</span>) -&gt; <span class="ident">fontdue::Font</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">fontdue::Font</span> {
         <span class="self">self</span>.<span class="ident">inner</span>
     }
 
@@ -1125,11 +1109,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextLayout</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> {
     <span class="ident">inner</span>: <span class="ident">Layout</span><span class="op">&lt;</span>(<span class="ident">P</span>, <span class="ident">OverlayMode</span>)<span class="op">&gt;</span>,
     <span class="ident">fonts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">fontdue::Font</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_internal&quot;</span>))]</span>
     <span class="ident">settings</span>: <span class="ident">LayoutSettings</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_internal&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">settings</span>: <span class="ident">LayoutSettings</span>,
     <span class="ident">x_anchor</span>: <span class="ident">HorizontalAnchor</span>,
     <span class="ident">y_anchor</span>: <span class="ident">VerticalAnchor</span>,
 }
@@ -1150,12 +1130,6 @@
     <span class="kw">fn</span> <span class="ident">set_settings</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">settings</span>: <span class="ident">LayoutSettings</span>) {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>);
         <span class="self">self</span>.<span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>;
-    }
-
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;_internal&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">internal_set_settings</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">settings</span>: <span class="ident">LayoutSettings</span>) {
-        <span class="self">self</span>.<span class="ident">set_settings</span>(<span class="ident">settings</span>);
     }
 
     <span class="doccomment">/// Sets the position of the text layout.</span>
