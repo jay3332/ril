@@ -41,11 +41,8 @@ jobs:
       with:
         crate-name: criterion-table
     
-#     - name: Pull previous data
-#       uses: Bhacaz/checkout-files@v2
-#       with:
-#         files: target/criterion
-#         branch: benchmarks
+    - name: Pull benchmarks data
+      run: git clone -b benchmarks https://github.com/jay3332/ril target/criterion
 
     - name: Run benchmark
       run: cargo criterion --all-features --message-format=json | criterion-table > BENCHMARKS.md
@@ -77,6 +74,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./target/criterion
+        keep_files: true
         publish_branch: benchmarks
     
     - name: Set output URL
