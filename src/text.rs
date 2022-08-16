@@ -5,14 +5,11 @@
 use crate::{Draw, Error::FontError, Image, OverlayMode, Pixel};
 
 use fontdue::layout::{CoordinateSystem, TextStyle};
-use fontdue::{layout::Layout, FontSettings};
+use fontdue::{
+    layout::{Layout, LayoutSettings},
+    FontSettings,
+};
 use std::{fs::File, io::Read, path::Path};
-
-#[cfg(not(feature = "_internal"))]
-use fontdue::layout::LayoutSettings;
-#[cfg(feature = "_internal")]
-#[doc(hidden)]
-pub use fontdue::layout::LayoutSettings;
 
 /// Represents a single font along with its alternatives used to render text.
 /// Currently, this supports TrueType and OpenType fonts.
@@ -96,7 +93,7 @@ impl Font {
     /// It contains technical information about the font.
     #[must_use]
     #[allow(clippy::missing_const_for_fn)] // no destructors
-    pub fn into_primary(self) -> fontdue::Font {
+    pub fn into_inner(self) -> fontdue::Font {
         self.inner
     }
 
@@ -415,11 +412,7 @@ impl Default for VerticalAnchor {
 pub struct TextLayout<'a, P: Pixel> {
     inner: Layout<(P, OverlayMode)>,
     fonts: Vec<&'a fontdue::Font>,
-    #[cfg(not(feature = "_internal"))]
     settings: LayoutSettings,
-    #[cfg(feature = "_internal")]
-    #[doc(hidden)]
-    pub settings: LayoutSettings,
     x_anchor: HorizontalAnchor,
     y_anchor: VerticalAnchor,
 }
@@ -440,12 +433,6 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     fn set_settings(&mut self, settings: LayoutSettings) {
         self.inner.reset(&settings);
         self.settings = settings;
-    }
-
-    #[cfg(feature = "_internal")]
-    #[doc(hidden)]
-    pub fn internal_set_settings(&mut self, settings: LayoutSettings) {
-        self.set_settings(settings);
     }
 
     /// Sets the position of the text layout.
