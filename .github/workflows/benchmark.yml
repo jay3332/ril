@@ -41,11 +41,11 @@ jobs:
       with:
         crate-name: criterion-table
     
-    - name: Pull previous data
-      uses: Bhacaz/checkout-files@v2
-      with:
-        files: target/criterion
-        branch: benchmarks
+#     - name: Pull previous data
+#       uses: Bhacaz/checkout-files@v2
+#       with:
+#         files: target/criterion
+#         branch: benchmarks
 
     - name: Run benchmark
       run: cargo criterion --all-features --message-format=json | criterion-table > BENCHMARKS.md
