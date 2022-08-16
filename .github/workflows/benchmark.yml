@@ -40,6 +40,12 @@ jobs:
       uses: zbraniecki/cached-cargo-install@v0
       with:
         crate-name: criterion-table
+    
+    - name: Pull previous data
+      uses: Bhacaz/checkout-files@v2
+      with:
+        files: target/criterion
+        branch: benchmarks
 
     - name: Run benchmark
       run: cargo criterion --all-features --message-format=json | criterion-table > BENCHMARKS.md
@@ -64,6 +70,14 @@ jobs:
         publish_dir: ./target/criterion/reports
         keep_files: true
         destination_dir: benchmark
+
+    - name: Save data
+      uses: peaceiris/actions-gh-pages@v3
+      if: ${{ github.ref == 'refs/heads/main' }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./target/criterion
+        publish_branch: benchmarks
     
     - name: Set output URL
       run: echo "::set-output name=env_url::https://jay3332.github.io/ril/benchmark/index.html"
