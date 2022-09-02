@@ -13,6 +13,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    environment:
+      name: benchmarks
+      url: "https://jay3332.github.io/ril/benchmark/index.html"
+
     steps:
     - uses: actions/checkout@v3
 
