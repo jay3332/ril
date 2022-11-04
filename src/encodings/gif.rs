@@ -2,7 +2,7 @@
 
 use crate::{
     encodings::ColorType, Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator,
-    Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
+    Image, ImageFormat, ImageSequence, LoopCount, MaybePalettedImage, OverlayMode, Pixel, Rgba,
 };
 use std::{
     io::{Read, Write},
@@ -52,10 +52,14 @@ impl GifEncoder {
 
 impl Encoder for GifEncoder {
     #[allow(clippy::cast_lossless)]
-    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
+    fn encode<'a, P: Pixel + 'a, I: Into<MaybePalettedImage<'a, P>>>(
+        &mut self,
+        image: &I,
+        dest: &mut impl Write,
+    ) -> crate::Result<()> {
+        let image = &(*image).into();
         let mut encoder =
             gif::Encoder::new(dest, image.width() as u16, image.height() as u16, &[])?;
-        let sample = image.data[0].as_pixel_data().type_data();
 
         macro_rules! data {
             ($t:ty) => {{
@@ -101,11 +105,24 @@ impl Encoder for GifEncoder {
         }
 
         // TODO: paletted images
-        let frame = match sample {
+        let frame = match (image.data[0].color_type(), P::BIT_DEPTH) {
             (ColorType::Rgb, 8) => rgb!(data!()),
             (ColorType::Rgba, 8) => rgba!(data!()),
             (ColorType::L, 1 | 8) => rgb!(data!(crate::Rgb)),
             (ColorType::LA, 1 | 8) => rgba!(data!(crate::Rgba)),
+            (ColorType::PaletteRgb, 8) => gif::Frame::from_palette_pixels(
+                image.width() as u16,
+                image.height() as u16,
+                &data!(crate::Rgb),
+                image
+                    .palette()
+                    .expect("paletted image without palette?")
+                    .iter()
+                    .flat_map(|p| p.force_into_rgb().as_bytes())
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+                None,
+            ),
             _ => return Err(Error::UnsupportedColorType),
         };
 
@@ -169,10 +186,9 @@ impl Encoder for GifEncoder {
             }};
         }
 
-        let sample = image.data[0].as_pixel_data().type_data();
-
         for frame in sequence.iter() {
             let image = frame.image();
+            let sample = (image.data[0].color_type(), P::BIT_DEPTH);
 
             // TODO: paletted images
             let mut out = match sample {

@@ -1,10 +1,12 @@
-use super::{ColorType, PixelData};
+use super::ColorType;
 use crate::{
     encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel,
+    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, MaybePalettedImage,
+    OverlayMode, Pixel,
 };
 
 pub use png::{AdaptiveFilterType, Compression, FilterType};
+use std::borrow::Cow;
 use std::{
     io::{Read, Write},
     marker::PhantomData,
@@ -22,7 +24,7 @@ impl From<png::ColorType> for ColorType {
             GrayscaleAlpha => Self::LA,
             Rgb => Self::Rgb,
             Rgba => Self::Rgba,
-            Indexed => Self::Palette,
+            Indexed => Self::PaletteRgb,
         }
     }
 }
@@ -36,7 +38,8 @@ const fn get_png_color_type(src: ColorType) -> png::ColorType {
         ColorType::LA => GrayscaleAlpha,
         ColorType::Rgb => Rgb,
         ColorType::Rgba => Rgba,
-        ColorType::Palette => Indexed,
+        ColorType::PaletteRgb | ColorType::PaletteRgba => Indexed,
+        ColorType::Dynamic => unreachable!(),
     }
 }
 
@@ -82,21 +85,18 @@ impl PngEncoder {
         self
     }
 
-    fn prepare<'a, P: Pixel, W: Write>(
+    fn prepare<'a, W: Write>(
         &mut self,
         width: u32,
         height: u32,
-        sample: &P,
+        color_type: ColorType,
+        bit_depth: u8,
         dest: &'a mut W,
     ) -> png::Encoder<&'a mut W> {
         let mut encoder = png::Encoder::new(dest, width, height);
-
         encoder.set_adaptive_filter(self.adaptive_filter);
         encoder.set_filter(self.filter);
         encoder.set_compression(self.compression);
-
-        let (color_type, bit_depth) = sample.as_pixel_data().type_data();
-
         encoder.set_color(get_png_color_type(color_type));
         encoder.set_depth(png::BitDepth::from_u8(bit_depth).unwrap());
 
@@ -105,10 +105,45 @@ impl PngEncoder {
 }
 
 impl Encoder for PngEncoder {
-    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
+    fn encode<'a, P: Pixel + 'a, I: Into<MaybePalettedImage<'a, P>>>(
+        &mut self,
+        image: &I,
+        dest: &mut impl Write,
+    ) -> crate::Result<()> {
+        let image: &MaybePalettedImage<'a, P> = &(*image).into();
         let data = image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
+        let color_type = image.data[0].color_type();
 
-        let encoder = self.prepare(image.width(), image.height(), &image.data[0], dest);
+        let mut encoder = self.prepare(
+            image.width(),
+            image.height(),
+            color_type,
+            P::BIT_DEPTH,
+            dest,
+        );
+
+        match color_type {
+            ColorType::PaletteRgb => {
+                let pal = image.palette().expect("no palette for paletted image?");
+                encoder.set_palette(pal.iter().flat_map(|p| p.as_bytes()).collect::<Cow<_>>());
+            }
+            ColorType::PaletteRgba => {
+                let pal = image.palette().expect("no palette for paletted image?");
+                encoder.set_palette(
+                    pal.iter()
+                        .map(|p| p.force_into_rgb())
+                        .flat_map(|p| p.as_bytes())
+                        .collect::<Cow<_>>(),
+                );
+                encoder.set_trns(
+                    pal.iter()
+                        .map(|p| p.force_into_rgba().a)
+                        .collect::<Cow<_>>(),
+                );
+            }
+            _ => (),
+        }
+
         let mut writer = encoder.write_header()?;
         writer.write_image_data(&data)?;
         writer.finish()?;
@@ -124,7 +159,13 @@ impl Encoder for PngEncoder {
         let sample = sequence.first_frame().image();
         let pixel = &sample.data[0];
 
-        let mut encoder = self.prepare(sample.width(), sample.height(), pixel, dest);
+        let mut encoder = self.prepare(
+            sample.width(),
+            sample.height(),
+            pixel.color_type(),
+            P::BIT_DEPTH,
+            dest,
+        );
         encoder.set_animated(sequence.len() as u32, sequence.loop_count().count_or_zero())?;
 
         let mut writer = encoder.write_header()?;
@@ -193,9 +234,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
 
         let data = buffer
             .chunks_exact(info.bytes_per_pixel())
-            .map(|chunk| {
-                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
-            })
+            .map(|chunk| P::from_raw_parts(color_type, bit_depth, chunk))
             .collect::<crate::Result<Vec<_>>>()?;
 
         Ok(Image {
@@ -249,9 +288,7 @@ impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
 
         let data = buffer
             .chunks_exact(bpp)
-            .map(|chunk| {
-                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
-            })
+            .map(|chunk| P::from_raw_parts(color_type, bit_depth, chunk))
             .collect::<crate::Result<Vec<_>>>()?;
 
         Ok((data, info))

@@ -32,7 +32,7 @@ pub enum FilterType {
     /// interpolation on all pixels to calculate output pixels.
     Mitchell,
     /// A Lanczos filter with a window of 3. Calculates output pixel value using a high-quality
-    /// Lanczos filter on all pixels.
+    /// Lanczos filter on all pixels. This can give antialiasing effects.
     Lanczos3,
 }
 
@@ -67,19 +67,21 @@ pub fn resize<P: Pixel>(
     dst_height: NonZeroU32,
     filter: FilterType,
 ) -> Vec<P> {
-    let (color_type, bit_depth) = data[0].as_pixel_data().type_data();
-    let pixel_type = match bit_depth {
+    let color_type = data[0].color_type();
+    let pixel_type = match P::BIT_DEPTH {
         1 | 2 | 4 | 8 => match color_type {
-            ColorType::L | ColorType::Palette => ResizePixelType::U8,
+            ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => ResizePixelType::U8,
             ColorType::LA => ResizePixelType::U8x2,
             ColorType::Rgb => ResizePixelType::U8x3,
             ColorType::Rgba => ResizePixelType::U8x4,
+            ColorType::Dynamic => unreachable!(),
         },
         16 => match color_type {
-            ColorType::L | ColorType::Palette => ResizePixelType::U16,
+            ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => ResizePixelType::U16,
             ColorType::LA => ResizePixelType::U16x2,
             ColorType::Rgb => ResizePixelType::U16x3,
             ColorType::Rgba => ResizePixelType::U16x4,
+            ColorType::Dynamic => unreachable!(),
         },
         _ => panic!("Unsupported bit depth"),
     };
@@ -96,7 +98,7 @@ pub fn resize<P: Pixel>(
     // The pixel type is the same, we can unwrap here
     resizer.resize(&view, &mut dst_view).unwrap();
 
-    let bpp = color_type.channels() * ((bit_depth as usize + 7) >> 3);
+    let bpp = color_type.channels() * ((P::BIT_DEPTH as usize + 7) >> 3);
     dest.into_vec()
         .chunks_exact(bpp)
         .map(P::from_bytes)

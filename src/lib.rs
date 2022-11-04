@@ -253,6 +253,7 @@ pub mod encodings;
 pub mod error;
 mod image;
 pub mod pixel;
+mod quantize;
 #[cfg(feature = "resize")]
 mod resize;
 pub mod sequence;
@@ -266,11 +267,17 @@ macro_rules! inline_doc {
 }
 
 inline_doc! {
-    pub use crate::image::{Banded, Image, ImageFormat, OverlayMode};
+    pub use crate::image::{
+        Banded, Image, ImageFormat, MaybePalettedImage, OverlayMode, PalettedImage,
+    };
     pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
+    pub use encodings::ColorType;
     pub use error::{Error, Result};
-    pub use pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, TrueColor, L};
+    pub use pixel::{
+        Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
+        Rgba, TrueColor, L,
+    };
     #[cfg(feature = "resize")]
     pub use resize::FilterType as ResizeAlgorithm;
     pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
@@ -292,9 +299,10 @@ inline_doc! {
 /// ```
 pub mod prelude {
     pub use super::{
-        Alpha, Banded, BitPixel, Border, BorderPosition, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, Ellipse, Frame, FrameIterator, Image, ImageFormat, ImageSequence,
-        LoopCount, OverlayMode, Paste, Pixel, Rectangle, Rgb, Rgba, TrueColor, L,
+        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
+        DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
+        ImageSequence, LoopCount, MaybePalettedImage, OverlayMode, Paletted, PalettedImage,
+        PalettedRgb, PalettedRgba, Paste, Pixel, Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
     #[cfg(feature = "resize")]

@@ -4,7 +4,7 @@ use crate::{
         Error::{self, InvalidExtension},
         Result,
     },
-    pixel::{Pixel, TrueColor},
+    pixel::*,
     Dynamic, DynamicFrameIterator,
 };
 
@@ -26,6 +26,7 @@ use std::{
     fs::File,
     io::{Read, Write},
     num::NonZeroU32,
+    ops::{Deref, DerefMut},
     path::Path,
 };
 
@@ -810,7 +811,7 @@ impl<P: Pixel> Image<P> {
     /// Currently, only [`BitPixel`] images are supported for the masking image.
     ///
     /// This is a shorthand for using the [`draw`] method with [`Paste`].
-    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Self, mask: Image<crate::BitPixel>) {
+    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Self, mask: Image<BitPixel>) {
         self.draw(&crate::Paste::new(image).with_position(x, y).with_mask(mask));
     }
 
@@ -825,9 +826,9 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * The masking image has different dimensions from this image.
-    pub fn mask_alpha(&mut self, mask: &Image<crate::L>)
+    pub fn mask_alpha(&mut self, mask: &Image<L>)
     where
-        P: crate::Alpha,
+        P: Alpha,
     {
         assert_eq!(
             self.dimensions(),
@@ -847,6 +848,26 @@ impl<P: Pixel> Image<P> {
     }
 }
 
+macro_rules! impl_cast {
+    ($t:ty: $($f:ty)+) => {
+        $(
+            impl From<Image<$f>> for Image<$t> {
+                fn from(f: Image<$f>) -> Self {
+                    f.convert()
+                }
+            }
+        )+
+    };
+}
+
+impl_cast!(BitPixel: L Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(L: BitPixel Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Rgb: BitPixel L Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Rgba: BitPixel L Rgb Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Dynamic: BitPixel L Rgb Rgba PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(PalettedRgb<'_>: PalettedRgba<'_>);
+impl_cast!(PalettedRgba<'_>: PalettedRgb<'_>);
+
 /// Represents an image with multiple channels, called bands.
 ///
 /// Each band should be represented as a separate [`Image`] with [`L`] or [`BitPixel`] pixels.
@@ -858,7 +879,7 @@ pub trait Banded<T> {
     fn from_bands(bands: T) -> Self;
 }
 
-type Band = Image<crate::L>;
+type Band = Image<L>;
 
 macro_rules! map_idx {
     ($image:expr, $idx:expr) => {{
@@ -867,11 +888,7 @@ macro_rules! map_idx {
         Image {
             width: $image.width,
             height: $image.height,
-            data: $image
-                .data
-                .iter()
-                .map(|p| L(p.as_pixel_data().data()[$idx]))
-                .collect(),
+            data: $image.data.iter().map(|p| L(p.as_bytes()[$idx])).collect(),
             format: $image.format,
             overlay: $image.overlay,
         }
@@ -879,7 +896,7 @@ macro_rules! map_idx {
 }
 
 macro_rules! extract_bands {
-    ($image:expr; $($idx:expr),+) => {{
+    ($image:expr; $($idx:literal)+) => {{
         ($(map_idx!($image, $idx)),+)
     }};
 }
@@ -891,7 +908,7 @@ macro_rules! validate_dimensions {
                 $target.dimensions(),
                 $others.dimensions(),
                 "bands have different dimensions: {} has dimensions of {:?}, which is different \
-                from {} which has dimensions of {:?}",
+                from {} which has dimenesions of {:?}",
                 stringify!($target),
                 $target.dimensions(),
                 stringify!($others),
@@ -901,34 +918,30 @@ macro_rules! validate_dimensions {
     }};
 }
 
-impl Banded<(Band, Band, Band)> for Image<crate::Rgb> {
+impl Banded<(Band, Band, Band)> for Image<Rgb> {
     fn bands(&self) -> (Band, Band, Band) {
-        extract_bands!(self; 0, 1, 2)
+        extract_bands!(self; 0 1 2)
     }
 
     fn from_bands((r, g, b): (Band, Band, Band)) -> Self {
-        use crate::L;
-
         validate_dimensions!(r, g, b);
 
         r.map_data(|data| {
             data.into_iter()
                 .zip(g.data.into_iter())
                 .zip(b.data.into_iter())
-                .map(|((L(r), L(g)), L(b))| crate::Rgb::new(r, g, b))
+                .map(|((L(r), L(g)), L(b))| Rgb::new(r, g, b))
                 .collect()
         })
     }
 }
 
-impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
+impl Banded<(Band, Band, Band, Band)> for Image<Rgba> {
     fn bands(&self) -> (Band, Band, Band, Band) {
-        extract_bands!(self; 0, 1, 2, 3)
+        extract_bands!(self; 0 1 2 3)
     }
 
     fn from_bands((r, g, b, a): (Band, Band, Band, Band)) -> Self {
-        use crate::L;
-
         validate_dimensions!(r, g, b, a);
 
         r.map_data(|data| {
@@ -936,7 +949,7 @@ impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
                 .zip(g.data.into_iter())
                 .zip(b.data.into_iter())
                 .zip(a.data.into_iter())
-                .map(|(((L(r), L(g)), L(b)), L(a))| crate::Rgba::new(r, g, b, a))
+                .map(|(((L(r), L(g)), L(b)), L(a))| Rgba::new(r, g, b, a))
                 .collect()
         })
     }
@@ -1195,5 +1208,165 @@ impl Display for ImageFormat {
                 Self::Unknown => "",
             }
         )
+    }
+}
+
+/// An indexed image, where its pixels are represented by a palette.
+///
+/// This implements `Deref<Target = Image>`, so this is indifferent from a normal image, but it has
+/// extra methods to manipulate the palette.
+pub struct PalettedImage<'palette, P: Pixel> {
+    image: Image<P>,
+    palette: &'palette [P],
+}
+
+impl<P: Pixel> PalettedImage<'_, P> {
+    /// Returns a reference to the palette.
+    pub fn palette(&self) -> &[P] {
+        self.palette
+    }
+
+    /// Returns a mutable reference to the palette.
+    pub fn palette_mut(&mut self) -> &mut [P] {
+        &mut self.palette
+    }
+
+    /// Maps the palette to a new palette.
+    pub fn map_palette<I, F: FnOnce(&[P]) -> I>(mut self, f: F) -> Self
+    where
+        I: IntoIterator<Item = P>,
+    {
+        let palette = f(self.palette).into_iter().collect::<Vec<_>>();
+        self.palette = palette.as_slice();
+        self
+    }
+}
+
+impl<'palette, P: Pixel> Deref for PalettedImage<'palette, P> {
+    type Target = Image<P>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.image
+    }
+}
+
+impl<'palette, P: Pixel> DerefMut for PalettedImage<'palette, P> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.image
+    }
+}
+
+/// An image that *could* be paletted. Usually used for dynamic purposes, where the image format
+/// is possibly indexed.
+///
+/// This implements `Deref<Target = Image>`, so this is indifferent from a normal image. Unlike
+/// [`PalettedImage`], this does not have extra methods to manipulate the palette - in order to
+/// access these you must first check if the image is paletted with something such as a `match` or
+/// `if let` statement.
+pub enum MaybePalettedImage<'palette, P: Pixel> {
+    /// The image is not paletted.
+    Unpaletted(Image<P>),
+    /// The image is paletted.
+    Paletted(PalettedImage<'palette, P>),
+}
+
+impl<'palette, P: Pixel> MaybePalettedImage<'palette, P> {
+    /// Whether this image is paletted.
+    pub fn is_paletted(&self) -> bool {
+        matches!(self, Self::Paletted(_))
+    }
+
+    /// Returns the inner image, no matter if it is paletted or not.
+    pub fn into_image(self) -> Image<P> {
+        match self {
+            Self::Unpaletted(image) => image,
+            Self::Paletted(image) => image.image,
+        }
+    }
+
+    /// Returns the inner unpaletted image, if it is unpaletted, or None if it is paletted.
+    pub fn into_unpaletted(self) -> Option<Image<P>> {
+        match self {
+            Self::Unpaletted(image) => Some(image),
+            Self::Paletted(_) => None,
+        }
+    }
+
+    /// Returns the inner unpaletted image, but you must uphold the guarantee that the image will
+    /// never be paletted, otherwise this will result in undefined behaviour.
+    ///
+    /// # Safety
+    /// * The image must never be paletted.
+    ///
+    /// # See Also
+    /// * [`Self::into_unpaletted`] - A safe, checked alternative to this method.
+    pub unsafe fn into_unpaletted_unchecked(self) -> Image<P> {
+        match self {
+            Self::Unpaletted(image) => image,
+            Self::Paletted(_) => std::hint::unreachable_unchecked(),
+        }
+    }
+
+    /// Returns the inner paletted image, if it is paletted, or None if it is unpaletted.
+    pub fn into_paletted(self) -> Option<PalettedImage<'palette, P>> {
+        match self {
+            Self::Unpaletted(_) => None,
+            Self::Paletted(image) => Some(image),
+        }
+    }
+
+    /// Returns the inner paletted image, but you must uphold the guarantee that the image will
+    /// never be unpaletted, otherwise this will result in undefined behaviour.
+    ///
+    /// # Safety
+    /// * The image must never be unpaletted.
+    ///
+    /// # See Also
+    /// * [`Self::into_paletted`] - A safe, checked alternative to this method.
+    pub unsafe fn into_paletted_unchecked(self) -> PalettedImage<'palette, P> {
+        match self {
+            Self::Unpaletted(_) => std::hint::unreachable_unchecked(),
+            Self::Paletted(image) => image,
+        }
+    }
+
+    /// Returns a reference to the inner palette if the image is paletted.
+    pub fn palette(&self) -> Option<&[P]> {
+        match self {
+            Self::Unpaletted(_) => None,
+            Self::Paletted(image) => Some(image.palette()),
+        }
+    }
+}
+
+impl<'palette, P: Pixel> Deref for MaybePalettedImage<'palette, P> {
+    type Target = Image<P>;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            Self::Unpaletted(image) => image,
+            Self::Paletted(image) => image,
+        }
+    }
+}
+
+impl<'palette, P: Pixel> DerefMut for MaybePalettedImage<'palette, P> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        match self {
+            Self::Unpaletted(image) => image,
+            Self::Paletted(image) => image,
+        }
+    }
+}
+
+impl<P: Pixel> From<Image<P>> for MaybePalettedImage<'_, P> {
+    fn from(value: Image<P>) -> Self {
+        Self::Unpaletted(value)
+    }
+}
+
+impl<'palette, P: Pixel> From<PalettedImage<'palette, P>> for MaybePalettedImage<'palette, P> {
+    fn from(value: PalettedImage<'palette, P>) -> Self {
+        Self::Paletted(value)
     }
 }
