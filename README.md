@@ -54,6 +54,8 @@ Additionally, we also plan to support the following pixel formats:
 | L8 (grayscale)                         | Supported as `L`        |
 | LA8 (grayscale + alpha)                | Not yet supported       |
 | 1 (single-bit pixel, equivalent to L1) | Supported as `BitPixel` |
+| Indexed RGB8 (palette)                 | WIP (See #8)            |
+| Indexed RGBA8 (palette)                | WIP (See #8)            |
 
 16-bit pixel formats are currently downscaled to 8-bits. We do plan to
 have actual support 16-bit pixel formats in the future.
