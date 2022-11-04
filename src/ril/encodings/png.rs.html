@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/encodings/png.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>png.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ril/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/encodings/png.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>png.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ril/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -321,323 +315,322 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ColorType</span>, <span class="ident">PixelData</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">Encoder</span>, <span class="ident">FrameIterator</span>},
-    <span class="ident">DisposalMethod</span>, <span class="ident">Frame</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">ImageSequence</span>, <span class="ident">LoopCount</span>, <span class="ident">OverlayMode</span>, <span class="ident">Pixel</span>,
+</pre><pre class="rust"><code><span class="kw">use super</span>::{ColorType, PixelData};
+<span class="kw">use crate</span>::{
+    encode::{Decoder, Encoder, FrameIterator},
+    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel,
 };
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">png</span>::{<span class="ident">AdaptiveFilterType</span>, <span class="ident">Compression</span>, <span class="ident">FilterType</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">io</span>::{<span class="ident">Read</span>, <span class="ident">Write</span>},
-    <span class="ident">marker::PhantomData</span>,
-    <span class="ident">num::NonZeroU32</span>,
-    <span class="ident">time::Duration</span>,
+<span class="kw">pub use </span>png::{AdaptiveFilterType, Compression, FilterType};
+<span class="kw">use </span>std::{
+    io::{Read, Write},
+    marker::PhantomData,
+    num::NonZeroU32,
+    time::Duration,
 };
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">png::ColorType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ColorType</span> {
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::enum_glob_use</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">png::ColorType</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">png::ColorType</span>::<span class="kw-2">*</span>;
+<span class="kw">impl </span>From&lt;png::ColorType&gt; <span class="kw">for </span>ColorType {
+    <span class="attribute">#[allow(clippy::enum_glob_use)]
+    </span><span class="kw">fn </span>from(value: png::ColorType) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>png::ColorType::<span class="kw-2">*</span>;
 
-        <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">Grayscale</span> =&gt; <span class="ident"><span class="self">Self</span>::L</span>,
-            <span class="ident">GrayscaleAlpha</span> =&gt; <span class="ident"><span class="self">Self</span>::LA</span>,
-            <span class="ident">Rgb</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>,
-            <span class="ident">Rgba</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>,
-            <span class="ident">Indexed</span> =&gt; <span class="ident"><span class="self">Self</span>::Palette</span>,
+        <span class="kw">match </span>value {
+            Grayscale =&gt; <span class="self">Self</span>::L,
+            GrayscaleAlpha =&gt; <span class="self">Self</span>::LA,
+            Rgb =&gt; <span class="self">Self</span>::Rgb,
+            Rgba =&gt; <span class="self">Self</span>::Rgba,
+            Indexed =&gt; <span class="self">Self</span>::Palette,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::enum_glob_use</span>)]</span>
-<span class="kw">const</span> <span class="kw">fn</span> <span class="ident">get_png_color_type</span>(<span class="ident">src</span>: <span class="ident">ColorType</span>) -&gt; <span class="ident">png::ColorType</span> {
-    <span class="kw">use</span> <span class="ident">png::ColorType</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[allow(clippy::enum_glob_use)]
+</span><span class="kw">const fn </span>get_png_color_type(src: ColorType) -&gt; png::ColorType {
+    <span class="kw">use </span>png::ColorType::<span class="kw-2">*</span>;
 
-    <span class="kw">match</span> <span class="ident">src</span> {
-        <span class="ident">ColorType::L</span> =&gt; <span class="ident">Grayscale</span>,
-        <span class="ident">ColorType::LA</span> =&gt; <span class="ident">GrayscaleAlpha</span>,
-        <span class="ident">ColorType::Rgb</span> =&gt; <span class="ident">Rgb</span>,
-        <span class="ident">ColorType::Rgba</span> =&gt; <span class="ident">Rgba</span>,
-        <span class="ident">ColorType::Palette</span> =&gt; <span class="ident">Indexed</span>,
+    <span class="kw">match </span>src {
+        ColorType::L =&gt; Grayscale,
+        ColorType::LA =&gt; GrayscaleAlpha,
+        ColorType::Rgb =&gt; Rgb,
+        ColorType::Rgba =&gt; Rgba,
+        ColorType::Palette =&gt; Indexed,
     }
 }
 
-<span class="doccomment">/// A PNG encoder interface around [`png::Encoder`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PngEncoder</span> {
-    <span class="doccomment">/// The adaptive filter type to use.</span>
-    <span class="kw">pub</span> <span class="ident">adaptive_filter</span>: <span class="ident">AdaptiveFilterType</span>,
-    <span class="doccomment">/// The filter type to use.</span>
-    <span class="kw">pub</span> <span class="ident">filter</span>: <span class="ident">FilterType</span>,
-    <span class="doccomment">/// The compression to use.</span>
-    <span class="kw">pub</span> <span class="ident">compression</span>: <span class="ident">Compression</span>,
+<span class="doccomment">/// A PNG encoder interface around [`png::Encoder`].
+</span><span class="kw">pub struct </span>PngEncoder {
+    <span class="doccomment">/// The adaptive filter type to use.
+    </span><span class="kw">pub </span>adaptive_filter: AdaptiveFilterType,
+    <span class="doccomment">/// The filter type to use.
+    </span><span class="kw">pub </span>filter: FilterType,
+    <span class="doccomment">/// The compression to use.
+    </span><span class="kw">pub </span>compression: Compression,
 }
 
-<span class="kw">impl</span> <span class="ident">PngEncoder</span> {
-    <span class="doccomment">/// Creates a new encoder with the default settings.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">adaptive_filter</span>: <span class="ident">AdaptiveFilterType::NonAdaptive</span>,
-            <span class="ident">filter</span>: <span class="ident">FilterType::NoFilter</span>,
-            <span class="ident">compression</span>: <span class="ident">Compression::Default</span>,
+<span class="kw">impl </span>PngEncoder {
+    <span class="doccomment">/// Creates a new encoder with the default settings.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            adaptive_filter: AdaptiveFilterType::NonAdaptive,
+            filter: FilterType::NoFilter,
+            compression: Compression::Default,
         }
     }
 
-    <span class="doccomment">/// Sets the adaptive filter type to use.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_adaptive_filter</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">AdaptiveFilterType</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">adaptive_filter</span> <span class="op">=</span> <span class="ident">value</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the adaptive filter type to use.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_adaptive_filter(<span class="kw-2">mut </span><span class="self">self</span>, value: AdaptiveFilterType) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.adaptive_filter = value;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the filter type to use.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_filter</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">FilterType</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">filter</span> <span class="op">=</span> <span class="ident">value</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the filter type to use.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_filter(<span class="kw-2">mut </span><span class="self">self</span>, value: FilterType) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.filter = value;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the compression level to use.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_compression</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Compression</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">compression</span> <span class="op">=</span> <span class="ident">value</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the compression level to use.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_compression(<span class="kw-2">mut </span><span class="self">self</span>, value: Compression) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.compression = value;
+        <span class="self">self
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">prepare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">W</span>: <span class="ident">Write</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">width</span>: <span class="ident">u32</span>,
-        <span class="ident">height</span>: <span class="ident">u32</span>,
-        <span class="ident">sample</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>,
-        <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">W</span>,
-    ) -&gt; <span class="ident">png::Encoder</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">W</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">png::Encoder::new</span>(<span class="ident">dest</span>, <span class="ident">width</span>, <span class="ident">height</span>);
+    <span class="kw">fn </span>prepare&lt;<span class="lifetime">&#39;a</span>, P: Pixel, W: Write&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        width: u32,
+        height: u32,
+        sample: <span class="kw-2">&amp;</span>P,
+        dest: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>W,
+    ) -&gt; png::Encoder&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>W&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>encoder = png::Encoder::new(dest, width, height);
 
-        <span class="ident">encoder</span>.<span class="ident">set_adaptive_filter</span>(<span class="self">self</span>.<span class="ident">adaptive_filter</span>);
-        <span class="ident">encoder</span>.<span class="ident">set_filter</span>(<span class="self">self</span>.<span class="ident">filter</span>);
-        <span class="ident">encoder</span>.<span class="ident">set_compression</span>(<span class="self">self</span>.<span class="ident">compression</span>);
+        encoder.set_adaptive_filter(<span class="self">self</span>.adaptive_filter);
+        encoder.set_filter(<span class="self">self</span>.filter);
+        encoder.set_compression(<span class="self">self</span>.compression);
 
-        <span class="kw">let</span> (<span class="ident">color_type</span>, <span class="ident">bit_depth</span>) <span class="op">=</span> <span class="ident">sample</span>.<span class="ident">as_pixel_data</span>().<span class="ident">type_data</span>();
+        <span class="kw">let </span>(color_type, bit_depth) = sample.as_pixel_data().type_data();
 
-        <span class="ident">encoder</span>.<span class="ident">set_color</span>(<span class="ident">get_png_color_type</span>(<span class="ident">color_type</span>));
-        <span class="ident">encoder</span>.<span class="ident">set_depth</span>(<span class="ident">png::BitDepth::from_u8</span>(<span class="ident">bit_depth</span>).<span class="ident">unwrap</span>());
+        encoder.set_color(get_png_color_type(color_type));
+        encoder.set_depth(png::BitDepth::from_u8(bit_depth).unwrap());
 
-        <span class="ident">encoder</span>
+        encoder
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Encoder</span> <span class="kw">for</span> <span class="ident">PngEncoder</span> {
-    <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">data</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="ident">P::as_bytes</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+<span class="kw">impl </span>Encoder <span class="kw">for </span>PngEncoder {
+    <span class="kw">fn </span>encode&lt;P: Pixel&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span>data = image.data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">let</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prepare</span>(<span class="ident">image</span>.<span class="ident">width</span>(), <span class="ident">image</span>.<span class="ident">height</span>(), <span class="kw-2">&amp;</span><span class="ident">image</span>.<span class="ident">data</span>[<span class="number">0</span>], <span class="ident">dest</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">encoder</span>.<span class="ident">write_header</span>()<span class="question-mark">?</span>;
-        <span class="ident">writer</span>.<span class="ident">write_image_data</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>)<span class="question-mark">?</span>;
-        <span class="ident">writer</span>.<span class="ident">finish</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>encoder = <span class="self">self</span>.prepare(image.width(), image.height(), <span class="kw-2">&amp;</span>image.data[<span class="number">0</span>], dest);
+        <span class="kw">let </span><span class="kw-2">mut </span>writer = encoder.write_header()<span class="question-mark">?</span>;
+        writer.write_image_data(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
+        writer.finish()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">encode_sequence</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">sequence</span>: <span class="kw-2">&amp;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
-        <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">sample</span> <span class="op">=</span> <span class="ident">sequence</span>.<span class="ident">first_frame</span>().<span class="ident">image</span>();
-        <span class="kw">let</span> <span class="ident">pixel</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sample</span>.<span class="ident">data</span>[<span class="number">0</span>];
+    <span class="kw">fn </span>encode_sequence&lt;P: Pixel&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;,
+        dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span>sample = sequence.first_frame().image();
+        <span class="kw">let </span>pixel = <span class="kw-2">&amp;</span>sample.data[<span class="number">0</span>];
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prepare</span>(<span class="ident">sample</span>.<span class="ident">width</span>(), <span class="ident">sample</span>.<span class="ident">height</span>(), <span class="ident">pixel</span>, <span class="ident">dest</span>);
-        <span class="ident">encoder</span>.<span class="ident">set_animated</span>(<span class="ident">sequence</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">sequence</span>.<span class="ident">loop_count</span>().<span class="ident">count_or_zero</span>())<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self</span>.prepare(sample.width(), sample.height(), pixel, dest);
+        encoder.set_animated(sequence.len() <span class="kw">as </span>u32, sequence.loop_count().count_or_zero())<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">encoder</span>.<span class="ident">write_header</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>writer = encoder.write_header()<span class="question-mark">?</span>;
 
-        <span class="kw">for</span> <span class="ident">frame</span> <span class="kw">in</span> <span class="ident">sequence</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">frame</span>
-                .<span class="ident">image</span>()
-                .<span class="ident">data</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">flat_map</span>(<span class="ident">P::as_bytes</span>)
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="kw">for </span>frame <span class="kw">in </span>sequence.iter() {
+            <span class="kw">let </span>data = frame
+                .image()
+                .data
+                .iter()
+                .flat_map(P::as_bytes)
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-            <span class="ident">writer</span>.<span class="ident">set_frame_delay</span>(<span class="ident">frame</span>.<span class="ident">delay</span>().<span class="ident">as_millis</span>() <span class="kw">as</span> <span class="ident">u16</span>, <span class="number">1000</span>)<span class="question-mark">?</span>;
-            <span class="ident">writer</span>.<span class="ident">set_dispose_op</span>(<span class="kw">match</span> <span class="ident">frame</span>.<span class="ident">disposal</span>() {
-                <span class="ident">DisposalMethod::None</span> =&gt; <span class="ident">png::DisposeOp::None</span>,
-                <span class="ident">DisposalMethod::Background</span> =&gt; <span class="ident">png::DisposeOp::Background</span>,
-                <span class="ident">DisposalMethod::Previous</span> =&gt; <span class="ident">png::DisposeOp::Previous</span>,
+            writer.set_frame_delay(frame.delay().as_millis() <span class="kw">as </span>u16, <span class="number">1000</span>)<span class="question-mark">?</span>;
+            writer.set_dispose_op(<span class="kw">match </span>frame.disposal() {
+                DisposalMethod::None =&gt; png::DisposeOp::None,
+                DisposalMethod::Background =&gt; png::DisposeOp::Background,
+                DisposalMethod::Previous =&gt; png::DisposeOp::Previous,
             })<span class="question-mark">?</span>;
-            <span class="ident">writer</span>.<span class="ident">write_image_data</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>)<span class="question-mark">?</span>;
+            writer.write_image_data(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
         }
 
-        <span class="ident">writer</span>.<span class="ident">finish</span>()<span class="question-mark">?</span>;
+        writer.finish()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PngEncoder</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>PngEncoder {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
     }
 }
 
-<span class="doccomment">/// A PNG decoder interface around [`png::Decoder`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PngDecoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> {
-    <span class="ident">_marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">P</span>, <span class="ident">R</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// A PNG decoder interface around [`png::Decoder`].
+</span><span class="kw">pub struct </span>PngDecoder&lt;P: Pixel, R: Read&gt; {
+    _marker: PhantomData&lt;(P, R)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">PngDecoder</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new decoder with the default settings.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">_marker</span>: <span class="ident">PhantomData</span>,
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; PngDecoder&lt;P, R&gt; {
+    <span class="doccomment">/// Creates a new decoder with the default settings.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            _marker: PhantomData,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">prepare</span>(<span class="ident">stream</span>: <span class="ident">R</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">png::Reader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">png::Decoder::new</span>(<span class="ident">stream</span>);
-        <span class="ident">decoder</span>.<span class="ident">read_info</span>().<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+    <span class="kw">fn </span>prepare(stream: R) -&gt; <span class="kw">crate</span>::Result&lt;png::Reader&lt;R&gt;&gt; {
+        <span class="kw">let </span>decoder = png::Decoder::new(stream);
+        decoder.read_info().map_err(Into::into)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PngDecoder</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Sequence</span> <span class="op">=</span> <span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; Decoder&lt;P, R&gt; <span class="kw">for </span>PngDecoder&lt;P, R&gt; {
+    <span class="kw">type </span>Sequence = ApngFrameIterator&lt;P, R&gt;;
 
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">R</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::prepare</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: R) -&gt; <span class="kw">crate</span>::Result&lt;Image&lt;P&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>reader = <span class="self">Self</span>::prepare(stream)<span class="question-mark">?</span>;
 
-        <span class="comment">// Here we are decoding a single image, so only capture the first frame:</span>
-        <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">reader</span>.<span class="ident">output_buffer_size</span>()];
-        <span class="ident">reader</span>.<span class="ident">next_frame</span>(<span class="ident">buffer</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Here we are decoding a single image, so only capture the first frame:
+        </span><span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[<span class="number">0</span>; reader.output_buffer_size()];
+        reader.next_frame(buffer)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">info</span>();
-        <span class="kw">let</span> <span class="ident">color_type</span>: <span class="ident">ColorType</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">color_type</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">bit_depth</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">u8</span>;
+        <span class="kw">let </span>info = reader.info();
+        <span class="kw">let </span>color_type: ColorType = info.color_type.into();
+        <span class="kw">let </span>bit_depth = info.bit_depth <span class="kw">as </span>u8;
 
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">buffer</span>
-            .<span class="ident">chunks_exact</span>(<span class="ident">info</span>.<span class="ident">bytes_per_pixel</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chunk</span><span class="op">|</span> {
-                <span class="ident">PixelData::from_raw</span>(<span class="ident">color_type</span>, <span class="ident">bit_depth</span>, <span class="ident">chunk</span>).<span class="ident">and_then</span>(<span class="ident">P::from_pixel_data</span>)
+        <span class="kw">let </span>data = buffer
+            .chunks_exact(info.bytes_per_pixel())
+            .map(|chunk| {
+                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
             })
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Image</span> {
-            <span class="ident">width</span>: <span class="ident">NonZeroU32::new</span>(<span class="ident">info</span>.<span class="ident">width</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">height</span>: <span class="ident">NonZeroU32::new</span>(<span class="ident">info</span>.<span class="ident">height</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">data</span>,
-            <span class="ident">format</span>: <span class="ident">ImageFormat::Png</span>,
-            <span class="ident">overlay</span>: <span class="ident">OverlayMode::default</span>(),
+        <span class="prelude-val">Ok</span>(Image {
+            width: NonZeroU32::new(info.width).unwrap(),
+            height: NonZeroU32::new(info.height).unwrap(),
+            data,
+            format: ImageFormat::Png,
+            overlay: OverlayMode::default(),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">decode_sequence</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">R</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Sequence</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::prepare</span>(<span class="ident">stream</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>decode_sequence(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: R) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>::Sequence&gt; {
+        <span class="kw">let </span>reader = <span class="self">Self</span>::prepare(stream)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ApngFrameIterator</span> {
-            <span class="ident">seq</span>: <span class="number">0</span>,
-            <span class="ident">reader</span>,
-            <span class="ident">_marker</span>: <span class="ident">PhantomData</span>,
+        <span class="prelude-val">Ok</span>(ApngFrameIterator {
+            seq: <span class="number">0</span>,
+            reader,
+            _marker: PhantomData,
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PngDecoder</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; Default <span class="kw">for </span>PngDecoder&lt;P, R&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> {
-    <span class="ident">seq</span>: <span class="ident">u32</span>,
-    <span class="ident">reader</span>: <span class="ident">png::Reader</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
-    <span class="ident">_marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ApngFrameIterator&lt;P: Pixel, R: Read&gt; {
+    seq: u32,
+    reader: png::Reader&lt;R&gt;,
+    _marker: PhantomData&lt;P&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">png::Info</span> {
-        <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">info</span>()
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; ApngFrameIterator&lt;P, R&gt; {
+    <span class="kw">fn </span>info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>png::Info {
+        <span class="self">self</span>.reader.info()
     }
 
-    <span class="kw">fn</span> <span class="ident">next_frame</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">png::OutputInfo</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">output_buffer_size</span>()];
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">next_frame</span>(<span class="ident">buffer</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>next_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;(Vec&lt;P&gt;, png::OutputInfo)&gt; {
+        <span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[<span class="number">0</span>; <span class="self">self</span>.reader.output_buffer_size()];
+        <span class="kw">let </span>info = <span class="self">self</span>.reader.next_frame(buffer)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> (<span class="ident">color_type</span>, <span class="ident">bit_depth</span>, <span class="ident">bpp</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">info</span>();
-            <span class="kw">let</span> <span class="ident">color_type</span>: <span class="ident">ColorType</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">color_type</span>.<span class="ident">into</span>();
-            <span class="kw">let</span> <span class="ident">bit_depth</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">u8</span>;
+        <span class="kw">let </span>(color_type, bit_depth, bpp) = {
+            <span class="kw">let </span>info = <span class="self">self</span>.info();
+            <span class="kw">let </span>color_type: ColorType = info.color_type.into();
+            <span class="kw">let </span>bit_depth = info.bit_depth <span class="kw">as </span>u8;
 
-            (<span class="ident">color_type</span>, <span class="ident">bit_depth</span>, <span class="ident">info</span>.<span class="ident">bytes_per_pixel</span>())
+            (color_type, bit_depth, info.bytes_per_pixel())
         };
 
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">buffer</span>
-            .<span class="ident">chunks_exact</span>(<span class="ident">bpp</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chunk</span><span class="op">|</span> {
-                <span class="ident">PixelData::from_raw</span>(<span class="ident">color_type</span>, <span class="ident">bit_depth</span>, <span class="ident">chunk</span>).<span class="ident">and_then</span>(<span class="ident">P::from_pixel_data</span>)
+        <span class="kw">let </span>data = buffer
+            .chunks_exact(bpp)
+            .map(|chunk| {
+                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
             })
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+            .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((<span class="ident">data</span>, <span class="ident">info</span>))
+        <span class="prelude-val">Ok</span>((data, info))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">FrameIterator</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">info</span>().<span class="ident">animation_control</span>.<span class="ident">map_or</span>(<span class="number">1</span>, <span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">num_frames</span>)
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; FrameIterator&lt;P&gt; <span class="kw">for </span>ApngFrameIterator&lt;P, R&gt; {
+    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.info().animation_control.map_or(<span class="number">1</span>, |a| a.num_frames)
     }
 
-    <span class="kw">fn</span> <span class="ident">loop_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LoopCount</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">info</span>().<span class="ident">animation_control</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">num_plays</span>) {
-            <span class="prelude-val">Some</span>(<span class="number">0</span>) <span class="op">|</span> <span class="prelude-val">None</span> =&gt; <span class="ident">LoopCount::Infinite</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">n</span>) =&gt; <span class="ident">LoopCount::Exactly</span>(<span class="ident">n</span>),
+    <span class="kw">fn </span>loop_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LoopCount {
+        <span class="kw">match </span><span class="self">self</span>.info().animation_control.map(|a| a.num_plays) {
+            <span class="prelude-val">Some</span>(<span class="number">0</span>) | <span class="prelude-val">None </span>=&gt; LoopCount::Infinite,
+            <span class="prelude-val">Some</span>(n) =&gt; LoopCount::Exactly(n),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; Iterator <span class="kw">for </span>ApngFrameIterator&lt;P, R&gt; {
+    <span class="kw">type </span>Item = <span class="kw">crate</span>::Result&lt;Frame&lt;P&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">seq</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">if </span><span class="self">self</span>.seq &gt;= <span class="self">self</span>.len() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">data</span>, <span class="ident">output_info</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">next_frame</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">o</span>) =&gt; <span class="ident">o</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>)),
+        <span class="kw">let </span>(data, output_info) = <span class="kw">match </span><span class="self">self</span>.next_frame() {
+            <span class="prelude-val">Ok</span>(o) =&gt; o,
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)),
         };
 
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Image</span> {
-            <span class="ident">width</span>: <span class="ident">NonZeroU32::new</span>(<span class="ident">output_info</span>.<span class="ident">width</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">height</span>: <span class="ident">NonZeroU32::new</span>(<span class="ident">output_info</span>.<span class="ident">height</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">data</span>,
-            <span class="ident">format</span>: <span class="ident">ImageFormat::Png</span>,
-            <span class="ident">overlay</span>: <span class="ident">OverlayMode::default</span>(),
+        <span class="kw">let </span>inner = Image {
+            width: NonZeroU32::new(output_info.width).unwrap(),
+            height: NonZeroU32::new(output_info.height).unwrap(),
+            data,
+            format: ImageFormat::Png,
+            overlay: OverlayMode::default(),
         };
 
-        <span class="self">self</span>.<span class="ident">seq</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">fc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">info</span>().<span class="ident">frame_control</span>();
+        <span class="self">self</span>.seq += <span class="number">1</span>;
+        <span class="kw">let </span>fc = <span class="self">self</span>.info().frame_control();
 
-        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">Frame::from_image</span>(<span class="ident">inner</span>)
-            .<span class="ident">with_delay</span>(<span class="ident">fc</span>.<span class="ident">map_or_else</span>(<span class="ident">Duration::default</span>, <span class="op">|</span><span class="ident">f</span><span class="op">|</span> {
-                <span class="ident">Duration::from_secs_f64</span>(<span class="ident">f64::from</span>(<span class="ident">f</span>.<span class="ident">delay_num</span>) <span class="op">/</span> <span class="ident">f64::from</span>(<span class="ident">f</span>.<span class="ident">delay_den</span>))
+        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::from_image(inner)
+            .with_delay(fc.map_or_else(Duration::default, |f| {
+                Duration::from_secs_f64(f64::from(f.delay_num) / f64::from(f.delay_den))
             }))
-            .<span class="ident">with_disposal</span>(<span class="ident">fc</span>.<span class="ident">map_or_else</span>(
-                <span class="ident">DisposalMethod::default</span>,
-                <span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span>.<span class="ident">dispose_op</span> {
-                    <span class="ident">png::DisposeOp::None</span> =&gt; <span class="ident">DisposalMethod::None</span>,
-                    <span class="ident">png::DisposeOp::Background</span> =&gt; <span class="ident">DisposalMethod::Background</span>,
-                    <span class="ident">png::DisposeOp::Previous</span> =&gt; <span class="ident">DisposalMethod::Previous</span>,
+            .with_disposal(fc.map_or_else(
+                DisposalMethod::default,
+                |f| <span class="kw">match </span>f.dispose_op {
+                    png::DisposeOp::None =&gt; DisposalMethod::None,
+                    png::DisposeOp::Background =&gt; DisposalMethod::Background,
+                    png::DisposeOp::Previous =&gt; DisposalMethod::Previous,
                 },
             ))))
     }
 
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">remaining</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">seq</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="kw">let </span>remaining = (<span class="self">self</span>.len() - <span class="self">self</span>.seq) <span class="kw">as </span>usize;
 
-        (<span class="ident">remaining</span>, <span class="prelude-val">Some</span>(<span class="ident">remaining</span>))
+        (remaining, <span class="prelude-val">Some</span>(remaining))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -171,173 +165,172 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Common error types.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Common error types.
 
-<span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</span><span class="kw">use </span>std::ffi::OsString;
+<span class="kw">use </span>std::fmt;
 
-<span class="doccomment">/// A shortcut type equivalent to `Result&lt;T, ril::Error&gt;`.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A shortcut type equivalent to `Result&lt;T, ril::Error&gt;`.
+</span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T&gt; = std::result::Result&lt;T, Error&gt;;
 
-<span class="doccomment">/// Represents an error that occurs within the crate.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// An invalid hex code was provided when trying to parse a hex value.</span>
-    <span class="ident">InvalidHexCode</span>(<span class="ident">String</span>),
+<span class="doccomment">/// Represents an error that occurs within the crate.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub enum </span>Error {
+    <span class="doccomment">/// An invalid hex code was provided when trying to parse a hex value.
+    </span>InvalidHexCode(String),
 
-    <span class="doccomment">/// An invalid extension was provided when trying to resolve an image&#39;s encoding format</span>
-    <span class="doccomment">/// from a file extension.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">/// This is **not** an error that occurs when the file extension is not recognized, or</span>
-    <span class="doccomment">/// is an unknown image extension. This occurs if the OsStr fails conversion to a native</span>
-    <span class="doccomment">/// &amp;str. In the case of this, [`ImageFormat::Unknown`] is used instead.</span>
-    <span class="ident">InvalidExtension</span>(<span class="ident">OsString</span>),
+    <span class="doccomment">/// An invalid extension was provided when trying to resolve an image&#39;s encoding format
+    /// from a file extension.
+    ///
+    /// # Note
+    /// This is **not** an error that occurs when the file extension is not recognized, or
+    /// is an unknown image extension. This occurs if the OsStr fails conversion to a native
+    /// &amp;str. In the case of this, [`ImageFormat::Unknown`] is used instead.
+    </span>InvalidExtension(OsString),
 
-    <span class="doccomment">/// Failed to encode an image.</span>
-    <span class="ident">EncodingError</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// Failed to encode an image.
+    </span>EncodingError(String),
 
-    <span class="doccomment">/// Invalid data was encountered when an image, usually because it is corrupted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Errors can differ across encodings, so the inner ``&amp;&#39;static str`` here is nothing more than</span>
-    <span class="doccomment">/// an error message.</span>
-    <span class="ident">DecodingError</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// Invalid data was encountered when an image, usually because it is corrupted.
+    ///
+    /// Errors can differ across encodings, so the inner ``&amp;&#39;static str`` here is nothing more than
+    /// an error message.
+    </span>DecodingError(String),
 
-    <span class="doccomment">/// An error occured while trying to render or rasterize a font.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;text&quot;</span>)]</span>
-    <span class="ident">FontError</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
+    <span class="doccomment">/// An error occured while trying to render or rasterize a font.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
+    </span>FontError(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str),
 
-    <span class="doccomment">/// No encoding format could be inferred for the given image.</span>
-    <span class="ident">UnknownEncodingFormat</span>,
+    <span class="doccomment">/// No encoding format could be inferred for the given image.
+    </span>UnknownEncodingFormat,
 
-    <span class="doccomment">/// An image received data incompatible with the image&#39;s dimensions.</span>
-    <span class="ident">IncompatibleImageData</span> {
-        <span class="ident">width</span>: <span class="ident">u32</span>,
-        <span class="ident">height</span>: <span class="ident">u32</span>,
-        <span class="ident">received</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// An image received data incompatible with the image&#39;s dimensions.
+    </span>IncompatibleImageData {
+        width: u32,
+        height: u32,
+        received: usize,
     },
 
-    <span class="doccomment">/// Received an unsupported color type when trying to create a pixel from raw data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This occurs when the color type is not supported by the pixel type. This is almost</span>
-    <span class="doccomment">/// always fixed by switching the pixel type to [`Dynamic`] then using [`Image::convert`]</span>
-    <span class="doccomment">/// to convert the image into your desired type.</span>
-    <span class="ident">UnsupportedColorType</span>,
+    <span class="doccomment">/// Received an unsupported color type when trying to create a pixel from raw data.
+    ///
+    /// This occurs when the color type is not supported by the pixel type. This is almost
+    /// always fixed by switching the pixel type to [`Dynamic`] then using [`Image::convert`]
+    /// to convert the image into your desired type.
+    </span>UnsupportedColorType,
 
-    <span class="doccomment">/// An error occured when trying to read a file or when trying to write to a file.</span>
-    <span class="ident">IOError</span>(<span class="ident">std::io::Error</span>),
+    <span class="doccomment">/// An error occured when trying to read a file or when trying to write to a file.
+    </span>IOError(std::io::Error),
 
-    <span class="doccomment">/// Tried to encode an empty image, or an image without data.</span>
-    <span class="ident">EmptyImageError</span>,
+    <span class="doccomment">/// Tried to encode an empty image, or an image without data.
+    </span>EmptyImageError,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::InvalidHexCode</span>(<span class="ident">hex_code</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid hex code: {}&quot;</span>, <span class="ident">hex_code</span>),
-            <span class="ident"><span class="self">Self</span>::InvalidExtension</span>(<span class="ident">ext</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Invalid extension: {}&quot;</span>, <span class="ident">ext</span>.<span class="ident">to_string_lossy</span>())
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::InvalidHexCode(hex_code) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid hex code: {}&quot;</span>, hex_code),
+            <span class="self">Self</span>::InvalidExtension(ext) =&gt; {
+                <span class="macro">write!</span>(f, <span class="string">&quot;Invalid extension: {}&quot;</span>, ext.to_string_lossy())
             }
-            <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Encoding error: {}&quot;</span>, <span class="ident">msg</span>),
-            <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Decoding error: {}&quot;</span>, <span class="ident">msg</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;text&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::FontError</span>(<span class="ident">msg</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Font error: {}&quot;</span>, <span class="ident">msg</span>),
-            <span class="ident"><span class="self">Self</span>::UnknownEncodingFormat</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Could not infer encoding format&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::UnsupportedColorType</span> =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;Unsupported color type. Try using the `Dynamic` pixel type instead.&quot;</span>
-            ),
-            <span class="ident"><span class="self">Self</span>::IncompatibleImageData</span> {
-                <span class="ident">width</span>,
-                <span class="ident">height</span>,
-                <span class="ident">received</span>,
+            <span class="self">Self</span>::EncodingError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Encoding error: {}&quot;</span>, msg),
+            <span class="self">Self</span>::DecodingError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Decoding error: {}&quot;</span>, msg),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
+            </span><span class="self">Self</span>::FontError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Font error: {}&quot;</span>, msg),
+            <span class="self">Self</span>::UnknownEncodingFormat =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Could not infer encoding format&quot;</span>),
+            <span class="self">Self</span>::UnsupportedColorType =&gt; <span class="macro">write!</span>(
+                f,
+                <span class="string">&quot;Unsupported color type. Try using the `Dynamic` pixel type instead.&quot;
+            </span>),
+            <span class="self">Self</span>::IncompatibleImageData {
+                width,
+                height,
+                received,
             } =&gt; <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+                f,
                 <span class="string">&quot;An image with dimensions {}x{} should have {} pixels, received {} instead&quot;</span>,
-                <span class="ident">width</span>,
-                <span class="ident">height</span>,
-                <span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>,
-                <span class="ident">received</span>,
+                width,
+                height,
+                width * height,
+                received,
             ),
-            <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">error</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;IO error: {}&quot;</span>, <span class="ident">error</span>),
-            <span class="ident"><span class="self">Self</span>::EmptyImageError</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Tried encoding an empty image&quot;</span>),
+            <span class="self">Self</span>::IOError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;IO error: {}&quot;</span>, error),
+            <span class="self">Self</span>::EmptyImageError =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Tried encoding an empty image&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">std::io::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>)
+<span class="kw">impl </span>From&lt;std::io::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: std::io::Error) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::IOError(err)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">png::EncodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">png::EncodingError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">png::EncodingError::IoError</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
-            <span class="ident">png::EncodingError::Format</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="ident">png::EncodingError::LimitsExceeded</span> =&gt; {
-                <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="string">&quot;limits exceeded&quot;</span>.<span class="ident">to_string</span>())
+<span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;png::EncodingError&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: png::EncodingError) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>err {
+            png::EncodingError::IoError(err) =&gt; <span class="self">Self</span>::IOError(err),
+            png::EncodingError::Format(err) =&gt; <span class="self">Self</span>::EncodingError(err.to_string()),
+            png::EncodingError::LimitsExceeded =&gt; {
+                <span class="self">Self</span>::EncodingError(<span class="string">&quot;limits exceeded&quot;</span>.to_string())
             }
-            <span class="ident">png::EncodingError::Parameter</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+            png::EncodingError::Parameter(err) =&gt; <span class="self">Self</span>::EncodingError(err.to_string()),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">png::DecodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">png::DecodingError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">png::DecodingError::IoError</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
-            <span class="ident">png::DecodingError::Format</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="ident">png::DecodingError::LimitsExceeded</span> =&gt; {
-                <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="string">&quot;limits exceeded&quot;</span>.<span class="ident">to_string</span>())
+<span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;png::DecodingError&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: png::DecodingError) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>err {
+            png::DecodingError::IoError(err) =&gt; <span class="self">Self</span>::IOError(err),
+            png::DecodingError::Format(err) =&gt; <span class="self">Self</span>::DecodingError(err.to_string()),
+            png::DecodingError::LimitsExceeded =&gt; {
+                <span class="self">Self</span>::DecodingError(<span class="string">&quot;limits exceeded&quot;</span>.to_string())
             }
-            <span class="ident">png::DecodingError::Parameter</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+            png::DecodingError::Parameter(err) =&gt; <span class="self">Self</span>::DecodingError(err.to_string()),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;jpeg&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">jpeg_decoder::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">jpeg_decoder::Error</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">jpeg_decoder::Error::Io</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
-            <span class="ident">err</span> =&gt; <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+<span class="attribute">#[cfg(feature = <span class="string">&quot;jpeg&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;jpeg_decoder::Error&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: jpeg_decoder::Error) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>err {
+            jpeg_decoder::Error::Io(err) =&gt; <span class="self">Self</span>::IOError(err),
+            err =&gt; <span class="self">Self</span>::DecodingError(err.to_string()),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">jpeg_encoder::EncodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">jpeg_encoder::EncodingError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">jpeg_encoder::EncodingError::IoError</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
-            <span class="ident">err</span> =&gt; <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+<span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;jpeg_encoder::EncodingError&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: jpeg_encoder::EncodingError) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>err {
+            jpeg_encoder::EncodingError::IoError(err) =&gt; <span class="self">Self</span>::IOError(err),
+            err =&gt; <span class="self">Self</span>::EncodingError(err.to_string()),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gif::EncodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">gif::EncodingError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">gif::EncodingError::Io</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
-            <span class="ident">gif::EncodingError::Format</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::EncodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+<span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;gif::EncodingError&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: gif::EncodingError) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>err {
+            gif::EncodingError::Io(err) =&gt; <span class="self">Self</span>::IOError(err),
+            gif::EncodingError::Format(err) =&gt; <span class="self">Self</span>::EncodingError(err.to_string()),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">gif::DecodingError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">gif::DecodingError</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">gif::DecodingError::Io</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::IOError</span>(<span class="ident">err</span>),
-            <span class="ident">gif::DecodingError::Format</span>(<span class="ident">err</span>) =&gt; <span class="ident"><span class="self">Self</span>::DecodingError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
+<span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+</span><span class="kw">impl </span>From&lt;gif::DecodingError&gt; <span class="kw">for </span>Error {
+    <span class="kw">fn </span>from(err: gif::DecodingError) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>err {
+            gif::DecodingError::Io(err) =&gt; <span class="self">Self</span>::IOError(err),
+            gif::DecodingError::Format(err) =&gt; <span class="self">Self</span>::DecodingError(err.to_string()),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

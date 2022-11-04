@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -695,302 +689,302 @@
 <span id="689">689</span>
 <span id="690">690</span>
 <span id="691">691</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Implements the font/text rasterizing and layout interface.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Implements the font/text rasterizing and layout interface.
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::cast_precision_loss</span>, <span class="ident">clippy::too_many_arguments</span>)]</span>
+</span><span class="attribute">#![allow(clippy::cast_precision_loss, clippy::too_many_arguments)]
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Draw</span>, <span class="ident">Error::FontError</span>, <span class="ident">Image</span>, <span class="ident">OverlayMode</span>, <span class="ident">Pixel</span>};
+</span><span class="kw">use crate</span>::{Draw, Error::FontError, Image, OverlayMode, Pixel};
 
-<span class="kw">use</span> <span class="ident">fontdue::layout</span>::{<span class="ident">CoordinateSystem</span>, <span class="ident">TextStyle</span>};
-<span class="kw">use</span> <span class="ident">fontdue</span>::{
-    <span class="ident">layout</span>::{<span class="ident">Layout</span>, <span class="ident">LayoutSettings</span>},
-    <span class="ident">FontSettings</span>,
+<span class="kw">use </span>fontdue::layout::{CoordinateSystem, TextStyle};
+<span class="kw">use </span>fontdue::{
+    layout::{Layout, LayoutSettings},
+    FontSettings,
 };
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fs::File</span>, <span class="ident">io::Read</span>, <span class="ident">path::Path</span>};
+<span class="kw">use </span>std::{fs::File, io::Read, path::Path};
 
-<span class="doccomment">/// Represents a single font along with its alternatives used to render text.</span>
-<span class="doccomment">/// Currently, this supports TrueType and OpenType fonts.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::doc_markdown</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Font</span> {
-    <span class="ident">inner</span>: <span class="ident">fontdue::Font</span>,
-    <span class="ident">settings</span>: <span class="ident">FontSettings</span>,
+<span class="doccomment">/// Represents a single font along with its alternatives used to render text.
+/// Currently, this supports TrueType and OpenType fonts.
+</span><span class="attribute">#[allow(clippy::doc_markdown)]
+#[derive(Clone)]
+</span><span class="kw">pub struct </span>Font {
+    inner: fontdue::Font,
+    settings: FontSettings,
 }
 
-<span class="kw">impl</span> <span class="ident">Font</span> {
-    <span class="doccomment">/// Opens the font from the given path.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The optimal size is not the fixed size of the font - rather it is the size to optimize</span>
-    <span class="doccomment">/// rasterizing the font for.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Lower sizes will look worse but perform faster, while higher sizes will</span>
-    <span class="doccomment">/// look better but perform slower. It is best to set this to the size that will likely be</span>
-    <span class="doccomment">/// the most used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * Failed to load the font.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">P</span>, <span class="ident">optimal_size</span>: <span class="ident">f32</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="ident">optimal_size</span>)
+<span class="kw">impl </span>Font {
+    <span class="doccomment">/// Opens the font from the given path.
+    ///
+    /// The optimal size is not the fixed size of the font - rather it is the size to optimize
+    /// rasterizing the font for.
+    ///
+    /// Lower sizes will look worse but perform faster, while higher sizes will
+    /// look better but perform slower. It is best to set this to the size that will likely be
+    /// the most used.
+    ///
+    /// # Errors
+    /// * Failed to load the font.
+    </span><span class="kw">pub fn </span>open&lt;P: AsRef&lt;Path&gt;&gt;(path: P, optimal_size: f32) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::from_reader(File::open(path)<span class="question-mark">?</span>, optimal_size)
     }
 
-    <span class="doccomment">/// Loads the font from the given byte slice. Useful for the `include_bytes!` macro.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The optimal size is not the fixed size of the font - rather it is the size to optimize</span>
-    <span class="doccomment">/// rasterizing the font for.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Lower sizes will look worse but perform faster, while higher sizes will</span>
-    <span class="doccomment">/// look better but perform slower. It is best to set this to the size that will likely be</span>
-    <span class="doccomment">/// the most used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * Failed to load the font.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">optimal_size</span>: <span class="ident">f32</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">FontSettings</span> {
-            <span class="ident">scale</span>: <span class="ident">optimal_size</span>,
-            <span class="ident">collection_index</span>: <span class="number">0</span>,
+    <span class="doccomment">/// Loads the font from the given byte slice. Useful for the `include_bytes!` macro.
+    ///
+    /// The optimal size is not the fixed size of the font - rather it is the size to optimize
+    /// rasterizing the font for.
+    ///
+    /// Lower sizes will look worse but perform faster, while higher sizes will
+    /// look better but perform slower. It is best to set this to the size that will likely be
+    /// the most used.
+    ///
+    /// # Errors
+    /// * Failed to load the font.
+    </span><span class="kw">pub fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8], optimal_size: f32) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>settings = FontSettings {
+            scale: optimal_size,
+            collection_index: <span class="number">0</span>,
         };
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">fontdue::Font::from_bytes</span>(<span class="ident">bytes</span>, <span class="ident">settings</span>).<span class="ident">map_err</span>(<span class="ident">FontError</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>inner = fontdue::Font::from_bytes(bytes, settings).map_err(FontError)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">inner</span>, <span class="ident">settings</span> })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ inner, settings })
     }
 
-    <span class="doccomment">/// Loads the font from the given byte reader. See [`from_bytes`] if you already have a byte</span>
-    <span class="doccomment">/// slice - that is much more performant.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The optimal size is not the fixed size of the font - rather it is the size to optimize</span>
-    <span class="doccomment">/// rasterizing the font for.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Lower sizes will look worse but perform faster, while higher sizes will</span>
-    <span class="doccomment">/// look better but perform slower. It is best to set this to the size that will likely be</span>
-    <span class="doccomment">/// the most used.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * Failed to load the font.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_reader</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">buffer</span>: <span class="ident">R</span>, <span class="ident">optimal_size</span>: <span class="ident">f32</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">FontSettings</span> {
-            <span class="ident">scale</span>: <span class="ident">optimal_size</span>,
-            <span class="ident">collection_index</span>: <span class="number">0</span>,
+    <span class="doccomment">/// Loads the font from the given byte reader. See [`from_bytes`] if you already have a byte
+    /// slice - that is much more performant.
+    ///
+    /// The optimal size is not the fixed size of the font - rather it is the size to optimize
+    /// rasterizing the font for.
+    ///
+    /// Lower sizes will look worse but perform faster, while higher sizes will
+    /// look better but perform slower. It is best to set this to the size that will likely be
+    /// the most used.
+    ///
+    /// # Errors
+    /// * Failed to load the font.
+    </span><span class="kw">pub fn </span>from_reader&lt;R: Read&gt;(<span class="kw-2">mut </span>buffer: R, optimal_size: f32) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>settings = FontSettings {
+            scale: optimal_size,
+            collection_index: <span class="number">0</span>,
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">buffer</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;mut</span> <span class="ident">out</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>out = Vec::new();
+        buffer.read_to_end(<span class="kw-2">&amp;mut </span>out)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">fontdue::Font::from_bytes</span>(<span class="ident">out</span>, <span class="ident">settings</span>).<span class="ident">map_err</span>(<span class="ident">FontError</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>inner = fontdue::Font::from_bytes(out, settings).map_err(FontError)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">inner</span>, <span class="ident">settings</span> })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ inner, settings })
     }
 
-    <span class="doccomment">/// Returns a reference the [`fontdue::Font`] object associated with the font.</span>
-    <span class="doccomment">/// It contains technical information about the font.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">inner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">fontdue::Font</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>
+    <span class="doccomment">/// Returns a reference the [`fontdue::Font`] object associated with the font.
+    /// It contains technical information about the font.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>fontdue::Font {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
     }
 
-    <span class="doccomment">/// Consumes this font and returns the [`fontdue::Font`] object associated with the font.</span>
-    <span class="doccomment">/// It contains technical information about the font.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::missing_const_for_fn</span>)]</span> <span class="comment">// no destructors</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">fontdue::Font</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
+    <span class="doccomment">/// Consumes this font and returns the [`fontdue::Font`] object associated with the font.
+    /// It contains technical information about the font.
+    </span><span class="attribute">#[must_use]
+    #[allow(clippy::missing_const_for_fn)] </span><span class="comment">// no destructors
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; fontdue::Font {
+        <span class="self">self</span>.inner
     }
 
-    <span class="doccomment">/// Returns the optimal size, in pixels, of this font.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The optimal size is not the fixed size of the font - rather it is the size to optimize</span>
-    <span class="doccomment">/// rasterizing the font for.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Lower sizes will look worse but perform faster, while higher sizes will</span>
-    <span class="doccomment">/// look better but perform slower. It is best to set this to the size that will likely be</span>
-    <span class="doccomment">/// the most used.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">optimal_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f32</span> {
-        <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">scale</span>
-    }
-}
-
-<span class="doccomment">/// Determines how text should be wrapped.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WrapStyle</span> {
-    <span class="doccomment">/// Do not wrap the text.</span>
-    <span class="prelude-val">None</span>,
-    <span class="doccomment">/// Keep words together and do not break in the middle of words. This is usually what is</span>
-    <span class="doccomment">/// desired. Breaks to a newline at the nearest word boundary.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is the default behavior.</span>
-    <span class="ident">Word</span>,
-    <span class="doccomment">/// Keep as many characters per line as possible, and allow breaks in the middle of words.</span>
-    <span class="doccomment">/// Breaks to a newline at the nearest character.</span>
-    <span class="ident">Character</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">WrapStyle</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Word</span>
+    <span class="doccomment">/// Returns the optimal size, in pixels, of this font.
+    ///
+    /// The optimal size is not the fixed size of the font - rather it is the size to optimize
+    /// rasterizing the font for.
+    ///
+    /// Lower sizes will look worse but perform faster, while higher sizes will
+    /// look better but perform slower. It is best to set this to the size that will likely be
+    /// the most used.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>optimal_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f32 {
+        <span class="self">self</span>.settings.scale
     }
 }
 
-<span class="doccomment">/// Represents a text segment that can be drawn.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// See [`TextLayout`] for a more robust implementation that supports rendering text with multiple</span>
-<span class="doccomment">/// styles. This type is for more simple and lightweight usages.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Additionally, accessing metrics such as the width and height of the text cannot be done here,</span>
-<span class="doccomment">/// but can be done in [`TextLayout`] since it keeps a running copy of the layout.</span>
-<span class="doccomment">/// Use [`TextLayout`] if you will be needing to calculate the width and height of the text.</span>
-<span class="doccomment">/// Additionally, [`TextLayout`] supports text anchoring, which can be used to align text.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If you need none of these features, text segments should be used in favor of being much more</span>
-<span class="doccomment">/// lightweight.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that [`TextLayout`] is not cloneable while text segments are, which is one advantage</span>
-<span class="doccomment">/// of using this over [`TextLayout`].</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextSegment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The position the text will be rendered at. Ignored if this is used in a [`TextLayout`].</span>
-    <span class="kw">pub</span> <span class="ident">position</span>: (<span class="ident">u32</span>, <span class="ident">u32</span>),
-    <span class="doccomment">/// The width of the text box. If this is used in a [`TextLayout`], this is ignored and</span>
-    <span class="doccomment">/// [`TextLayout::with_width`] is used instead. This is used for text wrapping and wrapping only.</span>
-    <span class="kw">pub</span> <span class="ident">width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The content of the text segment.</span>
-    <span class="kw">pub</span> <span class="ident">text</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The font to use to render the text.</span>
-    <span class="kw">pub</span> <span class="ident">font</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Font</span>,
-    <span class="doccomment">/// The fill color the text will be in.</span>
-    <span class="kw">pub</span> <span class="ident">fill</span>: <span class="ident">P</span>,
-    <span class="doccomment">/// The overlay mode of the text. Note that anti-aliasing is still a bit funky with</span>
-    <span class="doccomment">/// [`OverlayMode::Replace`], so it is best to use [`OverlayMode::Merge`] for this, which is</span>
-    <span class="doccomment">/// the default.</span>
-    <span class="kw">pub</span> <span class="ident">overlay</span>: <span class="ident">OverlayMode</span>,
-    <span class="doccomment">/// The size of the text in pixels.</span>
-    <span class="kw">pub</span> <span class="ident">size</span>: <span class="ident">f32</span>,
-    <span class="doccomment">/// The wrapping style of the text. Note that text will only wrap if [`width`] is set.</span>
-    <span class="doccomment">/// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::with_wrap`] is</span>
-    <span class="doccomment">/// used instead.</span>
-    <span class="kw">pub</span> <span class="ident">wrap</span>: <span class="ident">WrapStyle</span>,
+<span class="doccomment">/// Determines how text should be wrapped.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>WrapStyle {
+    <span class="doccomment">/// Do not wrap the text.
+    </span><span class="prelude-val">None</span>,
+    <span class="doccomment">/// Keep words together and do not break in the middle of words. This is usually what is
+    /// desired. Breaks to a newline at the nearest word boundary.
+    ///
+    /// This is the default behavior.
+    </span>Word,
+    <span class="doccomment">/// Keep as many characters per line as possible, and allow breaks in the middle of words.
+    /// Breaks to a newline at the nearest character.
+    </span>Character,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">TextSegment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new text segment with the given text, font, and fill color.</span>
-    <span class="doccomment">/// The text can be anything that implements [`AsRef&lt;str&gt;`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If this is used to be directly drawn (as opposed to in a [`TextLayout`]), the position</span>
-    <span class="doccomment">/// is set to ``(0, 0)`` by default. Use [`with_position`][TextSegment::with_position] to set</span>
-    <span class="doccomment">/// the position.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The size defaults to the font&#39;s optimal size.</span>
-    <span class="doccomment">/// You can override this by using the [`with_size`][Self::with_size] method.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">font</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Font</span>, <span class="ident">text</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">fill</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">position</span>: (<span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">width</span>: <span class="prelude-val">None</span>,
-            <span class="ident">text</span>: <span class="ident">text</span>.<span class="ident">as_ref</span>().<span class="ident">to_string</span>(),
-            <span class="ident">font</span>,
-            <span class="ident">fill</span>,
-            <span class="ident">overlay</span>: <span class="ident">OverlayMode::Merge</span>,
-            <span class="ident">size</span>: <span class="ident">font</span>.<span class="ident">optimal_size</span>(),
-            <span class="ident">wrap</span>: <span class="ident">WrapStyle::Word</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>WrapStyle {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Word
+    }
+}
+
+<span class="doccomment">/// Represents a text segment that can be drawn.
+///
+/// See [`TextLayout`] for a more robust implementation that supports rendering text with multiple
+/// styles. This type is for more simple and lightweight usages.
+///
+/// Additionally, accessing metrics such as the width and height of the text cannot be done here,
+/// but can be done in [`TextLayout`] since it keeps a running copy of the layout.
+/// Use [`TextLayout`] if you will be needing to calculate the width and height of the text.
+/// Additionally, [`TextLayout`] supports text anchoring, which can be used to align text.
+///
+/// If you need none of these features, text segments should be used in favor of being much more
+/// lightweight.
+///
+/// Note that [`TextLayout`] is not cloneable while text segments are, which is one advantage
+/// of using this over [`TextLayout`].
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>TextSegment&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; {
+    <span class="doccomment">/// The position the text will be rendered at. Ignored if this is used in a [`TextLayout`].
+    </span><span class="kw">pub </span>position: (u32, u32),
+    <span class="doccomment">/// The width of the text box. If this is used in a [`TextLayout`], this is ignored and
+    /// [`TextLayout::with_width`] is used instead. This is used for text wrapping and wrapping only.
+    </span><span class="kw">pub </span>width: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="doccomment">/// The content of the text segment.
+    </span><span class="kw">pub </span>text: String,
+    <span class="doccomment">/// The font to use to render the text.
+    </span><span class="kw">pub </span>font: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Font,
+    <span class="doccomment">/// The fill color the text will be in.
+    </span><span class="kw">pub </span>fill: P,
+    <span class="doccomment">/// The overlay mode of the text. Note that anti-aliasing is still a bit funky with
+    /// [`OverlayMode::Replace`], so it is best to use [`OverlayMode::Merge`] for this, which is
+    /// the default.
+    </span><span class="kw">pub </span>overlay: OverlayMode,
+    <span class="doccomment">/// The size of the text in pixels.
+    </span><span class="kw">pub </span>size: f32,
+    <span class="doccomment">/// The wrapping style of the text. Note that text will only wrap if [`width`] is set.
+    /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::with_wrap`] is
+    /// used instead.
+    </span><span class="kw">pub </span>wrap: WrapStyle,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; TextSegment&lt;<span class="lifetime">&#39;a</span>, P&gt; {
+    <span class="doccomment">/// Creates a new text segment with the given text, font, and fill color.
+    /// The text can be anything that implements [`AsRef&lt;str&gt;`].
+    ///
+    /// If this is used to be directly drawn (as opposed to in a [`TextLayout`]), the position
+    /// is set to ``(0, 0)`` by default. Use [`with_position`][TextSegment::with_position] to set
+    /// the position.
+    ///
+    /// The size defaults to the font&#39;s optimal size.
+    /// You can override this by using the [`with_size`][Self::with_size] method.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>new(font: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Font, text: <span class="kw">impl </span>AsRef&lt;str&gt;, fill: P) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            position: (<span class="number">0</span>, <span class="number">0</span>),
+            width: <span class="prelude-val">None</span>,
+            text: text.as_ref().to_string(),
+            font,
+            fill,
+            overlay: OverlayMode::Merge,
+            size: font.optimal_size(),
+            wrap: WrapStyle::Word,
         }
     }
 
-    <span class="doccomment">/// Sets the position of the text segment. Ignored if this segment is used in a [`TextLayout`].</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_position</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">position</span> <span class="op">=</span> (<span class="ident">x</span>, <span class="ident">y</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the position of the text segment. Ignored if this segment is used in a [`TextLayout`].
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_position(<span class="kw-2">mut </span><span class="self">self</span>, x: u32, y: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.position = (x, y);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the size of the text segment.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">f32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">size</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the size of the text segment.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_size(<span class="kw-2">mut </span><span class="self">self</span>, size: f32) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.size = size;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the overlay mode of the text segment.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_overlay_mode</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">overlay</span> <span class="op">=</span> <span class="ident">mode</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the overlay mode of the text segment.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_overlay_mode(<span class="kw-2">mut </span><span class="self">self</span>, mode: OverlayMode) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.overlay = mode;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the width of the text segment, used for text wrapping.</span>
-    <span class="doccomment">/// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::width`] is used instead.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_width</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">width</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">width</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the width of the text segment, used for text wrapping.
+    /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::width`] is used instead.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_width(<span class="kw-2">mut </span><span class="self">self</span>, width: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.width = <span class="prelude-val">Some</span>(width);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the wrapping style of the text segment.</span>
-    <span class="doccomment">/// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::wrap`] is used instead.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_wrap</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">wrap</span>: <span class="ident">WrapStyle</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">wrap</span> <span class="op">=</span> <span class="ident">wrap</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Sets the wrapping style of the text segment.
+    /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::wrap`] is used instead.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_wrap(<span class="kw-2">mut </span><span class="self">self</span>, wrap: WrapStyle) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.wrap = wrap;
+        <span class="self">self
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Layout</span><span class="op">&lt;</span>(<span class="ident">P</span>, <span class="ident">OverlayMode</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">layout</span> <span class="op">=</span> <span class="ident">Layout::new</span>(<span class="ident">CoordinateSystem::PositiveYDown</span>);
-        <span class="ident">layout</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="ident">LayoutSettings</span> {
-            <span class="ident">x</span>: <span class="self">self</span>.<span class="ident">position</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">y</span>: <span class="self">self</span>.<span class="ident">position</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">max_width</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">wrap</span> <span class="op">==</span> <span class="ident">WrapStyle::None</span> {
-                <span class="prelude-val">None</span>
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">width</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="ident">w</span> <span class="kw">as</span> <span class="ident">f32</span>)
+    <span class="kw">fn </span>layout(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Layout&lt;(P, OverlayMode)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>layout = Layout::new(CoordinateSystem::PositiveYDown);
+        layout.reset(<span class="kw-2">&amp;</span>LayoutSettings {
+            x: <span class="self">self</span>.position.<span class="number">0 </span><span class="kw">as </span>f32,
+            y: <span class="self">self</span>.position.<span class="number">1 </span><span class="kw">as </span>f32,
+            max_width: <span class="kw">if </span><span class="self">self</span>.wrap == WrapStyle::None {
+                <span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="self">self</span>.width.map(|w| w <span class="kw">as </span>f32)
             },
-            <span class="ident">wrap_style</span>: <span class="kw">match</span> <span class="self">self</span>.<span class="ident">wrap</span> {
-                <span class="ident">WrapStyle::None</span> <span class="op">|</span> <span class="ident">WrapStyle::Word</span> =&gt; <span class="ident">fontdue::layout::WrapStyle::Word</span>,
-                <span class="ident">WrapStyle::Character</span> =&gt; <span class="ident">fontdue::layout::WrapStyle::Letter</span>,
+            wrap_style: <span class="kw">match </span><span class="self">self</span>.wrap {
+                WrapStyle::None | WrapStyle::Word =&gt; fontdue::layout::WrapStyle::Word,
+                WrapStyle::Character =&gt; fontdue::layout::WrapStyle::Letter,
             },
-            ..<span class="ident">LayoutSettings::default</span>()
+            ..LayoutSettings::default()
         });
-        <span class="ident">layout</span>.<span class="ident">append</span>(
-            <span class="kw-2">&amp;</span>[<span class="self">self</span>.<span class="ident">font</span>.<span class="ident">inner</span>()],
-            <span class="kw-2">&amp;</span><span class="ident">TextStyle::with_user_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>, <span class="self">self</span>.<span class="ident">size</span>, <span class="number">0</span>, (<span class="self">self</span>.<span class="ident">fill</span>, <span class="self">self</span>.<span class="ident">overlay</span>)),
+        layout.append(
+            <span class="kw-2">&amp;</span>[<span class="self">self</span>.font.inner()],
+            <span class="kw-2">&amp;</span>TextStyle::with_user_data(<span class="kw-2">&amp;</span><span class="self">self</span>.text, <span class="self">self</span>.size, <span class="number">0</span>, (<span class="self">self</span>.fill, <span class="self">self</span>.overlay)),
         );
-        <span class="ident">layout</span>
+        layout
     }
 }
 
-<span class="kw">fn</span> <span class="ident">render_layout</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(
-    <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
-    <span class="ident">fonts</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">fontdue::Font</span>],
-    <span class="ident">layout</span>: <span class="kw-2">&amp;</span><span class="ident">Layout</span><span class="op">&lt;</span>(<span class="ident">P</span>, <span class="ident">OverlayMode</span>)<span class="op">&gt;</span>,
+<span class="kw">fn </span>render_layout&lt;P: Pixel&gt;(
+    image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;,
+    fonts: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>fontdue::Font],
+    layout: <span class="kw-2">&amp;</span>Layout&lt;(P, OverlayMode)&gt;,
 ) {
-    <span class="kw">let</span> <span class="ident">glyphs</span> <span class="op">=</span> <span class="ident">layout</span>.<span class="ident">glyphs</span>();
-    <span class="kw">if</span> <span class="ident">glyphs</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">let </span>glyphs = layout.glyphs();
+    <span class="kw">if </span>glyphs.is_empty() {
         <span class="kw">return</span>;
     }
 
-    <span class="comment">// SAFETY: already checked before calling</span>
-    <span class="kw">let</span> <span class="ident">lines</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">layout</span>.<span class="ident">lines</span>().<span class="ident">unwrap_unchecked</span>() };
-    <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">lines</span> {
-        <span class="kw">for</span> <span class="ident">glyph</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">glyphs</span>[<span class="ident">line</span>.<span class="ident">glyph_start</span>..<span class="op">=</span><span class="ident">line</span>.<span class="ident">glyph_end</span>] {
-            <span class="kw">let</span> (<span class="ident">fill</span>, <span class="ident">overlay</span>) <span class="op">=</span> <span class="ident">glyph</span>.<span class="ident">user_data</span>;
-            <span class="kw">let</span> <span class="ident">font</span> <span class="op">=</span> <span class="ident">fonts</span>[<span class="ident">glyph</span>.<span class="ident">font_index</span>];
-            <span class="kw">let</span> (<span class="ident">metrics</span>, <span class="ident">bitmap</span>) <span class="op">=</span> <span class="ident">font</span>.<span class="ident">rasterize_config</span>(<span class="ident">glyph</span>.<span class="ident">key</span>);
+    <span class="comment">// SAFETY: already checked before calling
+    </span><span class="kw">let </span>lines = <span class="kw">unsafe </span>{ layout.lines().unwrap_unchecked() };
+    <span class="kw">for </span>line <span class="kw">in </span>lines {
+        <span class="kw">for </span>glyph <span class="kw">in </span><span class="kw-2">&amp;</span>glyphs[line.glyph_start..=line.glyph_end] {
+            <span class="kw">let </span>(fill, overlay) = glyph.user_data;
+            <span class="kw">let </span>font = fonts[glyph.font_index];
+            <span class="kw">let </span>(metrics, bitmap) = font.rasterize_config(glyph.key);
 
-            <span class="kw">if</span> <span class="ident">metrics</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">glyph</span>.<span class="ident">char_data</span>.<span class="ident">is_whitespace</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">metrics</span>.<span class="ident">height</span> <span class="op">==</span> <span class="number">0</span> {
+            <span class="kw">if </span>metrics.width == <span class="number">0 </span>|| glyph.char_data.is_whitespace() || metrics.height == <span class="number">0 </span>{
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">for</span> (<span class="ident">row</span>, <span class="ident">y</span>) <span class="kw">in</span> <span class="ident">bitmap</span>.<span class="ident">chunks_exact</span>(<span class="ident">metrics</span>.<span class="ident">width</span>).<span class="ident">zip</span>(<span class="ident">glyph</span>.<span class="ident">y</span> <span class="kw">as</span> <span class="ident">i32</span>..) {
-                <span class="kw">for</span> (<span class="ident">value</span>, <span class="ident">x</span>) <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">glyph</span>.<span class="ident">x</span> <span class="kw">as</span> <span class="ident">i32</span>..) {
-                    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0</span> {
+            <span class="kw">for </span>(row, y) <span class="kw">in </span>bitmap.chunks_exact(metrics.width).zip(glyph.y <span class="kw">as </span>i32..) {
+                <span class="kw">for </span>(value, x) <span class="kw">in </span>row.iter().zip(glyph.x <span class="kw">as </span>i32..) {
+                    <span class="kw">let </span>(x, y) = <span class="kw">if </span>x &lt; <span class="number">0 </span>|| y &lt; <span class="number">0 </span>{
                         <span class="kw">continue</span>;
-                    } <span class="kw">else</span> {
-                        (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">y</span> <span class="kw">as</span> <span class="ident">u32</span>)
+                    } <span class="kw">else </span>{
+                        (x <span class="kw">as </span>u32, y <span class="kw">as </span>u32)
                     };
 
-                    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">value</span>;
-                    <span class="kw">if</span> <span class="ident">value</span> <span class="op">==</span> <span class="number">0</span> {
+                    <span class="kw">let </span>value = <span class="kw-2">*</span>value;
+                    <span class="kw">if </span>value == <span class="number">0 </span>{
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pixel</span>) <span class="op">=</span> <span class="ident">image</span>.<span class="ident">get_pixel</span>(<span class="ident">x</span>, <span class="ident">y</span>) {
-                        <span class="kw-2">*</span><span class="ident">image</span>.<span class="ident">pixel_mut</span>(<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span> <span class="ident">pixel</span>.<span class="ident">overlay_with_alpha</span>(<span class="ident">fill</span>, <span class="ident">overlay</span>, <span class="ident">value</span>);
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(pixel) = image.get_pixel(x, y) {
+                        <span class="kw-2">*</span>image.pixel_mut(x, y) = pixel.overlay_with_alpha(fill, overlay, value);
                     }
                 }
             }
@@ -998,53 +992,53 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">render_layout_with_alignment</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(
-    <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
-    <span class="ident">fonts</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">fontdue::Font</span>],
-    <span class="ident">layout</span>: <span class="kw-2">&amp;</span><span class="ident">Layout</span><span class="op">&lt;</span>(<span class="ident">P</span>, <span class="ident">OverlayMode</span>)<span class="op">&gt;</span>,
-    <span class="ident">widths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
-    <span class="ident">max_width</span>: <span class="ident">u32</span>,
-    <span class="ident">fx</span>: <span class="ident">f32</span>,
-    <span class="ident">ox</span>: <span class="ident">f32</span>,
-    <span class="ident">oy</span>: <span class="ident">f32</span>,
+<span class="kw">fn </span>render_layout_with_alignment&lt;P: Pixel&gt;(
+    image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;,
+    fonts: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>fontdue::Font],
+    layout: <span class="kw-2">&amp;</span>Layout&lt;(P, OverlayMode)&gt;,
+    widths: Vec&lt;u32&gt;,
+    max_width: u32,
+    fx: f32,
+    ox: f32,
+    oy: f32,
 ) {
-    <span class="kw">let</span> <span class="ident">glyphs</span> <span class="op">=</span> <span class="ident">layout</span>.<span class="ident">glyphs</span>();
-    <span class="kw">if</span> <span class="ident">glyphs</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">let </span>glyphs = layout.glyphs();
+    <span class="kw">if </span>glyphs.is_empty() {
         <span class="kw">return</span>;
     }
 
-    <span class="comment">// SAFETY: this was checked before calling</span>
-    <span class="kw">let</span> <span class="ident">lines</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">layout</span>.<span class="ident">lines</span>().<span class="ident">unwrap_unchecked</span>() };
-    <span class="kw">for</span> (<span class="ident">line</span>, <span class="ident">width</span>) <span class="kw">in</span> <span class="ident">lines</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">widths</span>) {
-        <span class="kw">let</span> <span class="ident">ox</span> <span class="op">=</span> ((<span class="ident">max_width</span> <span class="op">-</span> <span class="ident">width</span>) <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">mul_add</span>(<span class="ident">fx</span>, <span class="ident">ox</span>);
+    <span class="comment">// SAFETY: this was checked before calling
+    </span><span class="kw">let </span>lines = <span class="kw">unsafe </span>{ layout.lines().unwrap_unchecked() };
+    <span class="kw">for </span>(line, width) <span class="kw">in </span>lines.iter().zip(widths) {
+        <span class="kw">let </span>ox = ((max_width - width) <span class="kw">as </span>f32).mul_add(fx, ox);
 
-        <span class="kw">for</span> <span class="ident">glyph</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">glyphs</span>[<span class="ident">line</span>.<span class="ident">glyph_start</span>..<span class="op">=</span><span class="ident">line</span>.<span class="ident">glyph_end</span>] {
-            <span class="kw">let</span> (<span class="ident">fill</span>, <span class="ident">overlay</span>) <span class="op">=</span> <span class="ident">glyph</span>.<span class="ident">user_data</span>;
-            <span class="kw">let</span> <span class="ident">font</span> <span class="op">=</span> <span class="ident">fonts</span>[<span class="ident">glyph</span>.<span class="ident">font_index</span>];
-            <span class="kw">let</span> (<span class="ident">metrics</span>, <span class="ident">bitmap</span>) <span class="op">=</span> <span class="ident">font</span>.<span class="ident">rasterize_config</span>(<span class="ident">glyph</span>.<span class="ident">key</span>);
+        <span class="kw">for </span>glyph <span class="kw">in </span><span class="kw-2">&amp;</span>glyphs[line.glyph_start..=line.glyph_end] {
+            <span class="kw">let </span>(fill, overlay) = glyph.user_data;
+            <span class="kw">let </span>font = fonts[glyph.font_index];
+            <span class="kw">let </span>(metrics, bitmap) = font.rasterize_config(glyph.key);
 
-            <span class="kw">if</span> <span class="ident">metrics</span>.<span class="ident">width</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">glyph</span>.<span class="ident">char_data</span>.<span class="ident">is_whitespace</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">metrics</span>.<span class="ident">height</span> <span class="op">==</span> <span class="number">0</span> {
+            <span class="kw">if </span>metrics.width == <span class="number">0 </span>|| glyph.char_data.is_whitespace() || metrics.height == <span class="number">0 </span>{
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">glyph</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">ox</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-            <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> (<span class="ident">glyph</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">oy</span>) <span class="kw">as</span> <span class="ident">i32</span>;
+            <span class="kw">let </span>x = (glyph.x + ox) <span class="kw">as </span>i32;
+            <span class="kw">let </span>y = (glyph.y + oy) <span class="kw">as </span>i32;
 
-            <span class="kw">for</span> (<span class="ident">row</span>, <span class="ident">y</span>) <span class="kw">in</span> <span class="ident">bitmap</span>.<span class="ident">chunks_exact</span>(<span class="ident">metrics</span>.<span class="ident">width</span>).<span class="ident">zip</span>(<span class="ident">y</span>..) {
-                <span class="kw">for</span> (<span class="ident">value</span>, <span class="ident">x</span>) <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">x</span>..) {
-                    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0</span> {
+            <span class="kw">for </span>(row, y) <span class="kw">in </span>bitmap.chunks_exact(metrics.width).zip(y..) {
+                <span class="kw">for </span>(value, x) <span class="kw">in </span>row.iter().zip(x..) {
+                    <span class="kw">let </span>(x, y) = <span class="kw">if </span>x &lt; <span class="number">0 </span>|| y &lt; <span class="number">0 </span>{
                         <span class="kw">continue</span>;
-                    } <span class="kw">else</span> {
-                        (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">y</span> <span class="kw">as</span> <span class="ident">u32</span>)
+                    } <span class="kw">else </span>{
+                        (x <span class="kw">as </span>u32, y <span class="kw">as </span>u32)
                     };
 
-                    <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">value</span>;
-                    <span class="kw">if</span> <span class="ident">value</span> <span class="op">==</span> <span class="number">0</span> {
+                    <span class="kw">let </span>value = <span class="kw-2">*</span>value;
+                    <span class="kw">if </span>value == <span class="number">0 </span>{
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pixel</span>) <span class="op">=</span> <span class="ident">image</span>.<span class="ident">get_pixel</span>(<span class="ident">x</span>, <span class="ident">y</span>) {
-                        <span class="kw-2">*</span><span class="ident">image</span>.<span class="ident">pixel_mut</span>(<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span> <span class="ident">pixel</span>.<span class="ident">overlay_with_alpha</span>(<span class="ident">fill</span>, <span class="ident">overlay</span>, <span class="ident">value</span>);
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(pixel) = image.get_pixel(x, y) {
+                        <span class="kw-2">*</span>image.pixel_mut(x, y) = pixel.overlay_with_alpha(fill, overlay, value);
                     }
                 }
             }
@@ -1052,340 +1046,339 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TextSegment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
-        <span class="ident">render_layout</span>(<span class="ident">image</span>, <span class="kw-2">&amp;</span>[<span class="self">self</span>.<span class="ident">font</span>.<span class="ident">inner</span>()], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">layout</span>());
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>TextSegment&lt;<span class="lifetime">&#39;a</span>, P&gt; {
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+        render_layout(image, <span class="kw-2">&amp;</span>[<span class="self">self</span>.font.inner()], <span class="kw-2">&amp;</span><span class="self">self</span>.layout());
     }
 }
 
-<span class="doccomment">/// Represents where text is anchored horizontally.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">HorizontalAnchor</span> {
-    <span class="doccomment">/// The x position is the left edge of the text. This is the default.</span>
-    <span class="ident">Left</span>,
-    <span class="doccomment">/// The x position is the center of the text. This also center-aligns the text.</span>
-    <span class="ident">Center</span>,
-    <span class="doccomment">/// The x position is the right edge of the text. This also right-aligns the text.</span>
-    <span class="ident">Right</span>,
+<span class="doccomment">/// Represents where text is anchored horizontally.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>HorizontalAnchor {
+    <span class="doccomment">/// The x position is the left edge of the text. This is the default.
+    </span>Left,
+    <span class="doccomment">/// The x position is the center of the text. This also center-aligns the text.
+    </span>Center,
+    <span class="doccomment">/// The x position is the right edge of the text. This also right-aligns the text.
+    </span>Right,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HorizontalAnchor</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Left</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>HorizontalAnchor {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Left
     }
 }
 
-<span class="doccomment">/// Represents where text is anchored vertically.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">VerticalAnchor</span> {
-    <span class="doccomment">/// The y position is the top edge of the text. This is the default.</span>
-    <span class="ident">Top</span>,
-    <span class="doccomment">/// The y position is the center of the text.</span>
-    <span class="ident">Center</span>,
-    <span class="doccomment">/// The y position is the bottom edge of the text.</span>
-    <span class="ident">Bottom</span>,
+<span class="doccomment">/// Represents where text is anchored vertically.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>VerticalAnchor {
+    <span class="doccomment">/// The y position is the top edge of the text. This is the default.
+    </span>Top,
+    <span class="doccomment">/// The y position is the center of the text.
+    </span>Center,
+    <span class="doccomment">/// The y position is the bottom edge of the text.
+    </span>Bottom,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">VerticalAnchor</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Top</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>VerticalAnchor {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Top
     }
 }
 
-<span class="doccomment">/// Represents a high-level text layout that can layout text segments, maybe with different fonts.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is a high-level layout that can be used to layout text segments. It can be used to layout</span>
-<span class="doccomment">/// text segments with different fonts and styles, and has many features over [`TextSegment`] such</span>
-<span class="doccomment">/// as text anchoring, which can be useful for text alignment. This also keeps track of font</span>
-<span class="doccomment">/// metrics, meaning that unlike [`TextSegment`], this can be used to determine the width and height</span>
-<span class="doccomment">/// of text before rendering it.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is less efficient than [`TextSegment`] and you should use [`TextSegment`] if you don&#39;t need</span>
-<span class="doccomment">/// any of the features [`TextLayout`] provides.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">/// This is does not implement [`Clone`] and therefore it is not cloneable! Consider using</span>
-<span class="doccomment">/// [`TextSegment`] if you require cloning functionality.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextLayout</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">Layout</span><span class="op">&lt;</span>(<span class="ident">P</span>, <span class="ident">OverlayMode</span>)<span class="op">&gt;</span>,
-    <span class="ident">fonts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">fontdue::Font</span><span class="op">&gt;</span>,
-    <span class="ident">settings</span>: <span class="ident">LayoutSettings</span>,
-    <span class="ident">x_anchor</span>: <span class="ident">HorizontalAnchor</span>,
-    <span class="ident">y_anchor</span>: <span class="ident">VerticalAnchor</span>,
+<span class="doccomment">/// Represents a high-level text layout that can layout text segments, maybe with different fonts.
+///
+/// This is a high-level layout that can be used to layout text segments. It can be used to layout
+/// text segments with different fonts and styles, and has many features over [`TextSegment`] such
+/// as text anchoring, which can be useful for text alignment. This also keeps track of font
+/// metrics, meaning that unlike [`TextSegment`], this can be used to determine the width and height
+/// of text before rendering it.
+///
+/// This is less efficient than [`TextSegment`] and you should use [`TextSegment`] if you don&#39;t need
+/// any of the features [`TextLayout`] provides.
+///
+/// # Note
+/// This is does not implement [`Clone`] and therefore it is not cloneable! Consider using
+/// [`TextSegment`] if you require cloning functionality.
+</span><span class="kw">pub struct </span>TextLayout&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; {
+    inner: Layout&lt;(P, OverlayMode)&gt;,
+    fonts: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>fontdue::Font&gt;,
+    settings: LayoutSettings,
+    x_anchor: HorizontalAnchor,
+    y_anchor: VerticalAnchor,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">TextLayout</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new text layout with default settings.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">inner</span>: <span class="ident">Layout::new</span>(<span class="ident">CoordinateSystem::PositiveYDown</span>),
-            <span class="ident">fonts</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">settings</span>: <span class="ident">LayoutSettings::default</span>(),
-            <span class="ident">x_anchor</span>: <span class="ident">HorizontalAnchor::default</span>(),
-            <span class="ident">y_anchor</span>: <span class="ident">VerticalAnchor::default</span>(),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; TextLayout&lt;<span class="lifetime">&#39;a</span>, P&gt; {
+    <span class="doccomment">/// Creates a new text layout with default settings.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            inner: Layout::new(CoordinateSystem::PositiveYDown),
+            fonts: Vec::new(),
+            settings: LayoutSettings::default(),
+            x_anchor: HorizontalAnchor::default(),
+            y_anchor: VerticalAnchor::default(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">set_settings</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">settings</span>: <span class="ident">LayoutSettings</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>);
-        <span class="self">self</span>.<span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>;
+    <span class="kw">fn </span>set_settings(<span class="kw-2">&amp;mut </span><span class="self">self</span>, settings: LayoutSettings) {
+        <span class="self">self</span>.inner.reset(<span class="kw-2">&amp;</span>settings);
+        <span class="self">self</span>.settings = settings;
     }
 
-    <span class="doccomment">/// Sets the position of the text layout.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **This must be set before adding any text segments!**</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_position</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">set_settings</span>(<span class="ident">LayoutSettings</span> {
-            <span class="ident">x</span>: <span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">y</span>: <span class="ident">y</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            ..<span class="self">self</span>.<span class="ident">settings</span>
+    <span class="doccomment">/// Sets the position of the text layout.
+    ///
+    /// **This must be set before adding any text segments!**
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>with_position(<span class="kw-2">mut </span><span class="self">self</span>, x: u32, y: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.set_settings(LayoutSettings {
+            x: x <span class="kw">as </span>f32,
+            y: y <span class="kw">as </span>f32,
+            ..<span class="self">self</span>.settings
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the wrapping style of the text. Make sure to also set the wrapping width using</span>
-    <span class="doccomment">/// [`with_width`] for wrapping to work.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **This must be set before adding any text segments!**</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_wrap</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">wrap</span>: <span class="ident">WrapStyle</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">set_settings</span>(<span class="ident">LayoutSettings</span> {
-            <span class="ident">wrap_style</span>: <span class="kw">match</span> <span class="ident">wrap</span> {
-                <span class="ident">WrapStyle::None</span> <span class="op">|</span> <span class="ident">WrapStyle::Word</span> =&gt; <span class="ident">fontdue::layout::WrapStyle::Word</span>,
-                <span class="ident">WrapStyle::Character</span> =&gt; <span class="ident">fontdue::layout::WrapStyle::Letter</span>,
+    <span class="doccomment">/// Sets the wrapping style of the text. Make sure to also set the wrapping width using
+    /// [`with_width`] for wrapping to work.
+    ///
+    /// **This must be set before adding any text segments!**
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>with_wrap(<span class="kw-2">mut </span><span class="self">self</span>, wrap: WrapStyle) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.set_settings(LayoutSettings {
+            wrap_style: <span class="kw">match </span>wrap {
+                WrapStyle::None | WrapStyle::Word =&gt; fontdue::layout::WrapStyle::Word,
+                WrapStyle::Character =&gt; fontdue::layout::WrapStyle::Letter,
             },
-            <span class="ident">max_width</span>: <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">max_width</span>.<span class="ident">unwrap_or</span>(<span class="ident">f32::MAX</span>)),
-            ..<span class="self">self</span>.<span class="ident">settings</span>
+            max_width: <span class="prelude-val">Some</span>(<span class="self">self</span>.settings.max_width.unwrap_or(f32::MAX)),
+            ..<span class="self">self</span>.settings
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Sets the wrapping width of the text. This does not impact [`Self::dimensions`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// **This must be set before adding any text segments!**</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_width</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">set_settings</span>(<span class="ident">LayoutSettings</span> {
-            <span class="ident">max_width</span>: <span class="prelude-val">Some</span>(<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
-            ..<span class="self">self</span>.<span class="ident">settings</span>
+    <span class="doccomment">/// Sets the wrapping width of the text. This does not impact [`Self::dimensions`].
+    ///
+    /// **This must be set before adding any text segments!**
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>with_width(<span class="kw-2">mut </span><span class="self">self</span>, width: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.set_settings(LayoutSettings {
+            max_width: <span class="prelude-val">Some</span>(width <span class="kw">as </span>f32),
+            ..<span class="self">self</span>.settings
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Adds a text segment to the text layout.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_segment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">segment</span>: <span class="kw-2">&amp;</span><span class="ident">TextSegment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">fonts</span>.<span class="ident">push</span>(<span class="ident">segment</span>.<span class="ident">font</span>.<span class="ident">inner</span>());
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">append</span>(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fonts</span>,
-            <span class="kw-2">&amp;</span><span class="ident">TextStyle::with_user_data</span>(
-                <span class="kw-2">&amp;</span><span class="ident">segment</span>.<span class="ident">text</span>,
-                <span class="ident">segment</span>.<span class="ident">size</span>,
+    <span class="doccomment">/// Adds a text segment to the text layout.
+    </span><span class="kw">pub fn </span>push_segment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, segment: <span class="kw-2">&amp;</span>TextSegment&lt;<span class="lifetime">&#39;a</span>, P&gt;) {
+        <span class="self">self</span>.fonts.push(segment.font.inner());
+        <span class="self">self</span>.inner.append(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.fonts,
+            <span class="kw-2">&amp;</span>TextStyle::with_user_data(
+                <span class="kw-2">&amp;</span>segment.text,
+                segment.size,
                 <span class="number">0</span>,
-                (<span class="ident">segment</span>.<span class="ident">fill</span>, <span class="ident">segment</span>.<span class="ident">overlay</span>),
+                (segment.fill, segment.overlay),
             ),
         );
     }
 
-    <span class="doccomment">/// Takes this text layout and returns it with the given text segment added to the text layout.</span>
-    <span class="doccomment">/// Useful for method chaining.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_segment</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">segment</span>: <span class="kw-2">&amp;</span><span class="ident">TextSegment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">push_segment</span>(<span class="ident">segment</span>);
-        <span class="self">self</span>
+    <span class="doccomment">/// Takes this text layout and returns it with the given text segment added to the text layout.
+    /// Useful for method chaining.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>with_segment(<span class="kw-2">mut </span><span class="self">self</span>, segment: <span class="kw-2">&amp;</span>TextSegment&lt;<span class="lifetime">&#39;a</span>, P&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.push_segment(segment);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Adds basic text to the text layout. This is a convenience method that creates a [`TextSegment`]
+    /// with the given font, text, and fill and adds it to the text layout.
+    ///
+    /// The size of the text is determined by the font&#39;s optimal size.
+    ///
+    /// # Note
+    /// The overlay mode is set to [`OverlayMode::Merge`] and not the image&#39;s overlay mode, since
+    /// anti-aliasing is funky with the replace overlay mode.
+    </span><span class="kw">pub fn </span>push_basic_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, font: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Font, text: <span class="kw">impl </span>AsRef&lt;str&gt;, fill: P) {
+        <span class="self">self</span>.push_segment(<span class="kw-2">&amp;</span>TextSegment::new(font, text, fill));
     }
 
-    <span class="doccomment">/// Adds basic text to the text layout. This is a convenience method that creates a [`TextSegment`]</span>
-    <span class="doccomment">/// with the given font, text, and fill and adds it to the text layout.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The size of the text is determined by the font&#39;s optimal size.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">/// The overlay mode is set to [`OverlayMode::Merge`] and not the image&#39;s overlay mode, since</span>
-    <span class="doccomment">/// anti-aliasing is funky with the replace overlay mode.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_basic_text</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">font</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Font</span>, <span class="ident">text</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">fill</span>: <span class="ident">P</span>) {
-        <span class="self">self</span>.<span class="ident">push_segment</span>(<span class="kw-2">&amp;</span><span class="ident">TextSegment::new</span>(<span class="ident">font</span>, <span class="ident">text</span>, <span class="ident">fill</span>));
+    <span class="doccomment">/// Takes this text layout and returns it with the given basic text added to the text layout.
+    /// Useful for method chaining.
+    ///
+    /// # Note
+    /// The overlay mode is set to [`OverlayMode::Merge`] and not the image&#39;s overlay mode, since
+    /// anti-aliasing is funky with the replace overlay mode.
+    ///
+    /// # See Also
+    /// * [`push_basic_text`][TextLayout::push_basic_text]
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>with_basic_text(<span class="kw-2">mut </span><span class="self">self</span>, font: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Font, text: <span class="kw">impl </span>AsRef&lt;str&gt;, fill: P) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.push_basic_text(font, text, fill);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the horizontal anchor of the text. The horizontal anchor determines where the x
+    /// position of the text is anchored.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_horizontal_anchor(<span class="kw-2">mut </span><span class="self">self</span>, anchor: HorizontalAnchor) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.x_anchor = anchor;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the vertical anchor of the text. The vertical anchor determines where the y position of
+    /// the text is anchored.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>with_vertical_anchor(<span class="kw-2">mut </span><span class="self">self</span>, anchor: VerticalAnchor) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.y_anchor = anchor;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets the horizontal anchor and vertial anchor of the text to be centered. This makes the
+    /// position of the text be the center as opposed to the top-left corner.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>centered(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.with_horizontal_anchor(HorizontalAnchor::Center)
+            .with_vertical_anchor(VerticalAnchor::Center)
     }
 
-    <span class="doccomment">/// Takes this text layout and returns it with the given basic text added to the text layout.</span>
-    <span class="doccomment">/// Useful for method chaining.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">/// The overlay mode is set to [`OverlayMode::Merge`] and not the image&#39;s overlay mode, since</span>
-    <span class="doccomment">/// anti-aliasing is funky with the replace overlay mode.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # See Also</span>
-    <span class="doccomment">/// * [`push_basic_text`][TextLayout::push_basic_text]</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_basic_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">font</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Font</span>, <span class="ident">text</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">fill</span>: <span class="ident">P</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">push_basic_text</span>(<span class="ident">font</span>, <span class="ident">text</span>, <span class="ident">fill</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets the horizontal anchor of the text. The horizontal anchor determines where the x</span>
-    <span class="doccomment">/// position of the text is anchored.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_horizontal_anchor</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">anchor</span>: <span class="ident">HorizontalAnchor</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">x_anchor</span> <span class="op">=</span> <span class="ident">anchor</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets the vertical anchor of the text. The vertical anchor determines where the y position of</span>
-    <span class="doccomment">/// the text is anchored.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">with_vertical_anchor</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">anchor</span>: <span class="ident">VerticalAnchor</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">y_anchor</span> <span class="op">=</span> <span class="ident">anchor</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Sets the horizontal anchor and vertial anchor of the text to be centered. This makes the</span>
-    <span class="doccomment">/// position of the text be the center as opposed to the top-left corner.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">centered</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">with_horizontal_anchor</span>(<span class="ident">HorizontalAnchor::Center</span>)
-            .<span class="ident">with_vertical_anchor</span>(<span class="ident">VerticalAnchor::Center</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">line_widths</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">u32</span>, <span class="ident">u32</span>) {
-        <span class="kw">let</span> <span class="ident">glyphs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">glyphs</span>();
-        <span class="kw">if</span> <span class="ident">glyphs</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> (<span class="ident">Vec::new</span>(), <span class="number">0</span>, <span class="number">0</span>);
+    <span class="kw">fn </span>line_widths(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (Vec&lt;u32&gt;, u32, u32) {
+        <span class="kw">let </span>glyphs = <span class="self">self</span>.inner.glyphs();
+        <span class="kw">if </span>glyphs.is_empty() {
+            <span class="kw">return </span>(Vec::new(), <span class="number">0</span>, <span class="number">0</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">widths</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_width</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>widths = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>max_width = <span class="number">0</span>;
 
-        <span class="comment">// SAFETY: checking glyphs.is_empty() above means that glyphs is not empty.</span>
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lines</span>().<span class="ident">unwrap_unchecked</span>() } {
-            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u32</span>;
+        <span class="comment">// SAFETY: checking glyphs.is_empty() above means that glyphs is not empty.
+        </span><span class="kw">for </span>line <span class="kw">in unsafe </span>{ <span class="self">self</span>.inner.lines().unwrap_unchecked() } {
+            <span class="kw">let </span>x = <span class="self">self</span>.settings.x <span class="kw">as </span>u32;
 
-            <span class="kw">let</span> <span class="ident">glyph</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">glyphs</span>[<span class="ident">line</span>.<span class="ident">glyph_end</span>];
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">glyph</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">glyph</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>;
-            <span class="kw">let</span> <span class="ident">line_width</span> <span class="op">=</span> (<span class="ident">right</span> <span class="op">-</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">u32</span>;
-            <span class="ident">widths</span>.<span class="ident">push</span>(<span class="ident">line_width</span>);
-            <span class="ident">max_width</span> <span class="op">=</span> <span class="ident">max_width</span>.<span class="ident">max</span>(<span class="ident">line_width</span>);
+            <span class="kw">let </span>glyph = <span class="kw-2">&amp;</span>glyphs[line.glyph_end];
+            <span class="kw">let </span>right = glyph.x + glyph.width <span class="kw">as </span>f32;
+            <span class="kw">let </span>line_width = (right - x <span class="kw">as </span>f32).ceil() <span class="kw">as </span>u32;
+            widths.push(line_width);
+            max_width = max_width.max(line_width);
         }
 
-        (<span class="ident">widths</span>, <span class="ident">max_width</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">height</span>() <span class="kw">as</span> <span class="ident">u32</span>)
+        (widths, max_width, <span class="self">self</span>.inner.height() <span class="kw">as </span>u32)
     }
 
-    <span class="doccomment">/// Returns the width and height of the text. This is a slightly expensive operation and should</span>
-    <span class="doccomment">/// be used sparingly - it is not a simple getter.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dimensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>) {
-        <span class="kw">let</span> <span class="ident">glyphs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">glyphs</span>();
-        <span class="kw">if</span> <span class="ident">glyphs</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> (<span class="number">0</span>, <span class="number">0</span>);
+    <span class="doccomment">/// Returns the width and height of the text. This is a slightly expensive operation and should
+    /// be used sparingly - it is not a simple getter.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>dimensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u32, u32) {
+        <span class="kw">let </span>glyphs = <span class="self">self</span>.inner.glyphs();
+        <span class="kw">if </span>glyphs.is_empty() {
+            <span class="kw">return </span>(<span class="number">0</span>, <span class="number">0</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>width = <span class="number">0</span>;
 
-        <span class="comment">// SAFETY: checking glyphs.is_empty() above means that glyphs is not empty.</span>
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">lines</span>().<span class="ident">unwrap_unchecked</span>() } {
-            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">x</span> <span class="kw">as</span> <span class="ident">u32</span>;
+        <span class="comment">// SAFETY: checking glyphs.is_empty() above means that glyphs is not empty.
+        </span><span class="kw">for </span>line <span class="kw">in unsafe </span>{ <span class="self">self</span>.inner.lines().unwrap_unchecked() } {
+            <span class="kw">let </span>x = <span class="self">self</span>.settings.x <span class="kw">as </span>u32;
 
-            <span class="kw">for</span> <span class="ident">glyph</span> <span class="kw">in</span> <span class="ident">glyphs</span>[<span class="ident">line</span>.<span class="ident">glyph_start</span>..<span class="op">=</span><span class="ident">line</span>.<span class="ident">glyph_end</span>].<span class="ident">iter</span>().<span class="ident">rev</span>() {
-                <span class="kw">if</span> <span class="ident">glyph</span>.<span class="ident">char_data</span>.<span class="ident">is_whitespace</span>() {
+            <span class="kw">for </span>glyph <span class="kw">in </span>glyphs[line.glyph_start..=line.glyph_end].iter().rev() {
+                <span class="kw">if </span>glyph.char_data.is_whitespace() {
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">glyph</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">glyph</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>;
-                <span class="kw">let</span> <span class="ident">line_width</span> <span class="op">=</span> (<span class="ident">right</span> <span class="op">-</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">u32</span>;
-                <span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>.<span class="ident">max</span>(<span class="ident">line_width</span>);
+                <span class="kw">let </span>right = glyph.x + glyph.width <span class="kw">as </span>f32;
+                <span class="kw">let </span>line_width = (right - x <span class="kw">as </span>f32).ceil() <span class="kw">as </span>u32;
+                width = width.max(line_width);
 
                 <span class="kw">break</span>;
             }
         }
 
-        (<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">height</span>() <span class="kw">as</span> <span class="ident">u32</span>)
+        (width, <span class="self">self</span>.inner.height() <span class="kw">as </span>u32)
     }
 
-    <span class="doccomment">/// Returns the width of the text. This is a slightly expensive operation and is not a simple</span>
-    <span class="doccomment">/// getter.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If you want both width and height, use [`dimensions`][TextLayout::dimensions].</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">dimensions</span>().<span class="number">0</span>
+    <span class="doccomment">/// Returns the width of the text. This is a slightly expensive operation and is not a simple
+    /// getter.
+    ///
+    /// If you want both width and height, use [`dimensions`][TextLayout::dimensions].
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.dimensions().<span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Returns the height of the text. This is a slightly expensive operation and is not a simple
+    /// getter.
+    ///
+    /// If you want both width and height, use [`dimensions`][TextLayout::dimensions].
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="self">self</span>.dimensions().<span class="number">1
+    </span>}
+
+    <span class="doccomment">/// Returns the bounding box of the text. Left and top bounds are inclusive; right and bottom
+    /// bounds are exclusive.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>bounding_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u32, u32, u32, u32) {
+        <span class="kw">let </span>(width, height) = <span class="self">self</span>.dimensions();
+
+        <span class="kw">let </span>ox = <span class="kw">match </span><span class="self">self</span>.x_anchor {
+            HorizontalAnchor::Left =&gt; <span class="number">0.0</span>,
+            HorizontalAnchor::Center =&gt; width <span class="kw">as </span>f32 / -<span class="number">2.0</span>,
+            HorizontalAnchor::Right =&gt; -(width <span class="kw">as </span>f32),
+        };
+        <span class="kw">let </span>oy = <span class="kw">match </span><span class="self">self</span>.y_anchor {
+            VerticalAnchor::Top =&gt; <span class="number">0.0</span>,
+            VerticalAnchor::Center =&gt; height <span class="kw">as </span>f32 / -<span class="number">2.0</span>,
+            VerticalAnchor::Bottom =&gt; -(height <span class="kw">as </span>f32),
+        };
+
+        <span class="kw">let </span>x = (<span class="self">self</span>.settings.x + ox) <span class="kw">as </span>u32;
+        <span class="kw">let </span>y = (<span class="self">self</span>.settings.y + oy) <span class="kw">as </span>u32;
+
+        (x, y, x + width, y + height)
     }
 
-    <span class="doccomment">/// Returns the height of the text. This is a slightly expensive operation and is not a simple</span>
-    <span class="doccomment">/// getter.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If you want both width and height, use [`dimensions`][TextLayout::dimensions].</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">dimensions</span>().<span class="number">1</span>
-    }
+    <span class="kw">fn </span>calculate_offsets(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (Vec&lt;u32&gt;, u32, f32, f32, f32) {
+        <span class="kw">let </span>(widths, width, height) = <span class="self">self</span>.line_widths();
 
-    <span class="doccomment">/// Returns the bounding box of the text. Left and top bounds are inclusive; right and bottom</span>
-    <span class="doccomment">/// bounds are exclusive.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bounding_box</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>) {
-        <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">dimensions</span>();
-
-        <span class="kw">let</span> <span class="ident">ox</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">x_anchor</span> {
-            <span class="ident">HorizontalAnchor::Left</span> =&gt; <span class="number">0.0</span>,
-            <span class="ident">HorizontalAnchor::Center</span> =&gt; <span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="op">-</span><span class="number">2.0</span>,
-            <span class="ident">HorizontalAnchor::Right</span> =&gt; <span class="op">-</span>(<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
+        <span class="kw">let </span>(ox, fx) = <span class="kw">match </span><span class="self">self</span>.x_anchor {
+            HorizontalAnchor::Left =&gt; (<span class="number">0.0</span>, <span class="number">0.0</span>),
+            HorizontalAnchor::Center =&gt; (width <span class="kw">as </span>f32 / -<span class="number">2.0</span>, <span class="number">0.5</span>),
+            HorizontalAnchor::Right =&gt; (-(width <span class="kw">as </span>f32), <span class="number">1.0</span>),
         };
-        <span class="kw">let</span> <span class="ident">oy</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">y_anchor</span> {
-            <span class="ident">VerticalAnchor::Top</span> =&gt; <span class="number">0.0</span>,
-            <span class="ident">VerticalAnchor::Center</span> =&gt; <span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="op">-</span><span class="number">2.0</span>,
-            <span class="ident">VerticalAnchor::Bottom</span> =&gt; <span class="op">-</span>(<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
+        <span class="kw">let </span>oy = <span class="kw">match </span><span class="self">self</span>.y_anchor {
+            VerticalAnchor::Top =&gt; <span class="number">0.0</span>,
+            VerticalAnchor::Center =&gt; height <span class="kw">as </span>f32 / -<span class="number">2.0</span>,
+            VerticalAnchor::Bottom =&gt; -(height <span class="kw">as </span>f32),
         };
 
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">ox</span>) <span class="kw">as</span> <span class="ident">u32</span>;
-        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">oy</span>) <span class="kw">as</span> <span class="ident">u32</span>;
-
-        (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">x</span> <span class="op">+</span> <span class="ident">width</span>, <span class="ident">y</span> <span class="op">+</span> <span class="ident">height</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">calculate_offsets</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="ident">u32</span>, <span class="ident">f32</span>, <span class="ident">f32</span>, <span class="ident">f32</span>) {
-        <span class="kw">let</span> (<span class="ident">widths</span>, <span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line_widths</span>();
-
-        <span class="kw">let</span> (<span class="ident">ox</span>, <span class="ident">fx</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">x_anchor</span> {
-            <span class="ident">HorizontalAnchor::Left</span> =&gt; (<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">HorizontalAnchor::Center</span> =&gt; (<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="op">-</span><span class="number">2.0</span>, <span class="number">0.5</span>),
-            <span class="ident">HorizontalAnchor::Right</span> =&gt; (<span class="op">-</span>(<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>), <span class="number">1.0</span>),
-        };
-        <span class="kw">let</span> <span class="ident">oy</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">y_anchor</span> {
-            <span class="ident">VerticalAnchor::Top</span> =&gt; <span class="number">0.0</span>,
-            <span class="ident">VerticalAnchor::Center</span> =&gt; <span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="op">-</span><span class="number">2.0</span>,
-            <span class="ident">VerticalAnchor::Bottom</span> =&gt; <span class="op">-</span>(<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
-        };
-
-        (<span class="ident">widths</span>, <span class="ident">width</span>, <span class="ident">fx</span>, <span class="ident">ox</span>, <span class="ident">oy</span>)
+        (widths, width, fx, ox, oy)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Draw</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TextLayout</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) {
-        <span class="comment">// Skips the calculation of offsets</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">x_anchor</span> <span class="op">==</span> <span class="ident">HorizontalAnchor::Left</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">y_anchor</span> <span class="op">==</span> <span class="ident">VerticalAnchor::Top</span> {
-            <span class="ident">render_layout</span>(<span class="ident">image</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fonts</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>TextLayout&lt;<span class="lifetime">&#39;a</span>, P&gt; {
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+        <span class="comment">// Skips the calculation of offsets
+        </span><span class="kw">if </span><span class="self">self</span>.x_anchor == HorizontalAnchor::Left &amp;&amp; <span class="self">self</span>.y_anchor == VerticalAnchor::Top {
+            render_layout(image, <span class="kw-2">&amp;</span><span class="self">self</span>.fonts, <span class="kw-2">&amp;</span><span class="self">self</span>.inner);
         }
 
-        <span class="kw">let</span> (<span class="ident">widths</span>, <span class="ident">max_width</span>, <span class="ident">fx</span>, <span class="ident">ox</span>, <span class="ident">oy</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_offsets</span>();
-        <span class="ident">render_layout_with_alignment</span>(
-            <span class="ident">image</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fonts</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>,
-            <span class="ident">widths</span>,
-            <span class="ident">max_width</span>,
-            <span class="ident">fx</span>,
-            <span class="ident">ox</span>,
-            <span class="ident">oy</span>,
+        <span class="kw">let </span>(widths, max_width, fx, ox, oy) = <span class="self">self</span>.calculate_offsets();
+        render_layout_with_alignment(
+            image,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.fonts,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.inner,
+            widths,
+            max_width,
+            fx,
+            ox,
+            oy,
         );
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TextLayout</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>()
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; Default <span class="kw">for </span>TextLayout&lt;<span class="lifetime">&#39;a</span>, P&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

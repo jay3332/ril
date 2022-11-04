@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/encode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/encode.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>encode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -174,176 +168,175 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Houses Encoder, Decoder, and frame iterator traits.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Houses Encoder, Decoder, and frame iterator traits.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Frame</span>, <span class="ident">Image</span>, <span class="ident">ImageSequence</span>, <span class="ident">Pixel</span>};
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">Read</span>, <span class="ident">Write</span>};
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+</span><span class="kw">use crate</span>::{Frame, Image, ImageSequence, Pixel};
+<span class="kw">use </span>std::io::{Read, Write};
+<span class="kw">use </span>std::marker::PhantomData;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encodings::gif::GifFrameIterator</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encodings::png::ApngFrameIterator</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::encodings::gif::GifFrameIterator;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::encodings::png::ApngFrameIterator;
 
-<span class="doccomment">/// Low-level encoder interface around an image format.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Encoder</span> {
-    <span class="doccomment">/// Encodes the given image into the given writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * An error occured during encoding.</span>
-    <span class="kw">fn</span> <span class="ident">encode</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">image</span>: <span class="kw-2">&amp;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+<span class="doccomment">/// Low-level encoder interface around an image format.
+</span><span class="kw">pub trait </span>Encoder {
+    <span class="doccomment">/// Encodes the given image into the given writer.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
+    </span><span class="kw">fn </span>encode&lt;P: Pixel&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="kw">crate</span>::Result&lt;()&gt;;
 
-    <span class="doccomment">/// Encodes the given image sequence into the given writer.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * An error occured during encoding.</span>
-    <span class="kw">fn</span> <span class="ident">encode_sequence</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">sequence</span>: <span class="kw-2">&amp;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
-        <span class="ident">dest</span>: <span class="kw-2">&amp;mut</span> <span class="kw">impl</span> <span class="ident">Write</span>,
-    ) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">encode</span>(<span class="ident">sequence</span>.<span class="ident">first_frame</span>().<span class="ident">image</span>(), <span class="ident">dest</span>)
+    <span class="doccomment">/// Encodes the given image sequence into the given writer.
+    ///
+    /// # Errors
+    /// * An error occured during encoding.
+    </span><span class="kw">fn </span>encode_sequence&lt;P: Pixel&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;,
+        dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="self">self</span>.encode(sequence.first_frame().image(), dest)
     }
 }
 
-<span class="doccomment">/// Low-level decoder interface around an image format.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Decoder</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The type of the iterator returned by `decode_sequence`.</span>
-    <span class="kw">type</span> <span class="ident">Sequence</span>: <span class="ident">FrameIterator</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>;
+<span class="doccomment">/// Low-level decoder interface around an image format.
+</span><span class="kw">pub trait </span>Decoder&lt;P: Pixel, R: Read&gt; {
+    <span class="doccomment">/// The type of the iterator returned by `decode_sequence`.
+    </span><span class="kw">type </span>Sequence: FrameIterator&lt;P&gt;;
 
-    <span class="doccomment">/// Decodes the given stream into an image.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * An error occured during decoding.</span>
-    <span class="kw">fn</span> <span class="ident">decode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">R</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Decodes the given stream into an image.
+    ///
+    /// # Errors
+    /// * An error occured during decoding.
+    </span><span class="kw">fn </span>decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: R) -&gt; <span class="kw">crate</span>::Result&lt;Image&lt;P&gt;&gt;;
 
-    <span class="doccomment">/// Decodes the given stream into a frame iterator.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * An error occured during decoding.</span>
-    <span class="kw">fn</span> <span class="ident">decode_sequence</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">stream</span>: <span class="ident">R</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Sequence</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Decodes the given stream into a frame iterator.
+    ///
+    /// # Errors
+    /// * An error occured during decoding.
+    </span><span class="kw">fn </span>decode_sequence(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: R) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>::Sequence&gt;;
 }
 
-<span class="doccomment">/// Represents the lazy decoding of frames from an encoded image sequence, such as an animated</span>
-<span class="doccomment">/// image.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # See Also</span>
-<span class="doccomment">/// * [`ImageSequence`]</span>
-<span class="doccomment">/// * [`Frame`]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns the number of frames in the sequence.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This does not consume any frames as this data is usually known from the very beginning of</span>
-    <span class="doccomment">/// decoding.</span>
-    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span>;
+<span class="doccomment">/// Represents the lazy decoding of frames from an encoded image sequence, such as an animated
+/// image.
+///
+/// # See Also
+/// * [`ImageSequence`]
+/// * [`Frame`]
+</span><span class="kw">pub trait </span>FrameIterator&lt;P: Pixel&gt;: Iterator&lt;Item = <span class="kw">crate</span>::Result&lt;Frame&lt;P&gt;&gt;&gt; {
+    <span class="doccomment">/// Returns the number of frames in the sequence.
+    ///
+    /// This does not consume any frames as this data is usually known from the very beginning of
+    /// decoding.
+    </span><span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32;
 
-    <span class="doccomment">/// Returns if there are no frames in the sequence. In this case, the image is probably</span>
-    <span class="doccomment">/// invalid to be encoded again.</span>
-    <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns if there are no frames in the sequence. In this case, the image is probably
+    /// invalid to be encoded again.
+    </span><span class="kw">fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.len() == <span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns the amount of times this sequence will loop over itself.</span>
-    <span class="kw">fn</span> <span class="ident">loop_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::LoopCount</span>;
+    <span class="doccomment">/// Returns the amount of times this sequence will loop over itself.
+    </span><span class="kw">fn </span>loop_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::LoopCount;
 
-    <span class="doccomment">/// Collects all frames in this iterator and turns it into a high level [`ImageSequence`].</span>
-    <span class="doccomment">/// If any frame fails, that error is returned.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * An error occured during decoding one of the frames.</span>
-    <span class="kw">fn</span> <span class="ident">into_sequence</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>,
+    <span class="doccomment">/// Collects all frames in this iterator and turns it into a high level [`ImageSequence`].
+    /// If any frame fails, that error is returned.
+    ///
+    /// # Errors
+    /// * An error occured during decoding one of the frames.
+    </span><span class="kw">fn </span>into_sequence(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;ImageSequence&lt;P&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
     {
-        <span class="kw">let</span> <span class="ident">loop_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">loop_count</span>();
-        <span class="kw">let</span> <span class="ident">frames</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>loop_count = <span class="self">self</span>.loop_count();
+        <span class="kw">let </span>frames = <span class="self">self</span>.collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ImageSequence::from_frames</span>(<span class="ident">frames</span>).<span class="ident">with_loop_count</span>(<span class="ident">loop_count</span>))
+        <span class="prelude-val">Ok</span>(ImageSequence::from_frames(frames).with_loop_count(loop_count))
     }
 }
 
-<span class="doccomment">/// Represents any one of the different types of frame iterators, compacted into one common enum</span>
-<span class="doccomment">/// with common methods.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// A single static image frame.</span>
-    <span class="ident">Single</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// A PNG or APNG frame iterator.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-    <span class="ident">Png</span>(<span class="ident">ApngFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// A GIF frame iterator.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-    <span class="ident">Gif</span>(<span class="ident">GifFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span>),
+<span class="doccomment">/// Represents any one of the different types of frame iterators, compacted into one common enum
+/// with common methods.
+</span><span class="kw">pub enum </span>DynamicFrameIterator&lt;P: Pixel, R: Read&gt; {
+    <span class="doccomment">/// A single static image frame.
+    </span>Single(<span class="prelude-ty">Option</span>&lt;Image&lt;P&gt;&gt;, PhantomData&lt;R&gt;),
+    <span class="doccomment">/// A PNG or APNG frame iterator.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+    </span>Png(ApngFrameIterator&lt;P, R&gt;),
+    <span class="doccomment">/// A GIF frame iterator.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+    </span>Gif(GifFrameIterator&lt;P, R&gt;),
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Create a new single static image frame iterator.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">single</span>(<span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Single</span>(<span class="prelude-val">Some</span>(<span class="ident">image</span>), <span class="ident">PhantomData</span>)
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; DynamicFrameIterator&lt;P, R&gt; {
+    <span class="doccomment">/// Create a new single static image frame iterator.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>single(image: Image&lt;P&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Single(<span class="prelude-val">Some</span>(image), PhantomData)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">FrameIterator</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Single</span>(..) =&gt; <span class="number">1</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">len</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">len</span>(),
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; FrameIterator&lt;P&gt; <span class="kw">for </span>DynamicFrameIterator&lt;P, R&gt; {
+    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Single(..) =&gt; <span class="number">1</span>,
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            </span><span class="self">Self</span>::Png(it) =&gt; it.len(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            </span><span class="self">Self</span>::Gif(it) =&gt; it.len(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">loop_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::LoopCount</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Single</span>(..) =&gt; <span class="ident"><span class="kw">crate</span>::LoopCount::Exactly</span>(<span class="number">1</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">loop_count</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">loop_count</span>(),
+    <span class="kw">fn </span>loop_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::LoopCount {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Single(..) =&gt; <span class="kw">crate</span>::LoopCount::Exactly(<span class="number">1</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            </span><span class="self">Self</span>::Png(it) =&gt; it.loop_count(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            </span><span class="self">Self</span>::Gif(it) =&gt; it.loop_count(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">into_sequence</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">ImageSequence</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Single</span>(<span class="kw-2">mut</span> <span class="ident">it</span>, <span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">it</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">Frame::from_image</span>(<span class="ident">image</span>);
+    <span class="kw">fn </span>into_sequence(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;ImageSequence&lt;P&gt;&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Single(<span class="kw-2">mut </span>it, <span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>image = it.take().unwrap();
+                <span class="kw">let </span>frame = Frame::from_image(image);
 
-                <span class="prelude-val">Ok</span>(<span class="ident">ImageSequence::new</span>().<span class="ident">with_frame</span>(<span class="ident">frame</span>))
+                <span class="prelude-val">Ok</span>(ImageSequence::new().with_frame(frame))
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">into_sequence</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">into_sequence</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            </span><span class="self">Self</span>::Png(it) =&gt; it.into_sequence(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            </span><span class="self">Self</span>::Gif(it) =&gt; it.into_sequence(),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span>, <span class="ident">R</span>: <span class="ident">Read</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">DynamicFrameIterator</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Frame</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; Iterator <span class="kw">for </span>DynamicFrameIterator&lt;P, R&gt; {
+    <span class="kw">type </span>Item = <span class="kw">crate</span>::Result&lt;Frame&lt;P&gt;&gt;;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Single</span>(<span class="ident">it</span>, <span class="kw">_</span>) =&gt; <span class="ident">it</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">image</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">Frame::from_image</span>(<span class="ident">image</span>))),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">next</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">next</span>(),
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Single(it, <span class="kw">_</span>) =&gt; it.take().map(|image| <span class="prelude-val">Ok</span>(Frame::from_image(image))),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            </span><span class="self">Self</span>::Png(it) =&gt; it.next(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            </span><span class="self">Self</span>::Gif(it) =&gt; it.next(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Single</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
-            <span class="ident"><span class="self">Self</span>::Single</span>(<span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;png&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Png</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">size_hint</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;gif&quot;</span>)]</span>
-            <span class="ident"><span class="self">Self</span>::Gif</span>(<span class="ident">it</span>) =&gt; <span class="ident">it</span>.<span class="ident">size_hint</span>(),
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Single(<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)),
+            <span class="self">Self</span>::Single(<span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            </span><span class="self">Self</span>::Png(it) =&gt; it.size_hint(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            </span><span class="self">Self</span>::Gif(it) =&gt; it.size_hint(),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

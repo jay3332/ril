@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/resize.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resize.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/resize.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resize.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -108,110 +102,109 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
-</pre><pre class="rust"><code><span class="doccomment">//! An interfacing layer between `fast_image_resize` and this crate.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! An interfacing layer between `fast_image_resize` and this crate.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">encodings::ColorType</span>, <span class="ident">Pixel</span>};
+</span><span class="kw">use crate</span>::{encodings::ColorType, Pixel};
 
-<span class="kw">use</span> <span class="ident">fast_image_resize</span>::{
-    <span class="ident">FilterType</span> <span class="kw">as</span> <span class="ident">ResizeFilterType</span>, <span class="ident">Image</span> <span class="kw">as</span> <span class="ident">ResizeImage</span>, <span class="ident">PixelType</span> <span class="kw">as</span> <span class="ident">ResizePixelType</span>, <span class="ident">ResizeAlg</span>,
-    <span class="ident">Resizer</span>,
+<span class="kw">use </span>fast_image_resize::{
+    FilterType <span class="kw">as </span>ResizeFilterType, Image <span class="kw">as </span>ResizeImage, PixelType <span class="kw">as </span>ResizePixelType, ResizeAlg,
+    Resizer,
 };
-<span class="kw">use</span> <span class="ident">std::num::NonZeroU32</span>;
+<span class="kw">use </span>std::num::NonZeroU32;
 
-<span class="doccomment">/// A filtering algorithm that is used to resize an image.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FilterType</span> {
-    <span class="doccomment">/// A simple nearest neighbor algorithm. Although the fastest, this gives the lowest quality</span>
-    <span class="doccomment">/// resizings.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When upscaling this is good if you want a &quot;pixelated&quot; effect with no aliasing.</span>
-    <span class="ident">Nearest</span>,
-    <span class="doccomment">/// A box filter algorithm. Equivalent to the [`Nearest`] filter if you are upscaling.</span>
-    <span class="ident">Box</span>,
-    <span class="doccomment">/// A bilinear filter. Calculates output pixel value using linear interpolation on all pixels.</span>
-    <span class="ident">Bilinear</span>,
-    <span class="doccomment">/// While having similar performance as the [`Bilinear`] filter, this produces a sharper and</span>
-    <span class="doccomment">/// usually considered better quality image than the [`Bilinear`] filter, but **only** when</span>
-    <span class="doccomment">/// downscaling. This may give worse results than bilinear when upscaling.</span>
-    <span class="ident">Hamming</span>,
-    <span class="doccomment">/// A Catmull-Rom bicubic filter, which is the most common bicubic filtering algorithm. Just</span>
-    <span class="doccomment">/// like all cubic filters, it uses cubic interpolation on all pixels to calculate output</span>
-    <span class="doccomment">/// pixels.</span>
-    <span class="ident">Bicubic</span>,
-    <span class="doccomment">/// A Mitchell-Netravali bicubic filter. Just like all cubic filters, it uses cubic</span>
-    <span class="doccomment">/// interpolation on all pixels to calculate output pixels.</span>
-    <span class="ident">Mitchell</span>,
-    <span class="doccomment">/// A Lanczos filter with a window of 3. Calculates output pixel value using a high-quality</span>
-    <span class="doccomment">/// Lanczos filter on all pixels.</span>
-    <span class="ident">Lanczos3</span>,
+<span class="doccomment">/// A filtering algorithm that is used to resize an image.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>FilterType {
+    <span class="doccomment">/// A simple nearest neighbor algorithm. Although the fastest, this gives the lowest quality
+    /// resizings.
+    ///
+    /// When upscaling this is good if you want a &quot;pixelated&quot; effect with no aliasing.
+    </span>Nearest,
+    <span class="doccomment">/// A box filter algorithm. Equivalent to the [`Nearest`] filter if you are upscaling.
+    </span>Box,
+    <span class="doccomment">/// A bilinear filter. Calculates output pixel value using linear interpolation on all pixels.
+    </span>Bilinear,
+    <span class="doccomment">/// While having similar performance as the [`Bilinear`] filter, this produces a sharper and
+    /// usually considered better quality image than the [`Bilinear`] filter, but **only** when
+    /// downscaling. This may give worse results than bilinear when upscaling.
+    </span>Hamming,
+    <span class="doccomment">/// A Catmull-Rom bicubic filter, which is the most common bicubic filtering algorithm. Just
+    /// like all cubic filters, it uses cubic interpolation on all pixels to calculate output
+    /// pixels.
+    </span>Bicubic,
+    <span class="doccomment">/// A Mitchell-Netravali bicubic filter. Just like all cubic filters, it uses cubic
+    /// interpolation on all pixels to calculate output pixels.
+    </span>Mitchell,
+    <span class="doccomment">/// A Lanczos filter with a window of 3. Calculates output pixel value using a high-quality
+    /// Lanczos filter on all pixels.
+    </span>Lanczos3,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FilterType</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Nearest</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>FilterType {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Nearest
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">FilterType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResizeAlg</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="ident">FilterType</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">type</span> <span class="ident">F</span> <span class="op">=</span> <span class="ident">ResizeFilterType</span>;
+<span class="kw">impl </span>From&lt;FilterType&gt; <span class="kw">for </span>ResizeAlg {
+    <span class="kw">fn </span>from(f: FilterType) -&gt; <span class="self">Self </span>{
+        <span class="kw">type </span>F = ResizeFilterType;
 
-        <span class="ident"><span class="self">Self</span>::Convolution</span>(<span class="kw">match</span> <span class="ident">f</span> {
-            <span class="ident">FilterType::Nearest</span> =&gt; <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::Nearest</span>,
-            <span class="ident">FilterType::Box</span> =&gt; <span class="ident">F::Box</span>,
-            <span class="ident">FilterType::Bilinear</span> =&gt; <span class="ident">F::Bilinear</span>,
-            <span class="ident">FilterType::Hamming</span> =&gt; <span class="ident">F::Hamming</span>,
-            <span class="ident">FilterType::Bicubic</span> =&gt; <span class="ident">F::CatmullRom</span>,
-            <span class="ident">FilterType::Mitchell</span> =&gt; <span class="ident">F::Mitchell</span>,
-            <span class="ident">FilterType::Lanczos3</span> =&gt; <span class="ident">F::Lanczos3</span>,
+        <span class="self">Self</span>::Convolution(<span class="kw">match </span>f {
+            FilterType::Nearest =&gt; <span class="kw">return </span><span class="self">Self</span>::Nearest,
+            FilterType::Box =&gt; F::Box,
+            FilterType::Bilinear =&gt; F::Bilinear,
+            FilterType::Hamming =&gt; F::Hamming,
+            FilterType::Bicubic =&gt; F::CatmullRom,
+            FilterType::Mitchell =&gt; F::Mitchell,
+            FilterType::Lanczos3 =&gt; F::Lanczos3,
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::ptr_arg</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resize</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(
-    <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>,
-    <span class="ident">src_width</span>: <span class="ident">NonZeroU32</span>,
-    <span class="ident">src_height</span>: <span class="ident">NonZeroU32</span>,
-    <span class="ident">dst_width</span>: <span class="ident">NonZeroU32</span>,
-    <span class="ident">dst_height</span>: <span class="ident">NonZeroU32</span>,
-    <span class="ident">filter</span>: <span class="ident">FilterType</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">color_type</span>, <span class="ident">bit_depth</span>) <span class="op">=</span> <span class="ident">data</span>[<span class="number">0</span>].<span class="ident">as_pixel_data</span>().<span class="ident">type_data</span>();
-    <span class="kw">let</span> <span class="ident">pixel_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bit_depth</span> {
-        <span class="number">1</span> <span class="op">|</span> <span class="number">2</span> <span class="op">|</span> <span class="number">4</span> <span class="op">|</span> <span class="number">8</span> =&gt; <span class="kw">match</span> <span class="ident">color_type</span> {
-            <span class="ident">ColorType::L</span> <span class="op">|</span> <span class="ident">ColorType::Palette</span> =&gt; <span class="ident">ResizePixelType::U8</span>,
-            <span class="ident">ColorType::LA</span> =&gt; <span class="ident">ResizePixelType::U8x2</span>,
-            <span class="ident">ColorType::Rgb</span> =&gt; <span class="ident">ResizePixelType::U8x3</span>,
-            <span class="ident">ColorType::Rgba</span> =&gt; <span class="ident">ResizePixelType::U8x4</span>,
+<span class="attribute">#[allow(clippy::ptr_arg)]
+</span><span class="kw">pub fn </span>resize&lt;P: Pixel&gt;(
+    data: <span class="kw-2">&amp;</span>Vec&lt;P&gt;,
+    src_width: NonZeroU32,
+    src_height: NonZeroU32,
+    dst_width: NonZeroU32,
+    dst_height: NonZeroU32,
+    filter: FilterType,
+) -&gt; Vec&lt;P&gt; {
+    <span class="kw">let </span>(color_type, bit_depth) = data[<span class="number">0</span>].as_pixel_data().type_data();
+    <span class="kw">let </span>pixel_type = <span class="kw">match </span>bit_depth {
+        <span class="number">1 </span>| <span class="number">2 </span>| <span class="number">4 </span>| <span class="number">8 </span>=&gt; <span class="kw">match </span>color_type {
+            ColorType::L | ColorType::Palette =&gt; ResizePixelType::U8,
+            ColorType::LA =&gt; ResizePixelType::U8x2,
+            ColorType::Rgb =&gt; ResizePixelType::U8x3,
+            ColorType::Rgba =&gt; ResizePixelType::U8x4,
         },
-        <span class="number">16</span> =&gt; <span class="kw">match</span> <span class="ident">color_type</span> {
-            <span class="ident">ColorType::L</span> <span class="op">|</span> <span class="ident">ColorType::Palette</span> =&gt; <span class="ident">ResizePixelType::U16</span>,
-            <span class="ident">ColorType::LA</span> =&gt; <span class="ident">ResizePixelType::U16x2</span>,
-            <span class="ident">ColorType::Rgb</span> =&gt; <span class="ident">ResizePixelType::U16x3</span>,
-            <span class="ident">ColorType::Rgba</span> =&gt; <span class="ident">ResizePixelType::U16x4</span>,
+        <span class="number">16 </span>=&gt; <span class="kw">match </span>color_type {
+            ColorType::L | ColorType::Palette =&gt; ResizePixelType::U16,
+            ColorType::LA =&gt; ResizePixelType::U16x2,
+            ColorType::Rgb =&gt; ResizePixelType::U16x3,
+            ColorType::Rgba =&gt; ResizePixelType::U16x4,
         },
-        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported bit depth&quot;</span>),
+        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported bit depth&quot;</span>),
     };
 
-    <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="ident">P::as_bytes</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="comment">// We are able to unwrap here since we validated the buffer throughout the creation of the image.</span>
-    <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">ResizeImage::from_vec_u8</span>(<span class="ident">src_width</span>, <span class="ident">src_height</span>, <span class="ident">buffer</span>, <span class="ident">pixel_type</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">view</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">view</span>();
+    <span class="kw">let </span>buffer = data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="comment">// We are able to unwrap here since we validated the buffer throughout the creation of the image.
+    </span><span class="kw">let </span>image = ResizeImage::from_vec_u8(src_width, src_height, buffer, pixel_type).unwrap();
+    <span class="kw">let </span>view = image.view();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dest</span> <span class="op">=</span> <span class="ident">ResizeImage::new</span>(<span class="ident">dst_width</span>, <span class="ident">dst_height</span>, <span class="ident">pixel_type</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dst_view</span> <span class="op">=</span> <span class="ident">dest</span>.<span class="ident">view_mut</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>dest = ResizeImage::new(dst_width, dst_height, pixel_type);
+    <span class="kw">let </span><span class="kw-2">mut </span>dst_view = dest.view_mut();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resizer</span> <span class="op">=</span> <span class="ident">Resizer::new</span>(<span class="ident">filter</span>.<span class="ident">into</span>());
-    <span class="comment">// The pixel type is the same, we can unwrap here</span>
-    <span class="ident">resizer</span>.<span class="ident">resize</span>(<span class="kw-2">&amp;</span><span class="ident">view</span>, <span class="kw-2">&amp;mut</span> <span class="ident">dst_view</span>).<span class="ident">unwrap</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>resizer = Resizer::new(filter.into());
+    <span class="comment">// The pixel type is the same, we can unwrap here
+    </span>resizer.resize(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;mut </span>dst_view).unwrap();
 
-    <span class="kw">let</span> <span class="ident">bpp</span> <span class="op">=</span> <span class="ident">color_type</span>.<span class="ident">channels</span>() <span class="op">*</span> ((<span class="ident">bit_depth</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="number">7</span>) <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>);
-    <span class="ident">dest</span>.<span class="ident">into_vec</span>()
-        .<span class="ident">chunks_exact</span>(<span class="ident">bpp</span>)
-        .<span class="ident">map</span>(<span class="ident">P::from_bytes</span>)
-        .<span class="ident">collect</span>()
+    <span class="kw">let </span>bpp = color_type.channels() * ((bit_depth <span class="kw">as </span>usize + <span class="number">7</span>) &gt;&gt; <span class="number">3</span>);
+    dest.into_vec()
+        .chunks_exact(bpp)
+        .map(P::from_bytes)
+        .collect()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

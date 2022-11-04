@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pixel.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pixel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pixel.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pixel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1068,1070 +1062,1069 @@
 <span id="1062">1062</span>
 <span id="1063">1063</span>
 <span id="1064">1064</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Encloses pixel-related traits and pixel type implementations.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Encloses pixel-related traits and pixel type implementations.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">encodings::PixelData</span>,
-    <span class="ident">image::OverlayMode</span>,
-    <span class="ident">Error</span>::{<span class="ident">InvalidHexCode</span>, <span class="ident">UnsupportedColorType</span>},
+</span><span class="kw">use crate</span>::{
+    encodings::PixelData,
+    image::OverlayMode,
+    Error::{InvalidHexCode, UnsupportedColorType},
     <span class="prelude-ty">Result</span>,
 };
 
-<span class="doccomment">/// Represents any type of pixel in an image.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Pixel</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Eq</span> {
-    <span class="doccomment">/// The type of a single component in the pixel.</span>
-    <span class="kw">type</span> <span class="ident">Subpixel</span>;
+<span class="doccomment">/// Represents any type of pixel in an image.
+///
+/// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
+</span><span class="kw">pub trait </span>Pixel: Copy + Clone + Default + PartialEq + Eq {
+    <span class="doccomment">/// The type of a single component in the pixel.
+    </span><span class="kw">type </span>Subpixel;
 
-    <span class="doccomment">/// The iterator type this pixel uses.</span>
-    <span class="kw">type</span> <span class="ident">Data</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">u8</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// The iterator type this pixel uses.
+    </span><span class="kw">type </span>Data: IntoIterator&lt;Item = u8&gt;;
 
-    <span class="doccomment">/// Returns the inverted value of this pixel.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This does not independently invert the alpha value, instead you may need to</span>
-    <span class="doccomment">/// split the image and isolate the alpha channel into an Image&lt;L&gt;, invert it, then merge the</span>
-    <span class="doccomment">/// bands.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Why not invert alpha?</span>
-    <span class="doccomment">/// In most cases the alpha channel is favored to be not inverted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// In the case that a pixel is completely transparent, this behavior is almost always the case.</span>
-    <span class="doccomment">/// The user cannot actually see the color of the pixel, so inverting it to a seemingly</span>
-    <span class="doccomment">/// unknown color could be unexpected.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For translucent pixels, in most cases the expected behavior is to only invert the color</span>
-    <span class="doccomment">/// shown for the translucent pixel and not change the alpha itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Finally, the most obvious reasoning is that for fully opaque pixels, those pixels will</span>
-    <span class="doccomment">/// become fully transparent which is obviously not favored.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Returns the inverted value of this pixel.
+    ///
+    /// This does not independently invert the alpha value, instead you may need to
+    /// split the image and isolate the alpha channel into an Image&lt;L&gt;, invert it, then merge the
+    /// bands.
+    ///
+    /// # Why not invert alpha?
+    /// In most cases the alpha channel is favored to be not inverted.
+    ///
+    /// In the case that a pixel is completely transparent, this behavior is almost always the case.
+    /// The user cannot actually see the color of the pixel, so inverting it to a seemingly
+    /// unknown color could be unexpected.
+    ///
+    /// For translucent pixels, in most cases the expected behavior is to only invert the color
+    /// shown for the translucent pixel and not change the alpha itself.
+    ///
+    /// Finally, the most obvious reasoning is that for fully opaque pixels, those pixels will
+    /// become fully transparent which is obviously not favored.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// The luminance of the pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">luminance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The luminance of the pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>luminance(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8
+    <span class="kw">where
+        </span><span class="self">Self</span>: Into&lt;L&gt;,
     {
-        <span class="kw">let</span> <span class="ident">L</span>(<span class="ident">value</span>) <span class="op">=</span> (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">into</span>();
+        <span class="kw">let </span>L(value) = (<span class="kw-2">*</span><span class="self">self</span>).into();
 
-        <span class="ident">value</span>
+        value
     }
 
-    <span class="doccomment">/// Maps the pixel&#39;s components and returns a new pixel with the mapped components.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Alpha is intentionally mapped separately. If no alpha component exists, the alpha function</span>
-    <span class="doccomment">/// is ignored.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">map_subpixels</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">a</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
-        <span class="ident">A</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>;
+    <span class="doccomment">/// Maps the pixel&#39;s components and returns a new pixel with the mapped components.
+    ///
+    /// Alpha is intentionally mapped separately. If no alpha component exists, the alpha function
+    /// is ignored.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, a: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
+        A: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel;
 
-    <span class="doccomment">/// Creates this pixel from raw data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// todo!()</span>
-    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Creates this pixel from raw data.
+    ///
+    /// # Errors
+    /// todo!()
+    </span><span class="kw">fn </span>from_pixel_data(data: PixelData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;;
 
-    <span class="doccomment">/// Creates raw pixel data from this pixel type.</span>
-    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span>;
+    <span class="doccomment">/// Creates raw pixel data from this pixel type.
+    </span><span class="kw">fn </span>as_pixel_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixelData;
 
-    <span class="doccomment">/// Creates this pixel from a raw bytes. This is used internally and is unchecked - it panics</span>
-    <span class="doccomment">/// if the data is not of the correct length.</span>
-    <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Creates this pixel from a raw bytes. This is used internally and is unchecked - it panics
+    /// if the data is not of the correct length.
+    </span><span class="kw">fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Turns this pixel into bytes.</span>
-    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span>;
+    <span class="doccomment">/// Turns this pixel into bytes.
+    </span><span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Data;
 
-    <span class="doccomment">/// Merges this pixel with the given overlay pixel, taking into account alpha.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">other</span>
+    <span class="doccomment">/// Merges this pixel with the given overlay pixel, taking into account alpha.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>merge(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        other
     }
 
-    <span class="doccomment">/// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlay</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">OverlayMode::Replace</span> =&gt; <span class="ident">other</span>,
-            <span class="ident">OverlayMode::Merge</span> =&gt; <span class="self">self</span>.<span class="ident">merge</span>(<span class="ident">other</span>),
+    <span class="doccomment">/// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>overlay(<span class="self">self</span>, other: <span class="self">Self</span>, mode: OverlayMode) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>mode {
+            OverlayMode::Replace =&gt; other,
+            OverlayMode::Merge =&gt; <span class="self">self</span>.merge(other),
         }
     }
 
-    <span class="doccomment">/// Merges this pixel with the given overlay pixel, where the alpha of the overlay pixel is</span>
-    <span class="doccomment">/// known. This is used in anti-aliasing.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">merge_with_alpha</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Merges this pixel with the given overlay pixel, where the alpha of the overlay pixel is
+    /// known. This is used in anti-aliasing.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>merge_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, alpha: u8) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode with</span>
-    <span class="doccomment">/// the given alpha.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is used in anti-aliasing.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">overlay_with_alpha</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">mode</span>: <span class="ident">OverlayMode</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">OverlayMode::Replace</span> =&gt; <span class="ident">other</span>,
-            <span class="ident">OverlayMode::Merge</span> =&gt; <span class="self">self</span>.<span class="ident">merge_with_alpha</span>(<span class="ident">other</span>, <span class="ident">alpha</span>),
+    <span class="doccomment">/// Overlays this pixel with the given overlay pixel, abiding by the given overlay mode with
+    /// the given alpha.
+    ///
+    /// This is used in anti-aliasing.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>overlay_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, mode: OverlayMode, alpha: u8) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>mode {
+            OverlayMode::Replace =&gt; other,
+            OverlayMode::Merge =&gt; <span class="self">self</span>.merge_with_alpha(other, alpha),
         }
     }
 
-    <span class="doccomment">/// Creates this pixel from any dynamic pixel...dynamically at runtime. Different from the</span>
-    <span class="doccomment">/// From/Into traits.</span>
-    <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Creates this pixel from any dynamic pixel...dynamically at runtime. Different from the
+    /// From/Into traits.
+    </span><span class="kw">fn </span>from_dynamic(dynamic: Dynamic) -&gt; <span class="self">Self</span>;
 }
 
-<span class="doccomment">/// Represents a pixel that supports alpha, or transparency values.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Alpha</span>: <span class="ident">Pixel</span> {
-    <span class="doccomment">/// Returns the alpha, or opacity level of the pixel.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a value between 0 and 255.</span>
-    <span class="doccomment">/// 0 is completely transparent, and 255 is completely opaque.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">alpha</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span>;
+<span class="doccomment">/// Represents a pixel that supports alpha, or transparency values.
+</span><span class="kw">pub trait </span>Alpha: Pixel {
+    <span class="doccomment">/// Returns the alpha, or opacity level of the pixel.
+    ///
+    /// This is a value between 0 and 255.
+    /// 0 is completely transparent, and 255 is completely opaque.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>alpha(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8;
 
-    <span class="doccomment">/// Clones this pixel with the given alpha value.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">with_alpha</span>(<span class="self">self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Clones this pixel with the given alpha value.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">fn </span>with_alpha(<span class="self">self</span>, alpha: u8) -&gt; <span class="self">Self</span>;
 }
 
-<span class="doccomment">/// Represents a single-bit pixel that represents either a pixel that is on or off.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BitPixel</span>(
-    <span class="doccomment">/// Whether the pixel is on.</span>
-    <span class="kw">pub</span> <span class="ident">bool</span>,
+<span class="doccomment">/// Represents a single-bit pixel that represents either a pixel that is on or off.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>BitPixel(
+    <span class="doccomment">/// Whether the pixel is on.
+    </span><span class="kw">pub </span>bool,
 );
 
-<span class="kw">impl</span> <span class="ident">BitPixel</span> {
-    <span class="doccomment">/// Returns a new `BitPixel` with the given value.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">value</span>)
+<span class="kw">impl </span>BitPixel {
+    <span class="doccomment">/// Returns a new `BitPixel` with the given value.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>new(value: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(value)
     }
 
-    <span class="doccomment">/// Returns the value of the pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns the value of the pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns a new `BitPixel` that is on.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">on</span>() -&gt; <span class="self">Self</span> {
+    <span class="doccomment">/// Returns a new `BitPixel` that is on.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>on() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(<span class="bool-val">true</span>)
     }
 
-    <span class="doccomment">/// Returns a new `BitPixel` that is off.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">off</span>() -&gt; <span class="self">Self</span> {
+    <span class="doccomment">/// Returns a new `BitPixel` that is off.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>off() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(<span class="bool-val">false</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">BitPixel</span> {
-    <span class="kw">type</span> <span class="ident">Subpixel</span> <span class="op">=</span> <span class="ident">bool</span>;
-    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">1</span>];
+<span class="kw">impl </span>Pixel <span class="kw">for </span>BitPixel {
+    <span class="kw">type </span>Subpixel = bool;
+    <span class="kw">type </span>Data = [u8; <span class="number">1</span>];
 
-    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="op">!</span><span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(!<span class="self">self</span>.<span class="number">0</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">map_subpixels</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>, <span class="kw">_</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
-        <span class="ident">A</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
+    <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, <span class="kw">_</span>: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
+        A: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
     {
-        <span class="self">Self</span>(<span class="ident">f</span>(<span class="self">self</span>.<span class="number">0</span>))
+        <span class="self">Self</span>(f(<span class="self">self</span>.<span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="comment">// Before, this supported L, however this implicit conversion is not supported anymore</span>
-        <span class="comment">// as the result will be completely different</span>
-        <span class="kw">match</span> <span class="ident">data</span> {
-            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>)),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
+    <span class="kw">fn </span>from_pixel_data(data: PixelData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="comment">// Before, this supported L, however this implicit conversion is not supported anymore
+        // as the result will be completely different
+        </span><span class="kw">match </span>data {
+            PixelData::Bit(value) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(value)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(UnsupportedColorType),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
-        <span class="ident">PixelData::Bit</span>(<span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>as_pixel_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixelData {
+        PixelData::Bit(<span class="self">self</span>.<span class="number">0</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">bytes</span>[<span class="number">0</span>] <span class="op">&gt;</span> <span class="number">127</span>)
+    <span class="kw">fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(bytes[<span class="number">0</span>] &gt; <span class="number">127</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
-        [<span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> { <span class="number">255</span> } <span class="kw">else</span> { <span class="number">0</span> }]
+    <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Data {
+        [<span class="kw">if </span><span class="self">self</span>.<span class="number">0 </span>{ <span class="number">255 </span>} <span class="kw">else </span>{ <span class="number">0 </span>}]
     }
 
-    <span class="kw">fn</span> <span class="ident">merge_with_alpha</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="ident">alpha</span> <span class="op">&lt;</span> <span class="number">128</span> {
-            <span class="self">self</span>
-        } <span class="kw">else</span> {
-            <span class="ident">other</span>
+    <span class="kw">fn </span>merge_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
+        <span class="kw">if </span>alpha &lt; <span class="number">128 </span>{
+            <span class="self">self
+        </span>} <span class="kw">else </span>{
+            other
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">dynamic</span> {
-            <span class="ident">Dynamic::BitPixel</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>,
-            <span class="ident">Dynamic::L</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::Rgb</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::Rgba</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
+    <span class="kw">fn </span>from_dynamic(dynamic: Dynamic) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>dynamic {
+            Dynamic::BitPixel(value) =&gt; value,
+            Dynamic::L(value) =&gt; value.into(),
+            Dynamic::Rgb(value) =&gt; value.into(),
+            Dynamic::Rgba(value) =&gt; value.into(),
         }
     }
 }
 
-<span class="doccomment">/// Represents an L, or luminance pixel that is stored as only one single</span>
-<span class="doccomment">/// number representing how bright, or intense, the pixel is.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This can be thought of as the &quot;unit channel&quot; as this represents only</span>
-<span class="doccomment">/// a single channel in which other pixel types can be composed of.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">L</span>(
-    <span class="doccomment">/// The luminance value of the pixel, between 0 and 255.</span>
-    <span class="kw">pub</span> <span class="ident">u8</span>,
+<span class="doccomment">/// Represents an L, or luminance pixel that is stored as only one single
+/// number representing how bright, or intense, the pixel is.
+///
+/// This can be thought of as the &quot;unit channel&quot; as this represents only
+/// a single channel in which other pixel types can be composed of.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>L(
+    <span class="doccomment">/// The luminance value of the pixel, between 0 and 255.
+    </span><span class="kw">pub </span>u8,
 );
 
-<span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">L</span> {
-    <span class="kw">type</span> <span class="ident">Subpixel</span> <span class="op">=</span> <span class="ident">u8</span>;
-    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">1</span>];
+<span class="kw">impl </span>Pixel <span class="kw">for </span>L {
+    <span class="kw">type </span>Subpixel = u8;
+    <span class="kw">type </span>Data = [u8; <span class="number">1</span>];
 
-    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="op">!</span><span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(!<span class="self">self</span>.<span class="number">0</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">map_subpixels</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>, <span class="kw">_</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
-        <span class="ident">A</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
+    <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, <span class="kw">_</span>: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
+        A: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
     {
-        <span class="self">Self</span>(<span class="ident">f</span>(<span class="self">self</span>.<span class="number">0</span>))
+        <span class="self">Self</span>(f(<span class="self">self</span>.<span class="number">0</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">data</span> {
-            <span class="comment">// Currently, losing alpha implicitly is allowed, but I may change my mind about this</span>
-            <span class="comment">// in the future.</span>
-            <span class="ident">PixelData::L</span>(<span class="ident">value</span>) <span class="op">|</span> <span class="ident">PixelData::LA</span>(<span class="ident">value</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">value</span>)),
-            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="kw">if</span> <span class="ident">value</span> { <span class="number">255</span> } <span class="kw">else</span> { <span class="number">0</span> })),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
+    <span class="kw">fn </span>from_pixel_data(data: PixelData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span>data {
+            <span class="comment">// Currently, losing alpha implicitly is allowed, but I may change my mind about this
+            // in the future.
+            </span>PixelData::L(value) | PixelData::LA(value, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(value)),
+            PixelData::Bit(value) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="kw">if </span>value { <span class="number">255 </span>} <span class="kw">else </span>{ <span class="number">0 </span>})),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(UnsupportedColorType),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
-        <span class="ident">PixelData::L</span>(<span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>as_pixel_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixelData {
+        PixelData::L(<span class="self">self</span>.<span class="number">0</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">bytes</span>[<span class="number">0</span>])
+    <span class="kw">fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(bytes[<span class="number">0</span>])
     }
 
-    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
+    <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Data {
         [<span class="self">self</span>.<span class="number">0</span>]
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_lossless</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">merge_with_alpha</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">alpha</span> <span class="op">=</span> <span class="ident">alpha</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>;
-        <span class="kw">let</span> <span class="ident">base_l</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>;
-        <span class="kw">let</span> <span class="ident">overlay_l</span> <span class="op">=</span> <span class="ident">other</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>;
+    <span class="attribute">#[allow(clippy::cast_lossless)]
+    </span><span class="kw">fn </span>merge_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>alpha = alpha <span class="kw">as </span>f32 / <span class="number">255.</span>;
+        <span class="kw">let </span>base_l = <span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span>f32 / <span class="number">255.</span>;
+        <span class="kw">let </span>overlay_l = other.<span class="number">0 </span><span class="kw">as </span>f32 / <span class="number">255.</span>;
 
-        <span class="kw">let</span> <span class="ident">a_diff</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">alpha</span>;
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">a_diff</span>.<span class="ident">mul_add</span>(<span class="number">255.</span>, <span class="ident">alpha</span>);
-        <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> (<span class="ident">a_diff</span> <span class="op">*</span> <span class="number">255.</span>).<span class="ident">mul_add</span>(<span class="ident">base_l</span>, <span class="ident">alpha</span> <span class="op">*</span> <span class="ident">overlay_l</span>) <span class="op">/</span> <span class="ident">a</span>;
+        <span class="kw">let </span>a_diff = <span class="number">1. </span>- alpha;
+        <span class="kw">let </span>a = a_diff.mul_add(<span class="number">255.</span>, alpha);
+        <span class="kw">let </span>l = (a_diff * <span class="number">255.</span>).mul_add(base_l, alpha * overlay_l) / a;
 
-        <span class="self">Self</span>((<span class="ident">l</span> <span class="op">*</span> <span class="number">255.</span>) <span class="kw">as</span> <span class="ident">u8</span>)
+        <span class="self">Self</span>((l * <span class="number">255.</span>) <span class="kw">as </span>u8)
     }
 
-    <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">dynamic</span> {
-            <span class="ident">Dynamic::L</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>,
-            <span class="ident">Dynamic::BitPixel</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::Rgb</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::Rgba</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
+    <span class="kw">fn </span>from_dynamic(dynamic: Dynamic) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>dynamic {
+            Dynamic::L(value) =&gt; value,
+            Dynamic::BitPixel(value) =&gt; value.into(),
+            Dynamic::Rgb(value) =&gt; value.into(),
+            Dynamic::Rgba(value) =&gt; value.into(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">L</span> {
-    <span class="doccomment">/// Creates a new L pixel with the given luminance value.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">l</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">l</span>)
+<span class="kw">impl </span>L {
+    <span class="doccomment">/// Creates a new L pixel with the given luminance value.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>new(l: u8) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(l)
     }
 
-    <span class="doccomment">/// Returns the luminance value of the pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns the luminance value of the pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
 }
 
-<span class="doccomment">/// Represents an RGB pixel.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Rgb</span> {
-    <span class="doccomment">/// The red component of the pixel.</span>
-    <span class="kw">pub</span> <span class="ident">r</span>: <span class="ident">u8</span>,
-    <span class="doccomment">/// The green component of the pixel.</span>
-    <span class="kw">pub</span> <span class="ident">g</span>: <span class="ident">u8</span>,
-    <span class="doccomment">/// The blue component of the pixel.</span>
-    <span class="kw">pub</span> <span class="ident">b</span>: <span class="ident">u8</span>,
+<span class="doccomment">/// Represents an RGB pixel.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Rgb {
+    <span class="doccomment">/// The red component of the pixel.
+    </span><span class="kw">pub </span>r: u8,
+    <span class="doccomment">/// The green component of the pixel.
+    </span><span class="kw">pub </span>g: u8,
+    <span class="doccomment">/// The blue component of the pixel.
+    </span><span class="kw">pub </span>b: u8,
 }
 
-<span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">Rgb</span> {
-    <span class="kw">type</span> <span class="ident">Subpixel</span> <span class="op">=</span> <span class="ident">u8</span>;
-    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">3</span>];
+<span class="kw">impl </span>Pixel <span class="kw">for </span>Rgb {
+    <span class="kw">type </span>Subpixel = u8;
+    <span class="kw">type </span>Data = [u8; <span class="number">3</span>];
 
-    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">r</span>,
-            <span class="ident">g</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">g</span>,
-            <span class="ident">b</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">b</span>,
+    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            r: !<span class="self">self</span>.r,
+            g: !<span class="self">self</span>.g,
+            b: !<span class="self">self</span>.b,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">map_subpixels</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>, <span class="kw">_</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
-        <span class="ident">A</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
+    <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, <span class="kw">_</span>: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
+        A: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
     {
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">r</span>),
-            <span class="ident">g</span>: <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">g</span>),
-            <span class="ident">b</span>: <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">b</span>),
+        <span class="self">Self </span>{
+            r: f(<span class="self">self</span>.r),
+            g: f(<span class="self">self</span>.g),
+            b: f(<span class="self">self</span>.b),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_wildcard_for_single_variants</span>)]</span>
-        <span class="kw">match</span> <span class="ident">data</span> {
-            <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) <span class="op">|</span> <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }),
-            <span class="ident">PixelData::L</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">PixelData::LA</span>(<span class="ident">l</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>: <span class="ident">l</span>, <span class="ident">g</span>: <span class="ident">l</span>, <span class="ident">b</span>: <span class="ident">l</span> }),
-            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="ident">value</span> { <span class="ident"><span class="self">Self</span>::white</span>() } <span class="kw">else</span> { <span class="ident"><span class="self">Self</span>::black</span>() }),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
+    <span class="kw">fn </span>from_pixel_data(data: PixelData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="attribute">#[allow(clippy::match_wildcard_for_single_variants)]
+        </span><span class="kw">match </span>data {
+            PixelData::Rgb(r, g, b) | PixelData::Rgba(r, g, b, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ r, g, b }),
+            PixelData::L(l) | PixelData::LA(l, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ r: l, g: l, b: l }),
+            PixelData::Bit(value) =&gt; <span class="prelude-val">Ok</span>(<span class="kw">if </span>value { <span class="self">Self</span>::white() } <span class="kw">else </span>{ <span class="self">Self</span>::black() }),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(UnsupportedColorType),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
-        <span class="ident">PixelData::Rgb</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>)
+    <span class="kw">fn </span>as_pixel_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixelData {
+        PixelData::Rgb(<span class="self">self</span>.r, <span class="self">self</span>.g, <span class="self">self</span>.b)
     }
 
-    <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="ident">bytes</span>[<span class="number">0</span>],
-            <span class="ident">g</span>: <span class="ident">bytes</span>[<span class="number">1</span>],
-            <span class="ident">b</span>: <span class="ident">bytes</span>[<span class="number">2</span>],
+    <span class="kw">fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            r: bytes[<span class="number">0</span>],
+            g: bytes[<span class="number">1</span>],
+            b: bytes[<span class="number">2</span>],
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
-        [<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>]
+    <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Data {
+        [<span class="self">self</span>.r, <span class="self">self</span>.g, <span class="self">self</span>.b]
     }
 
-    <span class="kw">fn</span> <span class="ident">merge_with_alpha</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Rgba::from_rgb</span>(<span class="self">self</span>)
-            .<span class="ident">merge_with_alpha</span>(<span class="ident">Rgba::from_rgb</span>(<span class="ident">other</span>), <span class="ident">alpha</span>)
-            .<span class="ident">into</span>()
+    <span class="kw">fn </span>merge_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
+        Rgba::from_rgb(<span class="self">self</span>)
+            .merge_with_alpha(Rgba::from_rgb(other), alpha)
+            .into()
     }
 
-    <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">dynamic</span> {
-            <span class="ident">Dynamic::Rgb</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>,
-            <span class="ident">Dynamic::Rgba</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::BitPixel</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::L</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
+    <span class="kw">fn </span>from_dynamic(dynamic: Dynamic) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>dynamic {
+            Dynamic::Rgb(value) =&gt; value,
+            Dynamic::Rgba(value) =&gt; value.into(),
+            Dynamic::BitPixel(value) =&gt; value.into(),
+            Dynamic::L(value) =&gt; value.into(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Rgb</span> {
-    <span class="doccomment">/// Creates a new RGB pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">r</span>: <span class="ident">u8</span>, <span class="ident">g</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }
+<span class="kw">impl </span>Rgb {
+    <span class="doccomment">/// Creates a new RGB pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>new(r: u8, g: u8, b: u8) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ r, g, b }
     }
 
-    <span class="doccomment">/// Parses an RGB pixel from a hex value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The hex value can be in one of the following formats:</span>
-    <span class="doccomment">/// - RRGGBB</span>
-    <span class="doccomment">/// - RGB</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * Received a malformed hex code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_hex</span>(<span class="ident">hex</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="ident">hex</span>.<span class="ident">as_ref</span>();
+    <span class="doccomment">/// Parses an RGB pixel from a hex value.
+    ///
+    /// The hex value can be in one of the following formats:
+    /// - RRGGBB
+    /// - RGB
+    ///
+    /// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.
+    ///
+    /// # Errors
+    /// * Received a malformed hex code.
+    </span><span class="kw">pub fn </span>from_hex(hex: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>hex = hex.as_ref();
 
-        <span class="comment">// Strip # from the hex code</span>
-        <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="ident">hex</span>.<span class="ident">strip_prefix</span>(<span class="string">&#39;#&#39;</span>).<span class="ident">unwrap_or</span>(<span class="ident">hex</span>);
+        <span class="comment">// Strip # from the hex code
+        </span><span class="kw">let </span>hex = hex.strip_prefix(<span class="string">&#39;#&#39;</span>).unwrap_or(hex);
 
-        <span class="comment">// Expand the hex code to 6 characters</span>
-        <span class="comment">//</span>
-        <span class="comment">// We can use .len() instead of .chars().count() since it&#39;s both faster</span>
-        <span class="comment">// performance-wise and also because characters of a hex-string will never</span>
-        <span class="comment">// take up more than one byte.</span>
-        <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">hex</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">3</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expanded</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="number">6</span>);
+        <span class="comment">// Expand the hex code to 6 characters
+        //
+        // We can use .len() instead of .chars().count() since it&#39;s both faster
+        // performance-wise and also because characters of a hex-string will never
+        // take up more than one byte.
+        </span><span class="kw">let </span>hex = <span class="kw">if </span>hex.len() == <span class="number">3 </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>expanded = String::with_capacity(<span class="number">6</span>);
 
-            <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">hex</span>.<span class="ident">chars</span>() {
-                <span class="ident">expanded</span>.<span class="ident">push</span>(<span class="ident">c</span>);
-                <span class="ident">expanded</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+            <span class="kw">for </span>c <span class="kw">in </span>hex.chars() {
+                expanded.push(c);
+                expanded.push(c);
             }
 
-            <span class="ident">expanded</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">hex</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">6</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">InvalidHexCode</span>(<span class="ident">hex</span>.<span class="ident">to_string</span>()));
-        } <span class="kw">else</span> {
-            <span class="ident">hex</span>.<span class="ident">to_string</span>()
+            expanded
+        } <span class="kw">else if </span>hex.len() != <span class="number">6 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(InvalidHexCode(hex.to_string()));
+        } <span class="kw">else </span>{
+            hex.to_string()
         };
 
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">InvalidHexCode</span>(<span class="ident">hex</span>.<span class="ident">to_string</span>());
+        <span class="kw">let </span>err = |<span class="kw">_</span>| InvalidHexCode(hex.to_string());
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>[<span class="number">0</span>..<span class="number">2</span>], <span class="number">16</span>).<span class="ident">map_err</span>(<span class="ident">err</span>)<span class="question-mark">?</span>,
-            <span class="ident">g</span>: <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>[<span class="number">2</span>..<span class="number">4</span>], <span class="number">16</span>).<span class="ident">map_err</span>(<span class="ident">err</span>)<span class="question-mark">?</span>,
-            <span class="ident">b</span>: <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>[<span class="number">4</span>..<span class="number">6</span>], <span class="number">16</span>).<span class="ident">map_err</span>(<span class="ident">err</span>)<span class="question-mark">?</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            r: u8::from_str_radix(<span class="kw-2">&amp;</span>hex[<span class="number">0</span>..<span class="number">2</span>], <span class="number">16</span>).map_err(err)<span class="question-mark">?</span>,
+            g: u8::from_str_radix(<span class="kw-2">&amp;</span>hex[<span class="number">2</span>..<span class="number">4</span>], <span class="number">16</span>).map_err(err)<span class="question-mark">?</span>,
+            b: u8::from_str_radix(<span class="kw-2">&amp;</span>hex[<span class="number">4</span>..<span class="number">6</span>], <span class="number">16</span>).map_err(err)<span class="question-mark">?</span>,
         })
     }
 
-    <span class="doccomment">/// Creates a completely black pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">black</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
+    <span class="doccomment">/// Creates a completely black pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>black() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Creates a completely white pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">white</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>)
+    <span class="doccomment">/// Creates a completely white pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>white() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>)
     }
 }
 
-<span class="doccomment">/// Represents an RGBA pixel.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Rgba</span> {
-    <span class="doccomment">/// The red component of the pixel.</span>
-    <span class="kw">pub</span> <span class="ident">r</span>: <span class="ident">u8</span>,
-    <span class="doccomment">/// The green component of the pixel.</span>
-    <span class="kw">pub</span> <span class="ident">g</span>: <span class="ident">u8</span>,
-    <span class="doccomment">/// The blue component of the pixel.</span>
-    <span class="kw">pub</span> <span class="ident">b</span>: <span class="ident">u8</span>,
-    <span class="doccomment">/// The alpha component of the pixel.</span>
-    <span class="kw">pub</span> <span class="ident">a</span>: <span class="ident">u8</span>,
+<span class="doccomment">/// Represents an RGBA pixel.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>Rgba {
+    <span class="doccomment">/// The red component of the pixel.
+    </span><span class="kw">pub </span>r: u8,
+    <span class="doccomment">/// The green component of the pixel.
+    </span><span class="kw">pub </span>g: u8,
+    <span class="doccomment">/// The blue component of the pixel.
+    </span><span class="kw">pub </span>b: u8,
+    <span class="doccomment">/// The alpha component of the pixel.
+    </span><span class="kw">pub </span>a: u8,
 }
 
-<span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">Rgba</span> {
-    <span class="kw">type</span> <span class="ident">Subpixel</span> <span class="op">=</span> <span class="ident">u8</span>;
-    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">4</span>];
+<span class="kw">impl </span>Pixel <span class="kw">for </span>Rgba {
+    <span class="kw">type </span>Subpixel = u8;
+    <span class="kw">type </span>Data = [u8; <span class="number">4</span>];
 
-    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">r</span>,
-            <span class="ident">g</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">g</span>,
-            <span class="ident">b</span>: <span class="op">!</span><span class="self">self</span>.<span class="ident">b</span>,
-            <span class="ident">a</span>: <span class="self">self</span>.<span class="ident">a</span>,
+    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            r: !<span class="self">self</span>.r,
+            g: !<span class="self">self</span>.g,
+            b: !<span class="self">self</span>.b,
+            a: <span class="self">self</span>.a,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">map_subpixels</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">a</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
-        <span class="ident">A</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
+    <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, a: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
+        A: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
     {
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">r</span>),
-            <span class="ident">g</span>: <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">g</span>),
-            <span class="ident">b</span>: <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">b</span>),
-            <span class="ident">a</span>: <span class="ident">a</span>(<span class="self">self</span>.<span class="ident">a</span>),
+        <span class="self">Self </span>{
+            r: f(<span class="self">self</span>.r),
+            g: f(<span class="self">self</span>.g),
+            b: f(<span class="self">self</span>.b),
+            a: a(<span class="self">self</span>.a),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_wildcard_for_single_variants</span>)]</span>
-        <span class="kw">match</span> <span class="ident">data</span> {
-            <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>: <span class="number">255</span> }),
-            <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }),
-            <span class="ident">PixelData::L</span>(<span class="ident">l</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-                <span class="ident">r</span>: <span class="ident">l</span>,
-                <span class="ident">g</span>: <span class="ident">l</span>,
-                <span class="ident">b</span>: <span class="ident">l</span>,
-                <span class="ident">a</span>: <span class="number">255</span>,
+    <span class="kw">fn </span>from_pixel_data(data: PixelData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="attribute">#[allow(clippy::match_wildcard_for_single_variants)]
+        </span><span class="kw">match </span>data {
+            PixelData::Rgb(r, g, b) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ r, g, b, a: <span class="number">255 </span>}),
+            PixelData::Rgba(r, g, b, a) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ r, g, b, a }),
+            PixelData::L(l) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                r: l,
+                g: l,
+                b: l,
+                a: <span class="number">255</span>,
             }),
-            <span class="ident">PixelData::LA</span>(<span class="ident">l</span>, <span class="ident">a</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-                <span class="ident">r</span>: <span class="ident">l</span>,
-                <span class="ident">g</span>: <span class="ident">l</span>,
-                <span class="ident">b</span>: <span class="ident">l</span>,
-                <span class="ident">a</span>,
+            PixelData::LA(l, a) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                r: l,
+                g: l,
+                b: l,
+                a,
             }),
-            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">value</span>.<span class="ident">then</span>(<span class="ident"><span class="self">Self</span>::white</span>).<span class="ident">unwrap_or_else</span>(<span class="ident"><span class="self">Self</span>::black</span>)),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
+            PixelData::Bit(value) =&gt; <span class="prelude-val">Ok</span>(value.then(<span class="self">Self</span>::white).unwrap_or_else(<span class="self">Self</span>::black)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(UnsupportedColorType),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
-        <span class="ident">PixelData::Rgba</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span>)
+    <span class="kw">fn </span>as_pixel_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixelData {
+        PixelData::Rgba(<span class="self">self</span>.r, <span class="self">self</span>.g, <span class="self">self</span>.b, <span class="self">self</span>.a)
     }
 
-    <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="ident">bytes</span>[<span class="number">0</span>],
-            <span class="ident">g</span>: <span class="ident">bytes</span>[<span class="number">1</span>],
-            <span class="ident">b</span>: <span class="ident">bytes</span>[<span class="number">2</span>],
-            <span class="ident">a</span>: <span class="ident">bytes</span>[<span class="number">3</span>],
+    <span class="kw">fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            r: bytes[<span class="number">0</span>],
+            g: bytes[<span class="number">1</span>],
+            b: bytes[<span class="number">2</span>],
+            a: bytes[<span class="number">3</span>],
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
-        [<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span>]
+    <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Data {
+        [<span class="self">self</span>.r, <span class="self">self</span>.g, <span class="self">self</span>.b, <span class="self">self</span>.a]
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_lossless</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">merge</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Optimize for common cases</span>
-        <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">a</span> <span class="op">==</span> <span class="number">255</span> {
-            <span class="kw">return</span> <span class="ident">other</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">a</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="self">self</span>;
+    <span class="attribute">#[allow(clippy::cast_lossless)]
+    </span><span class="kw">fn </span>merge(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Optimize for common cases
+        </span><span class="kw">if </span>other.a == <span class="number">255 </span>{
+            <span class="kw">return </span>other;
+        } <span class="kw">else if </span>other.a == <span class="number">0 </span>{
+            <span class="kw">return </span><span class="self">self</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">base_r</span>, <span class="ident">base_g</span>, <span class="ident">base_b</span>, <span class="ident">base_a</span>) <span class="op">=</span> (
-            <span class="self">self</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
-            <span class="self">self</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
-            <span class="self">self</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
-            <span class="self">self</span>.<span class="ident">a</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
+        <span class="kw">let </span>(base_r, base_g, base_b, base_a) = (
+            <span class="self">self</span>.r <span class="kw">as </span>f32 / <span class="number">255.</span>,
+            <span class="self">self</span>.g <span class="kw">as </span>f32 / <span class="number">255.</span>,
+            <span class="self">self</span>.b <span class="kw">as </span>f32 / <span class="number">255.</span>,
+            <span class="self">self</span>.a <span class="kw">as </span>f32 / <span class="number">255.</span>,
         );
 
-        <span class="kw">let</span> (<span class="ident">overlay_r</span>, <span class="ident">overlay_g</span>, <span class="ident">overlay_b</span>, <span class="ident">overlay_a</span>) <span class="op">=</span> (
-            <span class="ident">other</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
-            <span class="ident">other</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
-            <span class="ident">other</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
-            <span class="ident">other</span>.<span class="ident">a</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>,
+        <span class="kw">let </span>(overlay_r, overlay_g, overlay_b, overlay_a) = (
+            other.r <span class="kw">as </span>f32 / <span class="number">255.</span>,
+            other.g <span class="kw">as </span>f32 / <span class="number">255.</span>,
+            other.b <span class="kw">as </span>f32 / <span class="number">255.</span>,
+            other.a <span class="kw">as </span>f32 / <span class="number">255.</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">a_diff</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">overlay_a</span>;
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">a_diff</span>.<span class="ident">mul_add</span>(<span class="ident">base_a</span>, <span class="ident">overlay_a</span>);
+        <span class="kw">let </span>a_diff = <span class="number">1. </span>- overlay_a;
+        <span class="kw">let </span>a = a_diff.mul_add(base_a, overlay_a);
 
-        <span class="kw">let</span> <span class="ident">a_ratio</span> <span class="op">=</span> <span class="ident">a_diff</span> <span class="op">*</span> <span class="ident">base_a</span>;
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">a_ratio</span>.<span class="ident">mul_add</span>(<span class="ident">base_r</span>, <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_r</span>) <span class="op">/</span> <span class="ident">a</span>;
-        <span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="ident">a_ratio</span>.<span class="ident">mul_add</span>(<span class="ident">base_g</span>, <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_g</span>) <span class="op">/</span> <span class="ident">a</span>;
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">a_ratio</span>.<span class="ident">mul_add</span>(<span class="ident">base_b</span>, <span class="ident">overlay_a</span> <span class="op">*</span> <span class="ident">overlay_b</span>) <span class="op">/</span> <span class="ident">a</span>;
+        <span class="kw">let </span>a_ratio = a_diff * base_a;
+        <span class="kw">let </span>r = a_ratio.mul_add(base_r, overlay_a * overlay_r) / a;
+        <span class="kw">let </span>g = a_ratio.mul_add(base_g, overlay_a * overlay_g) / a;
+        <span class="kw">let </span>b = a_ratio.mul_add(base_b, overlay_a * overlay_b) / a;
 
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: (<span class="ident">r</span> <span class="op">*</span> <span class="number">255.</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            <span class="ident">g</span>: (<span class="ident">g</span> <span class="op">*</span> <span class="number">255.</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            <span class="ident">b</span>: (<span class="ident">b</span> <span class="op">*</span> <span class="number">255.</span>) <span class="kw">as</span> <span class="ident">u8</span>,
-            <span class="ident">a</span>: (<span class="ident">a</span> <span class="op">*</span> <span class="number">255.</span>) <span class="kw">as</span> <span class="ident">u8</span>,
+        <span class="self">Self </span>{
+            r: (r * <span class="number">255.</span>) <span class="kw">as </span>u8,
+            g: (g * <span class="number">255.</span>) <span class="kw">as </span>u8,
+            b: (b * <span class="number">255.</span>) <span class="kw">as </span>u8,
+            a: (a * <span class="number">255.</span>) <span class="kw">as </span>u8,
         }
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_lossless</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">merge_with_alpha</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">merge</span>(<span class="ident">other</span>.<span class="ident">with_alpha</span>((<span class="ident">other</span>.<span class="ident">a</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">*</span> (<span class="ident">alpha</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">255.</span>)) <span class="kw">as</span> <span class="ident">u8</span>))
+    <span class="attribute">#[allow(clippy::cast_lossless)]
+    </span><span class="kw">fn </span>merge_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.merge(other.with_alpha((other.a <span class="kw">as </span>f32 * (alpha <span class="kw">as </span>f32 / <span class="number">255.</span>)) <span class="kw">as </span>u8))
     }
 
-    <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">dynamic</span> {
-            <span class="ident">Dynamic::Rgba</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>,
-            <span class="ident">Dynamic::Rgb</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::L</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
-            <span class="ident">Dynamic::BitPixel</span>(<span class="ident">value</span>) =&gt; <span class="ident">value</span>.<span class="ident">into</span>(),
+    <span class="kw">fn </span>from_dynamic(dynamic: Dynamic) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>dynamic {
+            Dynamic::Rgba(value) =&gt; value,
+            Dynamic::Rgb(value) =&gt; value.into(),
+            Dynamic::L(value) =&gt; value.into(),
+            Dynamic::BitPixel(value) =&gt; value.into(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Alpha</span> <span class="kw">for</span> <span class="ident">Rgba</span> {
-    <span class="kw">fn</span> <span class="ident">alpha</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="self">self</span>.<span class="ident">a</span>
+<span class="kw">impl </span>Alpha <span class="kw">for </span>Rgba {
+    <span class="kw">fn </span>alpha(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="self">self</span>.a
     }
 
-    <span class="kw">fn</span> <span class="ident">with_alpha</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">a</span> <span class="op">=</span> <span class="ident">alpha</span>;
-        <span class="self">self</span>
-    }
+    <span class="kw">fn </span>with_alpha(<span class="kw-2">mut </span><span class="self">self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.a = alpha;
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">Rgba</span> {
-    <span class="doccomment">/// Creates a new RGBA pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">r</span>: <span class="ident">u8</span>, <span class="ident">g</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>, <span class="ident">a</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }
+<span class="kw">impl </span>Rgba {
+    <span class="doccomment">/// Creates a new RGBA pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>new(r: u8, g: u8, b: u8, a: u8) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ r, g, b, a }
     }
 
-    <span class="doccomment">/// Creates an opaque pixel from an RGB pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_rgb</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="number">255</span>)
+    <span class="doccomment">/// Creates an opaque pixel from an RGB pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>from_rgb(Rgb { r, g, b }: Rgb) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(r, g, b, <span class="number">255</span>)
     }
 
-    <span class="doccomment">/// Parses an RGBA pixel from a hex value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The hex value can be in one of the following formats:</span>
-    <span class="doccomment">/// - RRGGBBAA</span>
-    <span class="doccomment">/// - RRGGBB</span>
-    <span class="doccomment">/// - RGBA</span>
-    <span class="doccomment">/// - RGB</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * Received a malformed hex code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_hex</span>(<span class="ident">hex</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="ident">hex</span>.<span class="ident">strip_prefix</span>(<span class="string">&#39;#&#39;</span>).<span class="ident">unwrap_or</span>(<span class="ident">hex</span>);
+    <span class="doccomment">/// Parses an RGBA pixel from a hex value.
+    ///
+    /// The hex value can be in one of the following formats:
+    /// - RRGGBBAA
+    /// - RRGGBB
+    /// - RGBA
+    /// - RGB
+    ///
+    /// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.
+    ///
+    /// # Errors
+    /// * Received a malformed hex code.
+    </span><span class="kw">pub fn </span>from_hex(hex: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>hex = hex.strip_prefix(<span class="string">&#39;#&#39;</span>).unwrap_or(hex);
 
-        <span class="kw">match</span> <span class="ident">hex</span>.<span class="ident">len</span>() {
-            <span class="number">3</span> <span class="op">|</span> <span class="number">6</span> =&gt; <span class="ident">Rgb::from_hex</span>(<span class="ident">hex</span>).<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::from_rgb</span>),
-            <span class="ident">len</span> @ (<span class="number">4</span> <span class="op">|</span> <span class="number">8</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">4</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expanded</span> <span class="op">=</span> <span class="ident">String::with_capacity</span>(<span class="number">8</span>);
+        <span class="kw">match </span>hex.len() {
+            <span class="number">3 </span>| <span class="number">6 </span>=&gt; Rgb::from_hex(hex).map(<span class="self">Self</span>::from_rgb),
+            len @ (<span class="number">4 </span>| <span class="number">8</span>) =&gt; {
+                <span class="kw">let </span>hex = <span class="kw">if </span>len == <span class="number">4 </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>expanded = String::with_capacity(<span class="number">8</span>);
 
-                    <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">hex</span>.<span class="ident">chars</span>() {
-                        <span class="ident">expanded</span>.<span class="ident">push</span>(<span class="ident">c</span>);
-                        <span class="ident">expanded</span>.<span class="ident">push</span>(<span class="ident">c</span>);
+                    <span class="kw">for </span>c <span class="kw">in </span>hex.chars() {
+                        expanded.push(c);
+                        expanded.push(c);
                     }
 
-                    <span class="ident">expanded</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">hex</span>.<span class="ident">to_string</span>()
+                    expanded
+                } <span class="kw">else </span>{
+                    hex.to_string()
                 };
 
-                <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">InvalidHexCode</span>(<span class="ident">hex</span>.<span class="ident">to_string</span>());
+                <span class="kw">let </span>err = |<span class="kw">_</span>| InvalidHexCode(hex.to_string());
 
-                <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-                    <span class="ident">r</span>: <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>[<span class="number">0</span>..<span class="number">2</span>], <span class="number">16</span>).<span class="ident">map_err</span>(<span class="ident">err</span>)<span class="question-mark">?</span>,
-                    <span class="ident">g</span>: <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>[<span class="number">2</span>..<span class="number">4</span>], <span class="number">16</span>).<span class="ident">map_err</span>(<span class="ident">err</span>)<span class="question-mark">?</span>,
-                    <span class="ident">b</span>: <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>[<span class="number">4</span>..<span class="number">6</span>], <span class="number">16</span>).<span class="ident">map_err</span>(<span class="ident">err</span>)<span class="question-mark">?</span>,
-                    <span class="ident">a</span>: <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">hex</span>[<span class="number">6</span>..<span class="number">8</span>], <span class="number">16</span>).<span class="ident">map_err</span>(<span class="ident">err</span>)<span class="question-mark">?</span>,
+                <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                    r: u8::from_str_radix(<span class="kw-2">&amp;</span>hex[<span class="number">0</span>..<span class="number">2</span>], <span class="number">16</span>).map_err(err)<span class="question-mark">?</span>,
+                    g: u8::from_str_radix(<span class="kw-2">&amp;</span>hex[<span class="number">2</span>..<span class="number">4</span>], <span class="number">16</span>).map_err(err)<span class="question-mark">?</span>,
+                    b: u8::from_str_radix(<span class="kw-2">&amp;</span>hex[<span class="number">4</span>..<span class="number">6</span>], <span class="number">16</span>).map_err(err)<span class="question-mark">?</span>,
+                    a: u8::from_str_radix(<span class="kw-2">&amp;</span>hex[<span class="number">6</span>..<span class="number">8</span>], <span class="number">16</span>).map_err(err)<span class="question-mark">?</span>,
                 })
             }
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">InvalidHexCode</span>(<span class="ident">hex</span>.<span class="ident">to_string</span>())),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(InvalidHexCode(hex.to_string())),
         }
     }
 
-    <span class="doccomment">/// Creates a completely transparent pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">transparent</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
+    <span class="doccomment">/// Creates a completely transparent pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>transparent() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Creates an opaque black pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">black</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)
+    <span class="doccomment">/// Creates an opaque black pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>black() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>)
     }
 
-    <span class="doccomment">/// Creates an opaque white pixel.</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">white</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>)
+    <span class="doccomment">/// Creates an opaque white pixel.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>white() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>)
     }
 }
 
-<span class="doccomment">/// Represents a subpixel of a dynamic pixel.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="doccomment">/// A u8 subpixel.</span>
-    <span class="ident">U8</span>(<span class="ident">u8</span>),
-    <span class="doccomment">/// A boolean subpixel.</span>
-    <span class="ident">Bool</span>(<span class="ident">bool</span>),
+<span class="doccomment">/// Represents a subpixel of a dynamic pixel.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>DynamicSubpixel {
+    <span class="doccomment">/// A u8 subpixel.
+    </span>U8(u8),
+    <span class="doccomment">/// A boolean subpixel.
+    </span>Bool(bool),
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_num_op</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">literal</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">self</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">other</span>:<span class="ident">expr</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>:<span class="ident">ident</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>:<span class="ident">expr</span>) =&gt; {{
-        <span class="kw">match</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">self</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">other</span>) {
-            (<span class="ident">DynamicSubpixel::U8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">a</span>), <span class="ident">DynamicSubpixel::U8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">b</span>)) =&gt; <span class="ident">DynamicSubpixel::U8</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>),
-            (<span class="ident">DynamicSubpixel::Bool</span>(<span class="kw">_</span>), <span class="ident">DynamicSubpixel::Bool</span>(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(
+<span class="macro">macro_rules! </span>impl_num_op {
+    (<span class="macro-nonterminal">$err</span>:literal; <span class="macro-nonterminal">$self</span>:expr, <span class="macro-nonterminal">$other</span>:expr; <span class="macro-nonterminal">$a</span>:ident, <span class="macro-nonterminal">$b</span>:ident; <span class="macro-nonterminal">$out</span>:expr) =&gt; {{
+        <span class="kw">match </span>(<span class="macro-nonterminal">$self</span>, <span class="macro-nonterminal">$other</span>) {
+            (DynamicSubpixel::U8(<span class="macro-nonterminal">$a</span>), DynamicSubpixel::U8(<span class="macro-nonterminal">$b</span>)) =&gt; DynamicSubpixel::U8(<span class="macro-nonterminal">$out</span>),
+            (DynamicSubpixel::Bool(<span class="kw">_</span>), DynamicSubpixel::Bool(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(
                 <span class="string">&quot;cannot {} DynamicPixel boolean variants. You should try converting to a \
                     concrete pixel type so these runtime panics are not triggered.&quot;</span>,
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>,
+                <span class="macro-nonterminal">$err</span>,
             ),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
                 <span class="string">&quot;cannot {} different or incompatible DynamicSubpixel variants. You should \
                     try converting to a concrete pixel type so these runtime panics are not \
                     triggered.&quot;</span>,
-                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>,
+                <span class="macro-nonterminal">$err</span>,
             ),
         }
     }};
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::Add</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="kw">impl </span>std::ops::Add <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;add&quot;</span>; <span class="self">self</span>, <span class="ident">other</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span> <span class="op">+</span> <span class="ident">b</span>)
+    <span class="kw">fn </span>add(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;add&quot;</span>; <span class="self">self</span>, other; a, b; a + b)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::AddAssign</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">+</span> <span class="ident">other</span>;
+<span class="kw">impl </span>std::ops::AddAssign <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>+ other;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::Sub</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="kw">impl </span>std::ops::Sub <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;subtract&quot;</span>; <span class="self">self</span>, <span class="ident">other</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span> <span class="op">-</span> <span class="ident">b</span>)
+    <span class="kw">fn </span>sub(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;subtract&quot;</span>; <span class="self">self</span>, other; a, b; a - b)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::SubAssign</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">sub_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">-</span> <span class="ident">other</span>;
+<span class="kw">impl </span>std::ops::SubAssign <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>- other;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::Mul</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="kw">impl </span>std::ops::Mul <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;multiply&quot;</span>; <span class="self">self</span>, <span class="ident">other</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span> <span class="op">*</span> <span class="ident">b</span>)
+    <span class="kw">fn </span>mul(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;multiply&quot;</span>; <span class="self">self</span>, other; a, b; a * b)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::MulAssign</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*</span> <span class="ident">other</span>;
+<span class="kw">impl </span>std::ops::MulAssign <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>* other;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::Div</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="kw">impl </span>std::ops::Div <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;divide&quot;</span>; <span class="self">self</span>, <span class="ident">other</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span> <span class="op">/</span> <span class="ident">b</span>)
+    <span class="kw">fn </span>div(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;divide&quot;</span>; <span class="self">self</span>, other; a, b; a / b)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::DivAssign</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">div_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">/</span> <span class="ident">other</span>;
+<span class="kw">impl </span>std::ops::DivAssign <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>div_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>/ other;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::Rem</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
-    <span class="kw">fn</span> <span class="ident">rem</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;remainder&quot;</span>; <span class="self">self</span>, <span class="ident">other</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span> <span class="op">%</span> <span class="ident">b</span>)
+<span class="kw">impl </span>std::ops::Rem <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+    <span class="kw">fn </span>rem(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;remainder&quot;</span>; <span class="self">self</span>, other; a, b; a % b)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::RemAssign</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">rem_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">%</span> <span class="ident">other</span>;
+<span class="kw">impl </span>std::ops::RemAssign <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>rem_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: <span class="self">Self</span>) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>% other;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">num_traits::SaturatingAdd</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">saturating_add</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_add&quot;</span>; <span class="self">self</span>, <span class="ident">v</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span>.<span class="ident">saturating_add</span>(<span class="ident">b</span>))
+<span class="kw">impl </span>num_traits::SaturatingAdd <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>saturating_add(<span class="kw-2">&amp;</span><span class="self">self</span>, v: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_add&quot;</span>; <span class="self">self</span>, v; a, b; a.saturating_add(b))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">num_traits::SaturatingSub</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">saturating_sub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_sub&quot;</span>; <span class="self">self</span>, <span class="ident">v</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span>.<span class="ident">saturating_sub</span>(<span class="ident">b</span>))
+<span class="kw">impl </span>num_traits::SaturatingSub <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>saturating_sub(<span class="kw-2">&amp;</span><span class="self">self</span>, v: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_sub&quot;</span>; <span class="self">self</span>, v; a, b; a.saturating_sub(b))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">num_traits::SaturatingMul</span> <span class="kw">for</span> <span class="ident">DynamicSubpixel</span> {
-    <span class="kw">fn</span> <span class="ident">saturating_mul</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_mul&quot;</span>; <span class="self">self</span>, <span class="ident">v</span>; <span class="ident">a</span>, <span class="ident">b</span>; <span class="ident">a</span>.<span class="ident">saturating_mul</span>(<span class="ident">b</span>))
+<span class="kw">impl </span>num_traits::SaturatingMul <span class="kw">for </span>DynamicSubpixel {
+    <span class="kw">fn </span>saturating_mul(<span class="kw-2">&amp;</span><span class="self">self</span>, v: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_mul&quot;</span>; <span class="self">self</span>, v; a, b; a.saturating_mul(b))
     }
 }
 
-<span class="doccomment">/// Represents a pixel type that is dynamically resolved.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Dynamic</span> {
-    <span class="ident">BitPixel</span>(<span class="ident">BitPixel</span>),
-    <span class="ident">L</span>(<span class="ident">L</span>),
-    <span class="ident">Rgb</span>(<span class="ident">Rgb</span>),
-    <span class="ident">Rgba</span>(<span class="ident">Rgba</span>),
+<span class="doccomment">/// Represents a pixel type that is dynamically resolved.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>Dynamic {
+    BitPixel(BitPixel),
+    L(L),
+    Rgb(Rgb),
+    Rgba(Rgba),
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+<span class="kw">impl </span>Default <span class="kw">for </span>Dynamic {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="macro">panic!</span>(
             <span class="string">&quot;Dynamic pixel type must be known, try using a concrete pixel type instead so these \
-                runtime panics are not triggered.&quot;</span>
-        );
+                runtime panics are not triggered.&quot;
+        </span>);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Pixel</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
-    <span class="kw">type</span> <span class="ident">Subpixel</span> <span class="op">=</span> <span class="ident">DynamicSubpixel</span>;
-    <span class="kw">type</span> <span class="ident">Data</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>Pixel <span class="kw">for </span>Dynamic {
+    <span class="kw">type </span>Subpixel = DynamicSubpixel;
+    <span class="kw">type </span>Data = Vec&lt;u8&gt;;
 
-    <span class="kw">fn</span> <span class="ident">inverted</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">pixel</span>.<span class="ident">inverted</span>()),
-            <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">pixel</span>.<span class="ident">inverted</span>()),
-            <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">pixel</span>.<span class="ident">inverted</span>()),
-            <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>.<span class="ident">inverted</span>()),
+    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::BitPixel(pixel) =&gt; <span class="self">Self</span>::BitPixel(pixel.inverted()),
+            <span class="self">Self</span>::L(pixel) =&gt; <span class="self">Self</span>::L(pixel.inverted()),
+            <span class="self">Self</span>::Rgb(pixel) =&gt; <span class="self">Self</span>::Rgb(pixel.inverted()),
+            <span class="self">Self</span>::Rgba(pixel) =&gt; <span class="self">Self</span>::Rgba(pixel.inverted()),
         }
     }
 
-    <span class="comment">// noinspection ALL</span>
-    <span class="kw">fn</span> <span class="ident">map_subpixels</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">a</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
-        <span class="ident">A</span>: <span class="ident">Fn</span>(<span class="ident"><span class="self">Self</span>::Subpixel</span>) -&gt; <span class="ident"><span class="self">Self</span>::Subpixel</span>,
+    <span class="comment">// noinspection ALL
+    </span><span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, a: A) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
+        A: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
     {
-        <span class="macro">macro_rules!</span> <span class="ident">subpixel</span> {
-            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pixel</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>:<span class="ident">ident</span>) =&gt; {{
-                (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pixel</span>).<span class="ident">map_subpixels</span>(
-                    <span class="op">|</span><span class="ident">pixel</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span>(<span class="ident">DynamicSubpixel</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>(<span class="ident">pixel</span>)) {
-                        <span class="ident">DynamicSubpixel</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>(<span class="ident">pixel</span>) =&gt; <span class="ident">pixel</span>,
-                        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;dynamic subpixel map returned something different&quot;</span>),
+        <span class="macro">macro_rules! </span>subpixel {
+            (<span class="macro-nonterminal">$pixel</span>:expr, <span class="macro-nonterminal">$variant</span>:ident) =&gt; {{
+                (<span class="macro-nonterminal">$pixel</span>).map_subpixels(
+                    |pixel| <span class="kw">match </span>f(DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(pixel)) {
+                        DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(pixel) =&gt; pixel,
+                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;dynamic subpixel map returned something different&quot;</span>),
                     },
-                    <span class="op">|</span><span class="ident">alpha</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">a</span>(<span class="ident">DynamicSubpixel</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>(<span class="ident">alpha</span>)) {
-                        <span class="ident">DynamicSubpixel</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">variant</span>(<span class="ident">alpha</span>) =&gt; <span class="ident">alpha</span>,
-                        <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;dynamic subpixel map returned something different&quot;</span>),
+                    |alpha| <span class="kw">match </span>a(DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(alpha)) {
+                        DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(alpha) =&gt; alpha,
+                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;dynamic subpixel map returned something different&quot;</span>),
                     },
                 )
             }};
         }
 
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="macro">subpixel!</span>(<span class="ident">pixel</span>, <span class="ident">Bool</span>)),
-            <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="macro">subpixel!</span>(<span class="ident">pixel</span>, <span class="ident">U8</span>)),
-            <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="macro">subpixel!</span>(<span class="ident">pixel</span>, <span class="ident">U8</span>)),
-            <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="macro">subpixel!</span>(<span class="ident">pixel</span>, <span class="ident">U8</span>)),
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::BitPixel(pixel) =&gt; <span class="self">Self</span>::BitPixel(<span class="macro">subpixel!</span>(pixel, Bool)),
+            <span class="self">Self</span>::L(pixel) =&gt; <span class="self">Self</span>::L(<span class="macro">subpixel!</span>(pixel, U8)),
+            <span class="self">Self</span>::Rgb(pixel) =&gt; <span class="self">Self</span>::Rgb(<span class="macro">subpixel!</span>(pixel, U8)),
+            <span class="self">Self</span>::Rgba(pixel) =&gt; <span class="self">Self</span>::Rgba(<span class="macro">subpixel!</span>(pixel, U8)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_pixel_data</span>(<span class="ident">data</span>: <span class="ident">PixelData</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_wildcard_for_single_variants</span>)]</span>
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">data</span> {
-            <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>) =&gt; <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">BitPixel</span>(<span class="ident">value</span>)),
-            <span class="ident">PixelData::L</span>(<span class="ident">l</span>) =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">L</span>(<span class="ident">l</span>)),
-            <span class="comment">// TODO: LA pixel type</span>
-            <span class="ident">PixelData::LA</span>(<span class="ident">l</span>, <span class="ident">_a</span>) =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">L</span>(<span class="ident">l</span>)),
-            <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }),
-            <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }),
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">UnsupportedColorType</span>),
+    <span class="kw">fn </span>from_pixel_data(data: PixelData) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="attribute">#[allow(clippy::match_wildcard_for_single_variants)]
+        </span><span class="prelude-val">Ok</span>(<span class="kw">match </span>data {
+            PixelData::Bit(value) =&gt; <span class="self">Self</span>::BitPixel(BitPixel(value)),
+            PixelData::L(l) =&gt; <span class="self">Self</span>::L(L(l)),
+            <span class="comment">// TODO: LA pixel type
+            </span>PixelData::LA(l, _a) =&gt; <span class="self">Self</span>::L(L(l)),
+            PixelData::Rgb(r, g, b) =&gt; <span class="self">Self</span>::Rgb(Rgb { r, g, b }),
+            PixelData::Rgba(r, g, b, a) =&gt; <span class="self">Self</span>::Rgba(Rgba { r, g, b, a }),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(UnsupportedColorType),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">as_pixel_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PixelData</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">BitPixel</span>(<span class="ident">value</span>)) =&gt; <span class="ident">PixelData::Bit</span>(<span class="ident">value</span>),
-            <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">L</span>(<span class="ident">l</span>)) =&gt; <span class="ident">PixelData::L</span>(<span class="ident">l</span>),
-            <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }) =&gt; <span class="ident">PixelData::Rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>),
-            <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }) =&gt; <span class="ident">PixelData::Rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>),
+    <span class="kw">fn </span>as_pixel_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PixelData {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            <span class="self">Self</span>::BitPixel(BitPixel(value)) =&gt; PixelData::Bit(value),
+            <span class="self">Self</span>::L(L(l)) =&gt; PixelData::L(l),
+            <span class="self">Self</span>::Rgb(Rgb { r, g, b }) =&gt; PixelData::Rgb(r, g, b),
+            <span class="self">Self</span>::Rgba(Rgba { r, g, b, a }) =&gt; PixelData::Rgba(r, g, b, a),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">bytes</span>.<span class="ident">len</span>() {
-            <span class="number">1</span> =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">Pixel::from_bytes</span>(<span class="ident">bytes</span>)),
-            <span class="number">3</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">Pixel::from_bytes</span>(<span class="ident">bytes</span>)),
-            <span class="number">4</span> =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">Pixel::from_bytes</span>(<span class="ident">bytes</span>)),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid pixel data length&quot;</span>),
+    <span class="kw">fn </span>from_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>bytes.len() {
+            <span class="number">1 </span>=&gt; <span class="self">Self</span>::L(Pixel::from_bytes(bytes)),
+            <span class="number">3 </span>=&gt; <span class="self">Self</span>::Rgb(Pixel::from_bytes(bytes)),
+            <span class="number">4 </span>=&gt; <span class="self">Self</span>::Rgba(Pixel::from_bytes(bytes)),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid pixel data length&quot;</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Data</span> {
-        <span class="self">self</span>.<span class="ident">as_pixel_data</span>().<span class="ident">data</span>()
+    <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Data {
+        <span class="self">self</span>.as_pixel_data().data()
     }
 
-    <span class="kw">fn</span> <span class="ident">merge_with_alpha</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> (<span class="self">self</span>, <span class="ident">other</span>) {
-            (<span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">pixel</span>), <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">other</span>)) =&gt; {
-                <span class="ident"><span class="self">Self</span>::BitPixel</span>(<span class="ident">pixel</span>.<span class="ident">merge_with_alpha</span>(<span class="ident">other</span>, <span class="ident">alpha</span>))
+    <span class="kw">fn </span>merge_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>(<span class="self">self</span>, other) {
+            (<span class="self">Self</span>::BitPixel(pixel), <span class="self">Self</span>::BitPixel(other)) =&gt; {
+                <span class="self">Self</span>::BitPixel(pixel.merge_with_alpha(other, alpha))
             }
-            (<span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">pixel</span>), <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">other</span>)) =&gt; <span class="ident"><span class="self">Self</span>::L</span>(<span class="ident">pixel</span>.<span class="ident">merge_with_alpha</span>(<span class="ident">other</span>, <span class="ident">alpha</span>)),
-            (<span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">pixel</span>), <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">other</span>)) =&gt; <span class="ident"><span class="self">Self</span>::Rgb</span>(<span class="ident">pixel</span>.<span class="ident">merge_with_alpha</span>(<span class="ident">other</span>, <span class="ident">alpha</span>)),
-            (<span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>), <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">other</span>)) =&gt; {
-                <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>.<span class="ident">merge_with_alpha</span>(<span class="ident">other</span>, <span class="ident">alpha</span>))
+            (<span class="self">Self</span>::L(pixel), <span class="self">Self</span>::L(other)) =&gt; <span class="self">Self</span>::L(pixel.merge_with_alpha(other, alpha)),
+            (<span class="self">Self</span>::Rgb(pixel), <span class="self">Self</span>::Rgb(other)) =&gt; <span class="self">Self</span>::Rgb(pixel.merge_with_alpha(other, alpha)),
+            (<span class="self">Self</span>::Rgba(pixel), <span class="self">Self</span>::Rgba(other)) =&gt; {
+                <span class="self">Self</span>::Rgba(pixel.merge_with_alpha(other, alpha))
             }
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Cannot overlay two foreign pixel types&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Cannot overlay two foreign pixel types&quot;</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_dynamic</span>(<span class="ident">dynamic</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">dynamic</span>
+    <span class="kw">fn </span>from_dynamic(dynamic: Dynamic) -&gt; <span class="self">Self </span>{
+        dynamic
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Alpha</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
-    <span class="kw">fn</span> <span class="ident">alpha</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>) =&gt; <span class="ident">pixel</span>.<span class="ident">alpha</span>(),
-            <span class="kw">_</span> =&gt; <span class="number">255</span>,
+<span class="kw">impl </span>Alpha <span class="kw">for </span>Dynamic {
+    <span class="kw">fn </span>alpha(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Rgba(pixel) =&gt; pixel.alpha(),
+            <span class="kw">_ </span>=&gt; <span class="number">255</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">with_alpha</span>(<span class="self">self</span>, <span class="ident">alpha</span>: <span class="ident">u8</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>) =&gt; <span class="ident"><span class="self">Self</span>::Rgba</span>(<span class="ident">pixel</span>.<span class="ident">with_alpha</span>(<span class="ident">alpha</span>)),
-            <span class="ident">pixel</span> =&gt; <span class="ident">pixel</span>,
+    <span class="kw">fn </span>with_alpha(<span class="self">self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Rgba(pixel) =&gt; <span class="self">Self</span>::Rgba(pixel.with_alpha(alpha)),
+            pixel =&gt; pixel,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Dynamic</span> {
-    <span class="doccomment">/// Creates a new dynamic pixel...dynamically, from a concrete pixel.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Errors</span>
-    <span class="doccomment">/// * The pixel type is not supported.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pixel</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Pixel</span><span class="op">&gt;</span>(<span class="ident">pixel</span>: <span class="ident">P</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::from_pixel_data</span>(<span class="ident">pixel</span>.<span class="ident">as_pixel_data</span>())
+<span class="kw">impl </span>Dynamic {
+    <span class="doccomment">/// Creates a new dynamic pixel...dynamically, from a concrete pixel.
+    ///
+    /// # Errors
+    /// * The pixel type is not supported.
+    </span><span class="kw">pub fn </span>from_pixel&lt;P: Pixel&gt;(pixel: P) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::from_pixel_data(pixel.as_pixel_data())
     }
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_dynamic</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ident</span>),<span class="op">+</span>) =&gt; {
+<span class="macro">macro_rules! </span>impl_dynamic {
+    ($(<span class="macro-nonterminal">$t</span>:ident),+) =&gt; {
         $(
-            <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Dynamic</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
-                <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pixel</span>: <span class="ident">Dynamic</span>) -&gt; <span class="self">Self</span> {
-                    <span class="kw">match</span> <span class="ident">pixel</span> {
-                        <span class="ident">Dynamic::BitPixel</span>(<span class="ident">pixel</span>) =&gt; <span class="ident">pixel</span>.<span class="ident">into</span>(),
-                        <span class="ident">Dynamic::L</span>(<span class="ident">pixel</span>) =&gt; <span class="ident">pixel</span>.<span class="ident">into</span>(),
-                        <span class="ident">Dynamic::Rgb</span>(<span class="ident">pixel</span>) =&gt; <span class="ident">pixel</span>.<span class="ident">into</span>(),
-                        <span class="ident">Dynamic::Rgba</span>(<span class="ident">pixel</span>) =&gt; <span class="ident">pixel</span>.<span class="ident">into</span>(),
+            <span class="kw">impl </span>From&lt;Dynamic&gt; <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+                <span class="kw">fn </span>from(pixel: Dynamic) -&gt; <span class="self">Self </span>{
+                    <span class="kw">match </span>pixel {
+                        Dynamic::BitPixel(pixel) =&gt; pixel.into(),
+                        Dynamic::L(pixel) =&gt; pixel.into(),
+                        Dynamic::Rgb(pixel) =&gt; pixel.into(),
+                        Dynamic::Rgba(pixel) =&gt; pixel.into(),
                     }
                 }
             }
 
-            <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Dynamic</span> {
-                <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pixel</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) -&gt; <span class="self">Self</span> {
-                    <span class="ident">Dynamic</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>(<span class="ident">pixel</span>)
+            <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$t</span>&gt; <span class="kw">for </span>Dynamic {
+                <span class="kw">fn </span>from(pixel: <span class="macro-nonterminal">$t</span>) -&gt; <span class="self">Self </span>{
+                    Dynamic::<span class="macro-nonterminal">$t</span>(pixel)
                 }
             }
-        )<span class="op">+</span>
+        )+
     };
 }
 
-<span class="macro">impl_dynamic!</span>(<span class="ident">BitPixel</span>, <span class="ident">L</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>);
+<span class="macro">impl_dynamic!</span>(BitPixel, L, Rgb, Rgba);
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BitPixel</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">rgb</span>: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">rgb</span>.<span class="ident">luminance</span>() <span class="op">&gt;</span> <span class="number">127</span>)
+<span class="kw">impl </span>From&lt;Rgb&gt; <span class="kw">for </span>BitPixel {
+    <span class="kw">fn </span>from(rgb: Rgb) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(rgb.luminance() &gt; <span class="number">127</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BitPixel</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">rgba</span>: <span class="ident">Rgba</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">rgba</span>.<span class="ident">luminance</span>() <span class="op">&gt;</span> <span class="number">127</span>)
+<span class="kw">impl </span>From&lt;Rgba&gt; <span class="kw">for </span>BitPixel {
+    <span class="kw">fn </span>from(rgba: Rgba) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(rgba.luminance() &gt; <span class="number">127</span>)
     }
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_from_bitpixel</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ident</span>),<span class="op">+</span>) =&gt; {
+<span class="macro">macro_rules! </span>impl_from_bitpixel {
+    ($(<span class="macro-nonterminal">$t</span>:ident),+) =&gt; {
         $(
-            <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BitPixel</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
-                <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pixel</span>: <span class="ident">BitPixel</span>) -&gt; <span class="self">Self</span> {
-                    <span class="kw">if</span> <span class="ident">pixel</span>.<span class="ident">value</span>() {
-                        <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span><span class="ident">::white</span>()
-                    } <span class="kw">else</span> {
-                        <span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span><span class="ident">::black</span>()
+            <span class="kw">impl </span>From&lt;BitPixel&gt; <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
+                <span class="kw">fn </span>from(pixel: BitPixel) -&gt; <span class="self">Self </span>{
+                    <span class="kw">if </span>pixel.value() {
+                        &lt;<span class="macro-nonterminal">$t</span>&gt;::white()
+                    } <span class="kw">else </span>{
+                        &lt;<span class="macro-nonterminal">$t</span>&gt;::black()
                     }
                 }
             }
-        )<span class="op">+</span>
+        )+
     };
 }
 
-<span class="macro">impl_from_bitpixel!</span>(<span class="ident">Rgb</span>, <span class="ident">Rgba</span>);
+<span class="macro">impl_from_bitpixel!</span>(Rgb, Rgba);
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BitPixel</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">L</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bit</span>: <span class="ident">BitPixel</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="kw">if</span> <span class="ident">bit</span>.<span class="ident">value</span>() { <span class="number">255</span> } <span class="kw">else</span> { <span class="number">0</span> })
+<span class="kw">impl </span>From&lt;BitPixel&gt; <span class="kw">for </span>L {
+    <span class="kw">fn </span>from(bit: BitPixel) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(<span class="kw">if </span>bit.value() { <span class="number">255 </span>} <span class="kw">else </span>{ <span class="number">0 </span>})
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BitPixel</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">l</span>: <span class="ident">L</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">l</span>.<span class="ident">value</span>() <span class="op">&gt;</span> <span class="number">127</span>)
+<span class="kw">impl </span>From&lt;L&gt; <span class="kw">for </span>BitPixel {
+    <span class="kw">fn </span>from(l: L) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(l.value() &gt; <span class="number">127</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">L</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::cast_sign_loss</span>, <span class="ident">clippy::cast_possible_truncation</span>)]</span>
-        <span class="self">Self</span>(<span class="ident">f32::from</span>(<span class="ident">b</span>).<span class="ident">mul_add</span>(<span class="number">0.114</span>, <span class="ident">f32::from</span>(<span class="ident">r</span>).<span class="ident">mul_add</span>(<span class="number">0.299</span>, <span class="ident">f32::from</span>(<span class="ident">g</span>) <span class="op">*</span> <span class="number">0.587</span>)) <span class="kw">as</span> <span class="ident">u8</span>)
+<span class="kw">impl </span>From&lt;Rgb&gt; <span class="kw">for </span>L {
+    <span class="kw">fn </span>from(Rgb { r, g, b }: Rgb) -&gt; <span class="self">Self </span>{
+        <span class="attribute">#[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+        </span><span class="self">Self</span>(f32::from(b).mul_add(<span class="number">0.114</span>, f32::from(r).mul_add(<span class="number">0.299</span>, f32::from(g) * <span class="number">0.587</span>)) <span class="kw">as </span>u8)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">L</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">rgba</span>: <span class="ident">Rgba</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Rgb::from</span>(<span class="ident">rgba</span>).<span class="ident">luminance</span>())
+<span class="kw">impl </span>From&lt;Rgba&gt; <span class="kw">for </span>L {
+    <span class="kw">fn </span>from(rgba: Rgba) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Rgb::from(rgba).luminance())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rgb</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">L</span>(<span class="ident">l</span>): <span class="ident">L</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">r</span>: <span class="ident">l</span>, <span class="ident">g</span>: <span class="ident">l</span>, <span class="ident">b</span>: <span class="ident">l</span> }
+<span class="kw">impl </span>From&lt;L&gt; <span class="kw">for </span>Rgb {
+    <span class="kw">fn </span>from(L(l): L) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ r: l, g: l, b: l }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">L</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rgba</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">L</span>(<span class="ident">l</span>): <span class="ident">L</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">r</span>: <span class="ident">l</span>,
-            <span class="ident">g</span>: <span class="ident">l</span>,
-            <span class="ident">b</span>: <span class="ident">l</span>,
-            <span class="ident">a</span>: <span class="number">255</span>,
+<span class="kw">impl </span>From&lt;L&gt; <span class="kw">for </span>Rgba {
+    <span class="kw">fn </span>from(L(l): L) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            r: l,
+            g: l,
+            b: l,
+            a: <span class="number">255</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rgb</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, .. }: <span class="ident">Rgba</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }
+<span class="kw">impl </span>From&lt;Rgba&gt; <span class="kw">for </span>Rgb {
+    <span class="kw">fn </span>from(Rgba { r, g, b, .. }: Rgba) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ r, g, b }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Rgba</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> }: <span class="ident">Rgb</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>: <span class="number">255</span> }
+<span class="kw">impl </span>From&lt;Rgb&gt; <span class="kw">for </span>Rgba {
+    <span class="kw">fn </span>from(Rgb { r, g, b }: Rgb) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ r, g, b, a: <span class="number">255 </span>}
     }
 }
 
-<span class="doccomment">/// A trait representing all pixels that can be represented as either RGB or RGBA true color.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TrueColor</span> {
-    <span class="doccomment">/// Returns the pixel as an (r, g, b) tuple.</span>
-    <span class="kw">fn</span> <span class="ident">as_rgb_tuple</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>);
+<span class="doccomment">/// A trait representing all pixels that can be represented as either RGB or RGBA true color.
+</span><span class="kw">pub trait </span>TrueColor {
+    <span class="doccomment">/// Returns the pixel as an (r, g, b) tuple.
+    </span><span class="kw">fn </span>as_rgb_tuple(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u8, u8, u8);
 
-    <span class="doccomment">/// Returns the pixel as an (r, g, b, a) tuple.</span>
-    <span class="kw">fn</span> <span class="ident">as_rgba_tuple</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>);
+    <span class="doccomment">/// Returns the pixel as an (r, g, b, a) tuple.
+    </span><span class="kw">fn </span>as_rgba_tuple(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u8, u8, u8, u8);
 
-    <span class="doccomment">/// Creates a new pixel from an (r, g, b) tuple.</span>
-    <span class="kw">fn</span> <span class="ident">from_rgb_tuple</span>(<span class="ident">rgb</span>: (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Creates a new pixel from an (r, g, b) tuple.
+    </span><span class="kw">fn </span>from_rgb_tuple(rgb: (u8, u8, u8)) -&gt; <span class="self">Self</span>;
 
-    <span class="doccomment">/// Creates a new pixel from an (r, g, b, a) tuple.</span>
-    <span class="kw">fn</span> <span class="ident">from_rgba_tuple</span>(<span class="ident">rgba</span>: (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)) -&gt; <span class="self">Self</span>;
+    <span class="doccomment">/// Creates a new pixel from an (r, g, b, a) tuple.
+    </span><span class="kw">fn </span>from_rgba_tuple(rgba: (u8, u8, u8, u8)) -&gt; <span class="self">Self</span>;
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::trait_duplication_in_bounds</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">TrueColor</span> <span class="kw">for</span> <span class="ident">P</span> {
-    <span class="kw">fn</span> <span class="ident">as_rgb_tuple</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>) {
-        <span class="kw">let</span> <span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> } <span class="op">=</span> (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">into</span>();
+<span class="attribute">#[allow(clippy::trait_duplication_in_bounds)]
+</span><span class="kw">impl</span>&lt;P: Copy + From&lt;Rgb&gt; + From&lt;Rgba&gt; + Into&lt;Rgb&gt; + Into&lt;Rgba&gt;&gt; TrueColor <span class="kw">for </span>P {
+    <span class="kw">fn </span>as_rgb_tuple(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u8, u8, u8) {
+        <span class="kw">let </span>Rgb { r, g, b } = (<span class="kw-2">*</span><span class="self">self</span>).into();
 
-        (<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>)
+        (r, g, b)
     }
 
-    <span class="kw">fn</span> <span class="ident">as_rgba_tuple</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>) {
-        <span class="kw">let</span> <span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> } <span class="op">=</span> (<span class="kw-2">*</span><span class="self">self</span>).<span class="ident">into</span>();
+    <span class="kw">fn </span>as_rgba_tuple(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u8, u8, u8, u8) {
+        <span class="kw">let </span>Rgba { r, g, b, a } = (<span class="kw-2">*</span><span class="self">self</span>).into();
 
-        (<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>)
+        (r, g, b, a)
     }
 
-    <span class="kw">fn</span> <span class="ident">from_rgb_tuple</span>((<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>): (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)) -&gt; <span class="self">Self</span> {
-        <span class="ident">From</span>::<span class="op">&lt;</span><span class="ident">Rgb</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="ident">Rgb</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span> })
+    <span class="kw">fn </span>from_rgb_tuple((r, g, b): (u8, u8, u8)) -&gt; <span class="self">Self </span>{
+        From::&lt;Rgb&gt;::from(Rgb { r, g, b })
     }
 
-    <span class="kw">fn</span> <span class="ident">from_rgba_tuple</span>((<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>): (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)) -&gt; <span class="self">Self</span> {
-        <span class="ident">From</span>::<span class="op">&lt;</span><span class="ident">Rgba</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="ident">Rgba</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> })
+    <span class="kw">fn </span>from_rgba_tuple((r, g, b, a): (u8, u8, u8, u8)) -&gt; <span class="self">Self </span>{
+        From::&lt;Rgba&gt;::from(Rgba { r, g, b, a })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

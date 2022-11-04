@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["ril"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.63.0/core/ops/arith/trait.SubAssign.html\" title=\"trait core::ops::arith::SubAssign\">SubAssign</a>&lt;<a class=\"enum\" href=\"ril/pixel/enum.DynamicSubpixel.html\" title=\"enum ril::pixel::DynamicSubpixel\">DynamicSubpixel</a>&gt; for <a class=\"enum\" href=\"ril/pixel/enum.DynamicSubpixel.html\" title=\"enum ril::pixel::DynamicSubpixel\">DynamicSubpixel</a>","synthetic":false,"types":["ril::pixel::DynamicSubpixel"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"ril":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.65.0/core/ops/arith/trait.SubAssign.html\" title=\"trait core::ops::arith::SubAssign\">SubAssign</a>&lt;<a class=\"enum\" href=\"ril/pixel/enum.DynamicSubpixel.html\" title=\"enum ril::pixel::DynamicSubpixel\">DynamicSubpixel</a>&gt; for <a class=\"enum\" href=\"ril/pixel/enum.DynamicSubpixel.html\" title=\"enum ril::pixel::DynamicSubpixel\">DynamicSubpixel</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

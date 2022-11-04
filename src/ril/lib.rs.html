@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ril/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -308,310 +302,309 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
-</pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril).</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Installation</span>
-<span class="doccomment">//! The MSRV (Minimum Support Rust Version) of this crate is **v1.61.0**.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Add the following to your `Cargo.toml` dependencies:</span>
-<span class="doccomment">//! ```toml</span>
-<span class="doccomment">//! ril = { version = &quot;0&quot;, features = [&quot;all&quot;] ]</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Installing from GitHub</span>
-<span class="doccomment">//! You can also use the unstable but latest version by installing from GitHub:</span>
-<span class="doccomment">//! ```toml</span>
-<span class="doccomment">//! ril = { git = &quot;https://github.com/jay3332/ril&quot;, branch = &quot;main&quot;, features = [&quot;all&quot;] }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Using `cargo add`</span>
-<span class="doccomment">//! If you have cargo &gt;= 1.62.0, you can use `cargo add ril --features=all`.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Cargo Features</span>
-<span class="doccomment">//! RIL currently depends on a few dependencies for certain features - especially for various image encodings.</span>
-<span class="doccomment">//! By default RIL comes with no encoding dependencies but with the `text` and `resize` dependencies, which give you text</span>
-<span class="doccomment">//! and resizing capabilities respectively.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You can use the `all` feature to enable all features, including encoding features. This enables the widest range of</span>
-<span class="doccomment">//! image format support, but adds a lot of dependencies you may not need.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! For every image encoding that requires a dependency, a corresponding feature can be enabled for it:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Encoding      | Feature | Dependencies                   | Default? |</span>
-<span class="doccomment">//! |---------------|---------|--------------------------------|----------|</span>
-<span class="doccomment">//! | PNG and APNG  | `png`   | `png`                          | no       |</span>
-<span class="doccomment">//! | JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |</span>
-<span class="doccomment">//! | GIF           | `gif`   | `gif`                          | no       |</span>
-<span class="doccomment">//! | All encodings | `all`   |                                | no       |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Other features:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! | Description                                               | Feature  | Dependencies        | Default? |</span>
-<span class="doccomment">//! |-----------------------------------------------------------|----------|---------------------|----------|</span>
-<span class="doccomment">//! | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |</span>
-<span class="doccomment">//! | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |</span>
-<span class="doccomment">//! | Enable all features,&lt;br/&gt; including all encoding features | `all`    | no                  | no       |</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Getting Started</span>
-<span class="doccomment">//! Import the prelude which brings commonly used types and crucial traits into scope:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Because all errors from this crate are of the same type, ril provides a `Result` type</span>
-<span class="doccomment">//! which you can use in any function that leverages ril, such as the `main` function:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! use ril::prelude::*;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//!     // code goes here...</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!     Ok(())</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Now you can use the `?` operator on anything that returns a ``Result`` for convenience.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! # Brief Guide</span>
-<span class="doccomment">//! A quick guide and overview of ril&#39;s interface.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Opening an image</span>
-<span class="doccomment">//! The [`open`][Image::open] method should suit your needs:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! let image = Image::&lt;Rgb&gt;::open(&quot;my_image.png&quot;)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The sole argument can be anything that implements [`AsRef&lt;Path&gt;`][AsRef], such as</span>
-<span class="doccomment">//! a string or a file.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You might have also noticed that [`Image`] is generic with one type parameter,</span>
-<span class="doccomment">//! which can be anything that implements [`Pixel`]. It represents what type of pixel</span>
-<span class="doccomment">//! this image has - in this case, the image has RGB pixels.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Common pixel formats are [`Rgb`] (colored) and [`Rgba`] (colored with transparency),</span>
-<span class="doccomment">//! which are found in the prelude. There are also grayscale counterparts, such as [`L`].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Reading from a byte stream</span>
-<span class="doccomment">//! You can also read from raw bytes using [`from_bytes`][Image::decode_from_bytes]:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```ignore</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! let bytes = include_bytes!(&quot;image.png&quot;) as &amp;[u8]; // Replace this with your own image data</span>
-<span class="doccomment">//! let image = Image::&lt;Rgb&gt;::from_bytes(ImageFormat::Png, bytes)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The first argument is the encoding of the image, and the second is a slice of bytes, or anything</span>
-<span class="doccomment">//! that implements [`AsRef&lt;[u8]&gt;`].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You can also use [`from_bytes_inferred`][Image::from_bytes_inferred] to</span>
-<span class="doccomment">//! infer the format from the byte slice without having to explicitly provide an encoding:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! # let bytes = [0].as_slice();</span>
-<span class="doccomment">//! let image = Image::&lt;Rgb&gt;::from_bytes_inferred(bytes)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Creating your own image</span>
-<span class="doccomment">//! You can create your own image using the [`Image::new`][Image::new] method:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The above creates a 256x256 RGB image with all pixels set to red.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The first argument is the width of the image, the second is the height, and the third is the</span>
-<span class="doccomment">//! fill color. The pixel type of the image can be inferred from this argument, which is why we</span>
-<span class="doccomment">//! don&#39;t have to specify it explicitly as a type argument - Rust type inference is powerful and</span>
-<span class="doccomment">//! infers this for us.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### The `from_fn` method</span>
-<span class="doccomment">//! The [`from_fn`][Image::from_fn] method is a shortcut for creating an image from a function:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! let image = Image::from_fn(256, 256, |x, y| {</span>
-<span class="doccomment">//!     // Do something, maybe with `x` and `y`, and return a pixel</span>
-<span class="doccomment">//!     Rgb::new(x as u8, y as u8, 0)</span>
-<span class="doccomment">//! });</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The above is just an example. You specify the width, height, and the function that</span>
-<span class="doccomment">//! generates the pixels. It should take two parameters - `x` and `y`, which specify the position</span>
-<span class="doccomment">//! of the pixel to generate - and return a pixel.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Encoding and saving images</span>
-<span class="doccomment">//! You can encode and save an image to a file with the [`save`][Image::save] method:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! // Here&#39;s the red image from before:</span>
-<span class="doccomment">//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! image.save(ImageFormat::Png, &quot;output.png&quot;)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The first argument is the encoding of the image, and the second is the path to the file.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! You may have noticed this is a bit repetitive, and that it is possible to infer the encoding</span>
-<span class="doccomment">//! from the file extension. In cases like this, you can use the slightly slower</span>
-<span class="doccomment">//! [`save_inferred`][Image::save_inferred] method:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">//! image.save_inferred(&quot;output.png&quot;)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Now, you do not have to explicitly specify the encoding as it is inferred from the output path.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Encoding and saving images to memory</span>
-<span class="doccomment">//! You can encode images to a memory buffer by using the [`encode`][Image::encode] method:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">//! let mut out = Vec::new();</span>
-<span class="doccomment">//! image.encode(ImageFormat::Png, &amp;mut out)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! // Do something with `out`</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The first argument is the encoding of the image, and the second is the output buffer that must</span>
-<span class="doccomment">//! implement [`Write`][std::io::Write].</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! There is no filename to infer the encoding from, so in this case you have to explicitly</span>
-<span class="doccomment">//! specify the encoding.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Manipulating images</span>
-<span class="doccomment">//! Now that you know how to create and save images, let&#39;s look at some of the ways we can modify</span>
-<span class="doccomment">//! them!</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Inverting images</span>
-<span class="doccomment">//! A common manipulation method would be inverting every pixel in the image. To do this, there are</span>
-<span class="doccomment">//! two methods which you can use:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! - [`invert`][Image::invert]: Inverts the image in-place</span>
-<span class="doccomment">//! - [`inverted`][Image::inverted]: Consumes the image and returns a new image with the inverted pixels</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! A common pattern you&#39;ll see in this crate is that many methods have an in-place method and a</span>
-<span class="doccomment">//! not-in-place counterpart, in which the former can be useful for method chaining. One usually does</span>
-<span class="doccomment">//! not have any memory or performance benefits than the other.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Anyhow, here&#39;s how you&#39;d invert an image:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! let mut image = Image::new(256, 256, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">//! image.invert();</span>
-<span class="doccomment">//! image.save_inferred(&quot;output.png&quot;)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! `(255, 0, 0)` (red) inverts to `(0, 255, 255)` (cyan), so that should be the color of the</span>
-<span class="doccomment">//! output image.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! We can also use [`inverted`][Image::inverted] to use method chaining:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```no_run</span>
-<span class="doccomment">//! # use ril::prelude::*;</span>
-<span class="doccomment">//! # fn main() -&gt; ril::Result&lt;()&gt; {</span>
-<span class="doccomment">//! Image::new(256, 256, Rgb::new(255, 0, 0))</span>
-<span class="doccomment">//!     .inverted()</span>
-<span class="doccomment">//!     .save_inferred(&quot;output.png&quot;)?;</span>
-<span class="doccomment">//! # Ok(()) }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Seems to be a bit cleaner than the first way, but it really just comes down to preference...</span>
-<span class="doccomment">//! and whether or not you have ownership of the image object - you likely want to stay away from</span>
-<span class="doccomment">//! cloning images for no benefit as it is a very expensive operation.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! TODO: finish guide</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
+//!
+//! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril).
+//!
+//! # Installation
+//! The MSRV (Minimum Support Rust Version) of this crate is **v1.61.0**.
+//!
+//! Add the following to your `Cargo.toml` dependencies:
+//! ```toml
+//! ril = { version = &quot;0&quot;, features = [&quot;all&quot;] ]
+//! ```
+//!
+//! ## Installing from GitHub
+//! You can also use the unstable but latest version by installing from GitHub:
+//! ```toml
+//! ril = { git = &quot;https://github.com/jay3332/ril&quot;, branch = &quot;main&quot;, features = [&quot;all&quot;] }
+//! ```
+//!
+//! ## Using `cargo add`
+//! If you have cargo &gt;= 1.62.0, you can use `cargo add ril --features=all`.
+//!
+//! ## Cargo Features
+//! RIL currently depends on a few dependencies for certain features - especially for various image encodings.
+//! By default RIL comes with no encoding dependencies but with the `text` and `resize` dependencies, which give you text
+//! and resizing capabilities respectively.
+//!
+//! You can use the `all` feature to enable all features, including encoding features. This enables the widest range of
+//! image format support, but adds a lot of dependencies you may not need.
+//!
+//! For every image encoding that requires a dependency, a corresponding feature can be enabled for it:
+//!
+//! | Encoding      | Feature | Dependencies                   | Default? |
+//! |---------------|---------|--------------------------------|----------|
+//! | PNG and APNG  | `png`   | `png`                          | no       |
+//! | JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
+//! | GIF           | `gif`   | `gif`                          | no       |
+//! | All encodings | `all`   |                                | no       |
+//!
+//! Other features:
+//!
+//! | Description                                               | Feature  | Dependencies        | Default? |
+//! |-----------------------------------------------------------|----------|---------------------|----------|
+//! | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
+//! | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
+//! | Enable all features,&lt;br/&gt; including all encoding features | `all`    | no                  | no       |
+//!
+//! # Getting Started
+//! Import the prelude which brings commonly used types and crucial traits into scope:
+//!
+//! ```no_run
+//! use ril::prelude::*;
+//! ```
+//!
+//! Because all errors from this crate are of the same type, ril provides a `Result` type
+//! which you can use in any function that leverages ril, such as the `main` function:
+//!
+//! ```no_run
+//! use ril::prelude::*;
+//!
+//! fn main() -&gt; ril::Result&lt;()&gt; {
+//!     // code goes here...
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! Now you can use the `?` operator on anything that returns a ``Result`` for convenience.
+//!
+//! # Brief Guide
+//! A quick guide and overview of ril&#39;s interface.
+//!
+//! ## Opening an image
+//! The [`open`][Image::open] method should suit your needs:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! let image = Image::&lt;Rgb&gt;::open(&quot;my_image.png&quot;)?;
+//! # Ok(()) }
+//! ```
+//!
+//! The sole argument can be anything that implements [`AsRef&lt;Path&gt;`][AsRef], such as
+//! a string or a file.
+//!
+//! You might have also noticed that [`Image`] is generic with one type parameter,
+//! which can be anything that implements [`Pixel`]. It represents what type of pixel
+//! this image has - in this case, the image has RGB pixels.
+//!
+//! Common pixel formats are [`Rgb`] (colored) and [`Rgba`] (colored with transparency),
+//! which are found in the prelude. There are also grayscale counterparts, such as [`L`].
+//!
+//! ### Reading from a byte stream
+//! You can also read from raw bytes using [`from_bytes`][Image::decode_from_bytes]:
+//!
+//! ```ignore
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! let bytes = include_bytes!(&quot;image.png&quot;) as &amp;[u8]; // Replace this with your own image data
+//! let image = Image::&lt;Rgb&gt;::from_bytes(ImageFormat::Png, bytes)?;
+//! # Ok(()) }
+//! ```
+//!
+//! The first argument is the encoding of the image, and the second is a slice of bytes, or anything
+//! that implements [`AsRef&lt;[u8]&gt;`].
+//!
+//! You can also use [`from_bytes_inferred`][Image::from_bytes_inferred] to
+//! infer the format from the byte slice without having to explicitly provide an encoding:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! # let bytes = [0].as_slice();
+//! let image = Image::&lt;Rgb&gt;::from_bytes_inferred(bytes)?;
+//! # Ok(()) }
+//! ```
+//!
+//! ## Creating your own image
+//! You can create your own image using the [`Image::new`][Image::new] method:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
+//! ```
+//!
+//! The above creates a 256x256 RGB image with all pixels set to red.
+//!
+//! The first argument is the width of the image, the second is the height, and the third is the
+//! fill color. The pixel type of the image can be inferred from this argument, which is why we
+//! don&#39;t have to specify it explicitly as a type argument - Rust type inference is powerful and
+//! infers this for us.
+//!
+//! ### The `from_fn` method
+//! The [`from_fn`][Image::from_fn] method is a shortcut for creating an image from a function:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! let image = Image::from_fn(256, 256, |x, y| {
+//!     // Do something, maybe with `x` and `y`, and return a pixel
+//!     Rgb::new(x as u8, y as u8, 0)
+//! });
+//! ```
+//!
+//! The above is just an example. You specify the width, height, and the function that
+//! generates the pixels. It should take two parameters - `x` and `y`, which specify the position
+//! of the pixel to generate - and return a pixel.
+//!
+//! ## Encoding and saving images
+//! You can encode and save an image to a file with the [`save`][Image::save] method:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! // Here&#39;s the red image from before:
+//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
+//!
+//! image.save(ImageFormat::Png, &quot;output.png&quot;)?;
+//! # Ok(()) }
+//! ```
+//!
+//! The first argument is the encoding of the image, and the second is the path to the file.
+//!
+//! You may have noticed this is a bit repetitive, and that it is possible to infer the encoding
+//! from the file extension. In cases like this, you can use the slightly slower
+//! [`save_inferred`][Image::save_inferred] method:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));
+//! image.save_inferred(&quot;output.png&quot;)?;
+//! # Ok(()) }
+//! ```
+//!
+//! Now, you do not have to explicitly specify the encoding as it is inferred from the output path.
+//!
+//! ### Encoding and saving images to memory
+//! You can encode images to a memory buffer by using the [`encode`][Image::encode] method:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! # let image = Image::new(256, 256, Rgb::new(255, 0, 0));
+//! let mut out = Vec::new();
+//! image.encode(ImageFormat::Png, &amp;mut out)?;
+//! # Ok(()) }
+//!
+//! // Do something with `out`
+//! ```
+//!
+//! The first argument is the encoding of the image, and the second is the output buffer that must
+//! implement [`Write`][std::io::Write].
+//!
+//! There is no filename to infer the encoding from, so in this case you have to explicitly
+//! specify the encoding.
+//!
+//! ## Manipulating images
+//! Now that you know how to create and save images, let&#39;s look at some of the ways we can modify
+//! them!
+//!
+//! ### Inverting images
+//! A common manipulation method would be inverting every pixel in the image. To do this, there are
+//! two methods which you can use:
+//!
+//! - [`invert`][Image::invert]: Inverts the image in-place
+//! - [`inverted`][Image::inverted]: Consumes the image and returns a new image with the inverted pixels
+//!
+//! A common pattern you&#39;ll see in this crate is that many methods have an in-place method and a
+//! not-in-place counterpart, in which the former can be useful for method chaining. One usually does
+//! not have any memory or performance benefits than the other.
+//!
+//! Anyhow, here&#39;s how you&#39;d invert an image:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! let mut image = Image::new(256, 256, Rgb::new(255, 0, 0));
+//! image.invert();
+//! image.save_inferred(&quot;output.png&quot;)?;
+//! # Ok(()) }
+//! ```
+//!
+//! `(255, 0, 0)` (red) inverts to `(0, 255, 255)` (cyan), so that should be the color of the
+//! output image.
+//!
+//! We can also use [`inverted`][Image::inverted] to use method chaining:
+//!
+//! ```no_run
+//! # use ril::prelude::*;
+//! # fn main() -&gt; ril::Result&lt;()&gt; {
+//! Image::new(256, 256, Rgb::new(255, 0, 0))
+//!     .inverted()
+//!     .save_inferred(&quot;output.png&quot;)?;
+//! # Ok(()) }
+//! ```
+//!
+//! Seems to be a bit cleaner than the first way, but it really just comes down to preference...
+//! and whether or not you have ownership of the image object - you likely want to stay away from
+//! cloning images for no benefit as it is a very expensive operation.
+//!
+//! TODO: finish guide
 
-<span class="attribute">#![<span class="ident">allow</span>(
-    <span class="ident">clippy::cast_possible_truncation</span>,
-    <span class="ident">clippy::cast_sign_loss</span>,
-    <span class="ident">clippy::module_name_repetitions</span>,
-    <span class="ident">clippy::similar_names</span>,
-    <span class="ident">clippy::many_single_char_names</span>
-)]</span>
+</span><span class="attribute">#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::module_name_repetitions,
+    clippy::similar_names,
+    clippy::many_single_char_names
+)]
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">draw</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">encode</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">encodings</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">mod</span> <span class="ident">image</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pixel</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;resize&quot;</span>)]</span>
-<span class="kw">mod</span> <span class="ident">resize</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">sequence</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;text&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">text</span>;
+</span><span class="kw">pub mod </span>draw;
+<span class="kw">pub mod </span>encode;
+<span class="kw">pub mod </span>encodings;
+<span class="kw">pub mod </span>error;
+<span class="kw">mod </span>image;
+<span class="kw">pub mod </span>pixel;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
+</span><span class="kw">mod </span>resize;
+<span class="kw">pub mod </span>sequence;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
+</span><span class="kw">pub mod </span>text;
 
-<span class="macro">macro_rules!</span> <span class="ident">inline_doc</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">token</span>:<span class="ident">item</span>)<span class="kw-2">*</span>) =&gt; {
-        $(<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">token</span>)<span class="op">*</span>
+<span class="macro">macro_rules! </span>inline_doc {
+    ($(<span class="macro-nonterminal">$token</span>:item)<span class="kw-2">*</span>) =&gt; {
+        $(<span class="attribute">#[doc(inline)] </span><span class="macro-nonterminal">$token</span>)*
     }
 }
 
-<span class="macro">inline_doc!</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image</span>::{<span class="ident">Banded</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">OverlayMode</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">draw</span>::{<span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">Draw</span>, <span class="ident">Ellipse</span>, <span class="ident">Paste</span>, <span class="ident">Rectangle</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">encode</span>::{<span class="ident">Decoder</span>, <span class="ident">DynamicFrameIterator</span>, <span class="ident">Encoder</span>, <span class="ident">FrameIterator</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pixel</span>::{<span class="ident">Alpha</span>, <span class="ident">BitPixel</span>, <span class="ident">Dynamic</span>, <span class="ident">Pixel</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">TrueColor</span>, <span class="ident">L</span>};
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;resize&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">resize::FilterType</span> <span class="kw">as</span> <span class="ident">ResizeAlgorithm</span>;
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sequence</span>::{<span class="ident">DisposalMethod</span>, <span class="ident">Frame</span>, <span class="ident">ImageSequence</span>, <span class="ident">LoopCount</span>};
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;text&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">text</span>::{<span class="ident">Font</span>, <span class="ident">HorizontalAnchor</span>, <span class="ident">TextLayout</span>, <span class="ident">TextSegment</span>, <span class="ident">VerticalAnchor</span>, <span class="ident">WrapStyle</span>};
+<span class="macro">inline_doc! </span>{
+    <span class="kw">pub use </span><span class="kw">crate</span>::image::{Banded, Image, ImageFormat, OverlayMode};
+    <span class="kw">pub use </span>draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
+    <span class="kw">pub use </span>encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
+    <span class="kw">pub use </span>error::{Error, <span class="prelude-ty">Result</span>};
+    <span class="kw">pub use </span>pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, TrueColor, L};
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
+    </span><span class="kw">pub use </span>resize::FilterType <span class="kw">as </span>ResizeAlgorithm;
+    <span class="kw">pub use </span>sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
+    </span><span class="kw">pub use </span>text::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
 }
 
-<span class="doccomment">/// The crate prelude exports. Importing this with a wildcard will import most items from RIL that</span>
-<span class="doccomment">/// can be useful for image processing, along with bringing crucial traits into scope.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Example</span>
-<span class="doccomment">/// ```no_run</span>
-<span class="doccomment">/// use ril::prelude::*;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // Prelude imported Image and Rgb</span>
-<span class="doccomment">/// let image = Image::new(100, 100, Rgb::new(255, 0, 0));</span>
-<span class="doccomment">/// // Prelude imported the Banded trait</span>
-<span class="doccomment">/// let (r, g, b) = image.bands();</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span> {
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
-        <span class="ident">Alpha</span>, <span class="ident">Banded</span>, <span class="ident">BitPixel</span>, <span class="ident">Border</span>, <span class="ident">BorderPosition</span>, <span class="ident">DisposalMethod</span>, <span class="ident">Draw</span>, <span class="ident">Dynamic</span>,
-        <span class="ident">DynamicFrameIterator</span>, <span class="ident">Ellipse</span>, <span class="ident">Frame</span>, <span class="ident">FrameIterator</span>, <span class="ident">Image</span>, <span class="ident">ImageFormat</span>, <span class="ident">ImageSequence</span>,
-        <span class="ident">LoopCount</span>, <span class="ident">OverlayMode</span>, <span class="ident">Paste</span>, <span class="ident">Pixel</span>, <span class="ident">Rectangle</span>, <span class="ident">Rgb</span>, <span class="ident">Rgba</span>, <span class="ident">TrueColor</span>, <span class="ident">L</span>,
+<span class="doccomment">/// The crate prelude exports. Importing this with a wildcard will import most items from RIL that
+/// can be useful for image processing, along with bringing crucial traits into scope.
+///
+/// # Example
+/// ```no_run
+/// use ril::prelude::*;
+///
+/// // Prelude imported Image and Rgb
+/// let image = Image::new(100, 100, Rgb::new(255, 0, 0));
+/// // Prelude imported the Banded trait
+/// let (r, g, b) = image.bands();
+/// ```
+</span><span class="kw">pub mod </span>prelude {
+    <span class="kw">pub use super</span>::{
+        Alpha, Banded, BitPixel, Border, BorderPosition, DisposalMethod, Draw, Dynamic,
+        DynamicFrameIterator, Ellipse, Frame, FrameIterator, Image, ImageFormat, ImageSequence,
+        LoopCount, OverlayMode, Paste, Pixel, Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;resize&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ResizeAlgorithm</span>;
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;text&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Font</span>, <span class="ident">HorizontalAnchor</span>, <span class="ident">TextLayout</span>, <span class="ident">TextSegment</span>, <span class="ident">VerticalAnchor</span>, <span class="ident">WrapStyle</span>};
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
+    </span><span class="kw">pub use </span><span class="kw">super</span>::ResizeAlgorithm;
+    <span class="attribute">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
+    </span><span class="kw">pub use super</span>::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
