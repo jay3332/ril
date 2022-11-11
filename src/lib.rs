@@ -25,7 +25,8 @@
 //! and resizing capabilities respectively.
 //!
 //! You can use the `all` feature to enable all features, including encoding features. This enables the widest range of
-//! image format support, but adds a lot of dependencies you may not need.
+//! image format support, but adds a lot of dependencies you may not need. **The `all` feature does *not* enable the
+//! `simd` feature since that feature is only available on nightly.**
 //!
 //! For every image encoding that requires a dependency, a corresponding feature can be enabled for it:
 //!
@@ -34,16 +35,15 @@
 //! | PNG and APNG  | `png`   | `png`                          | no       |
 //! | JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
 //! | GIF           | `gif`   | `gif`                          | no       |
-//! | All encodings | `all`   |                                | no       |
 //!
 //! Other features:
 //!
-//! | Description                                               | Feature  | Dependencies        | Default? |
-//! |-----------------------------------------------------------|----------|---------------------|----------|
-//! | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
-//! | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
-//! | Enable all features,<br/> including all encoding features | `all`    | no                  | no       |
-//!
+//! | Description                                                                      | Feature  | Dependencies                     | Default? |
+//! |----------------------------------------------------------------------------------|----------|----------------------------------|----------|
+//! | Font/Text Rendering                                                              | `text`   | `fontdue`                        | yes      |
+//! | Image Resizing                                                                   | `resize` | `fast_image_resize`              | yes      |
+//! | SIMD acceleration (Nightly only)                                                 | `simd`   | Must be on the nightly channel   | no       |
+//! | Enable all features,<br/> including all encoding features,<br/>except for `simd` | `all`    |                                  | no       |
 //! # Getting Started
 //! Import the prelude which brings commonly used types and crucial traits into scope:
 //!
@@ -246,6 +246,7 @@
     clippy::similar_names,
     clippy::many_single_char_names
 )]
+#![cfg_attr(feature = "simd", feature(portable_simd))]
 
 pub mod draw;
 pub mod encode;

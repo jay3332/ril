@@ -7,6 +7,9 @@ use crate::{
     Result,
 };
 
+#[cfg(feature = "simd")]
+use std::simd::{u8x4, f32x4, SimdFloat};
+
 /// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
@@ -301,25 +304,28 @@ impl L {
 }
 
 /// Represents an RGB pixel.
+#[cfg(feature = "simd")]
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
-pub struct Rgb {
-    /// The red component of the pixel.
-    pub r: u8,
-    /// The green component of the pixel.
-    pub g: u8,
-    /// The blue component of the pixel.
-    pub b: u8,
-}
+pub struct Rgb(u8x4);
+
+/// Represents an RGB pixel.
+#[cfg(not(feature = "simd"))]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+pub struct Rgb(u8, u8, u8);
 
 impl Pixel for Rgb {
     type Subpixel = u8;
     type Data = [u8; 3];
 
+    // noinspection ALL
     fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
+        #[cfg(feature = "simd")]
+        {
+            Self(!self.0)
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Self(!self.0, !self.1, !self.2)
         }
     }
 
@@ -338,15 +344,24 @@ impl Pixel for Rgb {
     fn from_pixel_data(data: PixelData) -> Result<Self> {
         #[allow(clippy::match_wildcard_for_single_variants)]
         match data {
-            PixelData::Rgb(r, g, b) | PixelData::Rgba(r, g, b, _) => Ok(Self { r, g, b }),
-            PixelData::L(l) | PixelData::LA(l, _) => Ok(Self { r: l, g: l, b: l }),
+            PixelData::Rgb(r, g, b) | PixelData::Rgba(r, g, b, _) => Ok(Self::new(r, g, b)),
+            PixelData::L(l) | PixelData::LA(l, _) => {
+                #[cfg(feature = "simd")]
+                {
+                    Ok(Self(u8x4::splat(l)))
+                }
+                #[cfg(not(feature = "simd"))]
+                {
+                    Ok(Self(l, l, l))
+                }
+            },
             PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
             _ => Err(UnsupportedColorType),
         }
     }
 
     fn as_pixel_data(&self) -> PixelData {
-        PixelData::Rgb(self.r, self.g, self.b)
+        PixelData::Rgb(self.r(), self.g(), self.b())
     }
 
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -358,7 +373,7 @@ impl Pixel for Rgb {
     }
 
     fn as_bytes(&self) -> Self::Data {
-        [self.r, self.g, self.b]
+        [self.r(), self.g(), self.b()]
     }
 
     fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
@@ -381,7 +396,53 @@ impl Rgb {
     /// Creates a new RGB pixel.
     #[must_use]
     pub const fn new(r: u8, g: u8, b: u8) -> Self {
-        Self { r, g, b }
+        #[cfg(feature = "simd")]
+        {
+            Self(u8x4::from_array([r, g, b, 0]))
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Self(r, g, b)
+        }
+    }
+
+    /// Returns the red component of the pixel.
+    #[must_use]
+    pub const fn r(&self) -> u8 {
+        #[cfg(feature = "simd")]
+        {
+            self.0.as_array()[0]
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.0
+        }
+    }
+
+    /// Returns the green component of the pixel.
+    #[must_use]
+    pub const fn g(&self) -> u8 {
+        #[cfg(feature = "simd")]
+        {
+            self.0.as_array()[1]
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.1
+        }
+    }
+
+    /// Returns the blue component of the pixel.
+    #[must_use]
+    pub const fn b(&self) -> u8 {
+        #[cfg(feature = "simd")]
+        {
+            self.0.as_array()[2]
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.2
+        }
     }
 
     /// Parses an RGB pixel from a hex value.
@@ -422,11 +483,11 @@ impl Rgb {
 
         let err = |_| InvalidHexCode(hex.to_string());
 
-        Ok(Self {
-            r: u8::from_str_radix(&hex[0..2], 16).map_err(err)?,
-            g: u8::from_str_radix(&hex[2..4], 16).map_err(err)?,
-            b: u8::from_str_radix(&hex[4..6], 16).map_err(err)?,
-        })
+        Ok(Self::new(
+            u8::from_str_radix(&hex[0..2], 16).map_err(err)?,
+            u8::from_str_radix(&hex[2..4], 16).map_err(err)?,
+            u8::from_str_radix(&hex[4..6], 16).map_err(err)?,
+        ))
     }
 
     /// Creates a completely black pixel.
@@ -443,28 +504,33 @@ impl Rgb {
 }
 
 /// Represents an RGBA pixel.
+#[cfg(feature = "simd")]
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
-pub struct Rgba {
-    /// The red component of the pixel.
-    pub r: u8,
-    /// The green component of the pixel.
-    pub g: u8,
-    /// The blue component of the pixel.
-    pub b: u8,
-    /// The alpha component of the pixel.
-    pub a: u8,
-}
+pub struct Rgba(u8x4);
+
+/// Represents an RGBA pixel.
+#[cfg(not(feature = "simd"))]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+pub struct Rgba([u8; 4]);
 
 impl Pixel for Rgba {
     type Subpixel = u8;
     type Data = [u8; 4];
 
+    // noinspection ALL
     fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
-            a: self.a,
+        #[cfg(feature = "simd")]
+        {
+            Self(!self.0)
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Self([
+                !self.0[0],
+                !self.0[1],
+                !self.0[2],
+                self.0[3],
+            ])
         }
     }
 
@@ -484,27 +550,17 @@ impl Pixel for Rgba {
     fn from_pixel_data(data: PixelData) -> Result<Self> {
         #[allow(clippy::match_wildcard_for_single_variants)]
         match data {
-            PixelData::Rgb(r, g, b) => Ok(Self { r, g, b, a: 255 }),
-            PixelData::Rgba(r, g, b, a) => Ok(Self { r, g, b, a }),
-            PixelData::L(l) => Ok(Self {
-                r: l,
-                g: l,
-                b: l,
-                a: 255,
-            }),
-            PixelData::LA(l, a) => Ok(Self {
-                r: l,
-                g: l,
-                b: l,
-                a,
-            }),
+            PixelData::Rgb(r, g, b) => Ok(Self::new(r, g, b, 255)),
+            PixelData::Rgba(r, g, b, a) => Ok(Self::new(r, g, b, a)),
+            PixelData::L(l) => Ok(Self::new(l, l, l, 255)),
+            PixelData::LA(l, a) => Ok(Self::new(l, l, l, a)),
             PixelData::Bit(value) => Ok(value.then(Self::white).unwrap_or_else(Self::black)),
             _ => Err(UnsupportedColorType),
         }
     }
 
     fn as_pixel_data(&self) -> PixelData {
-        PixelData::Rgba(self.r, self.g, self.b, self.a)
+        PixelData::Rgba(self.r(), self.g(), self.b(), self.a())
     }
 
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -517,30 +573,63 @@ impl Pixel for Rgba {
     }
 
     fn as_bytes(&self) -> Self::Data {
-        [self.r, self.g, self.b, self.a]
+        #[cfg(feature = "simd")]
+        {
+            self.0.to_array()
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.0
+        }
+    }
+
+    // noinspection RsTypeCheck
+    #[cfg(feature = "simd")]
+    fn merge(self, other: Self) -> Self {
+        // Optimize for common cases
+        if other.a() == 255 {
+            return other;
+        } else if other.a() == 0 {
+            return self;
+        }
+
+        let base: f32x4 = f32x4::from(self.0) / 255.0;
+        let overlay: f32x4 = f32x4::from(other.0) / 255.0;
+
+        let base_a = base.as_array()[3];
+        let overlay_ac = overlay.as_array()[3];
+        let overlay_a = f32x4::splat(overlay_ac);
+        let a_diff = 1. - base_a;
+        let a = a_diff.mul_add(overlay_ac, base_a);
+
+        let a_ratio = f32x4::splat(a_diff * base_a);
+        let new = a_ratio.mul_add(base, overlay_a * overlay) / f32x4::splat(a);
+
+        Self(new)
     }
 
     #[allow(clippy::cast_lossless)]
+    #[cfg(not(feature = "simd"))]
     fn merge(self, other: Self) -> Self {
         // Optimize for common cases
-        if other.a == 255 {
+        if other.a() == 255 {
             return other;
-        } else if other.a == 0 {
+        } else if other.a() == 0 {
             return self;
         }
 
         let (base_r, base_g, base_b, base_a) = (
-            self.r as f32 / 255.,
-            self.g as f32 / 255.,
-            self.b as f32 / 255.,
-            self.a as f32 / 255.,
+            self.r() as f32 / 255.,
+            self.g() as f32 / 255.,
+            self.b() as f32 / 255.,
+            self.a() as f32 / 255.,
         );
 
         let (overlay_r, overlay_g, overlay_b, overlay_a) = (
-            other.r as f32 / 255.,
-            other.g as f32 / 255.,
-            other.b as f32 / 255.,
-            other.a as f32 / 255.,
+            other.r() as f32 / 255.,
+            other.g() as f32 / 255.,
+            other.b() as f32 / 255.,
+            other.a() as f32 / 255.,
         );
 
         let a_diff = 1. - overlay_a;
@@ -551,17 +640,17 @@ impl Pixel for Rgba {
         let g = a_ratio.mul_add(base_g, overlay_a * overlay_g) / a;
         let b = a_ratio.mul_add(base_b, overlay_a * overlay_b) / a;
 
-        Self {
-            r: (r * 255.) as u8,
-            g: (g * 255.) as u8,
-            b: (b * 255.) as u8,
-            a: (a * 255.) as u8,
-        }
+        Self::new(
+            (r * 255.) as u8,
+            (g * 255.) as u8,
+            (b * 255.) as u8,
+            (a * 255.) as u8,
+        )
     }
 
     #[allow(clippy::cast_lossless)]
     fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
-        self.merge(other.with_alpha((other.a as f32 * (alpha as f32 / 255.)) as u8))
+        self.merge(other.with_alpha((other.a() as f32 * (alpha as f32 / 255.)) as u8))
     }
 
     fn from_dynamic(dynamic: Dynamic) -> Self {
@@ -576,11 +665,17 @@ impl Pixel for Rgba {
 
 impl Alpha for Rgba {
     fn alpha(&self) -> u8 {
-        self.a
+        self.a()
     }
 
+    #[cfg(feature = "simd")]
+    fn with_alpha(self, alpha: u8) -> Self {
+        Self::new(self.r(), self.g(), self.b(), alpha)
+    }
+
+    #[cfg(not(feature = "simd"))]
     fn with_alpha(mut self, alpha: u8) -> Self {
-        self.a = alpha;
+        self.0[3] = alpha;
         self
     }
 }
@@ -589,13 +684,72 @@ impl Rgba {
     /// Creates a new RGBA pixel.
     #[must_use]
     pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
-        Self { r, g, b, a }
+        #[cfg(feature = "simd")]
+        {
+            Self(u8x4::from_array([r, g, b, a]))
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            Self([r, g, b, a])
+        }
+    }
+
+    /// The red component of the pixel.
+    #[must_use]
+    pub const fn r(&self) -> u8 {
+        #[cfg(feature = "simd")]
+        {
+            self.0.as_array()[0]
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.0[0]
+        }
+    }
+
+    /// The green component of the pixel.
+    #[must_use]
+    pub const fn g(&self) -> u8 {
+        #[cfg(feature = "simd")]
+        {
+            self.0.as_array()[1]
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.0[1]
+        }
+    }
+
+    /// The blue component of the pixel.
+    #[must_use]
+    pub const fn b(&self) -> u8 {
+        #[cfg(feature = "simd")]
+        {
+            self.0.as_array()[2]
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.0[2]
+        }
+    }
+
+    /// The alpha component of the pixel.
+    #[must_use]
+    pub const fn a(&self) -> u8 {
+        #[cfg(feature = "simd")]
+        {
+            self.0.as_array()[3]
+        }
+        #[cfg(not(feature = "simd"))]
+        {
+            self.0[3]
+        }
     }
 
     /// Creates an opaque pixel from an RGB pixel.
     #[must_use]
-    pub const fn from_rgb(Rgb { r, g, b }: Rgb) -> Self {
-        Self::new(r, g, b, 255)
+    pub const fn from_rgb(o: Rgb) -> Self {
+        Self::new(o.r(), o.g(), o.b(), 255)
     }
 
     /// Parses an RGBA pixel from a hex value.
@@ -631,12 +785,12 @@ impl Rgba {
 
                 let err = |_| InvalidHexCode(hex.to_string());
 
-                Ok(Self {
-                    r: u8::from_str_radix(&hex[0..2], 16).map_err(err)?,
-                    g: u8::from_str_radix(&hex[2..4], 16).map_err(err)?,
-                    b: u8::from_str_radix(&hex[4..6], 16).map_err(err)?,
-                    a: u8::from_str_radix(&hex[6..8], 16).map_err(err)?,
-                })
+                Ok(Self::new(
+                    u8::from_str_radix(&hex[0..2], 16).map_err(err)?,
+                    u8::from_str_radix(&hex[2..4], 16).map_err(err)?,
+                    u8::from_str_radix(&hex[4..6], 16).map_err(err)?,
+                    u8::from_str_radix(&hex[6..8], 16).map_err(err)?,
+                ))
             }
             _ => Err(InvalidHexCode(hex.to_string())),
         }
@@ -843,8 +997,8 @@ impl Pixel for Dynamic {
             PixelData::L(l) => Self::L(L(l)),
             // TODO: LA pixel type
             PixelData::LA(l, _a) => Self::L(L(l)),
-            PixelData::Rgb(r, g, b) => Self::Rgb(Rgb { r, g, b }),
-            PixelData::Rgba(r, g, b, a) => Self::Rgba(Rgba { r, g, b, a }),
+            PixelData::Rgb(r, g, b) => Self::Rgb(Rgb::new(r, g, b)),
+            PixelData::Rgba(r, g, b, a) => Self::Rgba(Rgba::new(r, g, b, a)),
             _ => return Err(UnsupportedColorType),
         })
     }
@@ -853,8 +1007,8 @@ impl Pixel for Dynamic {
         match *self {
             Self::BitPixel(BitPixel(value)) => PixelData::Bit(value),
             Self::L(L(l)) => PixelData::L(l),
-            Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(r, g, b),
-            Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(r, g, b, a),
+            Self::Rgb(o) => PixelData::Rgb(o.r(), o.g(), o.b()),
+            Self::Rgba(o) => PixelData::Rgba(o.r(), o.g(), o.b(), o.a()),
         }
     }
 
@@ -984,9 +1138,9 @@ impl From<L> for BitPixel {
 }
 
 impl From<Rgb> for L {
-    fn from(Rgb { r, g, b }: Rgb) -> Self {
+    fn from(o: Rgb) -> Self {
         #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-        Self(f32::from(b).mul_add(0.114, f32::from(r).mul_add(0.299, f32::from(g) * 0.587)) as u8)
+        Self(f32::from(o.b()).mul_add(0.114, f32::from(o.r()).mul_add(0.299, f32::from(o.g()) * 0.587)) as u8)
     }
 }
 
@@ -998,30 +1152,25 @@ impl From<Rgba> for L {
 
 impl From<L> for Rgb {
     fn from(L(l): L) -> Self {
-        Self { r: l, g: l, b: l }
+        Self::new(l, l, l)
     }
 }
 
 impl From<L> for Rgba {
     fn from(L(l): L) -> Self {
-        Self {
-            r: l,
-            g: l,
-            b: l,
-            a: 255,
-        }
+        Self::new(l, l, l, 255)
     }
 }
 
 impl From<Rgba> for Rgb {
-    fn from(Rgba { r, g, b, .. }: Rgba) -> Self {
-        Self { r, g, b }
+    fn from(o: Rgba) -> Self {
+        Self::new(o.r(), o.g(), o.b())
     }
 }
 
 impl From<Rgb> for Rgba {
-    fn from(Rgb { r, g, b }: Rgb) -> Self {
-        Self { r, g, b, a: 255 }
+    fn from(o: Rgb) -> Self {
+        Self::new(o.r(), o.g(), o.b(), 255)
     }
 }
 
