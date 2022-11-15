@@ -52,11 +52,7 @@ impl JpegEncoder {
 }
 
 impl Encoder for JpegEncoder {
-    fn encode<P: Pixel>(
-        &mut self,
-        image: &Image<P>,
-        dest: &mut impl Write,
-    ) -> Result<()> {
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
         let sample @ (ct, _) = (image.data[0].color_type(), P::BIT_DEPTH);
         let color_type = match sample {
             (ColorType::Rgb | ColorType::PaletteRgb, 8) => EncoderColorType::Rgb,

@@ -105,11 +105,7 @@ impl PngEncoder {
 }
 
 impl Encoder for PngEncoder {
-    fn encode<P: Pixel>(
-        &mut self,
-        image: &Image<P>,
-        dest: &mut impl Write,
-    ) -> crate::Result<()> {
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
         let data = image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
         let color_type = image.data[0].color_type();
 

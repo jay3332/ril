@@ -301,8 +301,8 @@ pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
         DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
-        ImageSequence, LoopCount, OverlayMode, Paletted,
-        PalettedRgb, PalettedRgba, Paste, Pixel, Rectangle, Rgb, Rgba, TrueColor, L,
+        ImageSequence, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste, Pixel,
+        Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
     #[cfg(feature = "resize")]
