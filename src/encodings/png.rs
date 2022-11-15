@@ -105,12 +105,11 @@ impl PngEncoder {
 }
 
 impl Encoder for PngEncoder {
-    fn encode<'a, P: Pixel + 'a, I: Into<MaybePalettedImage<'a, P>>>(
+    fn encode<P: Pixel>(
         &mut self,
-        image: &I,
+        image: &Image<P>,
         dest: &mut impl Write,
     ) -> crate::Result<()> {
-        let image: &MaybePalettedImage<'a, P> = &(*image).into();
         let data = image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
         let color_type = image.data[0].color_type();
 
