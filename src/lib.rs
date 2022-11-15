@@ -268,7 +268,7 @@ macro_rules! inline_doc {
 
 inline_doc! {
     pub use crate::image::{
-        Banded, Image, ImageFormat, MaybePalettedImage, OverlayMode, PalettedImage,
+        Banded, Image, ImageFormat, OverlayMode,
     };
     pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
@@ -301,7 +301,7 @@ pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
         DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
-        ImageSequence, LoopCount, MaybePalettedImage, OverlayMode, Paletted, PalettedImage,
+        ImageSequence, LoopCount, OverlayMode, Paletted,
         PalettedRgb, PalettedRgba, Paste, Pixel, Rectangle, Rgb, Rgba, TrueColor, L,
     };
 

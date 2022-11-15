@@ -52,12 +52,7 @@ impl GifEncoder {
 
 impl Encoder for GifEncoder {
     #[allow(clippy::cast_lossless)]
-    fn encode<'a, P: Pixel + 'a, I: Into<MaybePalettedImage<'a, P>>>(
-        &mut self,
-        image: &I,
-        dest: &mut impl Write,
-    ) -> crate::Result<()> {
-        let image = &(*image).into();
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
         let mut encoder =
             gif::Encoder::new(dest, image.width() as u16, image.height() as u16, &[])?;
 

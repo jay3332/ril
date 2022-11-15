@@ -26,7 +26,6 @@ use std::{
     fs::File,
     io::{Read, Write},
     num::NonZeroU32,
-    ops::{Deref, DerefMut},
     path::Path,
 };
 
@@ -72,6 +71,7 @@ pub struct Image<P: Pixel = Dynamic> {
     pub data: Vec<P>,
     pub(crate) format: ImageFormat,
     pub(crate) overlay: OverlayMode,
+    palette: Option<Box<[P]>>,
 }
 
 impl<P: Pixel> Image<P> {
@@ -90,6 +90,7 @@ impl<P: Pixel> Image<P> {
             data: vec![fill; (width * height) as usize],
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
+            palette: None,
         }
     }
 
@@ -124,6 +125,7 @@ impl<P: Pixel> Image<P> {
             data: pixels.to_vec(),
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
+            palette: None,
         }
     }
 
@@ -537,6 +539,7 @@ impl<P: Pixel> Image<P> {
             data: f(self.data),
             format: self.format,
             overlay: self.overlay,
+            palette: None,
         }
     }
 
@@ -846,6 +849,12 @@ impl<P: Pixel> Image<P> {
                 *pixel = pixel.with_alpha(mask.value());
             });
     }
+
+    /// Returns the palette associated with this image as a slice.
+    /// If there is no palette, this returns `None`.
+    pub fn palette(&self) -> Option<&[P]> {
+        self.palette.as_deref()
+    }
 }
 
 macro_rules! impl_cast {
@@ -891,6 +900,7 @@ macro_rules! map_idx {
             data: $image.data.iter().map(|p| L(p.as_bytes()[$idx])).collect(),
             format: $image.format,
             overlay: $image.overlay,
+            palette: None,
         }
     }};
 }
@@ -1208,165 +1218,5 @@ impl Display for ImageFormat {
                 Self::Unknown => "",
             }
         )
-    }
-}
-
-/// An indexed image, where its pixels are represented by a palette.
-///
-/// This implements `Deref<Target = Image>`, so this is indifferent from a normal image, but it has
-/// extra methods to manipulate the palette.
-pub struct PalettedImage<'palette, P: Pixel> {
-    image: Image<P>,
-    palette: &'palette [P],
-}
-
-impl<P: Pixel> PalettedImage<'_, P> {
-    /// Returns a reference to the palette.
-    pub fn palette(&self) -> &[P] {
-        self.palette
-    }
-
-    /// Returns a mutable reference to the palette.
-    pub fn palette_mut(&mut self) -> &mut [P] {
-        &mut self.palette
-    }
-
-    /// Maps the palette to a new palette.
-    pub fn map_palette<I, F: FnOnce(&[P]) -> I>(mut self, f: F) -> Self
-    where
-        I: IntoIterator<Item = P>,
-    {
-        let palette = f(self.palette).into_iter().collect::<Vec<_>>();
-        self.palette = palette.as_slice();
-        self
-    }
-}
-
-impl<'palette, P: Pixel> Deref for PalettedImage<'palette, P> {
-    type Target = Image<P>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.image
-    }
-}
-
-impl<'palette, P: Pixel> DerefMut for PalettedImage<'palette, P> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.image
-    }
-}
-
-/// An image that *could* be paletted. Usually used for dynamic purposes, where the image format
-/// is possibly indexed.
-///
-/// This implements `Deref<Target = Image>`, so this is indifferent from a normal image. Unlike
-/// [`PalettedImage`], this does not have extra methods to manipulate the palette - in order to
-/// access these you must first check if the image is paletted with something such as a `match` or
-/// `if let` statement.
-pub enum MaybePalettedImage<'palette, P: Pixel> {
-    /// The image is not paletted.
-    Unpaletted(Image<P>),
-    /// The image is paletted.
-    Paletted(PalettedImage<'palette, P>),
-}
-
-impl<'palette, P: Pixel> MaybePalettedImage<'palette, P> {
-    /// Whether this image is paletted.
-    pub fn is_paletted(&self) -> bool {
-        matches!(self, Self::Paletted(_))
-    }
-
-    /// Returns the inner image, no matter if it is paletted or not.
-    pub fn into_image(self) -> Image<P> {
-        match self {
-            Self::Unpaletted(image) => image,
-            Self::Paletted(image) => image.image,
-        }
-    }
-
-    /// Returns the inner unpaletted image, if it is unpaletted, or None if it is paletted.
-    pub fn into_unpaletted(self) -> Option<Image<P>> {
-        match self {
-            Self::Unpaletted(image) => Some(image),
-            Self::Paletted(_) => None,
-        }
-    }
-
-    /// Returns the inner unpaletted image, but you must uphold the guarantee that the image will
-    /// never be paletted, otherwise this will result in undefined behaviour.
-    ///
-    /// # Safety
-    /// * The image must never be paletted.
-    ///
-    /// # See Also
-    /// * [`Self::into_unpaletted`] - A safe, checked alternative to this method.
-    pub unsafe fn into_unpaletted_unchecked(self) -> Image<P> {
-        match self {
-            Self::Unpaletted(image) => image,
-            Self::Paletted(_) => std::hint::unreachable_unchecked(),
-        }
-    }
-
-    /// Returns the inner paletted image, if it is paletted, or None if it is unpaletted.
-    pub fn into_paletted(self) -> Option<PalettedImage<'palette, P>> {
-        match self {
-            Self::Unpaletted(_) => None,
-            Self::Paletted(image) => Some(image),
-        }
-    }
-
-    /// Returns the inner paletted image, but you must uphold the guarantee that the image will
-    /// never be unpaletted, otherwise this will result in undefined behaviour.
-    ///
-    /// # Safety
-    /// * The image must never be unpaletted.
-    ///
-    /// # See Also
-    /// * [`Self::into_paletted`] - A safe, checked alternative to this method.
-    pub unsafe fn into_paletted_unchecked(self) -> PalettedImage<'palette, P> {
-        match self {
-            Self::Unpaletted(_) => std::hint::unreachable_unchecked(),
-            Self::Paletted(image) => image,
-        }
-    }
-
-    /// Returns a reference to the inner palette if the image is paletted.
-    pub fn palette(&self) -> Option<&[P]> {
-        match self {
-            Self::Unpaletted(_) => None,
-            Self::Paletted(image) => Some(image.palette()),
-        }
-    }
-}
-
-impl<'palette, P: Pixel> Deref for MaybePalettedImage<'palette, P> {
-    type Target = Image<P>;
-
-    fn deref(&self) -> &Self::Target {
-        match self {
-            Self::Unpaletted(image) => image,
-            Self::Paletted(image) => image,
-        }
-    }
-}
-
-impl<'palette, P: Pixel> DerefMut for MaybePalettedImage<'palette, P> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        match self {
-            Self::Unpaletted(image) => image,
-            Self::Paletted(image) => image,
-        }
-    }
-}
-
-impl<P: Pixel> From<Image<P>> for MaybePalettedImage<'_, P> {
-    fn from(value: Image<P>) -> Self {
-        Self::Unpaletted(value)
-    }
-}
-
-impl<'palette, P: Pixel> From<PalettedImage<'palette, P>> for MaybePalettedImage<'palette, P> {
-    fn from(value: PalettedImage<'palette, P>) -> Self {
-        Self::Paletted(value)
     }
 }

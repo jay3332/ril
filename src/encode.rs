@@ -1,6 +1,6 @@
 //! Houses Encoder, Decoder, and frame iterator traits.
 
-use crate::{Frame, Image, ImageSequence, MaybePalettedImage, Pixel};
+use crate::{Frame, Image, ImageSequence, Pixel};
 use std::io::{Read, Write};
 use std::marker::PhantomData;
 
@@ -15,11 +15,7 @@ pub trait Encoder {
     ///
     /// # Errors
     /// * An error occured during encoding.
-    fn encode<'a, P: Pixel + 'a, I: Into<MaybePalettedImage<'a, P>>>(
-        &mut self,
-        image: &I,
-        dest: &mut impl Write,
-    ) -> crate::Result<()>;
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()>;
 
     /// Encodes the given image sequence into the given writer.
     ///

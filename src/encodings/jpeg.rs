@@ -52,12 +52,11 @@ impl JpegEncoder {
 }
 
 impl Encoder for JpegEncoder {
-    fn encode<'a, P: Pixel + 'a, I: Into<MaybePalettedImage<'a, P>>>(
+    fn encode<P: Pixel>(
         &mut self,
-        image: &I,
+        image: &Image<P>,
         dest: &mut impl Write,
     ) -> Result<()> {
-        let image = &(*image).into();
         let sample @ (ct, _) = (image.data[0].color_type(), P::BIT_DEPTH);
         let color_type = match sample {
             (ColorType::Rgb | ColorType::PaletteRgb, 8) => EncoderColorType::Rgb,
