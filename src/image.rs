@@ -1,3 +1,5 @@
+#![allow(clippy::wildcard_imports)]
+
 use crate::{
     draw::Draw,
     error::{
@@ -71,7 +73,7 @@ pub struct Image<P: Pixel = Dynamic> {
     pub data: Vec<P>,
     pub(crate) format: ImageFormat,
     pub(crate) overlay: OverlayMode,
-    palette: Option<Box<[P]>>,
+    pub(crate) palette: Option<Box<[P::Color]>>,
 }
 
 impl<P: Pixel> Image<P> {
@@ -619,6 +621,13 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Converts the image into an image with the given pixel type.
+    ///
+    /// # Note
+    /// Currently there is a slight inconsistency with paletted images - if you would like to
+    /// convert from a paletted image to a paletted image with a different pixel type, you cannot
+    /// use this method and must instead use the `From`/`Into` trait instead.
+    ///
+    /// That said, you can also use the `From`/`Into` trait regardless of the pixel type.
     #[must_use]
     pub fn convert<T: Pixel + From<P>>(self) -> Image<T> {
         self.map_pixels(T::from)
@@ -852,8 +861,93 @@ impl<P: Pixel> Image<P> {
 
     /// Returns the palette associated with this image as a slice.
     /// If there is no palette, this returns `None`.
-    pub fn palette(&self) -> Option<&[P]> {
+    #[must_use]
+    pub fn palette(&self) -> Option<&[P::Color]> {
         self.palette.as_deref()
+    }
+
+    /// Returns the palette associated with this image as a mutable slice.
+    /// If there is no palette, this returns `None`.
+    #[must_use]
+    pub fn palette_mut(&mut self) -> Option<&mut [P::Color]> {
+        self.palette.as_deref_mut()
+    }
+
+    /// Returns the palette associated with this image as a slice. You must uphold the guarantee
+    /// that the image is paletted, otherwise this will result in undefined behaviour.
+    ///
+    /// # Safety
+    /// * The image must always be paletted.
+    ///
+    /// # See Also
+    /// * [`Self::palette`] - A safe, checked alternative to this method.
+    #[must_use]
+    pub unsafe fn palette_unchecked(&self) -> &[P::Color] {
+        self.palette.as_ref().unwrap_unchecked()
+    }
+
+    /// Returns the palette associated with this image as a mutable slice. You must uphold the
+    /// guarantee that the image is paletted, otherwise this will result in undefined behaviour.
+    ///
+    /// # Safety
+    /// * The image must always be paletted.
+    ///
+    /// # See Also
+    /// * [`Self::palette_mut`] - A safe, checked alternative to this method.
+    #[must_use]
+    pub unsafe fn palette_mut_unchecked(&mut self) -> &mut [P::Color] {
+        self.palette.as_mut().unwrap_unchecked()
+    }
+
+    /// Maps the palette of this image using the given function.
+    pub fn map_palette<'a, U, F, C: TrueColor>(self, mut f: F) -> Image<U>
+    where
+        Self: 'a,
+        P: Paletted<'a>,
+        P::Subpixel: Into<usize>,
+        U: Paletted<'a> + Pixel<Subpixel = P::Subpixel, Color = C>,
+        F: FnMut(P::Color) -> C,
+    {
+        let palette = self.palette.map(|palette| {
+            palette
+                .iter()
+                .map(|p| f(*p))
+                .collect::<Vec<_>>()
+                .into_boxed_slice()
+        });
+
+        Image {
+            width: self.width,
+            height: self.height,
+            data: self
+                .data
+                .into_iter()
+                .map(|p| {
+                    U::from_raw_parts_paletted(
+                        U::COLOR_TYPE,
+                        U::BIT_DEPTH,
+                        &[p.palette_index().into() as u8],
+                        palette.as_deref(),
+                    )
+                    .expect("could not perform safe conversion of palette references")
+                })
+                .collect(),
+            format: self.format,
+            overlay: self.overlay,
+            palette,
+        }
+    }
+}
+
+impl<'a> From<Image<PalettedRgb<'a>>> for Image<PalettedRgba<'a>> {
+    fn from(image: Image<PalettedRgb<'a>>) -> Self {
+        image.map_palette(Into::into)
+    }
+}
+
+impl<'a> From<Image<PalettedRgba<'a>>> for Image<PalettedRgb<'a>> {
+    fn from(image: Image<PalettedRgba<'a>>) -> Self {
+        image.map_palette(Into::into)
     }
 }
 
@@ -862,7 +956,7 @@ macro_rules! impl_cast {
         $(
             impl From<Image<$f>> for Image<$t> {
                 fn from(f: Image<$f>) -> Self {
-                    f.convert()
+                    f.map_pixels(<$t>::from)
                 }
             }
         )+
@@ -874,8 +968,6 @@ impl_cast!(L: BitPixel Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
 impl_cast!(Rgb: BitPixel L Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
 impl_cast!(Rgba: BitPixel L Rgb Dynamic PalettedRgb<'_> PalettedRgba<'_>);
 impl_cast!(Dynamic: BitPixel L Rgb Rgba PalettedRgb<'_> PalettedRgba<'_>);
-impl_cast!(PalettedRgb<'_>: PalettedRgba<'_>);
-impl_cast!(PalettedRgba<'_>: PalettedRgb<'_>);
 
 /// Represents an image with multiple channels, called bands.
 ///
@@ -1158,6 +1250,7 @@ impl ImageFormat {
         not(any(feature = "png", feature = "gif", feature = "jpeg")),
         allow(unused_variables, unreachable_code)
     )]
+    #[allow(clippy::needless_pass_by_value)] // would require a major refactor
     pub fn run_decoder<P: Pixel>(&self, stream: impl Read) -> Result<Image<P>> {
         match self {
             #[cfg(feature = "png")]
@@ -1184,6 +1277,7 @@ impl ImageFormat {
         not(any(feature = "png", feature = "gif", feature = "jpeg")),
         allow(unused_variables, unreachable_code)
     )]
+    #[allow(clippy::needless_pass_by_value)] // would require a major refactor
     pub fn run_sequence_decoder<P: Pixel, R: Read>(
         &self,
         stream: R,

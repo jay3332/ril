@@ -357,7 +357,7 @@ fn render_layout_with_alignment<P: Pixel>(
 
 impl<'a, P: Pixel> Draw<P> for TextSegment<'a, P> {
     fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
-        render_layout(image.deref_mut(), &[self.font.inner()], &self.layout());
+        render_layout(&mut *image, &[self.font.inner()], &self.layout());
     }
 }
 
@@ -665,7 +665,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
 
 impl<'a, P: Pixel> Draw<P> for TextLayout<'a, P> {
     fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
-        let image = image.deref_mut();
+        let image = &mut *image;
 
         // Skips the calculation of offsets
         if self.x_anchor == HorizontalAnchor::Left && self.y_anchor == VerticalAnchor::Top {

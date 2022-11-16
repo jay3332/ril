@@ -2,7 +2,7 @@
 
 use crate::{
     encodings::ColorType, Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator,
-    Image, ImageFormat, ImageSequence, LoopCount, MaybePalettedImage, OverlayMode, Pixel, Rgba,
+    Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
 };
 use std::{
     io::{Read, Write},
@@ -264,6 +264,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for GifDecoder<P, R> {
             data,
             format: ImageFormat::Gif,
             overlay: OverlayMode::default(),
+            palette: None,
         })
     }
 
@@ -313,12 +314,12 @@ impl<P: Pixel, R: Read> Iterator for GifFrameIterator<P, R> {
         let data = frame
             .buffer
             .chunks(4)
-            .map(|p| {
+            .map(|[r, g, b, a]| {
                 P::from_dynamic(Dynamic::Rgba(Rgba {
-                    r: p[0],
-                    g: p[1],
-                    b: p[2],
-                    a: p[3],
+                    r: *r,
+                    g: *g,
+                    b: *b,
+                    a: *a,
                 }))
             })
             .collect::<Vec<_>>();

@@ -583,7 +583,7 @@ impl<P: Pixel> Ellipse<P> {
 }
 
 impl<P: Pixel> Draw<P> for Ellipse<P> {
-    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, image: I) {
         assert!(
             self.fill.is_some() || self.border.is_some(),
             "must provide one of either fill or border, try calling .with_fill()"

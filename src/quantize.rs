@@ -7,8 +7,8 @@ use std::collections::HashMap;
 ///
 /// This is optimized for GIFs since it also quantizes alpha channels to only 0 and 255 values.
 ///
-/// Returns (palette, color_count, image_data). A slice of the pallete can be retrieved by using
-/// ``&palette[..color_count]``.
+/// Returns `(palette, color_count, image_data)`. A slice of the pallete can be retrieved by using
+/// `&palette[..color_count]`.
 pub fn quantize_simple<const COLORS: usize, P: TrueColor>(
     pixels: impl AsRef<[P]>,
 ) -> ([[u8; 4]; COLORS], usize, Vec<u8>) {
@@ -18,7 +18,7 @@ pub fn quantize_simple<const COLORS: usize, P: TrueColor>(
     let mut lookup = HashMap::with_capacity(COLORS);
 
     let quantized = pixels
-        .into_iter()
+        .iter()
         .map(|pixel| {
             let key @ (r, g, b, a) = pixel.as_rgba_tuple();
 
