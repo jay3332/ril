@@ -8,12 +8,12 @@ use crate::{
     Result,
 };
 use std::borrow::Cow;
-use std::fmt::{self, Formatter};
+use std::fmt::{self, Debug, Formatter};
 
 /// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
-pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
+pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq {
     /// The color type of the pixel.
     const COLOR_TYPE: ColorType;
 
@@ -23,7 +23,7 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     /// The type of a single component in the pixel.
     type Subpixel: Into<usize>;
 
-    /// The resolved color type of the palette. This is no-op pixel type for non-paletted pixels.
+    /// The resolved color type of the palette. This is `Self` for non-paletted pixels.
     type Color: Pixel;
 
     /// The iterator type this pixel uses.
@@ -368,7 +368,7 @@ impl Pixel for BitPixel {
     const BIT_DEPTH: u8 = 1;
 
     type Subpixel = bool;
-    type Color = NoOp;
+    type Color = Self;
     type Data = [u8; 1];
 
     fn inverted(&self) -> Self {
@@ -512,7 +512,7 @@ impl Pixel for L {
     const BIT_DEPTH: u8 = 8;
 
     type Subpixel = u8;
-    type Color = NoOp;
+    type Color = Self;
     type Data = [u8; 1];
 
     fn inverted(&self) -> Self {
@@ -609,7 +609,7 @@ impl Pixel for Rgb {
     const BIT_DEPTH: u8 = 8;
 
     type Subpixel = u8;
-    type Color = NoOp;
+    type Color = Self;
     type Data = [u8; 3];
 
     fn inverted(&self) -> Self {
@@ -775,7 +775,7 @@ impl Pixel for Rgba {
     const BIT_DEPTH: u8 = 8;
 
     type Subpixel = u8;
-    type Color = NoOp;
+    type Color = Self;
     type Data = [u8; 4];
 
     fn inverted(&self) -> Self {
@@ -1155,7 +1155,7 @@ impl Pixel for Dynamic {
     const BIT_DEPTH: u8 = 8;
 
     type Subpixel = DynamicSubpixel;
-    type Color = NoOp;
+    type Color = Self;
     type Data = Vec<u8>;
 
     fn color_type(&self) -> ColorType {

@@ -172,40 +172,6 @@ impl LoopCount {
 
 /// Represents a sequence of image frames such as an animated image.
 ///
-/// # Support for paletted images
-/// Currently, image sequences only support normal, unpaletted images. This is because I haven't
-/// figured out a good way to expose these paletted images to the user, efficient ways feel
-/// unnatural and unergonomic to use, and efficient or ergonmic ways might not cover all use cases.
-///
-/// ## Implementation
-/// Here are some ideas on how paletted image sequences could be implemented:
-///
-/// ### Change `Frame<P: Pixel>` to `Frame<'palette, P: Pixel>` and store a `MaybePalettedImage<'palette, P>` instead of an `Image<P>`
-/// This is the most obvious approach, but it has a few problems:
-///
-/// * Seems pretty inefficient for a large majority of use cases, as most paletted image sequences
-/// will only have one palette for the entire sequence. Per-frame palettes are rare.
-/// * It will be extremely common for the lifetime `'palette` to remain unused, which will make
-/// having to write out the type for a non-paletted image frame very verbose, i.e.
-/// `Frame<'static, P>`.
-///
-/// ### Similar to how image palettes are implemented, have a `PalettedFrame` type
-/// This is a bit more ergonomic than the previous approach, but it still has the same problems:
-///
-/// * We are still storing a separate palette for each frame.
-///
-/// ## Workaround
-/// In most cases, it might be a better idea to flatten paletted images into normal images before
-/// storing them in an image sequence. This can be done using [`Image::convert`].
-///
-/// ```no_run
-/// # use ril::prelude::*;
-/// let mut sequence = ImageSequence::new();
-/// let paletted_image: PalettedImage<Rgb> = unimplemented!();
-///
-/// sequence.push(Frame::from_image(paletted_image.convert::<Rgb>()));
-/// ```
-///
 /// # See Also
 /// * [`Image`] for the static image counterpart
 /// * [`Frame`] to see how each frame is represented in an image sequence.

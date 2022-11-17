@@ -217,12 +217,12 @@ fn read_frame<P: Pixel, R: Read>(
     #[allow(clippy::cast_lossless)]
     let height = decoder.height() as u32;
 
-    let raw_palette = decoder.palette().ok()?.to_vec();
     let frame = match decoder.read_next_frame() {
         Ok(Some(frame)) => frame,
         Ok(None) => return None,
         Err(e) => return Some(Err(e.into())),
     };
+    let raw_palette = frame.palette.as_deref()?.to_vec();
     let transparent_index = frame.transparent.map(|i| i as usize);
 
     let palette = raw_palette
@@ -269,7 +269,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for GifDecoder<P, R> {
     #[allow(clippy::cast_lossless)]
     fn decode(&mut self, stream: R) -> crate::Result<Image<P>> {
         let mut decoder = gif::DecodeOptions::new();
-        decoder.set_color_output(gif::ColorOutput::RGBA);
+        decoder.set_color_output(gif::ColorOutput::Indexed);
         let mut decoder = decoder.read_info(stream)?;
 
         Ok(read_frame(&mut decoder)
