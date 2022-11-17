@@ -1,5 +1,7 @@
 //! Quantizes unpaletted pixel data to paletted data by quantizing the colors into a palette.
 
+#![allow(dead_code)] // TODO
+
 use crate::TrueColor;
 use std::collections::HashMap;
 

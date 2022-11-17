@@ -1,10 +1,11 @@
 use super::ColorType;
 use crate::{
     encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, MaybePalettedImage,
-    OverlayMode, Pixel,
+    DisposalMethod, Dynamic, Frame, Image, ImageFormat, ImageSequence, LoopCount, OverlayMode,
+    Pixel, Rgb, Rgba,
 };
 
+use crate::pixel::assume_pixel_from_palette;
 pub use png::{AdaptiveFilterType, Compression, FilterType};
 use std::borrow::Cow;
 use std::{
@@ -213,6 +214,64 @@ impl<P: Pixel, R: Read> PngDecoder<P, R> {
     }
 }
 
+fn read_data<P: Pixel>(
+    buffer: &[u8],
+    info: &png::Info,
+) -> crate::Result<(Vec<P>, Option<Box<[P::Color]>>)> {
+    let color_type: ColorType = info.color_type.into();
+    let bit_depth = info.bit_depth as u8;
+
+    let palette = info.palette.as_deref().map(|pal| {
+        let pal = pal
+            .chunks_exact(3)
+            .map(|p| (p[0], p[1], p[2]))
+            .collect::<Vec<_>>();
+
+        let pal = if let Some(trns) = info.trns.as_deref() {
+            trns.iter()
+                .zip(pal)
+                .map(|(a, (r, g, b))| PaletteRepr::Rgba(r, g, b, *a))
+                .collect::<Vec<_>>()
+        } else {
+            pal.into_iter()
+                .map(|(r, g, b)| PaletteRepr::Rgb(r, g, b))
+                .collect()
+        };
+
+        pal.into_iter()
+            .map(|p| match p {
+                PaletteRepr::Rgb(r, g, b) => Dynamic::Rgb(Rgb::new(r, g, b)),
+                PaletteRepr::Rgba(r, g, b, a) => Dynamic::Rgba(Rgba::new(r, g, b, a)),
+            })
+            .map(P::Color::from_dynamic)
+            .collect::<Vec<_>>()
+            .into_boxed_slice()
+    });
+
+    let chunks = buffer.chunks_exact(info.bytes_per_pixel());
+    let data = if P::COLOR_TYPE.is_paletted() {
+        let palette = palette.as_deref().expect("no palette for paletted image?");
+        chunks
+            // SAFETY: considered safe for unartificial types as the safety is upheld by the
+            // crate. Otherwise, safety must be upheld by the user.
+            .map(|idx| unsafe { assume_pixel_from_palette(palette, idx[0]) })
+            .collect::<crate::Result<Vec<_>>>()?
+    } else {
+        chunks
+            .map(|chunk| {
+                P::from_raw_parts_paletted(color_type, bit_depth, chunk, palette.as_deref())
+            })
+            .collect::<crate::Result<Vec<_>>>()?
+    };
+
+    Ok((data, palette))
+}
+
+enum PaletteRepr {
+    Rgb(u8, u8, u8),
+    Rgba(u8, u8, u8, u8),
+}
+
 impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
     type Sequence = ApngFrameIterator<P, R>;
 
@@ -224,13 +283,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
         reader.next_frame(buffer)?;
 
         let info = reader.info();
-        let color_type: ColorType = info.color_type.into();
-        let bit_depth = info.bit_depth as u8;
-
-        let data = buffer
-            .chunks_exact(info.bytes_per_pixel())
-            .map(|chunk| P::from_raw_parts(color_type, bit_depth, chunk))
-            .collect::<crate::Result<Vec<_>>>()?;
+        let (data, palette) = read_data(buffer, info)?;
 
         Ok(Image {
             width: NonZeroU32::new(info.width).unwrap(),
@@ -238,6 +291,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for PngDecoder<P, R> {
             data,
             format: ImageFormat::Png,
             overlay: OverlayMode::default(),
+            palette,
         })
     }
 
@@ -269,24 +323,12 @@ impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
         self.reader.info()
     }
 
-    fn next_frame(&mut self) -> crate::Result<(Vec<P>, png::OutputInfo)> {
+    fn next_frame(&mut self) -> crate::Result<(Vec<P>, Option<Box<[P::Color]>>, png::OutputInfo)> {
         let buffer = &mut vec![0; self.reader.output_buffer_size()];
         let info = self.reader.next_frame(buffer)?;
+        let (data, palette) = read_data(buffer, self.info())?;
 
-        let (color_type, bit_depth, bpp) = {
-            let info = self.info();
-            let color_type: ColorType = info.color_type.into();
-            let bit_depth = info.bit_depth as u8;
-
-            (color_type, bit_depth, info.bytes_per_pixel())
-        };
-
-        let data = buffer
-            .chunks_exact(bpp)
-            .map(|chunk| P::from_raw_parts(color_type, bit_depth, chunk))
-            .collect::<crate::Result<Vec<_>>>()?;
-
-        Ok((data, info))
+        Ok((data, palette, info))
     }
 }
 
@@ -311,7 +353,7 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
             return None;
         }
 
-        let (data, output_info) = match self.next_frame() {
+        let (data, palette, output_info) = match self.next_frame() {
             Ok(o) => o,
             Err(e) => return Some(Err(e)),
         };
@@ -322,6 +364,7 @@ impl<P: Pixel, R: Read> Iterator for ApngFrameIterator<P, R> {
             data,
             format: ImageFormat::Png,
             overlay: OverlayMode::default(),
+            palette,
         };
 
         self.seq += 1;

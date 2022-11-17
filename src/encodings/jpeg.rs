@@ -1,8 +1,7 @@
 use super::ColorType;
 use crate::{
     encode::{Decoder, Encoder},
-    DynamicFrameIterator, Error, Image, ImageFormat, MaybePalettedImage, OverlayMode, Pixel,
-    Result,
+    DynamicFrameIterator, Error, Image, ImageFormat, OverlayMode, Pixel, Result,
 };
 
 use jpeg_decoder::PixelFormat as DecoderPixelFormat;
@@ -158,6 +157,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
             data,
             format: ImageFormat::Jpeg,
             overlay: OverlayMode::default(),
+            palette: None,
         })
     }
 

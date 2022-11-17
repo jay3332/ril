@@ -21,7 +21,7 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     const BIT_DEPTH: u8;
 
     /// The type of a single component in the pixel.
-    type Subpixel;
+    type Subpixel: Into<usize>;
 
     /// The resolved color type of the palette. This is no-op pixel type for non-paletted pixels.
     type Color: Pixel;
@@ -97,7 +97,7 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
     /// * If the color type is not supported by the pixel type.
     /// * An error occurs when trying to convert the data to the pixel type.
     #[allow(unused_variables)]
-    fn from_raw_parts_paletted<P: Pixel + TrueColor>(
+    fn from_raw_parts_paletted<P: Pixel>(
         color_type: ColorType,
         bit_depth: u8,
         data: &[u8],
@@ -112,13 +112,13 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
         Ok(Self::from_bytes(data))
     }
 
-    /// Creates this pixel from the given palette and index.
+    /// Creates this pixel from the given palette and index, but the conversion is done at runtime.
     ///
     /// # Errors
     /// * The pixel index is invalid/out of bounds.
     /// * If the color type is not supported by the pixel type.
     /// * An error occurs when trying to convert the data to the pixel type.
-    fn from_palette<P: Pixel>(palette: &[P], index: usize) -> Result<Self> {
+    fn from_arbitrary_palette<P: Pixel>(palette: &[P], index: usize) -> Result<Self> {
         Self::from_raw_parts(
             P::COLOR_TYPE,
             P::BIT_DEPTH,
@@ -219,11 +219,21 @@ pub trait Alpha: Pixel {
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
 pub struct NoOp;
 
+/// Extension of [`NoOp`], used for internal purposes only. This is a ZST that implements
+/// `Into<u8>`.
+pub struct NoOpSubpixel;
+
+impl From<NoOpSubpixel> for usize {
+    fn from(_: NoOpSubpixel) -> Self {
+        0
+    }
+}
+
 impl Pixel for NoOp {
     const COLOR_TYPE: ColorType = ColorType::L;
     const BIT_DEPTH: u8 = 0;
 
-    type Subpixel = ();
+    type Subpixel = NoOpSubpixel;
     type Color = Self;
     type Data = [u8; 0];
 
@@ -303,7 +313,7 @@ impl TrueColor for NoOp {
 macro_rules! propagate_palette {
     ($p:expr, $data:expr) => {{
         if let Some(palette) = $p {
-            return Self::from_palette(palette, $data[0] as usize);
+            return Self::from_arbitrary_palette(palette, $data[0] as usize);
         }
     }};
 }
@@ -373,7 +383,7 @@ impl Pixel for BitPixel {
         Self(f(self.0))
     }
 
-    fn from_raw_parts_paletted<P: Pixel + TrueColor>(
+    fn from_raw_parts_paletted<P: Pixel>(
         color_type: ColorType,
         bit_depth: u8,
         data: &[u8],
@@ -517,7 +527,7 @@ impl Pixel for L {
         Self(f(self.0))
     }
 
-    fn from_raw_parts_paletted<P: Pixel + TrueColor>(
+    fn from_raw_parts_paletted<P: Pixel>(
         color_type: ColorType,
         bit_depth: u8,
         data: &[u8],
@@ -622,7 +632,7 @@ impl Pixel for Rgb {
         }
     }
 
-    fn from_raw_parts_paletted<P: Pixel + TrueColor>(
+    fn from_raw_parts_paletted<P: Pixel>(
         color_type: ColorType,
         bit_depth: u8,
         data: &[u8],
@@ -790,7 +800,7 @@ impl Pixel for Rgba {
         }
     }
 
-    fn from_raw_parts_paletted<P: Pixel + TrueColor>(
+    fn from_raw_parts_paletted<P: Pixel>(
         color_type: ColorType,
         bit_depth: u8,
         data: &[u8],
@@ -1113,6 +1123,15 @@ impl num_traits::SaturatingMul for DynamicSubpixel {
     }
 }
 
+impl From<DynamicSubpixel> for usize {
+    fn from(v: DynamicSubpixel) -> Self {
+        match v {
+            DynamicSubpixel::U8(v) => v as usize,
+            DynamicSubpixel::Bool(v) => v as usize,
+        }
+    }
+}
+
 /// Represents a pixel type that is dynamically resolved.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Dynamic {
@@ -1185,7 +1204,7 @@ impl Pixel for Dynamic {
         }
     }
 
-    fn from_raw_parts_paletted<P: Pixel + TrueColor>(
+    fn from_raw_parts_paletted<P: Pixel>(
         color_type: ColorType,
         bit_depth: u8,
         data: &[u8],
@@ -1452,6 +1471,36 @@ impl<P: Pixel + Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColo
     }
 }
 
+pub(crate) unsafe fn assume_pixel_from_palette<'p, P, Index: Into<usize>>(
+    palette: &'p [P::Color],
+    index: Index,
+) -> Result<P>
+where
+    P: 'p + Pixel,
+{
+    macro_rules! unsafe_cast {
+        ($t:ty => $out:ty) => {{
+            let length = palette.len();
+            let ptr = palette.as_ptr() as *const $t;
+            // SAFETY: upheld by the caller
+            let palette = std::slice::from_raw_parts(ptr, length);
+
+            // SAFETY: mostly upheld by the caller, but transmute_copy can be used since all Pixels
+            // implement Copy.
+            Ok(std::mem::transmute_copy(&<$out>::from_palette(
+                palette,
+                index.into() as u8,
+            )))
+        }};
+    }
+
+    match P::COLOR_TYPE {
+        ColorType::PaletteRgb => unsafe_cast!(Rgb => PalettedRgb),
+        ColorType::PaletteRgba => unsafe_cast!(Rgba => PalettedRgba),
+        _ => P::from_arbitrary_palette(palette, index.into()),
+    }
+}
+
 /// A trait representing a paletted pixel. [`Pixel::Subpixel`] is the type of the palette index.
 ///
 /// The generic lifetime parameter `'p` represents the lifetime of a palette the type will hold a
@@ -1459,8 +1508,16 @@ impl<P: Pixel + Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColo
 pub trait Paletted<'p>: Pixel
 where
     Self: 'p,
-    Self::Subpixel: Into<usize>,
 {
+    /// Creates this pixel from the given palette and index. For unpaletted pixels, use
+    /// [`Pixel::from_arbitrary_palette`] instead.
+    ///
+    /// # Errors
+    /// * The pixel index is invalid/out of bounds.
+    /// * If the color type is not supported by the pixel type.
+    /// * An error occurs when trying to convert the data to the pixel type.
+    fn from_palette(palette: &'p [Self::Color], index: Self::Subpixel) -> Self;
+
     /// Returns the palette lookup as a slice.
     fn palette(&self) -> &'p [Self::Color];
 
@@ -1592,7 +1649,7 @@ macro_rules! impl_palette8 {
                 try_palette!(self, "mapped", |color| color == target)
             }
 
-            fn from_raw_parts_paletted<P: Pixel + TrueColor>(
+            fn from_raw_parts_paletted<P: Pixel>(
                 _color_type: ColorType,
                 _bit_depth: u8,
                 _data: &[u8],
@@ -1623,6 +1680,13 @@ macro_rules! impl_palette8 {
         }
 
         impl<'p> Paletted<'p> for $name<'p> {
+            fn from_palette(palette: &'p [Self::Color], index: Self::Subpixel) -> Self {
+                Self {
+                    index: usize::from(index) as u8,
+                    palette,
+                }
+            }
+
             fn palette(&self) -> &'p [Self::Color] {
                 self.palette
             }

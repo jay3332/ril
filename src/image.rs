@@ -904,7 +904,6 @@ impl<P: Pixel> Image<P> {
     where
         Self: 'a,
         P: Paletted<'a>,
-        P::Subpixel: Into<usize>,
         U: Paletted<'a> + Pixel<Subpixel = P::Subpixel, Color = C>,
         F: FnMut(P::Color) -> C,
     {
@@ -936,6 +935,16 @@ impl<P: Pixel> Image<P> {
             overlay: self.overlay,
             palette,
         }
+    }
+
+    /// Takes this image and flattens this paletted image into an unpaletted image. This is similar
+    /// to [`Self::convert`] but the output type is automatically resolved.
+    pub fn flatten_palette<'a>(self) -> Image<P::Color>
+    where
+        Self: 'a,
+        P: Paletted<'a>,
+    {
+        self.map_pixels(|pixel| pixel.color())
     }
 }
 
