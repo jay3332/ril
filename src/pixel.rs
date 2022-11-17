@@ -1126,8 +1126,8 @@ impl num_traits::SaturatingMul for DynamicSubpixel {
 impl From<DynamicSubpixel> for usize {
     fn from(v: DynamicSubpixel) -> Self {
         match v {
-            DynamicSubpixel::U8(v) => v as usize,
-            DynamicSubpixel::Bool(v) => v as usize,
+            DynamicSubpixel::U8(v) => v.into(),
+            DynamicSubpixel::Bool(v) => v.into(),
         }
     }
 }
@@ -1481,7 +1481,7 @@ where
     macro_rules! unsafe_cast {
         ($t:ty => $out:ty) => {{
             let length = palette.len();
-            let ptr = palette.as_ptr() as *const $t;
+            let ptr = palette.as_ptr().cast::<$t>();
             // SAFETY: upheld by the caller
             let palette = std::slice::from_raw_parts(ptr, length);
 

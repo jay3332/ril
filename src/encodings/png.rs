@@ -121,7 +121,7 @@ impl Encoder for PngEncoder {
         match color_type {
             ColorType::PaletteRgb => {
                 let pal = image.palette().expect("no palette for paletted image?");
-                encoder.set_palette(pal.iter().flat_map(|p| p.as_bytes()).collect::<Cow<_>>());
+                encoder.set_palette(pal.iter().flat_map(Pixel::as_bytes).collect::<Cow<_>>());
             }
             ColorType::PaletteRgba => {
                 let pal = image.palette().expect("no palette for paletted image?");
@@ -214,6 +214,7 @@ impl<P: Pixel, R: Read> PngDecoder<P, R> {
     }
 }
 
+#[allow(clippy::type_complexity)]
 fn read_data<P: Pixel>(
     buffer: &[u8],
     info: &png::Info,
@@ -323,6 +324,7 @@ impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
         self.reader.info()
     }
 
+    #[allow(clippy::type_complexity)]
     fn next_frame(&mut self) -> crate::Result<(Vec<P>, Option<Box<[P::Color]>>, png::OutputInfo)> {
         let buffer = &mut vec![0; self.reader.output_buffer_size()];
         let info = self.reader.next_frame(buffer)?;

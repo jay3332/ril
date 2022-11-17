@@ -209,38 +209,72 @@ impl<P: Pixel, R: Read> Default for GifDecoder<P, R> {
     }
 }
 
+fn read_frame<P: Pixel, R: Read>(
+    decoder: &mut gif::Decoder<R>,
+) -> Option<crate::Result<(&gif::Frame, Image<P>)>> {
+    #[allow(clippy::cast_lossless)]
+    let width = decoder.width() as u32;
+    #[allow(clippy::cast_lossless)]
+    let height = decoder.height() as u32;
+
+    let raw_palette = decoder.palette().ok()?.to_vec();
+    let frame = match decoder.read_next_frame() {
+        Ok(Some(frame)) => frame,
+        Ok(None) => return None,
+        Err(e) => return Some(Err(e.into())),
+    };
+    let transparent_index = frame.transparent.map(|i| i as usize);
+
+    let palette = raw_palette
+        .chunks_exact(3)
+        .enumerate()
+        .map(|(i, p)| {
+            P::Color::from_dynamic(Dynamic::Rgba(Rgba {
+                r: p[0],
+                g: p[1],
+                b: p[2],
+                a: if Some(i) == transparent_index { 0 } else { 255 },
+            }))
+        })
+        .collect::<Vec<_>>();
+
+    let data = match frame
+        .buffer
+        .iter()
+        .map(|&i| unsafe { assume_pixel_from_palette(&palette, i) })
+        .collect::<crate::Result<Vec<_>>>()
+    {
+        Ok(data) => data,
+        Err(e) => return Some(Err(e)),
+    };
+
+    Some(Ok((
+        frame,
+        Image {
+            width: NonZeroU32::new(width).unwrap(),
+            height: NonZeroU32::new(height).unwrap(),
+            data,
+            format: ImageFormat::Gif,
+            overlay: OverlayMode::default(),
+            palette: P::COLOR_TYPE
+                .is_paletted()
+                .then(|| palette.into_boxed_slice()),
+        },
+    )))
+}
+
 impl<P: Pixel, R: Read> Decoder<P, R> for GifDecoder<P, R> {
     type Sequence = GifFrameIterator<P, R>;
 
     #[allow(clippy::cast_lossless)]
     fn decode(&mut self, stream: R) -> crate::Result<Image<P>> {
         let mut decoder = gif::DecodeOptions::new();
-        // TODO: paletted images
         decoder.set_color_output(gif::ColorOutput::RGBA);
         let mut decoder = decoder.read_info(stream)?;
 
-        let first = decoder.read_next_frame()?.ok_or(Error::EmptyImageError)?;
-        let data = first
-            .buffer
-            .chunks(4)
-            .map(|p| {
-                P::from_dynamic(Dynamic::Rgba(Rgba {
-                    r: p[0],
-                    g: p[1],
-                    b: p[2],
-                    a: p[3],
-                }))
-            })
-            .collect::<Vec<_>>();
-
-        Ok(Image {
-            width: NonZeroU32::new(decoder.width() as u32).unwrap(),
-            height: NonZeroU32::new(decoder.height() as u32).unwrap(),
-            data,
-            format: ImageFormat::Gif,
-            overlay: OverlayMode::default(),
-            palette: None,
-        })
+        Ok(read_frame(&mut decoder)
+            .unwrap_or(Err(Error::EmptyImageError))?
+            .1)
     }
 
     fn decode_sequence(&mut self, stream: R) -> crate::Result<Self::Sequence> {
@@ -276,51 +310,9 @@ impl<P: Pixel, R: Read> Iterator for GifFrameIterator<P, R> {
 
     #[allow(clippy::cast_lossless)]
     fn next(&mut self) -> Option<Self::Item> {
-        let width = self.decoder.width() as u32;
-        let height = self.decoder.height() as u32;
-
-        let raw_palette = match self.decoder.palette() {
-            Ok(p) => p.to_vec(),
-            Err(_) => return Some(Err(Error::DecodingError(format!("no palette data found")))),
-        };
-        let frame = match self.decoder.read_next_frame() {
-            Ok(Some(frame)) => frame,
-            Ok(None) => return None,
-            Err(e) => return Some(Err(e.into())),
-        };
-        let transparent_index = frame.transparent.map(|i| i as usize);
-
-        let palette = raw_palette
-            .chunks_exact(3)
-            .enumerate()
-            .map(|(i, p)| {
-                P::Color::from_dynamic(Dynamic::Rgba(Rgba {
-                    r: p[0],
-                    g: p[1],
-                    b: p[2],
-                    a: if Some(i) == transparent_index { 0 } else { 255 },
-                }))
-            })
-            .collect::<Vec<_>>();
-        let data = match frame
-            .buffer
-            .iter()
-            .map(|&i| unsafe { assume_pixel_from_palette(&palette, i) })
-            .collect::<crate::Result<Vec<_>>>()
-        {
-            Ok(data) => data,
+        let (frame, image) = match read_frame(&mut self.decoder)? {
+            Ok(image) => image,
             Err(e) => return Some(Err(e)),
-        };
-
-        let image = Image {
-            width: NonZeroU32::new(width).unwrap(),
-            height: NonZeroU32::new(height).unwrap(),
-            data,
-            format: ImageFormat::Gif,
-            overlay: OverlayMode::default(),
-            palette: P::COLOR_TYPE
-                .is_paletted()
-                .then(|| palette.into_boxed_slice()),
         };
 
         Some(Ok(Frame::from_image(image)

@@ -939,6 +939,7 @@ impl<P: Pixel> Image<P> {
 
     /// Takes this image and flattens this paletted image into an unpaletted image. This is similar
     /// to [`Self::convert`] but the output type is automatically resolved.
+    #[must_use]
     pub fn flatten_palette<'a>(self) -> Image<P::Color>
     where
         Self: 'a,
