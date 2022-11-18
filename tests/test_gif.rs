@@ -42,3 +42,16 @@ fn test_gif_decode() -> ril::Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn test_gif_palette_decode() -> ril::Result<()> {
+    let mut image = Image::<PalettedRgb>::open("tests/sample.gif")?;
+
+    println!("{:?}", image.palette());
+    println!("{:?}", image.data[0].color());
+
+    image.palette_mut().unwrap()[0] = Rgb::new(255, 255, 255);
+    println!("{:?}", image.data[0].color());
+
+    Ok(())
+}

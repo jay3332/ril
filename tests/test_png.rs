@@ -52,3 +52,24 @@ fn test_animated_png_decode() -> ril::Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn test_paletted_png_encode() -> ril::Result<()> {
+    let mut image = Image::<PalettedRgb>::from_paletted_pixels(
+        2,
+        vec![Rgb::new(255, 255, 255), Rgb::new(0, 0, 0)],
+        vec![0, 1, 1, 0, 1, 0, 0, 1, 1, 0],
+    );
+    // palette mutation test
+    let palette = image
+        .palette_mut()
+        .expect("palette was not registered properly");
+    palette[0] = Rgb::new(128, 128, 128);
+
+    assert_eq!(image.pixel(0, 0).color(), Rgb::new(128, 128, 128));
+    assert_eq!(image.pixel(1, 0).color(), Rgb::new(0, 0, 0));
+
+    image.save_inferred("tests/out/png_palette_encode_output.png")?;
+
+    Ok(())
+}

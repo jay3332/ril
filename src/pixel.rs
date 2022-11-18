@@ -21,7 +21,7 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq {
     const BIT_DEPTH: u8;
 
     /// The type of a single component in the pixel.
-    type Subpixel: Into<usize>;
+    type Subpixel: Copy + Into<usize>;
 
     /// The resolved color type of the palette. This is `Self` for non-paletted pixels.
     type Color: Pixel;
@@ -221,6 +221,7 @@ pub struct NoOp;
 
 /// Extension of [`NoOp`], used for internal purposes only. This is a ZST that implements
 /// `Into<u8>`.
+#[derive(Copy, Clone)]
 pub struct NoOpSubpixel;
 
 impl From<NoOpSubpixel> for usize {

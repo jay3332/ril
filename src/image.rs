@@ -131,6 +131,60 @@ impl<P: Pixel> Image<P> {
         }
     }
 
+    /// Creates a new image shaped with the given width and a 1-dimensional sequence of paletted
+    /// pixels which will be shaped according to the width.
+    ///
+    /// # Panics
+    /// * The length of the pixels is not a multiple of the width.
+    /// * The palette is empty.
+    /// * The a pixel index is out of bounds with regards to the palette.
+    #[must_use]
+    pub fn from_paletted_pixels<'p>(
+        width: u32,
+        palette: impl ToOwned<Owned = Vec<P::Color>> + 'p,
+        pixels: impl AsRef<[P::Subpixel]>,
+    ) -> Self
+    where
+        P: Paletted<'p>,
+    {
+        let pixels = pixels.as_ref();
+        debug_assert_eq!(
+            pixels.len() % width as usize,
+            0,
+            "length of pixels must be a multiple of the image width",
+        );
+        #[allow(clippy::redundant_clone)]
+        let palette = palette.to_owned().into_boxed_slice();
+        debug_assert!(!palette.is_empty(), "palette must not be empty");
+
+        let mut slf = Self {
+            width: NonZeroU32::new(width).unwrap(),
+            // SAFETY: We have already asserted the width being non-zero above with addition to
+            // the height being a multiple of the width, meaning that the height cannot be zero.
+            height: unsafe { NonZeroU32::new_unchecked(pixels.len() as u32 / width) },
+            data: Vec::new(),
+            format: ImageFormat::default(),
+            overlay: OverlayMode::default(),
+            palette: Some(palette),
+        };
+
+        let palette = unsafe {
+            slf.palette
+                .as_deref()
+                // SAFETY: references will be dropped when `Self` is dropped; we can guarantee that
+                // 'p is only valid for the lifetime of `Self`.
+                .map(|slice| std::slice::from_raw_parts(slice.as_ptr(), slice.len()))
+                // SAFETY: declared palette as `Some` in struct declaration
+                .unwrap_unchecked()
+        };
+
+        slf.data = pixels
+            .iter()
+            .map(|&p| P::from_palette(palette, p))
+            .collect();
+        slf
+    }
+
     /// Decodes an image with the explicitly given image encoding from the raw byte stream.
     ///
     /// # Errors
@@ -165,6 +219,18 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    ///
+    /// # Examples
+    /// ```no_run,ignore
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let bytes = include_bytes!("sample.png") as &[u8];
+    /// let image = Image::<Rgb>::from_bytes(ImageFormat::Png, bytes)?;
+    /// # Ok(())
+    /// # }
     pub fn from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
         format.run_decoder(bytes.as_ref())
     }
@@ -194,7 +260,22 @@ impl<P: Pixel> Image<P> {
     /// by using the [`from_reader`] method.
     ///
     /// # Errors
-    /// todo!()
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
+    /// specifying it.
+    /// * `IoError`: The file could not be opened.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::<Rgb>::open("sample.png")?;
+    /// println!("Image dimensions: {}x{}", image.width(), image.height());
+    /// # Ok(())
+    /// # }
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let buffer = &mut Vec::new();
         let mut file = File::open(path.as_ref())?;
@@ -533,7 +614,9 @@ impl<P: Pixel> Image<P> {
     /// The function should take the current image data and return the new data.
     ///
     /// # Note
-    /// This resets the background color back to the default.
+    /// This will *not* work for paletted images, nor will it work for conversion to paletted
+    /// images. For conversion from paletted images, see the [`Self::flatten`] method to flatten
+    /// the palette fist. For conversion to paletted images, try quantizing the image.
     pub fn map_data<T: Pixel>(self, f: impl FnOnce(Vec<P>) -> Vec<T>) -> Image<T> {
         Image {
             width: self.width,
@@ -899,7 +982,11 @@ impl<P: Pixel> Image<P> {
         self.palette.as_mut().unwrap_unchecked()
     }
 
-    /// Maps the palette of this image using the given function.
+    /// Maps the palette of this image using the given function. If this image has no palette,
+    /// this will do nothing.
+    ///
+    /// # Panics
+    /// * Safe conversion of palette references failed.
     pub fn map_palette<'a, U, F, C: TrueColor>(self, mut f: F) -> Image<U>
     where
         Self: 'a,

@@ -13,11 +13,11 @@ categories = ["encoding", "graphics", "multimedia", "visualization"]
 
 [dependencies]
 num-traits = "0.2"
-fast_image_resize = { version = "^1", optional = true }
+fast_image_resize = { version = "^2.2", optional = true }
 png = { version = "^0.17", optional = true }
-jpeg-decoder = { version = "^0.2", optional = true }
+jpeg-decoder = { version = "^0.3", optional = true }
 jpeg-encoder = { version = "^0.5", features = ["simd"], optional = true }
-gif = { version = "^0.11", optional = true }
+gif = { version = "^0.12", optional = true }
 fontdue = { version = "^0.7", optional = true }
 
 [features]
