@@ -168,6 +168,7 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
+<span id="171">171</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Houses Encoder, Decoder, and frame iterator traits.
 
 </span><span class="kw">use crate</span>::{Frame, Image, ImageSequence, Pixel};
@@ -258,6 +259,7 @@
 
 <span class="doccomment">/// Represents any one of the different types of frame iterators, compacted into one common enum
 /// with common methods.
+</span><span class="attribute">#[allow(clippy::large_enum_variant)]
 </span><span class="kw">pub enum </span>DynamicFrameIterator&lt;P: Pixel, R: Read&gt; {
     <span class="doccomment">/// A single static image frame.
     </span>Single(<span class="prelude-ty">Option</span>&lt;Image&lt;P&gt;&gt;, PhantomData&lt;R&gt;),

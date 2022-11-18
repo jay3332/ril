@@ -302,6 +302,14 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
 //!
 //! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril).
@@ -557,6 +565,7 @@
 <span class="kw">pub mod </span>error;
 <span class="kw">mod </span>image;
 <span class="kw">pub mod </span>pixel;
+<span class="kw">mod </span>quantize;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
 </span><span class="kw">mod </span>resize;
 <span class="kw">pub mod </span>sequence;
@@ -570,11 +579,17 @@
 }
 
 <span class="macro">inline_doc! </span>{
-    <span class="kw">pub use </span><span class="kw">crate</span>::image::{Banded, Image, ImageFormat, OverlayMode};
+    <span class="kw">pub use </span><span class="kw">crate</span>::image::{
+        Banded, Image, ImageFormat, OverlayMode,
+    };
     <span class="kw">pub use </span>draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
     <span class="kw">pub use </span>encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
+    <span class="kw">pub use </span>encodings::ColorType;
     <span class="kw">pub use </span>error::{Error, <span class="prelude-ty">Result</span>};
-    <span class="kw">pub use </span>pixel::{Alpha, BitPixel, Dynamic, Pixel, Rgb, Rgba, TrueColor, L};
+    <span class="kw">pub use </span>pixel::{
+        Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
+        Rgba, TrueColor, L,
+    };
     <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
     </span><span class="kw">pub use </span>resize::FilterType <span class="kw">as </span>ResizeAlgorithm;
     <span class="kw">pub use </span>sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
@@ -596,9 +611,10 @@
 /// ```
 </span><span class="kw">pub mod </span>prelude {
     <span class="kw">pub use super</span>::{
-        Alpha, Banded, BitPixel, Border, BorderPosition, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, Ellipse, Frame, FrameIterator, Image, ImageFormat, ImageSequence,
-        LoopCount, OverlayMode, Paste, Pixel, Rectangle, Rgb, Rgba, TrueColor, L,
+        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
+        DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
+        ImageSequence, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste, Pixel,
+        Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
     <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]

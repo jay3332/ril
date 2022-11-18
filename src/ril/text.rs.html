@@ -689,6 +689,8 @@
 <span id="689">689</span>
 <span id="690">690</span>
 <span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the font/text rasterizing and layout interface.
 
 </span><span class="attribute">#![allow(clippy::cast_precision_loss, clippy::too_many_arguments)]
@@ -700,7 +702,7 @@
     layout::{Layout, LayoutSettings},
     FontSettings,
 };
-<span class="kw">use </span>std::{fs::File, io::Read, path::Path};
+<span class="kw">use </span>std::{fs::File, io::Read, ops::DerefMut, path::Path};
 
 <span class="doccomment">/// Represents a single font along with its alternatives used to render text.
 /// Currently, this supports TrueType and OpenType fonts.
@@ -1047,8 +1049,8 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>TextSegment&lt;<span class="lifetime">&#39;a</span>, P&gt; {
-    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
-        render_layout(image, <span class="kw-2">&amp;</span>[<span class="self">self</span>.font.inner()], <span class="kw-2">&amp;</span><span class="self">self</span>.layout());
+    <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
+        render_layout(<span class="kw-2">&amp;mut *</span>image, <span class="kw-2">&amp;</span>[<span class="self">self</span>.font.inner()], <span class="kw-2">&amp;</span><span class="self">self</span>.layout());
     }
 }
 
@@ -1355,7 +1357,9 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>TextLayout&lt;<span class="lifetime">&#39;a</span>, P&gt; {
-    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
+        <span class="kw">let </span>image = <span class="kw-2">&amp;mut *</span>image;
+
         <span class="comment">// Skips the calculation of offsets
         </span><span class="kw">if </span><span class="self">self</span>.x_anchor == HorizontalAnchor::Left &amp;&amp; <span class="self">self</span>.y_anchor == VerticalAnchor::Top {
             render_layout(image, <span class="kw-2">&amp;</span><span class="self">self</span>.fonts, <span class="kw-2">&amp;</span><span class="self">self</span>.inner);

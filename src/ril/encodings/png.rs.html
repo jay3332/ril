@@ -315,13 +315,93 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
-</pre><pre class="rust"><code><span class="kw">use super</span>::{ColorType, PixelData};
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::ColorType;
 <span class="kw">use crate</span>::{
     encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod, Frame, Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel,
+    DisposalMethod, Dynamic, Frame, Image, ImageFormat, ImageSequence, LoopCount, OverlayMode,
+    Pixel, Rgb, Rgba,
 };
 
+<span class="kw">use </span><span class="kw">crate</span>::pixel::assume_pixel_from_palette;
 <span class="kw">pub use </span>png::{AdaptiveFilterType, Compression, FilterType};
+<span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::{
     io::{Read, Write},
     marker::PhantomData,
@@ -339,7 +419,7 @@
             GrayscaleAlpha =&gt; <span class="self">Self</span>::LA,
             Rgb =&gt; <span class="self">Self</span>::Rgb,
             Rgba =&gt; <span class="self">Self</span>::Rgba,
-            Indexed =&gt; <span class="self">Self</span>::Palette,
+            Indexed =&gt; <span class="self">Self</span>::PaletteRgb,
         }
     }
 }
@@ -353,7 +433,8 @@
         ColorType::LA =&gt; GrayscaleAlpha,
         ColorType::Rgb =&gt; Rgb,
         ColorType::Rgba =&gt; Rgba,
-        ColorType::Palette =&gt; Indexed,
+        ColorType::PaletteRgb | ColorType::PaletteRgba =&gt; Indexed,
+        ColorType::Dynamic =&gt; <span class="macro">unreachable!</span>(),
     }
 }
 
@@ -399,21 +480,18 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>prepare&lt;<span class="lifetime">&#39;a</span>, P: Pixel, W: Write&gt;(
+    <span class="kw">fn </span>prepare&lt;<span class="lifetime">&#39;a</span>, W: Write&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         width: u32,
         height: u32,
-        sample: <span class="kw-2">&amp;</span>P,
+        color_type: ColorType,
+        bit_depth: u8,
         dest: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>W,
     ) -&gt; png::Encoder&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>W&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>encoder = png::Encoder::new(dest, width, height);
-
         encoder.set_adaptive_filter(<span class="self">self</span>.adaptive_filter);
         encoder.set_filter(<span class="self">self</span>.filter);
         encoder.set_compression(<span class="self">self</span>.compression);
-
-        <span class="kw">let </span>(color_type, bit_depth) = sample.as_pixel_data().type_data();
-
         encoder.set_color(get_png_color_type(color_type));
         encoder.set_depth(png::BitDepth::from_u8(bit_depth).unwrap());
 
@@ -424,8 +502,38 @@
 <span class="kw">impl </span>Encoder <span class="kw">for </span>PngEncoder {
     <span class="kw">fn </span>encode&lt;P: Pixel&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">let </span>data = image.data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">let </span>color_type = image.data[<span class="number">0</span>].color_type();
 
-        <span class="kw">let </span>encoder = <span class="self">self</span>.prepare(image.width(), image.height(), <span class="kw-2">&amp;</span>image.data[<span class="number">0</span>], dest);
+        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self</span>.prepare(
+            image.width(),
+            image.height(),
+            color_type,
+            P::BIT_DEPTH,
+            dest,
+        );
+
+        <span class="kw">match </span>color_type {
+            ColorType::PaletteRgb =&gt; {
+                <span class="kw">let </span>pal = image.palette().expect(<span class="string">&quot;no palette for paletted image?&quot;</span>);
+                encoder.set_palette(pal.iter().flat_map(Pixel::as_bytes).collect::&lt;Cow&lt;<span class="kw">_</span>&gt;&gt;());
+            }
+            ColorType::PaletteRgba =&gt; {
+                <span class="kw">let </span>pal = image.palette().expect(<span class="string">&quot;no palette for paletted image?&quot;</span>);
+                encoder.set_palette(
+                    pal.iter()
+                        .map(|p| p.force_into_rgb())
+                        .flat_map(|p| p.as_bytes())
+                        .collect::&lt;Cow&lt;<span class="kw">_</span>&gt;&gt;(),
+                );
+                encoder.set_trns(
+                    pal.iter()
+                        .map(|p| p.force_into_rgba().a)
+                        .collect::&lt;Cow&lt;<span class="kw">_</span>&gt;&gt;(),
+                );
+            }
+            <span class="kw">_ </span>=&gt; (),
+        }
+
         <span class="kw">let </span><span class="kw-2">mut </span>writer = encoder.write_header()<span class="question-mark">?</span>;
         writer.write_image_data(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
         writer.finish()<span class="question-mark">?</span>;
@@ -441,7 +549,13 @@
         <span class="kw">let </span>sample = sequence.first_frame().image();
         <span class="kw">let </span>pixel = <span class="kw-2">&amp;</span>sample.data[<span class="number">0</span>];
 
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self</span>.prepare(sample.width(), sample.height(), pixel, dest);
+        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self</span>.prepare(
+            sample.width(),
+            sample.height(),
+            pixel.color_type(),
+            P::BIT_DEPTH,
+            dest,
+        );
         encoder.set_animated(sequence.len() <span class="kw">as </span>u32, sequence.loop_count().count_or_zero())<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>writer = encoder.write_header()<span class="question-mark">?</span>;
@@ -494,6 +608,65 @@
     }
 }
 
+<span class="attribute">#[allow(clippy::type_complexity)]
+</span><span class="kw">fn </span>read_data&lt;P: Pixel&gt;(
+    buffer: <span class="kw-2">&amp;</span>[u8],
+    info: <span class="kw-2">&amp;</span>png::Info,
+) -&gt; <span class="kw">crate</span>::Result&lt;(Vec&lt;P&gt;, <span class="prelude-ty">Option</span>&lt;Box&lt;[P::Color]&gt;&gt;)&gt; {
+    <span class="kw">let </span>color_type: ColorType = info.color_type.into();
+    <span class="kw">let </span>bit_depth = info.bit_depth <span class="kw">as </span>u8;
+
+    <span class="kw">let </span>palette = info.palette.as_deref().map(|pal| {
+        <span class="kw">let </span>pal = pal
+            .chunks_exact(<span class="number">3</span>)
+            .map(|p| (p[<span class="number">0</span>], p[<span class="number">1</span>], p[<span class="number">2</span>]))
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+
+        <span class="kw">let </span>pal = <span class="kw">if let </span><span class="prelude-val">Some</span>(trns) = info.trns.as_deref() {
+            trns.iter()
+                .zip(pal)
+                .map(|(a, (r, g, b))| PaletteRepr::Rgba(r, g, b, <span class="kw-2">*</span>a))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+        } <span class="kw">else </span>{
+            pal.into_iter()
+                .map(|(r, g, b)| PaletteRepr::Rgb(r, g, b))
+                .collect()
+        };
+
+        pal.into_iter()
+            .map(|p| <span class="kw">match </span>p {
+                PaletteRepr::Rgb(r, g, b) =&gt; Dynamic::Rgb(Rgb::new(r, g, b)),
+                PaletteRepr::Rgba(r, g, b, a) =&gt; Dynamic::Rgba(Rgba::new(r, g, b, a)),
+            })
+            .map(P::Color::from_dynamic)
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+            .into_boxed_slice()
+    });
+
+    <span class="kw">let </span>chunks = buffer.chunks_exact(info.bytes_per_pixel());
+    <span class="kw">let </span>data = <span class="kw">if </span>P::COLOR_TYPE.is_paletted() {
+        <span class="kw">let </span>palette = palette.as_deref().expect(<span class="string">&quot;no palette for paletted image?&quot;</span>);
+        chunks
+            <span class="comment">// SAFETY: considered safe for unartificial types as the safety is upheld by the
+            // crate. Otherwise, safety must be upheld by the user.
+            </span>.map(|idx| <span class="kw">unsafe </span>{ assume_pixel_from_palette(palette, idx[<span class="number">0</span>]) })
+            .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?
+    </span>} <span class="kw">else </span>{
+        chunks
+            .map(|chunk| {
+                P::from_raw_parts_paletted(color_type, bit_depth, chunk, palette.as_deref())
+            })
+            .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?
+    </span>};
+
+    <span class="prelude-val">Ok</span>((data, palette))
+}
+
+<span class="kw">enum </span>PaletteRepr {
+    Rgb(u8, u8, u8),
+    Rgba(u8, u8, u8, u8),
+}
+
 <span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; Decoder&lt;P, R&gt; <span class="kw">for </span>PngDecoder&lt;P, R&gt; {
     <span class="kw">type </span>Sequence = ApngFrameIterator&lt;P, R&gt;;
 
@@ -505,15 +678,7 @@
         reader.next_frame(buffer)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>info = reader.info();
-        <span class="kw">let </span>color_type: ColorType = info.color_type.into();
-        <span class="kw">let </span>bit_depth = info.bit_depth <span class="kw">as </span>u8;
-
-        <span class="kw">let </span>data = buffer
-            .chunks_exact(info.bytes_per_pixel())
-            .map(|chunk| {
-                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
-            })
-            .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(data, palette) = read_data(buffer, info)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(Image {
             width: NonZeroU32::new(info.width).unwrap(),
@@ -521,6 +686,7 @@
             data,
             format: ImageFormat::Png,
             overlay: OverlayMode::default(),
+            palette,
         })
     }
 
@@ -552,26 +718,13 @@
         <span class="self">self</span>.reader.info()
     }
 
-    <span class="kw">fn </span>next_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;(Vec&lt;P&gt;, png::OutputInfo)&gt; {
+    <span class="attribute">#[allow(clippy::type_complexity)]
+    </span><span class="kw">fn </span>next_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;(Vec&lt;P&gt;, <span class="prelude-ty">Option</span>&lt;Box&lt;[P::Color]&gt;&gt;, png::OutputInfo)&gt; {
         <span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[<span class="number">0</span>; <span class="self">self</span>.reader.output_buffer_size()];
         <span class="kw">let </span>info = <span class="self">self</span>.reader.next_frame(buffer)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(data, palette) = read_data(buffer, <span class="self">self</span>.info())<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>(color_type, bit_depth, bpp) = {
-            <span class="kw">let </span>info = <span class="self">self</span>.info();
-            <span class="kw">let </span>color_type: ColorType = info.color_type.into();
-            <span class="kw">let </span>bit_depth = info.bit_depth <span class="kw">as </span>u8;
-
-            (color_type, bit_depth, info.bytes_per_pixel())
-        };
-
-        <span class="kw">let </span>data = buffer
-            .chunks_exact(bpp)
-            .map(|chunk| {
-                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
-            })
-            .collect::&lt;<span class="kw">crate</span>::Result&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;&gt;()<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>((data, info))
+        <span class="prelude-val">Ok</span>((data, palette, info))
     }
 }
 
@@ -596,7 +749,7 @@
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let </span>(data, output_info) = <span class="kw">match </span><span class="self">self</span>.next_frame() {
+        <span class="kw">let </span>(data, palette, output_info) = <span class="kw">match </span><span class="self">self</span>.next_frame() {
             <span class="prelude-val">Ok</span>(o) =&gt; o,
             <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)),
         };
@@ -607,6 +760,7 @@
             data,
             format: ImageFormat::Png,
             overlay: OverlayMode::default(),
+            palette,
         };
 
         <span class="self">self</span>.seq += <span class="number">1</span>;

@@ -717,15 +717,15 @@
 <span id="717">717</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Encloses most drawing implementations and drawable objects.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::image::OverlayMode;
-<span class="kw">use crate</span>::{Image, Pixel};
+</span><span class="kw">use crate</span>::{Image, OverlayMode, Pixel};
+<span class="kw">use </span>std::ops::DerefMut;
 
 <span class="doccomment">/// A common trait for all objects able to be drawn on an image.
 ///
 /// Whether or not to implement this trait is more or less a matter of semantics.
 </span><span class="kw">pub trait </span>Draw&lt;P: Pixel&gt; {
     <span class="doccomment">/// Draws the object to the given image.
-    </span><span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;);
+    </span><span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: I);
 }
 
 <span class="doccomment">/// Represents whether a border is inset, outset, or if it lays in the center.
@@ -920,7 +920,7 @@
 }
 
 <span class="kw">impl</span>&lt;P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>Rectangle&lt;P&gt; {
-    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.fill.is_some() || <span class="self">self</span>.border.is_some(),
             <span class="string">&quot;must provide one of either fill or border, try calling .with_fill()&quot;
@@ -1076,7 +1076,7 @@
 
     <span class="comment">// Used when there is no border
     </span><span class="attribute">#[allow(clippy::cast_possible_wrap)]
-    </span><span class="kw">fn </span>rasterize_filled_circle(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    </span><span class="kw">fn </span>rasterize_filled_circle&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="kw">let </span>radius = <span class="self">self</span>.radii.<span class="number">0 </span><span class="kw">as </span>i32;
 
         <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0</span>;
@@ -1119,7 +1119,7 @@
 
     <span class="comment">// Used when there is no border
     </span><span class="attribute">#[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
-    </span><span class="kw">fn </span>rasterize_filled_ellipse(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    </span><span class="kw">fn </span>rasterize_filled_ellipse&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="kw">let </span>(ch, k) = <span class="self">self</span>.position;
         <span class="attribute">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn&#39;t
         </span><span class="kw">let </span>(ch, k) = (ch <span class="kw">as </span>i32, k <span class="kw">as </span>i32);
@@ -1188,7 +1188,7 @@
 
     <span class="comment">// Standard, slower brute force algorithm that iterates through all pixels
     </span><span class="attribute">#[allow(clippy::cast_possible_wrap)]
-    </span><span class="kw">fn </span>render_circle(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    </span><span class="kw">fn </span>render_circle&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="kw">let </span>(h, k) = <span class="self">self</span>.position;
         <span class="kw">let </span>(h, k) = (h <span class="kw">as </span>i32, k <span class="kw">as </span>i32);
         <span class="kw">let </span>r = <span class="self">self</span>.radii.<span class="number">0 </span><span class="kw">as </span>i32;
@@ -1240,7 +1240,7 @@
 
     <span class="comment">// Standard, slower brute force algorithm that iterates through all pixels
     </span><span class="attribute">#[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
-    </span><span class="kw">fn </span>render_ellipse(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    </span><span class="kw">fn </span>render_ellipse&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="kw">let </span>(h, k) = <span class="self">self</span>.position;
         <span class="kw">let </span>(h, k) = (h <span class="kw">as </span>i32, k <span class="kw">as </span>i32);
         <span class="kw">let </span>(a, b) = <span class="self">self</span>.radii;
@@ -1300,7 +1300,7 @@
 }
 
 <span class="kw">impl</span>&lt;P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>Ellipse&lt;P&gt; {
-    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: I) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.fill.is_some() || <span class="self">self</span>.border.is_some(),
             <span class="string">&quot;must provide one of either fill or border, try calling .with_fill()&quot;
@@ -1412,7 +1412,7 @@
 }
 
 <span class="kw">impl</span>&lt;P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>Paste&lt;P&gt; {
-    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;) {
+    <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="kw">let </span>(x1, y1) = <span class="self">self</span>.position;
         <span class="kw">let </span>(w, h) = <span class="self">self</span>.image.dimensions();
         <span class="kw">let </span>overlay = <span class="self">self</span>.overlay.unwrap_or(image.overlay);

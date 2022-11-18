@@ -102,6 +102,8 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
 </pre><pre class="rust"><code><span class="doccomment">//! An interfacing layer between `fast_image_resize` and this crate.
 
 </span><span class="kw">use crate</span>::{encodings::ColorType, Pixel};
@@ -136,7 +138,7 @@
     /// interpolation on all pixels to calculate output pixels.
     </span>Mitchell,
     <span class="doccomment">/// A Lanczos filter with a window of 3. Calculates output pixel value using a high-quality
-    /// Lanczos filter on all pixels.
+    /// Lanczos filter on all pixels. This can give antialiasing effects.
     </span>Lanczos3,
 }
 
@@ -171,19 +173,21 @@
     dst_height: NonZeroU32,
     filter: FilterType,
 ) -&gt; Vec&lt;P&gt; {
-    <span class="kw">let </span>(color_type, bit_depth) = data[<span class="number">0</span>].as_pixel_data().type_data();
-    <span class="kw">let </span>pixel_type = <span class="kw">match </span>bit_depth {
+    <span class="kw">let </span>color_type = data[<span class="number">0</span>].color_type();
+    <span class="kw">let </span>pixel_type = <span class="kw">match </span>P::BIT_DEPTH {
         <span class="number">1 </span>| <span class="number">2 </span>| <span class="number">4 </span>| <span class="number">8 </span>=&gt; <span class="kw">match </span>color_type {
-            ColorType::L | ColorType::Palette =&gt; ResizePixelType::U8,
+            ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba =&gt; ResizePixelType::U8,
             ColorType::LA =&gt; ResizePixelType::U8x2,
             ColorType::Rgb =&gt; ResizePixelType::U8x3,
             ColorType::Rgba =&gt; ResizePixelType::U8x4,
+            ColorType::Dynamic =&gt; <span class="macro">unreachable!</span>(),
         },
         <span class="number">16 </span>=&gt; <span class="kw">match </span>color_type {
-            ColorType::L | ColorType::Palette =&gt; ResizePixelType::U16,
+            ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba =&gt; ResizePixelType::U16,
             ColorType::LA =&gt; ResizePixelType::U16x2,
             ColorType::Rgb =&gt; ResizePixelType::U16x3,
             ColorType::Rgba =&gt; ResizePixelType::U16x4,
+            ColorType::Dynamic =&gt; <span class="macro">unreachable!</span>(),
         },
         <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unsupported bit depth&quot;</span>),
     };
@@ -200,7 +204,7 @@
     <span class="comment">// The pixel type is the same, we can unwrap here
     </span>resizer.resize(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;mut </span>dst_view).unwrap();
 
-    <span class="kw">let </span>bpp = color_type.channels() * ((bit_depth <span class="kw">as </span>usize + <span class="number">7</span>) &gt;&gt; <span class="number">3</span>);
+    <span class="kw">let </span>bpp = color_type.channels() * ((P::BIT_DEPTH <span class="kw">as </span>usize + <span class="number">7</span>) &gt;&gt; <span class="number">3</span>);
     dest.into_vec()
         .chunks_exact(bpp)
         .map(P::from_bytes)

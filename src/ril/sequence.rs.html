@@ -494,6 +494,14 @@
 <span id="494">494</span>
 <span id="495">495</span>
 <span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the animated image and image sequence interface.
 
 </span><span class="kw">use crate</span>::{DynamicFrameIterator, Error, Image, ImageFormat, Pixel, <span class="prelude-ty">Result</span>};
@@ -523,6 +531,13 @@
 
 <span class="doccomment">/// Represents a frame in an image sequence. It encloses an [`Image`] and extra metadata
 /// about the frame.
+///
+/// # Support for paletted images
+/// Frames representing paletted images are currently unsupported. See documentation of
+/// [`ImageSequence`] for more information.
+///
+/// # See Also
+/// * [`ImageSequence`] for more information about image sequences.
 </span><span class="attribute">#[derive(Clone)]
 </span><span class="kw">pub struct </span>Frame&lt;P: Pixel&gt; {
     inner: Image&lt;P&gt;,
@@ -661,8 +676,9 @@
 
 <span class="doccomment">/// Represents a sequence of image frames such as an animated image.
 ///
-/// See [`Image`] for the static image counterpart, and see [`Frame`] to see how each frame
-/// is represented in an image sequence.
+/// # See Also
+/// * [`Image`] for the static image counterpart
+/// * [`Frame`] to see how each frame is represented in an image sequence.
 </span><span class="attribute">#[derive(Clone, Default)]
 </span><span class="kw">pub struct </span>ImageSequence&lt;P: Pixel&gt; {
     frames: Vec&lt;Frame&lt;P&gt;&gt;,
@@ -888,7 +904,7 @@
         }
     }
 
-    <span class="doccomment">/// Creates a new image sequence from the given frames
+    <span class="doccomment">/// Creates a new image sequence from the given frames.
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>from_frames(frames: Vec&lt;Frame&lt;P&gt;&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
