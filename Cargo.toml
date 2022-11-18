@@ -30,7 +30,7 @@ resize = ["dep:fast_image_resize"]
 text = ["dep:fontdue"]
 
 [dev-dependencies]
-criterion = "^0.3"
+criterion = "^0.4"
 image = "^0"
 imageproc = "^0.23"
 rusttype = "^0.9"
