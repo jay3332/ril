@@ -9,11 +9,12 @@ use crate::{
 };
 use std::borrow::Cow;
 use std::fmt::{self, Debug, Formatter};
+use std::hash::Hash;
 
 /// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
-pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq {
+pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash {
     /// The color type of the pixel.
     const COLOR_TYPE: ColorType;
 
@@ -216,7 +217,7 @@ pub trait Alpha: Pixel {
 
 /// A pixel type that does and stores nothing. This pixel type is useless and will behave weirdly
 /// with your code. This is usually only used for internal or polyfill purposes.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct NoOp;
 
 /// Extension of [`NoOp`], used for internal purposes only. This is a ZST that implements
@@ -320,7 +321,7 @@ macro_rules! propagate_palette {
 }
 
 /// Represents a single-bit pixel that represents either a pixel that is on or off.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct BitPixel(
     /// Whether the pixel is on.
     pub bool,
@@ -502,7 +503,7 @@ macro_rules! propagate_data {
 ///
 /// This can be thought of as the "unit channel" as this represents only
 /// a single channel in which other pixel types can be composed of.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct L(
     /// The luminance value of the pixel, between 0 and 255.
     pub u8,
@@ -595,7 +596,7 @@ impl L {
 }
 
 /// Represents an RGB pixel.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Rgb {
     /// The red component of the pixel.
     pub r: u8,
@@ -759,7 +760,7 @@ impl Rgb {
 }
 
 /// Represents an RGBA pixel.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Rgba {
     /// The red component of the pixel.
     pub r: u8,
@@ -1134,7 +1135,7 @@ impl From<DynamicSubpixel> for usize {
 }
 
 /// Represents a pixel type that is dynamically resolved.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Dynamic {
     BitPixel(BitPixel),
     L(L),
@@ -1603,7 +1604,7 @@ macro_rules! impl_palette_cast {
 // Suffixed with an 8 to indicate that it's an 8-bit palette
 macro_rules! impl_palette8 {
     ($name:ident: $color_type:ident $cast:ident $tgt:ty) => {
-        #[derive(Copy, Clone, PartialEq, Eq)]
+        #[derive(Copy, Clone, PartialEq, Eq, Hash)]
         #[doc = concat!(
             "Represents a paletted pixel, holding an index to a palette of ",
             stringify!($tgt),
