@@ -1,7 +1,7 @@
 # Changelog
 
 All notable changes to this project will be documented in this file. This changelog was created during the development
-of v0.5, therefore all changes logged prior to v0.5 may not be accurate are only based on previous Git commits.
+of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are only based on previous Git commits.
 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
