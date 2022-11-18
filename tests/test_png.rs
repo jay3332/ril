@@ -73,3 +73,27 @@ fn test_paletted_png_encode() -> ril::Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn test_paletted_png_decode() -> ril::Result<()> {
+    let image = Image::<PalettedRgb>::open("tests/palette_sample.png")?;
+    assert_eq!(image.dimensions(), (150, 200));
+    assert_eq!(image.pixel(0, 0).color(), Rgb::black());
+    assert_eq!(image.pixel(100, 100).color(), Rgb::new(200, 8, 8));
+
+    Ok(())
+}
+
+#[test]
+fn test_palette_mutation() -> ril::Result<()> {
+    let mut image = Image::<PalettedRgb>::open("tests/palette_sample.png")?;
+    let palette = image
+        .palette_mut()
+        .expect("palette was not registered properly");
+    palette[0] = Rgb::white();
+
+    assert_eq!(image.pixel(0, 0).color(), Rgb::white());
+    image.save_inferred("tests/out/png_palette_mutation_output.png")?;
+
+    Ok(())
+}
