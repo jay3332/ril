@@ -43,11 +43,11 @@ fn test_animated_png_encode() -> ril::Result<()> {
 
 #[test]
 fn test_animated_png_decode() -> ril::Result<()> {
-    for (i, frame) in ImageSequence::<Rgb>::open("tests/apng_sample.png")?.enumerate() {
+    for (frame, ref color) in ImageSequence::<Rgb>::open("tests/apng_sample.png")?.zip(COLORS) {
         let frame = frame?.into_image();
 
         assert_eq!(frame.dimensions(), (256, 256));
-        assert_eq!(frame.pixel(0, 0), &COLORS[i]);
+        assert_eq!(frame.pixel(0, 0), color);
     }
 
     Ok(())

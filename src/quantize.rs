@@ -49,15 +49,18 @@ mod tests {
     use crate::Rgba;
 
     #[test]
-    fn mogus() {
+    fn test_quantization() {
         let sample = [
             Rgba::new(255, 255, 255, 255),
             Rgba::new(255, 255, 255, 255),
             Rgba::new(0, 255, 255, 255),
         ];
 
-        let (palette, color_count, quantized) = quantize_simple::<256, _>(&sample);
-        println!("{:?}", &palette[..color_count]);
-        println!("{:?}", &quantized);
+        let (palette, color_count, pixels) = quantize_simple::<256, _>(&sample);
+        assert_eq!(
+            &palette[..color_count],
+            &[[255, 255, 255, 255], [0, 255, 255, 255]]
+        );
+        assert_eq!(pixels, &[0, 0, 1]);
     }
 }
