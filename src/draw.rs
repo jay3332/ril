@@ -1,14 +1,14 @@
 //! Encloses most drawing implementations and drawable objects.
 
-use crate::image::OverlayMode;
-use crate::{Image, Pixel};
+use crate::{Image, OverlayMode, Pixel};
+use std::ops::DerefMut;
 
 /// A common trait for all objects able to be drawn on an image.
 ///
 /// Whether or not to implement this trait is more or less a matter of semantics.
 pub trait Draw<P: Pixel> {
     /// Draws the object to the given image.
-    fn draw(&self, image: &mut Image<P>);
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, image: I);
 }
 
 /// Represents whether a border is inset, outset, or if it lays in the center.
@@ -203,7 +203,7 @@ impl<P: Pixel> Rectangle<P> {
 }
 
 impl<P: Pixel> Draw<P> for Rectangle<P> {
-    fn draw(&self, image: &mut Image<P>) {
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         assert!(
             self.fill.is_some() || self.border.is_some(),
             "must provide one of either fill or border, try calling .with_fill()"
@@ -359,7 +359,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Used when there is no border
     #[allow(clippy::cast_possible_wrap)]
-    fn rasterize_filled_circle(&self, image: &mut Image<P>) {
+    fn rasterize_filled_circle<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         let radius = self.radii.0 as i32;
 
         let mut x = 0;
@@ -402,7 +402,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Used when there is no border
     #[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
-    fn rasterize_filled_ellipse(&self, image: &mut Image<P>) {
+    fn rasterize_filled_ellipse<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         let (ch, k) = self.position;
         #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let (ch, k) = (ch as i32, k as i32);
@@ -471,7 +471,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Standard, slower brute force algorithm that iterates through all pixels
     #[allow(clippy::cast_possible_wrap)]
-    fn render_circle(&self, image: &mut Image<P>) {
+    fn render_circle<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         let (h, k) = self.position;
         let (h, k) = (h as i32, k as i32);
         let r = self.radii.0 as i32;
@@ -523,7 +523,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Standard, slower brute force algorithm that iterates through all pixels
     #[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
-    fn render_ellipse(&self, image: &mut Image<P>) {
+    fn render_ellipse<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         let (h, k) = self.position;
         let (h, k) = (h as i32, k as i32);
         let (a, b) = self.radii;
@@ -583,7 +583,7 @@ impl<P: Pixel> Ellipse<P> {
 }
 
 impl<P: Pixel> Draw<P> for Ellipse<P> {
-    fn draw(&self, image: &mut Image<P>) {
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, image: I) {
         assert!(
             self.fill.is_some() || self.border.is_some(),
             "must provide one of either fill or border, try calling .with_fill()"
@@ -695,7 +695,7 @@ impl<P: Pixel> Paste<P> {
 }
 
 impl<P: Pixel> Draw<P> for Paste<P> {
-    fn draw(&self, image: &mut Image<P>) {
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         let (x1, y1) = self.position;
         let (w, h) = self.image.dimensions();
         let overlay = self.overlay.unwrap_or(image.overlay);

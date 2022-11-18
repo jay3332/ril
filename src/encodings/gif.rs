@@ -1,5 +1,6 @@
 // TODO: paletted images. GIF has native support for this.
 
+use crate::pixel::assume_pixel_from_palette;
 use crate::{
     encodings::ColorType, Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator,
     Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
@@ -48,15 +49,8 @@ impl GifEncoder {
         self.speed = speed;
         self
     }
-}
 
-impl Encoder for GifEncoder {
-    #[allow(clippy::cast_lossless)]
-    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
-        let mut encoder =
-            gif::Encoder::new(dest, image.width() as u16, image.height() as u16, &[])?;
-        let sample = image.data[0].as_pixel_data().type_data();
-
+    fn encode_frame<'a, P: Pixel>(&self, image: &Image<P>) -> crate::Result<gif::Frame<'a>> {
         macro_rules! data {
             ($t:ty) => {{
                 image
@@ -100,15 +94,57 @@ impl Encoder for GifEncoder {
             }};
         }
 
-        // TODO: paletted images
-        let frame = match sample {
+        Ok(match (image.data[0].color_type(), P::BIT_DEPTH) {
             (ColorType::Rgb, 8) => rgb!(data!()),
             (ColorType::Rgba, 8) => rgba!(data!()),
             (ColorType::L, 1 | 8) => rgb!(data!(crate::Rgb)),
             (ColorType::LA, 1 | 8) => rgba!(data!(crate::Rgba)),
-            _ => return Err(Error::UnsupportedColorType),
-        };
+            (ColorType::PaletteRgb, 8) => gif::Frame::from_palette_pixels(
+                image.width() as u16,
+                image.height() as u16,
+                &data!(crate::Rgb),
+                image
+                    .palette()
+                    .expect("paletted image without palette?")
+                    .iter()
+                    .flat_map(|p| p.force_into_rgb().as_bytes())
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+                None,
+            ),
+            (ColorType::PaletteRgba, 8) => {
+                let pixels = image.palette().expect("paletted image without palette?");
+                // TODO: flatten all transparent pixels to the same color
+                let transparent_index = pixels
+                    .iter()
+                    .position(|p| p.force_into_rgba().a == 0)
+                    .map(|i| i as u8);
 
+                gif::Frame::from_palette_pixels(
+                    image.width() as u16,
+                    image.height() as u16,
+                    &data!(crate::Rgba),
+                    pixels
+                        .iter()
+                        .flat_map(|p| p.force_into_rgb().as_bytes())
+                        .collect::<Vec<_>>()
+                        .as_slice(),
+                    transparent_index,
+                )
+            }
+            _ => return Err(Error::UnsupportedColorType),
+        })
+    }
+}
+
+impl Encoder for GifEncoder {
+    #[allow(clippy::cast_lossless)]
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
+        // TODO: support global/sequence-scoped palettes
+        let mut encoder =
+            gif::Encoder::new(dest, image.width() as u16, image.height() as u16, &[])?;
+
+        let frame = self.encode_frame(image)?;
         encoder.write_frame(&frame)?;
         Ok(())
     }
@@ -128,60 +164,10 @@ impl Encoder for GifEncoder {
             LoopCount::Infinite => gif::Repeat::Infinite,
         })?;
 
-        macro_rules! data {
-            ($data:expr, $t:ty) => {{
-                ($data)
-                    .iter()
-                    .flat_map(|p| <$t>::from(Dynamic::from_pixel(*p).unwrap()).as_bytes())
-                    .collect::<Vec<_>>()
-            }};
-            ($data:expr) => {{
-                ($data)
-                    .iter()
-                    .flat_map(|p| p.as_bytes())
-                    .collect::<Vec<_>>()
-            }};
-        }
-
-        macro_rules! rgb {
-            ($data:expr) => {{
-                let pixels = $data;
-
-                gif::Frame::from_rgb_speed(
-                    image.width() as u16,
-                    image.height() as u16,
-                    &pixels,
-                    self.speed as i32,
-                )
-            }};
-        }
-
-        macro_rules! rgba {
-            ($data:expr) => {{
-                let mut pixels = $data;
-
-                gif::Frame::from_rgba_speed(
-                    image.width() as u16,
-                    image.height() as u16,
-                    &mut pixels,
-                    self.speed as i32,
-                )
-            }};
-        }
-
-        let sample = image.data[0].as_pixel_data().type_data();
-
         for frame in sequence.iter() {
             let image = frame.image();
+            let mut out = self.encode_frame(image)?;
 
-            // TODO: paletted images
-            let mut out = match sample {
-                (ColorType::Rgb, 8) => rgb!(data!(image.data)),
-                (ColorType::Rgba, 8) => rgba!(data!(image.data)),
-                (ColorType::L, 1 | 8) => rgb!(data!(image.data, crate::Rgb)),
-                (ColorType::LA, 1 | 8) => rgba!(data!(image.data, crate::Rgba)),
-                _ => return Err(Error::UnsupportedColorType),
-            };
             out.delay = (frame.delay().as_millis() as f64 / 10.).round() as u16;
             out.dispose = match frame.disposal() {
                 DisposalMethod::None => gif::DisposalMethod::Keep,
@@ -223,43 +209,77 @@ impl<P: Pixel, R: Read> Default for GifDecoder<P, R> {
     }
 }
 
+fn read_frame<P: Pixel, R: Read>(
+    decoder: &mut gif::Decoder<R>,
+) -> Option<crate::Result<(&gif::Frame, Image<P>)>> {
+    #[allow(clippy::cast_lossless)]
+    let width = decoder.width() as u32;
+    #[allow(clippy::cast_lossless)]
+    let height = decoder.height() as u32;
+
+    let frame = match decoder.read_next_frame() {
+        Ok(Some(frame)) => frame,
+        Ok(None) => return None,
+        Err(e) => return Some(Err(e.into())),
+    };
+    let raw_palette = frame.palette.as_deref()?.to_vec();
+    let transparent_index = frame.transparent.map(|i| i as usize);
+
+    let palette = raw_palette
+        .chunks_exact(3)
+        .enumerate()
+        .map(|(i, p)| {
+            P::Color::from_dynamic(Dynamic::Rgba(Rgba {
+                r: p[0],
+                g: p[1],
+                b: p[2],
+                a: if Some(i) == transparent_index { 0 } else { 255 },
+            }))
+        })
+        .collect::<Vec<_>>();
+
+    let data = match frame
+        .buffer
+        .iter()
+        .map(|&i| unsafe { assume_pixel_from_palette(&palette, i) })
+        .collect::<crate::Result<Vec<_>>>()
+    {
+        Ok(data) => data,
+        Err(e) => return Some(Err(e)),
+    };
+
+    Some(Ok((
+        frame,
+        Image {
+            width: NonZeroU32::new(width).unwrap(),
+            height: NonZeroU32::new(height).unwrap(),
+            data,
+            format: ImageFormat::Gif,
+            overlay: OverlayMode::default(),
+            palette: P::COLOR_TYPE
+                .is_paletted()
+                .then(|| palette.into_boxed_slice()),
+        },
+    )))
+}
+
 impl<P: Pixel, R: Read> Decoder<P, R> for GifDecoder<P, R> {
     type Sequence = GifFrameIterator<P, R>;
 
     #[allow(clippy::cast_lossless)]
     fn decode(&mut self, stream: R) -> crate::Result<Image<P>> {
         let mut decoder = gif::DecodeOptions::new();
-        // TODO: paletted images
-        decoder.set_color_output(gif::ColorOutput::RGBA);
+        decoder.set_color_output(gif::ColorOutput::Indexed);
         let mut decoder = decoder.read_info(stream)?;
 
-        let first = decoder.read_next_frame()?.ok_or(Error::EmptyImageError)?;
-        let data = first
-            .buffer
-            .chunks(4)
-            .map(|p| {
-                P::from_dynamic(Dynamic::Rgba(Rgba {
-                    r: p[0],
-                    g: p[1],
-                    b: p[2],
-                    a: p[3],
-                }))
-            })
-            .collect::<Vec<_>>();
-
-        Ok(Image {
-            width: NonZeroU32::new(decoder.width() as u32).unwrap(),
-            height: NonZeroU32::new(decoder.height() as u32).unwrap(),
-            data,
-            format: ImageFormat::Gif,
-            overlay: OverlayMode::default(),
-        })
+        Ok(read_frame(&mut decoder)
+            .unwrap_or(Err(Error::EmptyImageError))?
+            .1)
     }
 
     fn decode_sequence(&mut self, stream: R) -> crate::Result<Self::Sequence> {
         let mut decoder = gif::DecodeOptions::new();
-        // TODO: paletted images
-        decoder.set_color_output(gif::ColorOutput::RGBA);
+        decoder.set_color_output(gif::ColorOutput::Indexed);
 
         Ok(GifFrameIterator {
             decoder: decoder.read_info(stream)?,
@@ -275,12 +295,12 @@ pub struct GifFrameIterator<P: Pixel, R: Read> {
 
 impl<P: Pixel, R: Read> FrameIterator<P> for GifFrameIterator<P, R> {
     fn len(&self) -> u32 {
-        // Decoder also appears to not provide us with this either
+        // TODO: Decoder also appears to not provide us with this either
         0
     }
 
     fn loop_count(&self) -> LoopCount {
-        // Currently the decoder does not provide us with this info
+        // TODO: Currently the decoder does not provide us with this info
         LoopCount::Infinite
     }
 }
@@ -290,34 +310,9 @@ impl<P: Pixel, R: Read> Iterator for GifFrameIterator<P, R> {
 
     #[allow(clippy::cast_lossless)]
     fn next(&mut self) -> Option<Self::Item> {
-        let width = self.decoder.width() as u32;
-        let height = self.decoder.height() as u32;
-
-        let frame = match self.decoder.read_next_frame() {
-            Ok(Some(frame)) => frame,
-            Ok(None) => return None,
-            Err(e) => return Some(Err(e.into())),
-        };
-
-        let data = frame
-            .buffer
-            .chunks(4)
-            .map(|p| {
-                P::from_dynamic(Dynamic::Rgba(Rgba {
-                    r: p[0],
-                    g: p[1],
-                    b: p[2],
-                    a: p[3],
-                }))
-            })
-            .collect::<Vec<_>>();
-
-        let image = Image {
-            width: NonZeroU32::new(width).unwrap(),
-            height: NonZeroU32::new(height).unwrap(),
-            data,
-            format: ImageFormat::Gif,
-            overlay: OverlayMode::default(),
+        let (frame, image) = match read_frame(&mut self.decoder)? {
+            Ok(image) => image,
+            Err(e) => return Some(Err(e)),
         };
 
         Some(Ok(Frame::from_image(image)

@@ -1,4 +1,4 @@
-use super::{ColorType, PixelData};
+use super::ColorType;
 use crate::{
     encode::{Decoder, Encoder},
     DynamicFrameIterator, Error, Image, ImageFormat, OverlayMode, Pixel, Result,
@@ -52,17 +52,30 @@ impl JpegEncoder {
 
 impl Encoder for JpegEncoder {
     fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
-        let sample = image.data[0].as_pixel_data().type_data();
+        let sample @ (ct, _) = (image.data[0].color_type(), P::BIT_DEPTH);
         let color_type = match sample {
-            (ColorType::Rgb, 8) => EncoderColorType::Rgb,
-            (ColorType::Rgba, 8) => EncoderColorType::Rgba,
+            (ColorType::Rgb | ColorType::PaletteRgb, 8) => EncoderColorType::Rgb,
+            (ColorType::Rgba | ColorType::PaletteRgba, 8) => EncoderColorType::Rgba,
             // Just like how Rgba strips into Rgb, perform the same thing here manually
             (ColorType::L, 1 | 8) | (ColorType::LA, 8) => EncoderColorType::Luma,
-            (ColorType::Palette, 8) => unimplemented!("should flatten palette"),
             _ => return Err(Error::UnsupportedColorType),
         };
 
-        let mut data = image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
+        let mut data = match ct {
+            ColorType::PaletteRgb => image
+                .data
+                .iter()
+                .map(|&p| p.force_into_rgb())
+                .flat_map(|p| p.as_bytes())
+                .collect::<Vec<_>>(),
+            ColorType::PaletteRgba => image
+                .data
+                .iter()
+                .map(|&p| p.force_into_rgba())
+                .flat_map(|p| p.as_bytes())
+                .collect::<Vec<_>>(),
+            _ => image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>(),
+        };
 
         if sample == (ColorType::L, 1) {
             data.iter_mut()
@@ -81,18 +94,6 @@ impl Encoder for JpegEncoder {
         )?;
 
         Ok(())
-    }
-}
-
-impl TryFrom<ColorType> for DecoderPixelFormat {
-    type Error = Error;
-
-    fn try_from(ty: ColorType) -> Result<Self> {
-        Ok(match ty {
-            ColorType::L | ColorType::LA => Self::L8,
-            ColorType::Rgb | ColorType::Rgba => Self::RGB24,
-            ColorType::Palette => return Err(Error::UnsupportedColorType),
-        })
     }
 }
 
@@ -146,7 +147,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
                     [chunk[0], chunk[1], chunk[2]]
                 };
 
-                PixelData::from_raw(color_type, bit_depth, chunk).and_then(P::from_pixel_data)
+                P::from_raw_parts(color_type, bit_depth, chunk)
             })
             .collect::<Result<Vec<_>>>()?;
 
@@ -156,6 +157,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
             data,
             format: ImageFormat::Jpeg,
             overlay: OverlayMode::default(),
+            palette: None,
         })
     }
 

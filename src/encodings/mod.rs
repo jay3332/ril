@@ -7,109 +7,54 @@ pub mod jpeg;
 #[cfg(feature = "png")]
 pub mod png;
 
+/// Represents an arbitrary color type. Note that this does not store the bit-depth or the type used
+/// to store the value of each channel, although it can specify the number of channels.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ColorType {
+    /// A single-channel pixel that holds one value, typically representing luminance. Typically
+    /// used for grayscale images.
     L,
+    /// A two-channel [`L`][Self::L] pixel that holds an additional alpha value, for transparency.
     LA,
+    /// A three-channel pixel that holds red, green, and blue values. This is a common pixel type
+    /// used for true-color images.
     Rgb,
+    /// A four-channel pixel that holds red, green, blue, and alpha values. This is a common pixel
+    /// used for true-color images with transparency.
     Rgba,
-    Palette,
+    /// A single-channel pixel that holds an index into a palette of RGB colors.
+    PaletteRgb,
+    /// A single-channel pixel that holds an index into a palette of RGBA colors.
+    PaletteRgba,
+    /// Dynamic color type that can be used to store any color type. The bit depth of all color
+    /// types this can represent should be the same, for example an 8-bit dynamic pixel cannot
+    /// represent Rgb16.
+    ///
+    /// This is never used during decoding. When encoding, this should not be resolved statically
+    /// but instead during runtime, where the color type is known.
+    Dynamic,
 }
 
 impl ColorType {
+    /// Returns the number of channels in this color type.
     #[must_use]
     pub const fn channels(&self) -> usize {
         match self {
-            Self::L | Self::Palette => 1,
+            Self::L | Self::PaletteRgb | Self::PaletteRgba => 1,
             Self::LA => 2,
             Self::Rgb => 3,
             Self::Rgba => 4,
+            Self::Dynamic => 0,
         }
     }
-}
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub enum PixelData {
-    Bit(bool),
-    L(u8),
-    LA(u8, u8),
-    Rgb(u8, u8, u8),
-    Rgba(u8, u8, u8, u8),
-    Palette(u8),
-}
-
-impl PixelData {
     #[must_use]
-    pub const fn type_data(&self) -> (ColorType, u8) {
-        match self {
-            Self::Bit(_) => (ColorType::L, 1),
-            Self::L(_) => (ColorType::L, 8),
-            Self::LA(..) => (ColorType::LA, 8),
-            Self::Rgb(..) => (ColorType::Rgb, 8),
-            Self::Rgba(..) => (ColorType::Rgba, 8),
-            Self::Palette(_) => (ColorType::Palette, 8),
-        }
+    pub const fn is_paletted(&self) -> bool {
+        matches!(self, Self::PaletteRgb | Self::PaletteRgba)
     }
 
-    /// Creates the pixel from raw data.
-    ///
-    /// # Errors
-    /// * Bit depth is not a power of two
-    /// * An error occured while decoding the pixel data
-    pub fn from_raw(color_type: ColorType, bit_depth: u8, data: &[u8]) -> crate::Result<Self> {
-        // TODO: support 16-bit bit depths. right now, it scales down
-        if !bit_depth.is_power_of_two() {
-            return Err(crate::Error::DecodingError(
-                "bit depth must be a power of two".to_string(),
-            ));
-        }
-
-        // Scale down to 8-bit
-        let data = if bit_depth > 8 {
-            let factor = (bit_depth / 8) as usize;
-            let mut scaled = Vec::with_capacity(data.len() / factor);
-
-            for chunk in data.chunks(factor) {
-                let sum = chunk
-                    .iter()
-                    .rev()
-                    .enumerate()
-                    .map(|(i, &x)| (x as usize) << (8 * i))
-                    .sum::<usize>();
-                scaled.push((sum / factor) as u8);
-            }
-
-            scaled
-        }
-        // Scale up to 8-bit
-        else if bit_depth == 2 || bit_depth == 4 {
-            let factor = if bit_depth == 2 { 4 } else { 2 };
-
-            data.iter().map(|&x| x * factor).collect::<Vec<_>>()
-        } else {
-            data.to_vec()
-        };
-
-        Ok(match (color_type, bit_depth) {
-            (c, 1) if c.channels() == 1 => Self::Bit(data[0] != 0),
-            (ColorType::L, _) => Self::L(data[0]),
-            (ColorType::LA, _) => Self::LA(data[0], data[1]),
-            (ColorType::Rgb, _) => Self::Rgb(data[0], data[1], data[2]),
-            (ColorType::Rgba, _) => Self::Rgba(data[0], data[1], data[2], data[3]),
-            (ColorType::Palette, _) => Self::Palette(data[0]),
-        })
-    }
-
-    /// Returns the raw data of the pixel.
     #[must_use]
-    pub fn data(&self) -> Vec<u8> {
-        match *self {
-            Self::Bit(value) => vec![if value { 255 } else { 0 }],
-            Self::L(l) => vec![l],
-            Self::LA(l, a) => vec![l, a],
-            Self::Rgb(r, g, b) => vec![r, g, b],
-            Self::Rgba(r, g, b, a) => vec![r, g, b, a],
-            Self::Palette(idx) => vec![idx],
-        }
+    pub fn is_dynamic(&self) -> bool {
+        *self == Self::Dynamic
     }
 }

@@ -33,11 +33,21 @@ fn test_gif_encode() -> ril::Result<()> {
 
 #[test]
 fn test_gif_decode() -> ril::Result<()> {
-    for (i, frame) in ImageSequence::<Rgb>::open("tests/sample.gif")?.enumerate() {
+    for (frame, ref color) in ImageSequence::<Rgb>::open("tests/sample.gif")?.zip(COLORS) {
         let frame = frame?.into_image();
 
         assert_eq!(frame.dimensions(), (256, 256));
-        assert_eq!(frame.pixel(0, 0), &COLORS[i]);
+        assert_eq!(frame.pixel(0, 0), color);
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_gif_palette_decode() -> ril::Result<()> {
+    for (frame, color) in ImageSequence::<PalettedRgb>::open("tests/sample.gif")?.zip(COLORS) {
+        let frame = frame?.into_image();
+        assert_eq!(frame.pixel(0, 0).color(), color);
     }
 
     Ok(())

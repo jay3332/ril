@@ -27,6 +27,13 @@ impl Default for DisposalMethod {
 
 /// Represents a frame in an image sequence. It encloses an [`Image`] and extra metadata
 /// about the frame.
+///
+/// # Support for paletted images
+/// Frames representing paletted images are currently unsupported. See documentation of
+/// [`ImageSequence`] for more information.
+///
+/// # See Also
+/// * [`ImageSequence`] for more information about image sequences.
 #[derive(Clone)]
 pub struct Frame<P: Pixel> {
     inner: Image<P>,
@@ -165,8 +172,9 @@ impl LoopCount {
 
 /// Represents a sequence of image frames such as an animated image.
 ///
-/// See [`Image`] for the static image counterpart, and see [`Frame`] to see how each frame
-/// is represented in an image sequence.
+/// # See Also
+/// * [`Image`] for the static image counterpart
+/// * [`Frame`] to see how each frame is represented in an image sequence.
 #[derive(Clone, Default)]
 pub struct ImageSequence<P: Pixel> {
     frames: Vec<Frame<P>>,
@@ -392,7 +400,7 @@ impl<P: Pixel> ImageSequence<P> {
         }
     }
 
-    /// Creates a new image sequence from the given frames
+    /// Creates a new image sequence from the given frames.
     #[must_use]
     pub fn from_frames(frames: Vec<Frame<P>>) -> Self {
         Self {

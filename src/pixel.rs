@@ -1,21 +1,41 @@
 //! Encloses pixel-related traits and pixel type implementations.
 
+use crate::Error::DecodingError;
 use crate::{
-    encodings::PixelData,
+    encodings::ColorType,
     image::OverlayMode,
-    Error::{InvalidHexCode, UnsupportedColorType},
+    Error::{InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
     Result,
 };
+use std::borrow::Cow;
+use std::fmt::{self, Debug, Formatter};
+use std::hash::Hash;
 
 /// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
-pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
+pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash {
+    /// The color type of the pixel.
+    const COLOR_TYPE: ColorType;
+
+    /// The bit depth of the pixel.
+    const BIT_DEPTH: u8;
+
     /// The type of a single component in the pixel.
-    type Subpixel;
+    type Subpixel: Copy + Into<usize>;
+
+    /// The resolved color type of the palette. This is `Self` for non-paletted pixels.
+    type Color: Pixel;
 
     /// The iterator type this pixel uses.
-    type Data: IntoIterator<Item = u8>;
+    type Data: IntoIterator<Item = u8> + AsRef<[u8]>;
+
+    /// Resolves the color type of this pixel at runtime. This is used for dynamic color types.
+    /// If you are certain the pixel is not dynamic, you can use the [`Self::COLOR_TYPE`] constant
+    /// instead.
+    fn color_type(&self) -> ColorType {
+        Self::COLOR_TYPE
+    }
 
     /// Returns the inverted value of this pixel.
     ///
@@ -59,14 +79,57 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
         F: Fn(Self::Subpixel) -> Self::Subpixel,
         A: Fn(Self::Subpixel) -> Self::Subpixel;
 
-    /// Creates this pixel from raw data.
+    /// Creates this pixel from the given color type, bit depth, and data. This may require a lossy
+    /// conversion.
     ///
     /// # Errors
-    /// todo!()
-    fn from_pixel_data(data: PixelData) -> Result<Self>;
+    /// * If the color type is not supported by the pixel type.
+    /// * An error occurs when trying to convert the data to the pixel type.
+    fn from_raw_parts(color_type: ColorType, bit_depth: u8, data: &[u8]) -> Result<Self> {
+        Self::from_raw_parts_paletted::<NoOp>(color_type, bit_depth, data, None)
+    }
 
-    /// Creates raw pixel data from this pixel type.
-    fn as_pixel_data(&self) -> PixelData;
+    /// Creates this pixel from the given color type, bit depth, data, and possibly a color palette.
+    /// This may require a lossy xonversion.
+    ///
+    /// A palette should be supplied if the color type is paletted, else `None`.
+    ///
+    /// # Errors
+    /// * If the color type is not supported by the pixel type.
+    /// * An error occurs when trying to convert the data to the pixel type.
+    #[allow(unused_variables)]
+    fn from_raw_parts_paletted<P: Pixel>(
+        color_type: ColorType,
+        bit_depth: u8,
+        data: &[u8],
+        palette: Option<&[P]>,
+    ) -> Result<Self> {
+        if color_type != Self::COLOR_TYPE {
+            return Err(UnsupportedColorType);
+        }
+        if bit_depth != Self::BIT_DEPTH {
+            return Err(UnsupportedColorType);
+        }
+        Ok(Self::from_bytes(data))
+    }
+
+    /// Creates this pixel from the given palette and index, but the conversion is done at runtime.
+    ///
+    /// # Errors
+    /// * The pixel index is invalid/out of bounds.
+    /// * If the color type is not supported by the pixel type.
+    /// * An error occurs when trying to convert the data to the pixel type.
+    fn from_arbitrary_palette<P: Pixel>(palette: &[P], index: usize) -> Result<Self> {
+        Self::from_raw_parts(
+            P::COLOR_TYPE,
+            P::BIT_DEPTH,
+            palette
+                .get(index)
+                .ok_or(InvalidPaletteIndex)?
+                .as_bytes()
+                .as_ref(),
+        )
+    }
 
     /// Creates this pixel from a raw bytes. This is used internally and is unchecked - it panics
     /// if the data is not of the correct length.
@@ -107,9 +170,35 @@ pub trait Pixel: Copy + Clone + Default + PartialEq + Eq {
         }
     }
 
-    /// Creates this pixel from any dynamic pixel...dynamically at runtime. Different from the
+    /// Creates this pixel from any dynamic pixel, dynamically at runtime. Different from the
     /// From/Into traits.
-    fn from_dynamic(dynamic: Dynamic) -> Self;
+    #[allow(unused_variables)]
+    #[must_use]
+    fn from_dynamic(dynamic: Dynamic) -> Self {
+        panic!("cannot convert from dynamic pixel for this pixel type");
+    }
+
+    /// Converts this pixel into RGB despite its type. This can panic on some pixel types, you must
+    /// be sure this pixel is able to be converted into RGB before using this.
+    ///
+    /// You should use [`Rgb::from`] or [`TrueColor::into_rgb`] as they are safer methods, checked
+    /// at compile time. This is primarily used for internal purposes, for example when an encoder
+    /// can guarantee that a pixel is convertable into RGB.
+    ///
+    /// # Panics
+    /// * If the pixel is not convertable into RGB.
+    fn force_into_rgb(self) -> Rgb;
+
+    /// Converts this pixel into RGBA despite its type. This can panic on some pixel types, you must
+    /// be sure this pixel is able to be converted into RGBA before using this.
+    ///
+    /// You should use [`Rgba::from`] or [`TrueColor::into_rgb`] as they are safer methods, checked
+    /// at compile time. This is primarily used for internal purposes, for example when an encoder
+    /// can guarantee that a pixel is convertable into RGBA.
+    ///
+    /// # Panics
+    /// * If the pixel is not convertable into RGBA.
+    fn force_into_rgba(self) -> Rgba;
 }
 
 /// Represents a pixel that supports alpha, or transparency values.
@@ -126,8 +215,113 @@ pub trait Alpha: Pixel {
     fn with_alpha(self, alpha: u8) -> Self;
 }
 
+/// A pixel type that does and stores nothing. This pixel type is useless and will behave weirdly
+/// with your code. This is usually only used for internal or polyfill purposes.
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
+pub struct NoOp;
+
+/// Extension of [`NoOp`], used for internal purposes only. This is a ZST that implements
+/// `Into<u8>`.
+#[derive(Copy, Clone)]
+pub struct NoOpSubpixel;
+
+impl From<NoOpSubpixel> for usize {
+    fn from(_: NoOpSubpixel) -> Self {
+        0
+    }
+}
+
+impl Pixel for NoOp {
+    const COLOR_TYPE: ColorType = ColorType::L;
+    const BIT_DEPTH: u8 = 0;
+
+    type Subpixel = NoOpSubpixel;
+    type Color = Self;
+    type Data = [u8; 0];
+
+    fn inverted(&self) -> Self {
+        Self
+    }
+
+    fn map_subpixels<F, A>(self, _f: F, _a: A) -> Self
+    where
+        F: Fn(Self::Subpixel) -> Self::Subpixel,
+        A: Fn(Self::Subpixel) -> Self::Subpixel,
+    {
+        Self
+    }
+
+    fn from_bytes(_bytes: &[u8]) -> Self {
+        Self
+    }
+
+    fn as_bytes(&self) -> Self::Data {
+        []
+    }
+
+    fn merge_with_alpha(self, _other: Self, _alpha: u8) -> Self {
+        Self
+    }
+
+    fn from_dynamic(_dynamic: Dynamic) -> Self {
+        Self
+    }
+
+    fn force_into_rgb(self) -> Rgb {
+        panic!("NoOp is a private pixel type and should not be used")
+    }
+
+    fn force_into_rgba(self) -> Rgba {
+        panic!("NoOp is a private pixel type and should not be used")
+    }
+}
+
+impl Alpha for NoOp {
+    fn alpha(&self) -> u8 {
+        255
+    }
+
+    fn with_alpha(self, _alpha: u8) -> Self {
+        Self
+    }
+}
+
+impl TrueColor for NoOp {
+    fn as_rgb_tuple(&self) -> (u8, u8, u8) {
+        (0, 0, 0)
+    }
+
+    fn as_rgba_tuple(&self) -> (u8, u8, u8, u8) {
+        (0, 0, 0, 0)
+    }
+
+    fn from_rgb_tuple(_: (u8, u8, u8)) -> Self {
+        Self
+    }
+
+    fn from_rgba_tuple(_: (u8, u8, u8, u8)) -> Self {
+        Self
+    }
+
+    fn into_rgb(self) -> Rgb {
+        Rgb::default()
+    }
+
+    fn into_rgba(self) -> Rgba {
+        Rgba::default()
+    }
+}
+
+macro_rules! propagate_palette {
+    ($p:expr, $data:expr) => {{
+        if let Some(palette) = $p {
+            return Self::from_arbitrary_palette(palette, $data[0] as usize);
+        }
+    }};
+}
+
 /// Represents a single-bit pixel that represents either a pixel that is on or off.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct BitPixel(
     /// Whether the pixel is on.
     pub bool,
@@ -159,8 +353,24 @@ impl BitPixel {
     }
 }
 
+macro_rules! force_into_impl {
+    () => {
+        fn force_into_rgb(self) -> Rgb {
+            self.into()
+        }
+
+        fn force_into_rgba(self) -> Rgba {
+            self.into()
+        }
+    };
+}
+
 impl Pixel for BitPixel {
+    const COLOR_TYPE: ColorType = ColorType::L;
+    const BIT_DEPTH: u8 = 1;
+
     type Subpixel = bool;
+    type Color = Self;
     type Data = [u8; 1];
 
     fn inverted(&self) -> Self {
@@ -175,17 +385,19 @@ impl Pixel for BitPixel {
         Self(f(self.0))
     }
 
-    fn from_pixel_data(data: PixelData) -> Result<Self> {
+    fn from_raw_parts_paletted<P: Pixel>(
+        color_type: ColorType,
+        bit_depth: u8,
+        data: &[u8],
+        palette: Option<&[P]>,
+    ) -> Result<Self> {
+        propagate_palette!(palette, data);
         // Before, this supported L, however this implicit conversion is not supported anymore
         // as the result will be completely different
-        match data {
-            PixelData::Bit(value) => Ok(Self(value)),
+        match (color_type, bit_depth, data.is_empty()) {
+            (_, 1, false) => Ok(Self(data[0] != 0)),
             _ => Err(UnsupportedColorType),
         }
-    }
-
-    fn as_pixel_data(&self) -> PixelData {
-        PixelData::Bit(self.0)
     }
 
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -212,6 +424,78 @@ impl Pixel for BitPixel {
             Dynamic::Rgba(value) => value.into(),
         }
     }
+
+    force_into_impl!();
+}
+
+macro_rules! scale_subpixels {
+    ($src_depth:expr, $target_depth:expr, $data:expr) => {{
+        if $src_depth == $target_depth {
+            Cow::from($data)
+        } else {
+            if !$src_depth.is_power_of_two() {
+                return Err(DecodingError(format!(
+                    "source depth {} is not a power of two",
+                    $src_depth
+                )));
+            }
+            debug_assert!(
+                $target_depth.is_power_of_two(),
+                "target depth {} is not a power of two",
+                $target_depth,
+            );
+
+            if $src_depth <= 8 && $target_depth <= 8 {
+                Cow::from(if $src_depth < $target_depth {
+                    let scale = $target_depth / $src_depth;
+                    $data.iter().map(|n| *n * scale).collect::<Vec<_>>()
+                } else {
+                    let scale = $src_depth / $target_depth;
+                    $data.iter().map(|n| *n / scale).collect::<Vec<_>>()
+                })
+            } else if $src_depth < $target_depth {
+                let scale = $target_depth as usize / $src_depth as usize;
+                let mut result = Vec::with_capacity($data.len() * scale);
+
+                for n in $data {
+                    result.extend((*n as usize * scale).to_be_bytes());
+                }
+
+                Cow::from(result)
+            } else {
+                let scale = $src_depth as usize / $target_depth as usize;
+                let mut result = Vec::with_capacity($data.len() / scale);
+
+                for chunk in $data.chunks_exact(scale) {
+                    let sum = chunk
+                        .iter()
+                        .rev()
+                        .enumerate()
+                        .map(|(i, &x)| (x as usize) << (8 * i))
+                        .sum::<usize>();
+                    result.push((sum / scale) as u8);
+                }
+
+                Cow::from(result)
+            }
+        }
+    }};
+}
+
+macro_rules! propagate_data {
+    ($data:expr, $expected:expr) => {{
+        if $data.len() < $expected {
+            return Err(DecodingError(format!(
+                "malformed pixel data for {}: expected at least {} component(s) but received {}",
+                std::any::type_name::<Self>(),
+                $expected,
+                $data.len(),
+            )));
+        }
+    }};
+    ($data:expr) => {{
+        propagate_data!($data, Self::COLOR_TYPE.channels());
+    }};
 }
 
 /// Represents an L, or luminance pixel that is stored as only one single
@@ -219,14 +503,18 @@ impl Pixel for BitPixel {
 ///
 /// This can be thought of as the "unit channel" as this represents only
 /// a single channel in which other pixel types can be composed of.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct L(
     /// The luminance value of the pixel, between 0 and 255.
     pub u8,
 );
 
 impl Pixel for L {
+    const COLOR_TYPE: ColorType = ColorType::L;
+    const BIT_DEPTH: u8 = 8;
+
     type Subpixel = u8;
+    type Color = Self;
     type Data = [u8; 1];
 
     fn inverted(&self) -> Self {
@@ -241,18 +529,23 @@ impl Pixel for L {
         Self(f(self.0))
     }
 
-    fn from_pixel_data(data: PixelData) -> Result<Self> {
-        match data {
+    fn from_raw_parts_paletted<P: Pixel>(
+        color_type: ColorType,
+        bit_depth: u8,
+        data: &[u8],
+        palette: Option<&[P]>,
+    ) -> Result<Self> {
+        propagate_palette!(palette, data);
+
+        let data = scale_subpixels!(bit_depth, Self::BIT_DEPTH, data);
+        propagate_data!(data);
+
+        match color_type {
             // Currently, losing alpha implicitly is allowed, but I may change my mind about this
             // in the future.
-            PixelData::L(value) | PixelData::LA(value, _) => Ok(Self(value)),
-            PixelData::Bit(value) => Ok(Self(if value { 255 } else { 0 })),
+            ColorType::L | ColorType::LA => Ok(Self(data[0])),
             _ => Err(UnsupportedColorType),
         }
-    }
-
-    fn as_pixel_data(&self) -> PixelData {
-        PixelData::L(self.0)
     }
 
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -284,6 +577,8 @@ impl Pixel for L {
             Dynamic::Rgba(value) => value.into(),
         }
     }
+
+    force_into_impl!();
 }
 
 impl L {
@@ -301,7 +596,7 @@ impl L {
 }
 
 /// Represents an RGB pixel.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Rgb {
     /// The red component of the pixel.
     pub r: u8,
@@ -312,7 +607,11 @@ pub struct Rgb {
 }
 
 impl Pixel for Rgb {
+    const COLOR_TYPE: ColorType = ColorType::Rgb;
+    const BIT_DEPTH: u8 = 8;
+
     type Subpixel = u8;
+    type Color = Self;
     type Data = [u8; 3];
 
     fn inverted(&self) -> Self {
@@ -335,18 +634,34 @@ impl Pixel for Rgb {
         }
     }
 
-    fn from_pixel_data(data: PixelData) -> Result<Self> {
-        #[allow(clippy::match_wildcard_for_single_variants)]
-        match data {
-            PixelData::Rgb(r, g, b) | PixelData::Rgba(r, g, b, _) => Ok(Self { r, g, b }),
-            PixelData::L(l) | PixelData::LA(l, _) => Ok(Self { r: l, g: l, b: l }),
-            PixelData::Bit(value) => Ok(if value { Self::white() } else { Self::black() }),
+    fn from_raw_parts_paletted<P: Pixel>(
+        color_type: ColorType,
+        bit_depth: u8,
+        data: &[u8],
+        palette: Option<&[P]>,
+    ) -> Result<Self> {
+        propagate_palette!(palette, data);
+        let data = scale_subpixels!(bit_depth, Self::BIT_DEPTH, data);
+
+        match color_type {
+            ColorType::Rgb | ColorType::Rgba => {
+                propagate_data!(data, 3);
+                Ok(Self {
+                    r: data[0],
+                    g: data[1],
+                    b: data[2],
+                })
+            }
+            ColorType::L | ColorType::LA => {
+                propagate_data!(data, 1);
+                Ok(Self {
+                    r: data[0],
+                    g: data[0],
+                    b: data[0],
+                })
+            }
             _ => Err(UnsupportedColorType),
         }
-    }
-
-    fn as_pixel_data(&self) -> PixelData {
-        PixelData::Rgb(self.r, self.g, self.b)
     }
 
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -375,6 +690,8 @@ impl Pixel for Rgb {
             Dynamic::L(value) => value.into(),
         }
     }
+
+    force_into_impl!();
 }
 
 impl Rgb {
@@ -443,7 +760,7 @@ impl Rgb {
 }
 
 /// Represents an RGBA pixel.
-#[derive(Copy, Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct Rgba {
     /// The red component of the pixel.
     pub r: u8,
@@ -456,7 +773,11 @@ pub struct Rgba {
 }
 
 impl Pixel for Rgba {
+    const COLOR_TYPE: ColorType = ColorType::Rgba;
+    const BIT_DEPTH: u8 = 8;
+
     type Subpixel = u8;
+    type Color = Self;
     type Data = [u8; 4];
 
     fn inverted(&self) -> Self {
@@ -481,30 +802,55 @@ impl Pixel for Rgba {
         }
     }
 
-    fn from_pixel_data(data: PixelData) -> Result<Self> {
-        #[allow(clippy::match_wildcard_for_single_variants)]
-        match data {
-            PixelData::Rgb(r, g, b) => Ok(Self { r, g, b, a: 255 }),
-            PixelData::Rgba(r, g, b, a) => Ok(Self { r, g, b, a }),
-            PixelData::L(l) => Ok(Self {
-                r: l,
-                g: l,
-                b: l,
-                a: 255,
-            }),
-            PixelData::LA(l, a) => Ok(Self {
-                r: l,
-                g: l,
-                b: l,
-                a,
-            }),
-            PixelData::Bit(value) => Ok(value.then(Self::white).unwrap_or_else(Self::black)),
+    fn from_raw_parts_paletted<P: Pixel>(
+        color_type: ColorType,
+        bit_depth: u8,
+        data: &[u8],
+        palette: Option<&[P]>,
+    ) -> Result<Self> {
+        propagate_palette!(palette, data);
+        let data = scale_subpixels!(bit_depth, Self::BIT_DEPTH, data);
+        propagate_data!(data);
+
+        match color_type {
+            ColorType::Rgb => {
+                propagate_data!(data, 3);
+                Ok(Self {
+                    r: data[0],
+                    g: data[1],
+                    b: data[2],
+                    a: 255,
+                })
+            }
+            ColorType::Rgba => {
+                propagate_data!(data, 4);
+                Ok(Self {
+                    r: data[0],
+                    g: data[1],
+                    b: data[2],
+                    a: data[3],
+                })
+            }
+            ColorType::L => {
+                propagate_data!(data, 1);
+                Ok(Self {
+                    r: data[0],
+                    g: data[0],
+                    b: data[0],
+                    a: 255,
+                })
+            }
+            ColorType::LA => {
+                propagate_data!(data, 2);
+                Ok(Self {
+                    r: data[0],
+                    g: data[0],
+                    b: data[0],
+                    a: data[1],
+                })
+            }
             _ => Err(UnsupportedColorType),
         }
-    }
-
-    fn as_pixel_data(&self) -> PixelData {
-        PixelData::Rgba(self.r, self.g, self.b, self.a)
     }
 
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -520,6 +866,7 @@ impl Pixel for Rgba {
         [self.r, self.g, self.b, self.a]
     }
 
+    // TODO: SIMD could speed this up significantly
     #[allow(clippy::cast_lossless)]
     fn merge(self, other: Self) -> Self {
         // Optimize for common cases
@@ -572,6 +919,8 @@ impl Pixel for Rgba {
             Dynamic::BitPixel(value) => value.into(),
         }
     }
+
+    force_into_impl!();
 }
 
 impl Alpha for Rgba {
@@ -776,8 +1125,17 @@ impl num_traits::SaturatingMul for DynamicSubpixel {
     }
 }
 
+impl From<DynamicSubpixel> for usize {
+    fn from(v: DynamicSubpixel) -> Self {
+        match v {
+            DynamicSubpixel::U8(v) => v.into(),
+            DynamicSubpixel::Bool(v) => v.into(),
+        }
+    }
+}
+
 /// Represents a pixel type that is dynamically resolved.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Dynamic {
     BitPixel(BitPixel),
     L(L),
@@ -795,8 +1153,20 @@ impl Default for Dynamic {
 }
 
 impl Pixel for Dynamic {
+    const COLOR_TYPE: ColorType = ColorType::Dynamic;
+    const BIT_DEPTH: u8 = 8;
+
     type Subpixel = DynamicSubpixel;
+    type Color = Self;
     type Data = Vec<u8>;
+
+    fn color_type(&self) -> ColorType {
+        match self {
+            Self::BitPixel(_) | Self::L(_) => ColorType::L,
+            Self::Rgb(_) => ColorType::Rgb,
+            Self::Rgba(_) => ColorType::Rgba,
+        }
+    }
 
     fn inverted(&self) -> Self {
         match self {
@@ -836,26 +1206,45 @@ impl Pixel for Dynamic {
         }
     }
 
-    fn from_pixel_data(data: PixelData) -> Result<Self> {
-        #[allow(clippy::match_wildcard_for_single_variants)]
-        Ok(match data {
-            PixelData::Bit(value) => Self::BitPixel(BitPixel(value)),
-            PixelData::L(l) => Self::L(L(l)),
-            // TODO: LA pixel type
-            PixelData::LA(l, _a) => Self::L(L(l)),
-            PixelData::Rgb(r, g, b) => Self::Rgb(Rgb { r, g, b }),
-            PixelData::Rgba(r, g, b, a) => Self::Rgba(Rgba { r, g, b, a }),
-            _ => return Err(UnsupportedColorType),
-        })
-    }
+    fn from_raw_parts_paletted<P: Pixel>(
+        color_type: ColorType,
+        bit_depth: u8,
+        data: &[u8],
+        palette: Option<&[P]>,
+    ) -> Result<Self> {
+        propagate_palette!(palette, data);
 
-    fn as_pixel_data(&self) -> PixelData {
-        match *self {
-            Self::BitPixel(BitPixel(value)) => PixelData::Bit(value),
-            Self::L(L(l)) => PixelData::L(l),
-            Self::Rgb(Rgb { r, g, b }) => PixelData::Rgb(r, g, b),
-            Self::Rgba(Rgba { r, g, b, a }) => PixelData::Rgba(r, g, b, a),
-        }
+        Ok(if bit_depth == 1 {
+            propagate_data!(data, 1);
+            Self::BitPixel(BitPixel(data[0] != 0))
+        } else {
+            let data = scale_subpixels!(bit_depth, Self::BIT_DEPTH, data);
+
+            match color_type {
+                ColorType::L | ColorType::LA => {
+                    propagate_data!(data, 1);
+                    Self::L(L(data[0]))
+                }
+                ColorType::Rgb => {
+                    propagate_data!(data, 3);
+                    Self::Rgb(Rgb {
+                        r: data[0],
+                        g: data[1],
+                        b: data[2],
+                    })
+                }
+                ColorType::Rgba => {
+                    propagate_data!(data, 4);
+                    Self::Rgba(Rgba {
+                        r: data[0],
+                        g: data[1],
+                        b: data[2],
+                        a: data[3],
+                    })
+                }
+                _ => return Err(UnsupportedColorType),
+            }
+        })
     }
 
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -868,7 +1257,12 @@ impl Pixel for Dynamic {
     }
 
     fn as_bytes(&self) -> Self::Data {
-        self.as_pixel_data().data()
+        match self {
+            Self::BitPixel(pixel) => pixel.as_bytes().to_vec(),
+            Self::L(pixel) => pixel.as_bytes().to_vec(),
+            Self::Rgb(pixel) => pixel.as_bytes().to_vec(),
+            Self::Rgba(pixel) => pixel.as_bytes().to_vec(),
+        }
     }
 
     fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
@@ -888,6 +1282,8 @@ impl Pixel for Dynamic {
     fn from_dynamic(dynamic: Dynamic) -> Self {
         dynamic
     }
+
+    force_into_impl!();
 }
 
 impl Alpha for Dynamic {
@@ -912,7 +1308,7 @@ impl Dynamic {
     /// # Errors
     /// * The pixel type is not supported.
     pub fn from_pixel<P: Pixel>(pixel: P) -> Result<Self> {
-        Self::from_pixel_data(pixel.as_pixel_data())
+        Self::from_raw_parts(pixel.color_type(), P::BIT_DEPTH, pixel.as_bytes().as_ref())
     }
 }
 
@@ -1026,7 +1422,7 @@ impl From<Rgb> for Rgba {
 }
 
 /// A trait representing all pixels that can be represented as either RGB or RGBA true color.
-pub trait TrueColor {
+pub trait TrueColor: Pixel {
     /// Returns the pixel as an (r, g, b) tuple.
     fn as_rgb_tuple(&self) -> (u8, u8, u8);
 
@@ -1038,10 +1434,16 @@ pub trait TrueColor {
 
     /// Creates a new pixel from an (r, g, b, a) tuple.
     fn from_rgba_tuple(rgba: (u8, u8, u8, u8)) -> Self;
+
+    /// Returns the pixel casted into an Rgb pixel.
+    fn into_rgb(self) -> Rgb;
+
+    /// Returns the pixel casted into an Rgba pixel.
+    fn into_rgba(self) -> Rgba;
 }
 
 #[allow(clippy::trait_duplication_in_bounds)]
-impl<P: Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColor for P {
+impl<P: Pixel + Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColor for P {
     fn as_rgb_tuple(&self) -> (u8, u8, u8) {
         let Rgb { r, g, b } = (*self).into();
 
@@ -1061,4 +1463,244 @@ impl<P: Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColor for P 
     fn from_rgba_tuple((r, g, b, a): (u8, u8, u8, u8)) -> Self {
         From::<Rgba>::from(Rgba { r, g, b, a })
     }
+
+    fn into_rgb(self) -> Rgb {
+        self.into()
+    }
+
+    fn into_rgba(self) -> Rgba {
+        self.into()
+    }
 }
+
+pub(crate) unsafe fn assume_pixel_from_palette<'p, P, Index: Into<usize>>(
+    palette: &'p [P::Color],
+    index: Index,
+) -> Result<P>
+where
+    P: 'p + Pixel,
+{
+    macro_rules! unsafe_cast {
+        ($t:ty => $out:ty) => {{
+            let length = palette.len();
+            let ptr = palette.as_ptr().cast::<$t>();
+            // SAFETY: upheld by the caller
+            let palette = std::slice::from_raw_parts(ptr, length);
+
+            // SAFETY: mostly upheld by the caller, but transmute_copy can be used since all Pixels
+            // implement Copy.
+            Ok(std::mem::transmute_copy(&<$out>::from_palette(
+                palette,
+                index.into() as u8,
+            )))
+        }};
+    }
+
+    match P::COLOR_TYPE {
+        ColorType::PaletteRgb => unsafe_cast!(Rgb => PalettedRgb),
+        ColorType::PaletteRgba => unsafe_cast!(Rgba => PalettedRgba),
+        _ => P::from_arbitrary_palette(palette, index.into()),
+    }
+}
+
+/// A trait representing a paletted pixel. [`Pixel::Subpixel`] is the type of the palette index.
+///
+/// The generic lifetime parameter `'p` represents the lifetime of a palette the type will hold a
+/// reference to.
+pub trait Paletted<'p>: Pixel
+where
+    Self: 'p,
+{
+    /// Creates this pixel from the given palette and index. For unpaletted pixels, use
+    /// [`Pixel::from_arbitrary_palette`] instead.
+    ///
+    /// # Errors
+    /// * The pixel index is invalid/out of bounds.
+    /// * If the color type is not supported by the pixel type.
+    /// * An error occurs when trying to convert the data to the pixel type.
+    fn from_palette(palette: &'p [Self::Color], index: Self::Subpixel) -> Self;
+
+    /// Returns the palette lookup as a slice.
+    fn palette(&self) -> &'p [Self::Color];
+
+    /// Returns the index in the palette this pixel is of.
+    fn palette_index(&self) -> Self::Subpixel;
+
+    /// Resolves the color of the pixel. Because invalid palette values are supposed to be
+    /// propagated prior to calling this, this will panic
+    // TODO: this could potentially just use an index to avoid the expect
+    fn color(&self) -> Self::Color {
+        *self
+            .palette()
+            .get(self.palette_index().into())
+            .expect("invalid palette index")
+    }
+
+    /// Resolves the color of the pixel. Invalid palette values *should* be propagated prior to
+    /// to calling this, but it isn't guaranteed, for example if the palette pixel was manually
+    /// initialized.
+    ///
+    /// This results in undefined behavior if the palette index is invalid.
+    ///
+    /// # Safety
+    /// * The palette index must be valid.
+    unsafe fn color_unchecked(&self) -> Self::Color {
+        *self.palette().get_unchecked(self.palette_index().into())
+    }
+}
+
+macro_rules! impl_palette_default {
+    ($($t:ty),+) => {
+        $(
+            impl Default for $t {
+                fn default() -> Self {
+                    panic!("cannot use default for paletted pixel");
+                }
+            }
+        )+
+    }
+}
+
+macro_rules! try_palette {
+    ($self:ident, $action:literal, $filter:expr) => {{
+        Self {
+            index: $self.palette().iter().position($filter).unwrap_or_else(|| {
+                panic!(
+                    "could not find a color in the palette with the same value once {}, \
+                     try converting this pixel or image to a true color format first. paletted \
+                     pixels can only transform to other colors in the same palette.",
+                    $action,
+                )
+            }) as u8,
+            palette: $self.palette,
+        }
+    }};
+}
+
+macro_rules! panic_unpaletted {
+    () => {{
+        panic!(
+            "currently, pixels are resolved independent from other pixels, meaning that RIL \
+                cannot quantize non-paletted pixels into a palette, since it must be aware of all \
+                other pixels in the image. Consider manually quantizing the image, or using a \
+                non-paletted pixel format, such as RGBA, instead - RIL can automatically flatten \
+                paletted images into true color images, but not the opposite.",
+        )
+    }};
+}
+
+macro_rules! impl_palette_cast {
+    ($t:ty: $($f:ty)+) => {
+        $(
+            impl From<$t> for $f {
+                fn from(pixel: $t) -> Self {
+                    pixel.color().into()
+                }
+            }
+        )+
+    };
+}
+
+// Suffixed with an 8 to indicate that it's an 8-bit palette
+macro_rules! impl_palette8 {
+    ($name:ident: $color_type:ident $cast:ident $tgt:ty) => {
+        #[derive(Copy, Clone, PartialEq, Eq, Hash)]
+        #[doc = concat!(
+            "Represents a paletted pixel, holding an index to a palette of ",
+            stringify!($tgt),
+            " colors represented as a `&'p [",
+            stringify!($tgt),
+            "]`, where `'p` is the lifetime of the palette.",
+        )]
+        pub struct $name<'p> {
+            pub index: u8,
+            palette: &'p [$tgt],
+        }
+
+        impl fmt::Debug for $name<'_> {
+            fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+                f.debug_struct(stringify!($name))
+                    .field("index", &self.index)
+                    .finish()
+            }
+        }
+
+        impl_palette_default!($name<'_>);
+
+        impl Pixel for $name<'_> {
+            const COLOR_TYPE: ColorType = ColorType::$color_type;
+            const BIT_DEPTH: u8 = 8;
+
+            type Subpixel = u8;
+            type Color = $tgt;
+            type Data = [u8; 1];
+
+            fn inverted(&self) -> Self {
+                let target = &self.color().inverted();
+
+                try_palette!(self, "inverted", |color| color == target)
+            }
+
+            fn map_subpixels<F, A>(self, f: F, a: A) -> Self
+            where
+                F: Fn(Self::Subpixel) -> Self::Subpixel,
+                A: Fn(Self::Subpixel) -> Self::Subpixel,
+            {
+                let target = &self.color().map_subpixels(f, a);
+
+                try_palette!(self, "mapped", |color| color == target)
+            }
+
+            fn from_raw_parts_paletted<P: Pixel>(
+                _color_type: ColorType,
+                _bit_depth: u8,
+                _data: &[u8],
+                _palette: Option<&[P]>,
+            ) -> Result<Self> {
+                panic_unpaletted!()
+            }
+
+            fn from_bytes(_bytes: &[u8]) -> Self {
+                panic!("cannot initialize a paletted pixel without being aware of its palette")
+            }
+
+            fn as_bytes(&self) -> Self::Data {
+                [self.index]
+            }
+
+            fn merge_with_alpha(self, other: Self, alpha: u8) -> Self {
+                let target = &self.color().merge_with_alpha(other.color(), alpha);
+
+                try_palette!(self, "merged", |color| color == target)
+            }
+
+            fn from_dynamic(_dynamic: Dynamic) -> Self {
+                todo!("implement dynamic palettes")
+            }
+
+            force_into_impl!();
+        }
+
+        impl<'p> Paletted<'p> for $name<'p> {
+            fn from_palette(palette: &'p [Self::Color], index: Self::Subpixel) -> Self {
+                Self {
+                    index: usize::from(index) as u8,
+                    palette,
+                }
+            }
+
+            fn palette(&self) -> &'p [Self::Color] {
+                self.palette
+            }
+
+            fn palette_index(&self) -> u8 {
+                self.index
+            }
+        }
+
+        impl_palette_cast!($name<'_>: Rgb Rgba L BitPixel Dynamic);
+    }
+}
+
+impl_palette8!(PalettedRgb: PaletteRgb into_rgb Rgb);
+impl_palette8!(PalettedRgba: PaletteRgba into_rgba Rgba);

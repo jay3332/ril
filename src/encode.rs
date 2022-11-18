@@ -88,6 +88,7 @@ pub trait FrameIterator<P: Pixel>: Iterator<Item = crate::Result<Frame<P>>> {
 
 /// Represents any one of the different types of frame iterators, compacted into one common enum
 /// with common methods.
+#[allow(clippy::large_enum_variant)]
 pub enum DynamicFrameIterator<P: Pixel, R: Read> {
     /// A single static image frame.
     Single(Option<Image<P>>, PhantomData<R>),

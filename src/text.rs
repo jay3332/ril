@@ -9,7 +9,7 @@ use fontdue::{
     layout::{Layout, LayoutSettings},
     FontSettings,
 };
-use std::{fs::File, io::Read, path::Path};
+use std::{fs::File, io::Read, ops::DerefMut, path::Path};
 
 /// Represents a single font along with its alternatives used to render text.
 /// Currently, this supports TrueType and OpenType fonts.
@@ -356,8 +356,8 @@ fn render_layout_with_alignment<P: Pixel>(
 }
 
 impl<'a, P: Pixel> Draw<P> for TextSegment<'a, P> {
-    fn draw(&self, image: &mut Image<P>) {
-        render_layout(image, &[self.font.inner()], &self.layout());
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+        render_layout(&mut *image, &[self.font.inner()], &self.layout());
     }
 }
 
@@ -664,7 +664,9 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
 }
 
 impl<'a, P: Pixel> Draw<P> for TextLayout<'a, P> {
-    fn draw(&self, image: &mut Image<P>) {
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+        let image = &mut *image;
+
         // Skips the calculation of offsets
         if self.x_anchor == HorizontalAnchor::Left && self.y_anchor == VerticalAnchor::Top {
             render_layout(image, &self.fonts, &self.inner);

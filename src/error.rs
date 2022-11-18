@@ -12,6 +12,9 @@ pub enum Error {
     /// An invalid hex code was provided when trying to parse a hex value.
     InvalidHexCode(String),
 
+    /// Received an invalid palette index.
+    InvalidPaletteIndex,
+
     /// An invalid extension was provided when trying to resolve an image's encoding format
     /// from a file extension.
     ///
@@ -62,6 +65,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::InvalidHexCode(hex_code) => write!(f, "Invalid hex code: {}", hex_code),
+            Self::InvalidPaletteIndex => write!(f, "Invalid palette index"),
             Self::InvalidExtension(ext) => {
                 write!(f, "Invalid extension: {}", ext.to_string_lossy())
             }

@@ -1,10 +1,12 @@
+#![allow(clippy::wildcard_imports)]
+
 use crate::{
     draw::Draw,
     error::{
         Error::{self, InvalidExtension},
         Result,
     },
-    pixel::{Pixel, TrueColor},
+    pixel::*,
     Dynamic, DynamicFrameIterator,
 };
 
@@ -71,6 +73,7 @@ pub struct Image<P: Pixel = Dynamic> {
     pub data: Vec<P>,
     pub(crate) format: ImageFormat,
     pub(crate) overlay: OverlayMode,
+    pub(crate) palette: Option<Box<[P::Color]>>,
 }
 
 impl<P: Pixel> Image<P> {
@@ -89,6 +92,7 @@ impl<P: Pixel> Image<P> {
             data: vec![fill; (width * height) as usize],
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
+            palette: None,
         }
     }
 
@@ -123,7 +127,62 @@ impl<P: Pixel> Image<P> {
             data: pixels.to_vec(),
             format: ImageFormat::default(),
             overlay: OverlayMode::default(),
+            palette: None,
         }
+    }
+
+    /// Creates a new image shaped with the given width and a 1-dimensional sequence of paletted
+    /// pixels which will be shaped according to the width.
+    ///
+    /// # Panics
+    /// * The length of the pixels is not a multiple of the width.
+    /// * The palette is empty.
+    /// * The a pixel index is out of bounds with regards to the palette.
+    #[must_use]
+    pub fn from_paletted_pixels<'p>(
+        width: u32,
+        palette: impl ToOwned<Owned = Vec<P::Color>> + 'p,
+        pixels: impl AsRef<[P::Subpixel]>,
+    ) -> Self
+    where
+        P: Paletted<'p>,
+    {
+        let pixels = pixels.as_ref();
+        debug_assert_eq!(
+            pixels.len() % width as usize,
+            0,
+            "length of pixels must be a multiple of the image width",
+        );
+        #[allow(clippy::redundant_clone)]
+        let palette = palette.to_owned().into_boxed_slice();
+        debug_assert!(!palette.is_empty(), "palette must not be empty");
+
+        let mut slf = Self {
+            width: NonZeroU32::new(width).unwrap(),
+            // SAFETY: We have already asserted the width being non-zero above with addition to
+            // the height being a multiple of the width, meaning that the height cannot be zero.
+            height: unsafe { NonZeroU32::new_unchecked(pixels.len() as u32 / width) },
+            data: Vec::new(),
+            format: ImageFormat::default(),
+            overlay: OverlayMode::default(),
+            palette: Some(palette),
+        };
+
+        let palette = unsafe {
+            slf.palette
+                .as_deref()
+                // SAFETY: references will be dropped when `Self` is dropped; we can guarantee that
+                // 'p is only valid for the lifetime of `Self`.
+                .map(|slice| std::slice::from_raw_parts(slice.as_ptr(), slice.len()))
+                // SAFETY: declared palette as `Some` in struct declaration
+                .unwrap_unchecked()
+        };
+
+        slf.data = pixels
+            .iter()
+            .map(|&p| P::from_palette(palette, p))
+            .collect();
+        slf
     }
 
     /// Decodes an image with the explicitly given image encoding from the raw byte stream.
@@ -160,6 +219,18 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    ///
+    /// # Examples
+    /// ```no_run,ignore
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let bytes = include_bytes!("sample.png") as &[u8];
+    /// let image = Image::<Rgb>::from_bytes(ImageFormat::Png, bytes)?;
+    /// # Ok(())
+    /// # }
     pub fn from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
         format.run_decoder(bytes.as_ref())
     }
@@ -189,7 +260,22 @@ impl<P: Pixel> Image<P> {
     /// by using the [`from_reader`] method.
     ///
     /// # Errors
-    /// todo!()
+    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
+    /// specifying it.
+    /// * `IoError`: The file could not be opened.
+    ///
+    /// # Panics
+    /// * No decoder implementation for the given encoding format.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::<Rgb>::open("sample.png")?;
+    /// println!("Image dimensions: {}x{}", image.width(), image.height());
+    /// # Ok(())
+    /// # }
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let buffer = &mut Vec::new();
         let mut file = File::open(path.as_ref())?;
@@ -528,7 +614,9 @@ impl<P: Pixel> Image<P> {
     /// The function should take the current image data and return the new data.
     ///
     /// # Note
-    /// This resets the background color back to the default.
+    /// This will *not* work for paletted images, nor will it work for conversion to paletted
+    /// images. For conversion from paletted images, see the [`Self::flatten`] method to flatten
+    /// the palette fist. For conversion to paletted images, try quantizing the image.
     pub fn map_data<T: Pixel>(self, f: impl FnOnce(Vec<P>) -> Vec<T>) -> Image<T> {
         Image {
             width: self.width,
@@ -536,6 +624,7 @@ impl<P: Pixel> Image<P> {
             data: f(self.data),
             format: self.format,
             overlay: self.overlay,
+            palette: None,
         }
     }
 
@@ -615,6 +704,13 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Converts the image into an image with the given pixel type.
+    ///
+    /// # Note
+    /// Currently there is a slight inconsistency with paletted images - if you would like to
+    /// convert from a paletted image to a paletted image with a different pixel type, you cannot
+    /// use this method and must instead use the `From`/`Into` trait instead.
+    ///
+    /// That said, you can also use the `From`/`Into` trait regardless of the pixel type.
     #[must_use]
     pub fn convert<T: Pixel + From<P>>(self) -> Image<T> {
         self.map_pixels(T::from)
@@ -810,7 +906,7 @@ impl<P: Pixel> Image<P> {
     /// Currently, only [`BitPixel`] images are supported for the masking image.
     ///
     /// This is a shorthand for using the [`draw`] method with [`Paste`].
-    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Self, mask: Image<crate::BitPixel>) {
+    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Self, mask: Image<BitPixel>) {
         self.draw(&crate::Paste::new(image).with_position(x, y).with_mask(mask));
     }
 
@@ -825,9 +921,9 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * The masking image has different dimensions from this image.
-    pub fn mask_alpha(&mut self, mask: &Image<crate::L>)
+    pub fn mask_alpha(&mut self, mask: &Image<L>)
     where
-        P: crate::Alpha,
+        P: Alpha,
     {
         assert_eq!(
             self.dimensions(),
@@ -845,7 +941,130 @@ impl<P: Pixel> Image<P> {
                 *pixel = pixel.with_alpha(mask.value());
             });
     }
+
+    /// Returns the palette associated with this image as a slice.
+    /// If there is no palette, this returns `None`.
+    #[must_use]
+    pub fn palette(&self) -> Option<&[P::Color]> {
+        self.palette.as_deref()
+    }
+
+    /// Returns the palette associated with this image as a mutable slice.
+    /// If there is no palette, this returns `None`.
+    #[must_use]
+    pub fn palette_mut(&mut self) -> Option<&mut [P::Color]> {
+        self.palette.as_deref_mut()
+    }
+
+    /// Returns the palette associated with this image as a slice. You must uphold the guarantee
+    /// that the image is paletted, otherwise this will result in undefined behaviour.
+    ///
+    /// # Safety
+    /// * The image must always be paletted.
+    ///
+    /// # See Also
+    /// * [`Self::palette`] - A safe, checked alternative to this method.
+    #[must_use]
+    pub unsafe fn palette_unchecked(&self) -> &[P::Color] {
+        self.palette.as_ref().unwrap_unchecked()
+    }
+
+    /// Returns the palette associated with this image as a mutable slice. You must uphold the
+    /// guarantee that the image is paletted, otherwise this will result in undefined behaviour.
+    ///
+    /// # Safety
+    /// * The image must always be paletted.
+    ///
+    /// # See Also
+    /// * [`Self::palette_mut`] - A safe, checked alternative to this method.
+    #[must_use]
+    pub unsafe fn palette_mut_unchecked(&mut self) -> &mut [P::Color] {
+        self.palette.as_mut().unwrap_unchecked()
+    }
+
+    /// Maps the palette of this image using the given function. If this image has no palette,
+    /// this will do nothing.
+    ///
+    /// # Panics
+    /// * Safe conversion of palette references failed.
+    pub fn map_palette<'a, U, F, C: TrueColor>(self, mut f: F) -> Image<U>
+    where
+        Self: 'a,
+        P: Paletted<'a>,
+        U: Paletted<'a> + Pixel<Subpixel = P::Subpixel, Color = C>,
+        F: FnMut(P::Color) -> C,
+    {
+        let palette = self.palette.map(|palette| {
+            palette
+                .iter()
+                .map(|p| f(*p))
+                .collect::<Vec<_>>()
+                .into_boxed_slice()
+        });
+
+        Image {
+            width: self.width,
+            height: self.height,
+            data: self
+                .data
+                .into_iter()
+                .map(|p| {
+                    U::from_raw_parts_paletted(
+                        U::COLOR_TYPE,
+                        U::BIT_DEPTH,
+                        &[p.palette_index().into() as u8],
+                        palette.as_deref(),
+                    )
+                    .expect("could not perform safe conversion of palette references")
+                })
+                .collect(),
+            format: self.format,
+            overlay: self.overlay,
+            palette,
+        }
+    }
+
+    /// Takes this image and flattens this paletted image into an unpaletted image. This is similar
+    /// to [`Self::convert`] but the output type is automatically resolved.
+    #[must_use]
+    pub fn flatten_palette<'a>(self) -> Image<P::Color>
+    where
+        Self: 'a,
+        P: Paletted<'a>,
+    {
+        self.map_pixels(|pixel| pixel.color())
+    }
 }
+
+impl<'a> From<Image<PalettedRgb<'a>>> for Image<PalettedRgba<'a>> {
+    fn from(image: Image<PalettedRgb<'a>>) -> Self {
+        image.map_palette(Into::into)
+    }
+}
+
+impl<'a> From<Image<PalettedRgba<'a>>> for Image<PalettedRgb<'a>> {
+    fn from(image: Image<PalettedRgba<'a>>) -> Self {
+        image.map_palette(Into::into)
+    }
+}
+
+macro_rules! impl_cast {
+    ($t:ty: $($f:ty)+) => {
+        $(
+            impl From<Image<$f>> for Image<$t> {
+                fn from(f: Image<$f>) -> Self {
+                    f.map_pixels(<$t>::from)
+                }
+            }
+        )+
+    };
+}
+
+impl_cast!(BitPixel: L Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(L: BitPixel Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Rgb: BitPixel L Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Rgba: BitPixel L Rgb Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Dynamic: BitPixel L Rgb Rgba PalettedRgb<'_> PalettedRgba<'_>);
 
 /// Represents an image with multiple channels, called bands.
 ///
@@ -858,7 +1077,7 @@ pub trait Banded<T> {
     fn from_bands(bands: T) -> Self;
 }
 
-type Band = Image<crate::L>;
+type Band = Image<L>;
 
 macro_rules! map_idx {
     ($image:expr, $idx:expr) => {{
@@ -867,19 +1086,16 @@ macro_rules! map_idx {
         Image {
             width: $image.width,
             height: $image.height,
-            data: $image
-                .data
-                .iter()
-                .map(|p| L(p.as_pixel_data().data()[$idx]))
-                .collect(),
+            data: $image.data.iter().map(|p| L(p.as_bytes()[$idx])).collect(),
             format: $image.format,
             overlay: $image.overlay,
+            palette: None,
         }
     }};
 }
 
 macro_rules! extract_bands {
-    ($image:expr; $($idx:expr),+) => {{
+    ($image:expr; $($idx:literal)+) => {{
         ($(map_idx!($image, $idx)),+)
     }};
 }
@@ -891,7 +1107,7 @@ macro_rules! validate_dimensions {
                 $target.dimensions(),
                 $others.dimensions(),
                 "bands have different dimensions: {} has dimensions of {:?}, which is different \
-                from {} which has dimensions of {:?}",
+                from {} which has dimenesions of {:?}",
                 stringify!($target),
                 $target.dimensions(),
                 stringify!($others),
@@ -901,34 +1117,30 @@ macro_rules! validate_dimensions {
     }};
 }
 
-impl Banded<(Band, Band, Band)> for Image<crate::Rgb> {
+impl Banded<(Band, Band, Band)> for Image<Rgb> {
     fn bands(&self) -> (Band, Band, Band) {
-        extract_bands!(self; 0, 1, 2)
+        extract_bands!(self; 0 1 2)
     }
 
     fn from_bands((r, g, b): (Band, Band, Band)) -> Self {
-        use crate::L;
-
         validate_dimensions!(r, g, b);
 
         r.map_data(|data| {
             data.into_iter()
                 .zip(g.data.into_iter())
                 .zip(b.data.into_iter())
-                .map(|((L(r), L(g)), L(b))| crate::Rgb::new(r, g, b))
+                .map(|((L(r), L(g)), L(b))| Rgb::new(r, g, b))
                 .collect()
         })
     }
 }
 
-impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
+impl Banded<(Band, Band, Band, Band)> for Image<Rgba> {
     fn bands(&self) -> (Band, Band, Band, Band) {
-        extract_bands!(self; 0, 1, 2, 3)
+        extract_bands!(self; 0 1 2 3)
     }
 
     fn from_bands((r, g, b, a): (Band, Band, Band, Band)) -> Self {
-        use crate::L;
-
         validate_dimensions!(r, g, b, a);
 
         r.map_data(|data| {
@@ -936,7 +1148,7 @@ impl Banded<(Band, Band, Band, Band)> for Image<crate::Rgba> {
                 .zip(g.data.into_iter())
                 .zip(b.data.into_iter())
                 .zip(a.data.into_iter())
-                .map(|(((L(r), L(g)), L(b)), L(a))| crate::Rgba::new(r, g, b, a))
+                .map(|(((L(r), L(g)), L(b)), L(a))| Rgba::new(r, g, b, a))
                 .collect()
         })
     }
@@ -1135,6 +1347,7 @@ impl ImageFormat {
         not(any(feature = "png", feature = "gif", feature = "jpeg")),
         allow(unused_variables, unreachable_code)
     )]
+    #[allow(clippy::needless_pass_by_value)] // would require a major refactor
     pub fn run_decoder<P: Pixel>(&self, stream: impl Read) -> Result<Image<P>> {
         match self {
             #[cfg(feature = "png")]
@@ -1161,6 +1374,7 @@ impl ImageFormat {
         not(any(feature = "png", feature = "gif", feature = "jpeg")),
         allow(unused_variables, unreachable_code)
     )]
+    #[allow(clippy::needless_pass_by_value)] // would require a major refactor
     pub fn run_sequence_decoder<P: Pixel, R: Read>(
         &self,
         stream: R,
