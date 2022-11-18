@@ -47,15 +47,15 @@ By the first stable release, we plan to support the following image encodings:
 
 Additionally, we also plan to support the following pixel formats:
 
-| Pixel Format                           | Current Status          |
-|----------------------------------------|-------------------------|
-| RGB8                                   | Supported as `Rgb`      |
-| RGBA8                                  | Supported as `Rgba`     |
-| L8 (grayscale)                         | Supported as `L`        |
-| LA8 (grayscale + alpha)                | Not yet supported       |
-| 1 (single-bit pixel, equivalent to L1) | Supported as `BitPixel` |
-| Indexed RGB8 (palette)                 | WIP (See #8)            |
-| Indexed RGBA8 (palette)                | WIP (See #8)            |
+| Pixel Format                           | Current Status              |
+|----------------------------------------|-----------------------------|
+| RGB8                                   | Supported as `Rgb`          |
+| RGBA8                                  | Supported as `Rgba`         |
+| L8 (grayscale)                         | Supported as `L`            |
+| LA8 (grayscale + alpha)                | Not yet supported           |
+| 1 (single-bit pixel, equivalent to L1) | Supported as `BitPixel`     |
+| Indexed RGB8 (palette)                 | Supported as `PalettedRgb`  |
+| Indexed RGBA8 (palette)                | Supported as `PalettedRgba` |
 
 16-bit pixel formats are currently downscaled to 8-bits. We do plan to
 have actual support 16-bit pixel formats in the future.
