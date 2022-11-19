@@ -84,6 +84,19 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * `width` or `height` is zero.
+    ///
+    /// # Example
+    /// ```
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// // 16x16 RGB image with all pixels set to white
+    /// let image = Image::new(16, 16, Rgb::white());
+    ///
+    /// assert_eq!(image.width(), 16);
+    /// assert_eq!(image.height(), 16);
+    /// assert_eq!(image.pixel(0, 0), &Rgb::white());
+    /// # Ok(())
+    /// # }
     #[must_use]
     pub fn new(width: u32, height: u32, fill: P) -> Self {
         Self {
@@ -99,6 +112,17 @@ impl<P: Pixel> Image<P> {
     /// Creates a new image with the given width and height. The pixels are then resolved through
     /// then given callback function which takes two parameters - the x and y coordinates of
     /// a pixel - and returns a pixel.
+    ///
+    /// # Example
+    /// ```
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let gradient = Image::from_fn(256, 256, |x, _y| L(x as u8));
+    ///
+    /// assert_eq!(gradient.pixel(0, 0), &L(0));
+    /// assert_eq!(gradient.pixel(255, 0), &L(255));
+    /// # Ok(())
+    /// # }
     #[must_use]
     pub fn from_fn(width: u32, height: u32, f: impl Fn(u32, u32) -> P) -> Self {
         Self::new(width, height, P::default()).map_pixels_with_coords(|x, y, _| f(x, y))
@@ -109,6 +133,19 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * The length of the pixels is not a multiple of the width.
+    ///
+    /// # Example
+    /// ```
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::from_pixels(2, &[L(0), L(1), L(2), L(3)]);
+    ///
+    /// assert_eq!(image.width(), 2);
+    /// assert_eq!(image.height(), 2);
+    /// assert_eq!(image.pixel(1, 1), &L(3));
+    /// # Ok(())
+    /// # }
+    /// ```
     #[must_use]
     pub fn from_pixels(width: u32, pixels: impl AsRef<[P]>) -> Self {
         let pixels = pixels.as_ref();
@@ -138,6 +175,19 @@ impl<P: Pixel> Image<P> {
     /// * The length of the pixels is not a multiple of the width.
     /// * The palette is empty.
     /// * The a pixel index is out of bounds with regards to the palette.
+    ///
+    /// # Example
+    /// ```
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::<PalettedRgb>::from_paletted_pixels(
+    ///     2,
+    ///     vec![Rgb::white(), Rgb::black()],
+    ///     &[0, 1, 0, 1],
+    /// );
+    /// assert_eq!(image.pixel(1, 1).color(), Rgb::black());
+    /// # Ok(())
+    /// # }
     #[must_use]
     pub fn from_paletted_pixels<'p>(
         width: u32,
@@ -189,6 +239,15 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let file = std::fs::File::open("image.png")?;
+    /// let image = Image::<Rgb>::from_reader(ImageFormat::Png, file)?;
+    /// # Ok(())
+    /// # }
     pub fn from_reader(format: ImageFormat, bytes: impl Read) -> Result<Self> {
         format.run_decoder(bytes)
     }
@@ -202,6 +261,15 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let file = std::fs::File::open("image.png")?;
+    /// let image = Image::<Rgb>::from_reader_inferred(file)?;
+    /// # Ok(())
+    /// # }
     pub fn from_reader_inferred(mut bytes: impl Read) -> Result<Self> {
         let buf = &mut [0; 12];
         let n = bytes.read(buf)?;
@@ -231,6 +299,7 @@ impl<P: Pixel> Image<P> {
     /// let image = Image::<Rgb>::from_bytes(ImageFormat::Png, bytes)?;
     /// # Ok(())
     /// # }
+    /// ```
     pub fn from_bytes(format: ImageFormat, bytes: impl AsRef<[u8]>) -> Result<Self> {
         format.run_decoder(bytes.as_ref())
     }
@@ -247,6 +316,16 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
+    ///
+    /// # Examples
+    /// ```no_run,ignore
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let bytes = include_bytes!("sample.png") as &[u8];
+    /// let image = Image::<Rgb>::from_bytes_inferred(bytes)?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn from_bytes_inferred(bytes: impl AsRef<[u8]>) -> Result<Self> {
         match ImageFormat::infer_encoding(bytes.as_ref()) {
             ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
@@ -299,6 +378,16 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * No encoder implementation for the given encoding format.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::new(100, 100, Rgb::new(255, 0, 0));
+    /// let mut out = Vec::new();
+    /// image.encode(ImageFormat::Png, &mut out)?;
+    /// # Ok(())
+    /// # }
     pub fn encode(&self, encoding: ImageFormat, dest: &mut impl Write) -> Result<()> {
         encoding.run_encoder(self, dest)
     }
@@ -311,6 +400,15 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * No encoder implementation for the given encoding format.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::new(100, 100, Rgb::new(255, 0, 0));
+    /// image.save(ImageFormat::Png, "out.png")?;
+    /// # Ok(())
+    /// # }
     pub fn save(&self, encoding: ImageFormat, path: impl AsRef<Path>) -> Result<()> {
         let mut file = File::create(path).map_err(Error::IOError)?;
         self.encode(encoding, &mut file)
@@ -330,6 +428,15 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * No encoder implementation for the given encoding format.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::new(100, 100, Rgb::new(255, 0, 0));
+    /// image.save_inferred("out.png")?;
+    /// # Ok(())
+    /// # }
     pub fn save_inferred(&self, path: impl AsRef<Path>) -> Result<()> {
         let encoding = ImageFormat::from_path(path.as_ref())?;
 
