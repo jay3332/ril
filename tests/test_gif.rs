@@ -1,26 +1,14 @@
+mod test_png;
+
 use ril::prelude::*;
 use std::time::Duration;
-
-const COLORS: [Rgb; 12] = [
-    Rgb::new(255, 0, 0),
-    Rgb::new(255, 128, 0),
-    Rgb::new(255, 255, 0),
-    Rgb::new(128, 255, 0),
-    Rgb::new(0, 255, 0),
-    Rgb::new(0, 255, 128),
-    Rgb::new(0, 255, 255),
-    Rgb::new(0, 128, 255),
-    Rgb::new(0, 0, 255),
-    Rgb::new(128, 0, 255),
-    Rgb::new(255, 0, 255),
-    Rgb::new(255, 0, 128),
-];
+use test_png::COLORS;
 
 #[test]
 fn test_gif_encode() -> ril::Result<()> {
     let mut seq = ImageSequence::new();
 
-    for color in COLORS.into_iter() {
+    for color in COLORS {
         seq.push_frame(
             Frame::from_image(Image::new(256, 256, color)).with_delay(Duration::from_millis(100)),
         )

@@ -16,6 +16,8 @@ use crate::encodings::gif;
 use crate::encodings::jpeg;
 #[cfg(feature = "png")]
 use crate::encodings::png;
+#[cfg(feature = "webp")]
+use crate::encodings::webp;
 #[cfg(feature = "resize")]
 use crate::ResizeAlgorithm;
 #[cfg(any(feature = "png", feature = "gif", feature = "jpeg"))]
@@ -665,14 +667,14 @@ impl<P: Pixel> Image<P> {
         let cosv = radians.cos();
 
         (
-            (cosv.mul_add(0.787, 0.213) - sinv * 0.213),
-            (0.715 - cosv * 0.715 - sinv * 0.715),
-            sinv.mul_add(0.928, 0.072 - cosv * 0.072),
-            sinv.mul_add(0.143, 0.213 - cosv * 0.213),
+            sinv.mul_add(-0.213, cosv.mul_add(0.787, 0.213)),
+            sinv.mul_add(-0.715, cosv.mul_add(-0.715, 0.715)),
+            sinv.mul_add(0.928, cosv.mul_add(-0.072, 0.072)),
+            sinv.mul_add(0.143, cosv.mul_add(-0.213, 0.213)),
             sinv.mul_add(0.140, cosv.mul_add(0.285, 0.715)),
-            (0.072 - cosv * 0.072 - sinv * 0.283),
-            (0.213 - cosv * 0.213 - sinv * 0.787),
-            sinv.mul_add(0.715, 0.715 - cosv * 0.715),
+            sinv.mul_add(-0.283, cosv.mul_add(-0.072, 0.072)),
+            sinv.mul_add(-0.787, cosv.mul_add(-0.213, 0.213)),
+            sinv.mul_add(0.715, cosv.mul_add(-0.715, 0.715)),
             sinv.mul_add(0.072, cosv.mul_add(0.928, 0.072)),
         )
     }
@@ -1394,7 +1396,7 @@ impl ImageFormat {
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
         allow(unused_variables, unreachable_code)
     )]
     pub fn run_encoder<P: Pixel>(&self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
@@ -1405,6 +1407,8 @@ impl ImageFormat {
             Self::Jpeg => jpeg::JpegEncoder::new().encode(image, dest),
             #[cfg(feature = "gif")]
             Self::Gif => gif::GifEncoder::new().encode(image, dest),
+            #[cfg(feature = "webp")]
+            Self::WebP => webp::WebPEncoder::default().encode(image, dest),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
@@ -1436,6 +1440,8 @@ impl ImageFormat {
             Self::Jpeg => jpeg::JpegEncoder::new().encode_sequence(seq, dest),
             #[cfg(feature = "gif")]
             Self::Gif => gif::GifEncoder::new().encode_sequence(seq, dest),
+            #[cfg(feature = "webp")]
+            Self::WebP => webp::WebPEncoder::default().encode_sequence(seq, dest),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"

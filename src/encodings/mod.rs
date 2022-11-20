@@ -6,6 +6,8 @@ pub mod gif;
 pub mod jpeg;
 #[cfg(feature = "png")]
 pub mod png;
+#[cfg(feature = "webp")]
+pub mod webp;
 
 /// Represents an arbitrary color type. Note that this does not store the bit-depth or the type used
 /// to store the value of each channel, although it can specify the number of channels.

@@ -244,7 +244,8 @@
     clippy::cast_sign_loss,
     clippy::module_name_repetitions,
     clippy::similar_names,
-    clippy::many_single_char_names
+    clippy::many_single_char_names,
+    clippy::doc_markdown
 )]
 
 pub mod draw;

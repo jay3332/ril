@@ -1,7 +1,7 @@
 use ril::prelude::*;
 use std::time::Duration;
 
-const COLORS: [Rgb; 12] = [
+pub const COLORS: [Rgb; 12] = [
     Rgb::new(255, 0, 0),
     Rgb::new(255, 128, 0),
     Rgb::new(255, 255, 0),
@@ -21,9 +21,7 @@ fn test_static_png() -> ril::Result<()> {
     let image = Image::<Rgb>::open("tests/sample.png")?;
     assert_eq!(image.dimensions(), (1024, 1024));
 
-    image.save_inferred("tests/out/png_encode_output.png")?;
-
-    Ok(())
+    image.save_inferred("tests/out/png_encode_output.png")
 }
 
 #[test]
@@ -36,9 +34,7 @@ fn test_animated_png_encode() -> ril::Result<()> {
         )
     }
 
-    seq.save_inferred("tests/out/apng_encode_output.png")?;
-
-    Ok(())
+    seq.save_inferred("tests/out/apng_encode_output.png")
 }
 
 #[test]
@@ -69,9 +65,7 @@ fn test_paletted_png_encode() -> ril::Result<()> {
     assert_eq!(image.pixel(0, 0).color(), Rgb::new(128, 128, 128));
     assert_eq!(image.pixel(1, 0).color(), Rgb::new(0, 0, 0));
 
-    image.save_inferred("tests/out/png_palette_encode_output.png")?;
-
-    Ok(())
+    image.save_inferred("tests/out/png_palette_encode_output.png")
 }
 
 #[test]
@@ -93,7 +87,5 @@ fn test_palette_mutation() -> ril::Result<()> {
     palette[0] = Rgb::white();
 
     assert_eq!(image.pixel(0, 0).color(), Rgb::white());
-    image.save_inferred("tests/out/png_palette_mutation_output.png")?;
-
-    Ok(())
+    image.save_inferred("tests/out/png_palette_mutation_output.png")
 }

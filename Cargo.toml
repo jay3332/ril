@@ -18,14 +18,16 @@ png = { version = "^0.17", optional = true }
 jpeg-decoder = { version = "^0.3", optional = true }
 jpeg-encoder = { version = "^0.5", features = ["simd"], optional = true }
 gif = { version = "^0.12", optional = true }
+libwebp-sys2 = { version = "^0.1", features = ["1_2", "mux"], optional = true }
 fontdue = { version = "^0.7", optional = true }
 
 [features]
 default = ["resize", "text"]
-all = ["resize", "png", "jpeg", "gif", "text"]
+all = ["resize", "png", "jpeg", "gif", "webp", "text"]
 png = ["dep:png"]
 jpeg = ["dep:jpeg-decoder", "dep:jpeg-encoder"]
 gif = ["dep:gif"]
+webp = ["dep:libwebp-sys2"]
 resize = ["dep:fast_image_resize"]
 text = ["dep:fontdue"]
 

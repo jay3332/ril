@@ -17,7 +17,5 @@ fn test_text_rendering() -> ril::Result<()> {
     assert_eq!(bounds, (4, 24, 507, 999));
 
     image.draw(&layout);
-    image.save_inferred("tests/out/text_render_output.png")?;
-
-    Ok(())
+    image.save_inferred("tests/out/text_render_output.png")
 }
