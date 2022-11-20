@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["WebPQuality","Represents the encoding quality of a WebP image."]],"struct":[["WebPEncoder","A WebP image encoder."]]};

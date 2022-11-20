@@ -1518,6 +1518,12 @@
 <span id="1518">1518</span>
 <span id="1519">1519</span>
 <span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -1536,6 +1542,8 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::jpeg;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::png;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::encodings::webp;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::ResizeAlgorithm;
 <span class="attribute">#[cfg(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>))]
@@ -2185,14 +2193,14 @@
         <span class="kw">let </span>cosv = radians.cos();
 
         (
-            (cosv.mul_add(<span class="number">0.787</span>, <span class="number">0.213</span>) - sinv * <span class="number">0.213</span>),
-            (<span class="number">0.715 </span>- cosv * <span class="number">0.715 </span>- sinv * <span class="number">0.715</span>),
-            sinv.mul_add(<span class="number">0.928</span>, <span class="number">0.072 </span>- cosv * <span class="number">0.072</span>),
-            sinv.mul_add(<span class="number">0.143</span>, <span class="number">0.213 </span>- cosv * <span class="number">0.213</span>),
+            sinv.mul_add(-<span class="number">0.213</span>, cosv.mul_add(<span class="number">0.787</span>, <span class="number">0.213</span>)),
+            sinv.mul_add(-<span class="number">0.715</span>, cosv.mul_add(-<span class="number">0.715</span>, <span class="number">0.715</span>)),
+            sinv.mul_add(<span class="number">0.928</span>, cosv.mul_add(-<span class="number">0.072</span>, <span class="number">0.072</span>)),
+            sinv.mul_add(<span class="number">0.143</span>, cosv.mul_add(-<span class="number">0.213</span>, <span class="number">0.213</span>)),
             sinv.mul_add(<span class="number">0.140</span>, cosv.mul_add(<span class="number">0.285</span>, <span class="number">0.715</span>)),
-            (<span class="number">0.072 </span>- cosv * <span class="number">0.072 </span>- sinv * <span class="number">0.283</span>),
-            (<span class="number">0.213 </span>- cosv * <span class="number">0.213 </span>- sinv * <span class="number">0.787</span>),
-            sinv.mul_add(<span class="number">0.715</span>, <span class="number">0.715 </span>- cosv * <span class="number">0.715</span>),
+            sinv.mul_add(-<span class="number">0.283</span>, cosv.mul_add(-<span class="number">0.072</span>, <span class="number">0.072</span>)),
+            sinv.mul_add(-<span class="number">0.787</span>, cosv.mul_add(-<span class="number">0.213</span>, <span class="number">0.213</span>)),
+            sinv.mul_add(<span class="number">0.715</span>, cosv.mul_add(-<span class="number">0.715</span>, <span class="number">0.715</span>)),
             sinv.mul_add(<span class="number">0.072</span>, cosv.mul_add(<span class="number">0.928</span>, <span class="number">0.072</span>)),
         )
     }
@@ -2914,7 +2922,7 @@
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     </span><span class="attribute">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>)),
+        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
         allow(unused_variables, unreachable_code)
     )]
     </span><span class="kw">pub fn </span>run_encoder&lt;P: Pixel&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -2925,6 +2933,8 @@
             </span><span class="self">Self</span>::Jpeg =&gt; jpeg::JpegEncoder::new().encode(image, dest),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif =&gt; gif::GifEncoder::new().encode(image, dest),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP =&gt; webp::WebPEncoder::default().encode(image, dest),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
                 <span class="string">&quot;No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?&quot;
@@ -2956,6 +2966,8 @@
             </span><span class="self">Self</span>::Jpeg =&gt; jpeg::JpegEncoder::new().encode_sequence(seq, dest),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif =&gt; gif::GifEncoder::new().encode_sequence(seq, dest),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP =&gt; webp::WebPEncoder::default().encode_sequence(seq, dest),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
                 <span class="string">&quot;No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?&quot;

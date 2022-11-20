@@ -58,6 +58,8 @@
 <span id="58">58</span>
 <span id="59">59</span>
 <span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Contains encoder and decoder implementations for various image formats.
 
 </span><span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
@@ -66,6 +68,8 @@
 </span><span class="kw">pub mod </span>jpeg;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
 </span><span class="kw">pub mod </span>png;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+</span><span class="kw">pub mod </span>webp;
 
 <span class="doccomment">/// Represents an arbitrary color type. Note that this does not store the bit-depth or the type used
 /// to store the value of each channel, although it can specify the number of channels.
