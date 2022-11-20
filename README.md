@@ -36,14 +36,14 @@ performant and usually even faster than leading imaging crates such as `image-rs
 
 By the first stable release, we plan to support the following image encodings:
 
-| Encoding Format | Current Status    |
-|-----------------|-------------------|
-| PNG/APNG        | Supported         |
-| JPEG            | Supported         |
-| GIF             | Supported         |
-| WebP            | Not yet supported |
-| BMP             | Not yet supported |
-| TIFF            | Not yet supported |
+| Encoding Format | Current Status         |
+|-----------------|------------------------|
+| PNG/APNG        | Supported              |
+| JPEG            | Supported              |
+| GIF             | Supported              |
+| WebP            | Supports encoding only |
+| BMP             | Not yet supported      |
+| TIFF            | Not yet supported      |
 
 Additionally, we also plan to support the following pixel formats:
 
