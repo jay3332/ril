@@ -169,6 +169,21 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Houses Encoder, Decoder, and frame iterator traits.
 
 </span><span class="kw">use crate</span>::{Frame, Image, ImageSequence, Pixel};
@@ -179,6 +194,8 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::gif::GifFrameIterator;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::png::ApngFrameIterator;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::encodings::webp::WebPSequenceDecoder;
 
 <span class="doccomment">/// Low-level encoder interface around an image format.
 </span><span class="kw">pub trait </span>Encoder {
@@ -269,6 +286,9 @@
     <span class="doccomment">/// A GIF frame iterator.
     </span><span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
     </span>Gif(GifFrameIterator&lt;P, R&gt;),
+    <span class="doccomment">/// A WebP frame iterator.
+    </span><span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+    </span>WebP(WebPSequenceDecoder&lt;P&gt;),
 }
 
 <span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; DynamicFrameIterator&lt;P, R&gt; {
@@ -287,6 +307,8 @@
             </span><span class="self">Self</span>::Png(it) =&gt; it.len(),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif(it) =&gt; it.len(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP(it) =&gt; it.len(),
         }
     }
 
@@ -297,6 +319,8 @@
             </span><span class="self">Self</span>::Png(it) =&gt; it.loop_count(),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif(it) =&gt; it.loop_count(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP(it) =&gt; it.loop_count(),
         }
     }
 
@@ -312,6 +336,8 @@
             </span><span class="self">Self</span>::Png(it) =&gt; it.into_sequence(),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif(it) =&gt; it.into_sequence(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP(it) =&gt; it.into_sequence(),
         }
     }
 }
@@ -326,6 +352,8 @@
             </span><span class="self">Self</span>::Png(it) =&gt; it.next(),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif(it) =&gt; it.next(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP(it) =&gt; it.next(),
         }
     }
 
@@ -337,6 +365,8 @@
             </span><span class="self">Self</span>::Png(it) =&gt; it.size_hint(),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif(it) =&gt; it.size_hint(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP(it) =&gt; it.size_hint(),
         }
     }
 }

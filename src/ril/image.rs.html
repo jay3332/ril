@@ -1524,6 +1524,12 @@
 <span id="1524">1524</span>
 <span id="1525">1525</span>
 <span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -1546,7 +1552,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::webp;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::ResizeAlgorithm;
-<span class="attribute">#[cfg(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>))]
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>))]
 </span><span class="kw">use crate</span>::{Decoder, Encoder};
 
 <span class="kw">use </span>num_traits::{SaturatingAdd, SaturatingSub};
@@ -2951,7 +2957,7 @@
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     </span><span class="attribute">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>)),
+        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
         allow(unused_variables, unreachable_code)
     )]
     </span><span class="kw">pub fn </span>run_sequence_encoder&lt;P: Pixel&gt;(
@@ -2983,7 +2989,7 @@
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     </span><span class="attribute">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>)),
+        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] </span><span class="comment">// would require a major refactor
@@ -2995,6 +3001,8 @@
             </span><span class="self">Self</span>::Jpeg =&gt; jpeg::JpegDecoder::new().decode(stream),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif =&gt; gif::GifDecoder::new().decode(stream),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP =&gt; webp::WebPDecoder::default().decode(stream),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
                 <span class="string">&quot;No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?&quot;
@@ -3010,7 +3018,7 @@
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     </span><span class="attribute">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>)),
+        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] </span><span class="comment">// would require a major refactor
@@ -3025,6 +3033,10 @@
             </span><span class="self">Self</span>::Jpeg =&gt; jpeg::JpegDecoder::new().decode_sequence(stream)<span class="question-mark">?</span>,
             <span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
             </span><span class="self">Self</span>::Gif =&gt; DynamicFrameIterator::Gif(gif::GifDecoder::new().decode_sequence(stream)<span class="question-mark">?</span>),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            </span><span class="self">Self</span>::WebP =&gt; {
+                DynamicFrameIterator::WebP(webp::WebPDecoder::default().decode_sequence(stream)<span class="question-mark">?</span>)
+            }
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
                 <span class="string">&quot;No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?&quot;
