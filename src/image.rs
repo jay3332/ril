@@ -20,7 +20,7 @@ use crate::encodings::png;
 use crate::encodings::webp;
 #[cfg(feature = "resize")]
 use crate::ResizeAlgorithm;
-#[cfg(any(feature = "png", feature = "gif", feature = "jpeg"))]
+#[cfg(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp"))]
 use crate::{Decoder, Encoder};
 
 use num_traits::{SaturatingAdd, SaturatingSub};
@@ -1425,7 +1425,7 @@ impl ImageFormat {
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
         allow(unused_variables, unreachable_code)
     )]
     pub fn run_sequence_encoder<P: Pixel>(
@@ -1457,7 +1457,7 @@ impl ImageFormat {
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] // would require a major refactor
@@ -1469,6 +1469,8 @@ impl ImageFormat {
             Self::Jpeg => jpeg::JpegDecoder::new().decode(stream),
             #[cfg(feature = "gif")]
             Self::Gif => gif::GifDecoder::new().decode(stream),
+            #[cfg(feature = "webp")]
+            Self::WebP => webp::WebPDecoder::default().decode(stream),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
@@ -1484,7 +1486,7 @@ impl ImageFormat {
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg")),
+        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] // would require a major refactor
@@ -1499,6 +1501,10 @@ impl ImageFormat {
             Self::Jpeg => jpeg::JpegDecoder::new().decode_sequence(stream)?,
             #[cfg(feature = "gif")]
             Self::Gif => DynamicFrameIterator::Gif(gif::GifDecoder::new().decode_sequence(stream)?),
+            #[cfg(feature = "webp")]
+            Self::WebP => {
+                DynamicFrameIterator::WebP(webp::WebPDecoder::default().decode_sequence(stream)?)
+            }
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"

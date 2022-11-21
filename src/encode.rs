@@ -8,6 +8,8 @@ use std::marker::PhantomData;
 use crate::encodings::gif::GifFrameIterator;
 #[cfg(feature = "png")]
 use crate::encodings::png::ApngFrameIterator;
+#[cfg(feature = "webp")]
+use crate::encodings::webp::WebPSequenceDecoder;
 
 /// Low-level encoder interface around an image format.
 pub trait Encoder {
@@ -98,6 +100,9 @@ pub enum DynamicFrameIterator<P: Pixel, R: Read> {
     /// A GIF frame iterator.
     #[cfg(feature = "gif")]
     Gif(GifFrameIterator<P, R>),
+    /// A WebP frame iterator.
+    #[cfg(feature = "webp")]
+    WebP(WebPSequenceDecoder<P>),
 }
 
 impl<P: Pixel, R: Read> DynamicFrameIterator<P, R> {
@@ -116,6 +121,8 @@ impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
             Self::Png(it) => it.len(),
             #[cfg(feature = "gif")]
             Self::Gif(it) => it.len(),
+            #[cfg(feature = "webp")]
+            Self::WebP(it) => it.len(),
         }
     }
 
@@ -126,6 +133,8 @@ impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
             Self::Png(it) => it.loop_count(),
             #[cfg(feature = "gif")]
             Self::Gif(it) => it.loop_count(),
+            #[cfg(feature = "webp")]
+            Self::WebP(it) => it.loop_count(),
         }
     }
 
@@ -141,6 +150,8 @@ impl<P: Pixel, R: Read> FrameIterator<P> for DynamicFrameIterator<P, R> {
             Self::Png(it) => it.into_sequence(),
             #[cfg(feature = "gif")]
             Self::Gif(it) => it.into_sequence(),
+            #[cfg(feature = "webp")]
+            Self::WebP(it) => it.into_sequence(),
         }
     }
 }
@@ -155,6 +166,8 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
             Self::Png(it) => it.next(),
             #[cfg(feature = "gif")]
             Self::Gif(it) => it.next(),
+            #[cfg(feature = "webp")]
+            Self::WebP(it) => it.next(),
         }
     }
 
@@ -166,6 +179,8 @@ impl<P: Pixel, R: Read> Iterator for DynamicFrameIterator<P, R> {
             Self::Png(it) => it.size_hint(),
             #[cfg(feature = "gif")]
             Self::Gif(it) => it.size_hint(),
+            #[cfg(feature = "webp")]
+            Self::WebP(it) => it.size_hint(),
         }
     }
 }

@@ -5,7 +5,10 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
-## v0.5 (dev)
+## v0.6 (dev)
+- Add WebP encoding and decoding support
+
+## v0.5 (2022-11-18)
 - Rework of pixel interface
   - Remove `PixelData` enum in place of more efficient `Pixel::BIT_DEPTH` and `Pixel::COLOR_TYPE` constants
     - Includes new `Pixel::color_type` method for dynamic pixels
