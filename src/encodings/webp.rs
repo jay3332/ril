@@ -3,11 +3,12 @@ use crate::{
     ImageSequence, LoopCount, OverlayMode, Pixel,
 };
 use libwebp_sys as libwebp;
-use libwebp_sys::WebPMuxAnimParams;
-use std::io::{Read, Write};
-use std::marker::PhantomData;
-use std::num::NonZeroU32;
-use std::time::Duration;
+use std::{
+    io::{Read, Write},
+    marker::PhantomData,
+    num::NonZeroU32,
+    time::Duration,
+};
 
 /// A WebP image encoder.
 pub struct WebPEncoder {
@@ -147,7 +148,7 @@ impl Encoder for WebPEncoder {
 
         unsafe {
             let mux = libwebp::WebPMuxNew();
-            let params = WebPMuxAnimParams {
+            let params = libwebp::WebPMuxAnimParams {
                 bgcolor: 0,
                 loop_count: sequence.loop_count().count_or_zero() as _,
             };

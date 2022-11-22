@@ -64,15 +64,15 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::InvalidHexCode(hex_code) => write!(f, "Invalid hex code: {}", hex_code),
+            Self::InvalidHexCode(hex_code) => write!(f, "Invalid hex code: {hex_code}"),
             Self::InvalidPaletteIndex => write!(f, "Invalid palette index"),
             Self::InvalidExtension(ext) => {
                 write!(f, "Invalid extension: {}", ext.to_string_lossy())
             }
-            Self::EncodingError(msg) => write!(f, "Encoding error: {}", msg),
-            Self::DecodingError(msg) => write!(f, "Decoding error: {}", msg),
+            Self::EncodingError(msg) => write!(f, "Encoding error: {msg}"),
+            Self::DecodingError(msg) => write!(f, "Decoding error: {msg}"),
             #[cfg(feature = "text")]
-            Self::FontError(msg) => write!(f, "Font error: {}", msg),
+            Self::FontError(msg) => write!(f, "Font error: {msg}"),
             Self::UnknownEncodingFormat => write!(f, "Could not infer encoding format"),
             Self::UnsupportedColorType => write!(
                 f,
@@ -84,13 +84,10 @@ impl fmt::Display for Error {
                 received,
             } => write!(
                 f,
-                "An image with dimensions {}x{} should have {} pixels, received {} instead",
-                width,
-                height,
+                "An image with dimensions {width}x{height} should have {} pixels, received {received} instead",
                 width * height,
-                received,
             ),
-            Self::IOError(error) => write!(f, "IO error: {}", error),
+            Self::IOError(error) => write!(f, "IO error: {error}"),
             Self::EmptyImageError => write!(f, "Tried encoding an empty image"),
         }
     }
