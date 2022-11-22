@@ -105,11 +105,12 @@ image format support, but adds a lot of dependencies you may not need.
 
 For every image encoding that requires a dependency, a corresponding feature can be enabled for it:
 
-| Encoding      | Feature | Dependencies                   | Default? |
-|---------------|---------|--------------------------------|----------|
-| PNG and APNG  | `png`   | `png`                          | no       |
-| JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
-| GIF           | `gif`   | `gif`                          | no       |
+| Encoding     | Feature | Dependencies                   | Default? |
+|--------------|---------|--------------------------------|----------|
+| PNG and APNG | `png`   | `png`                          | no       |
+| JPEG         | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
+| GIF          | `gif`   | `gif`                          | no       |
+| WebP         | `webp`  | `libwebp-sys2`                 | no       |
 
 Other features:
 
@@ -118,6 +119,12 @@ Other features:
 | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
 | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
 | Enable all features,<br/> including all encoding features | `all`    |                     | no       |
+
+### WebP Support limitations
+WebP support uses `libwebp`, which is a native library. This means that if you try to use the `webp` feature
+when compiling to a WebAssembly target, it might fail. We plan on making a pure-Rust port of `libwebp` in the future.
+
+For ease of use, the `all-pure` feature is provided, which is the equivalent of `all` minus the `webp` feature.
 
 ## Examples
 

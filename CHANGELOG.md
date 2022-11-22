@@ -7,6 +7,8 @@ Versions prior to v0.5 are not tagged/released on GitHub.
 
 ## v0.6 (dev)
 - Add WebP encoding and decoding support
+- Add the `all-pure` crate feature that enables all feature except for `webp`
+  - This is because WASM does not support WebP since the feature uses the native `libwebp`. (as of v0.6-dev)
 
 ## v0.5 (2022-11-18)
 - Rework of pixel interface

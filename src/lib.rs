@@ -1,6 +1,9 @@
 //! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
 //!
-//! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril).
+//! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril). It should
+//! also be noted that the README is updated more frequently than the documentation.
+//!
+//! Similarly, you can see the changelog [here](https://github.com/jay3332/ril/blob/main/CONTRIBUTING.md).
 //!
 //! # Installation
 //! The MSRV (Minimum Supported Rust Version) of this crate is **v1.61.0**.
@@ -34,7 +37,7 @@
 //! | PNG and APNG  | `png`   | `png`                          | no       |
 //! | JPEG          | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
 //! | GIF           | `gif`   | `gif`                          | no       |
-//! | All encodings | `all`   |                                | no       |
+//! | WebP          | `webp`  | `libwebp-sys2`                 | no       |
 //!
 //! Other features:
 //!
@@ -42,7 +45,15 @@
 //! |-----------------------------------------------------------|----------|---------------------|----------|
 //! | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
 //! | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
-//! | Enable all features,<br/> including all encoding features | `all`    | no                  | no       |
+//! | Enable all features,<br/> including all encoding features | `all`    |                     | no       |
+//!
+//! ### WebP Support limitations
+//! WebP support uses `libwebp`, which is a native library. This means that if you try to use the
+//! `webp` feature when compiling to a WebAssembly target, it might fail. We plan on making a
+//! pure-Rust port of `libwebp` in the future.
+//!
+//! For ease of use, the `all-pure` feature is provided, which is the equivalent of `all` minus the
+//! `webp` feature.
 //!
 //! # Getting Started
 //! Import the prelude which brings commonly used types and crucial traits into scope:

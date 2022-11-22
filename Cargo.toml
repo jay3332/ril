@@ -23,7 +23,8 @@ fontdue = { version = "^0.7", optional = true }
 
 [features]
 default = ["resize", "text"]
-all = ["resize", "png", "jpeg", "gif", "webp", "text"]
+all-pure = ["resize", "png", "jpeg", "gif", "text"]
+all = ["all-pure", "webp"]
 png = ["dep:png"]
 jpeg = ["dep:jpeg-decoder", "dep:jpeg-encoder"]
 gif = ["dep:gif"]
