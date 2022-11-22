@@ -357,16 +357,18 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
+<span id="360">360</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     ColorType, Decoder, DisposalMethod, Encoder, Error, Frame, FrameIterator, Image, ImageFormat,
     ImageSequence, LoopCount, OverlayMode, Pixel,
 };
 <span class="kw">use </span>libwebp_sys <span class="kw">as </span>libwebp;
-<span class="kw">use </span>libwebp_sys::WebPMuxAnimParams;
-<span class="kw">use </span>std::io::{Read, Write};
-<span class="kw">use </span>std::marker::PhantomData;
-<span class="kw">use </span>std::num::NonZeroU32;
-<span class="kw">use </span>std::time::Duration;
+<span class="kw">use </span>std::{
+    io::{Read, Write},
+    marker::PhantomData,
+    num::NonZeroU32,
+    time::Duration,
+};
 
 <span class="doccomment">/// A WebP image encoder.
 </span><span class="kw">pub struct </span>WebPEncoder {
@@ -506,7 +508,7 @@
 
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>mux = libwebp::WebPMuxNew();
-            <span class="kw">let </span>params = WebPMuxAnimParams {
+            <span class="kw">let </span>params = libwebp::WebPMuxAnimParams {
                 bgcolor: <span class="number">0</span>,
                 loop_count: sequence.loop_count().count_or_zero() <span class="kw">as _</span>,
             };

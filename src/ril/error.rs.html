@@ -166,9 +166,6 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Common error types.
 
 </span><span class="kw">use </span>std::ffi::OsString;
@@ -235,15 +232,15 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::InvalidHexCode(hex_code) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid hex code: {}&quot;</span>, hex_code),
+            <span class="self">Self</span>::InvalidHexCode(hex_code) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid hex code: {hex_code}&quot;</span>),
             <span class="self">Self</span>::InvalidPaletteIndex =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Invalid palette index&quot;</span>),
             <span class="self">Self</span>::InvalidExtension(ext) =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">&quot;Invalid extension: {}&quot;</span>, ext.to_string_lossy())
             }
-            <span class="self">Self</span>::EncodingError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Encoding error: {}&quot;</span>, msg),
-            <span class="self">Self</span>::DecodingError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Decoding error: {}&quot;</span>, msg),
+            <span class="self">Self</span>::EncodingError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Encoding error: {msg}&quot;</span>),
+            <span class="self">Self</span>::DecodingError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Decoding error: {msg}&quot;</span>),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
-            </span><span class="self">Self</span>::FontError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Font error: {}&quot;</span>, msg),
+            </span><span class="self">Self</span>::FontError(msg) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Font error: {msg}&quot;</span>),
             <span class="self">Self</span>::UnknownEncodingFormat =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Could not infer encoding format&quot;</span>),
             <span class="self">Self</span>::UnsupportedColorType =&gt; <span class="macro">write!</span>(
                 f,
@@ -255,13 +252,10 @@
                 received,
             } =&gt; <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;An image with dimensions {}x{} should have {} pixels, received {} instead&quot;</span>,
-                width,
-                height,
+                <span class="string">&quot;An image with dimensions {width}x{height} should have {} pixels, received {received} instead&quot;</span>,
                 width * height,
-                received,
             ),
-            <span class="self">Self</span>::IOError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;IO error: {}&quot;</span>, error),
+            <span class="self">Self</span>::IOError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;IO error: {error}&quot;</span>),
             <span class="self">Self</span>::EmptyImageError =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Tried encoding an empty image&quot;</span>),
         }
     }
