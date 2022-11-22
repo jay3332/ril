@@ -3,88 +3,137 @@ use crate::{
     ImageSequence, LoopCount, OverlayMode, Pixel,
 };
 use libwebp_sys as libwebp;
+use libwebp_sys::WebPMuxAnimParams;
 use std::io::{Read, Write};
 use std::marker::PhantomData;
 use std::num::NonZeroU32;
 use std::time::Duration;
 
-/// Represents the encoding quality of a WebP image.
-#[derive(Copy, Clone, Debug)]
-pub enum WebPQuality {
-    /// Lossless encoding.
-    Lossless,
-    /// Lossy encoding with the given quality factor. Larger values produce higher quality images at
+/// A WebP image encoder.
+pub struct WebPEncoder {
+    /// Image quality to encode at. Larger values produce higher quality images at
     /// the expense of larger file sizes. Valid values are in the range [0, 100]. For lossless
     /// encoding, higher values will produce better compression at the expense of more computation
     /// and time.
-    Lossy(u8),
+    pub quality: f32,
+    /// Whether to use lossless encoding.
+    pub lossless: bool,
 }
 
-impl Default for WebPQuality {
+impl Default for WebPEncoder {
     fn default() -> Self {
-        Self::Lossy(75)
+        Self {
+            quality: 75.0,
+            lossless: false,
+        }
     }
 }
 
-/// A WebP image encoder.
-#[derive(Default)]
-pub struct WebPEncoder {
-    /// Image quality to encode at.
-    pub quality: WebPQuality,
-}
+impl WebPEncoder {
+    /// Creates a new WebP encoder that uses lossy encoding with a quality of 75.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
 
-#[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
-impl Encoder for WebPEncoder {
-    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
+    /// Sets the quality to encode at.
+    #[must_use]
+    pub const fn with_quality(mut self, quality: f32) -> Self {
+        self.quality = quality;
+        self
+    }
+
+    /// Sets whether to use lossless encoding.
+    #[must_use]
+    pub const fn with_lossless(mut self, lossless: bool) -> Self {
+        self.lossless = lossless;
+        self
+    }
+
+    #[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
+    fn encode_image<P: Pixel>(&self, image: &Image<P>) -> crate::Result<libwebp::WebPData> {
         unsafe {
-            let mut out = std::ptr::null_mut::<u8>();
+            let mut picture = std::mem::zeroed::<libwebp::WebPPicture>();
+            picture.width = image.width() as _;
+            picture.height = image.height() as _;
+            picture.use_argb = 1;
 
-            macro_rules! call_libwebp {
-                ($func:ident, $stride:literal, $force_into:ident $(, $quality:expr)?) => {{
+            if libwebp::WebPPictureAlloc(std::ptr::addr_of_mut!(picture)) == 0 {
+                return Err(Error::EncodingError("WebP memory error".to_string()));
+            }
+
+            let mut writer = std::mem::zeroed::<libwebp::WebPMemoryWriter>();
+            libwebp::WebPMemoryWriterInit(std::ptr::addr_of_mut!(writer));
+
+            picture.writer = Some(_wrapped);
+            picture.custom_ptr = std::ptr::addr_of_mut!(writer).cast();
+
+            macro_rules! import_libwebp_picture {
+                ($func:ident, $stride:literal, $force_into:ident) => {{
                     libwebp::$func(
+                        std::ptr::addr_of_mut!(picture),
                         image
                             .data
                             .iter()
                             .flat_map(|p| p.$force_into().as_bytes())
                             .collect::<Vec<_>>()
                             .as_ptr(),
-                        image.width() as _,
-                        image.height() as _,
                         (image.width() * $stride) as _,
-                        $($quality,)?
-                        &mut out,
                     )
                 }};
             }
-
             let sample = image.data[0].color_type();
-            let len = match (sample, self.quality) {
-                (
-                    ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA,
-                    WebPQuality::Lossless,
-                ) => {
-                    call_libwebp!(WebPEncodeLosslessRGBA, 4, force_into_rgba)
+            if match sample {
+                ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA => {
+                    import_libwebp_picture!(WebPPictureImportRGBA, 4, force_into_rgba)
                 }
-                (_, WebPQuality::Lossless) => {
-                    call_libwebp!(WebPEncodeLosslessRGB, 3, force_into_rgb)
-                }
-                (
-                    ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA,
-                    WebPQuality::Lossy(q),
-                ) => {
-                    call_libwebp!(WebPEncodeRGBA, 4, force_into_rgba, q as _)
-                }
-                (_, WebPQuality::Lossy(q)) => {
-                    call_libwebp!(WebPEncodeRGB, 3, force_into_rgb, q as _)
-                }
-            };
-            if len == 0 {
-                return Err(Error::EncodingError("WebP encoding failed".to_string()));
+                _ => import_libwebp_picture!(WebPPictureImportRGB, 3, force_into_rgb),
+            } == 0
+            {
+                return Err(Error::EncodingError("WebP encoding error".to_string()));
             }
 
-            let out = std::slice::from_raw_parts(out, len as _);
-            dest.write_all(out)?;
+            let mut config = std::mem::zeroed::<libwebp::WebPConfig>();
+            if libwebp::WebPConfigInit(std::ptr::addr_of_mut!(config)) == 0 {
+                return Err(Error::EncodingError("WebP version error".to_string()));
+            }
+
+            config.lossless = self.lossless as _;
+            config.quality = self.quality;
+
+            let res =
+                libwebp::WebPEncode(std::ptr::addr_of!(config), std::ptr::addr_of_mut!(picture));
+
+            let mut free = || libwebp::WebPPictureFree(std::ptr::addr_of_mut!(picture));
+            if res == 0 {
+                free();
+                return Err(Error::EncodingError("WebP encoding error".to_string()));
+            }
+
+            let data = libwebp::WebPData {
+                bytes: writer.mem,
+                size: writer.size,
+            };
+
+            free();
+            Ok(data)
         }
+    }
+}
+
+extern "C" fn _wrapped(
+    data: *const u8,
+    size: usize,
+    picture: *const libwebp::WebPPicture,
+) -> std::ffi::c_int {
+    unsafe { libwebp::WebPMemoryWrite(data, size, picture) }
+}
+
+#[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
+impl Encoder for WebPEncoder {
+    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
+        let data = self.encode_image(image)?;
+        dest.write_all(unsafe { std::slice::from_raw_parts(data.bytes, data.size as _) })?;
 
         Ok(())
     }
@@ -94,98 +143,57 @@ impl Encoder for WebPEncoder {
         sequence: &ImageSequence<P>,
         dest: &mut impl Write,
     ) -> crate::Result<()> {
-        let first_frame = sequence.first_frame().image();
+        let sample = sequence.first_frame();
 
         unsafe {
-            let mut options = std::mem::zeroed::<libwebp::WebPAnimEncoderOptions>();
-            libwebp::WebPAnimEncoderOptionsInit(&mut options);
-            options.anim_params.loop_count = sequence.loop_count().count_or_zero() as _;
+            let mux = libwebp::WebPMuxNew();
+            let params = WebPMuxAnimParams {
+                bgcolor: 0,
+                loop_count: sequence.loop_count().count_or_zero() as _,
+            };
+            libwebp::WebPMuxSetCanvasSize(mux, sample.width() as _, sample.height() as _);
+            libwebp::WebPMuxSetAnimationParams(mux, std::ptr::addr_of!(params));
 
-            let encoder = libwebp::WebPAnimEncoderNew(
-                first_frame.width() as _,
-                first_frame.height() as _,
-                std::ptr::addr_of!(options),
-            );
-
-            let mut timestamp = 0_i32;
             for frame in sequence.iter() {
-                let mut picture = std::mem::zeroed::<libwebp::WebPPicture>();
-                picture.width = frame.width() as _;
-                picture.height = frame.height() as _;
-                picture.use_argb = 1;
-
-                if libwebp::WebPPictureAlloc(std::ptr::addr_of_mut!(picture)) == 0 {
-                    return Err(Error::EncodingError("WebP memory error".to_string()));
-                }
-
-                macro_rules! import_libwebp_picture {
-                    ($func:ident, $stride:literal, $force_into:ident) => {{
-                        libwebp::$func(
-                            std::ptr::addr_of_mut!(picture),
-                            frame
-                                .data
-                                .iter()
-                                .flat_map(|p| p.$force_into().as_bytes())
-                                .collect::<Vec<_>>()
-                                .as_ptr(),
-                            (frame.width() * $stride) as _,
-                        )
-                    }};
-                }
-                let sample = frame.data[0].color_type();
-                if match sample {
-                    ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA => {
-                        import_libwebp_picture!(WebPPictureImportRGBA, 4, force_into_rgba)
-                    }
-                    _ => import_libwebp_picture!(WebPPictureImportRGB, 3, force_into_rgb),
-                } == 0
-                {
-                    return Err(Error::EncodingError("WebP encoding error".to_string()));
-                }
-
-                let mut config = std::mem::zeroed::<libwebp::WebPConfig>();
-                if libwebp::WebPConfigInit(std::ptr::addr_of_mut!(config)) == 0 {
-                    return Err(Error::EncodingError("WebP version error".to_string()));
-                }
-
-                // TODO: setting config.lossless to 1 causes weird results
-                // config.lossless = matches!(self.quality, WebPQuality::Lossless) as _;
-                config.quality = match self.quality {
-                    WebPQuality::Lossless => 100.0,
-                    WebPQuality::Lossy(q) => q as _,
+                let frame = libwebp::WebPMuxFrameInfo {
+                    bitstream: self.encode_image(frame)?,
+                    duration: frame.delay().as_millis() as _,
+                    id: libwebp::WEBP_CHUNK_ANMF,
+                    dispose_method: match frame.disposal() {
+                        DisposalMethod::None => libwebp::WEBP_MUX_DISPOSE_NONE,
+                        _ => libwebp::WEBP_MUX_DISPOSE_BACKGROUND,
+                    },
+                    ..std::mem::zeroed() // TODO: blend method could be configurable
                 };
 
-                if libwebp::WebPAnimEncoderAdd(
-                    encoder,
-                    std::ptr::addr_of_mut!(picture),
-                    timestamp,
-                    std::ptr::addr_of_mut!(config),
-                ) == 0
-                {
-                    return Err(Error::EncodingError("WebP encoding error".to_string()));
-                }
-
-                libwebp::WebPPictureFree(std::ptr::addr_of_mut!(picture));
-                timestamp += frame.delay().as_millis() as i32;
+                libwebp::WebPMuxPushFrame(mux, std::ptr::addr_of!(frame), 0);
             }
-
-            libwebp::WebPAnimEncoderAdd(
-                encoder,
-                std::ptr::null_mut(),
-                timestamp,
-                std::ptr::null_mut(),
-            );
 
             let mut data = std::mem::zeroed::<libwebp::WebPData>();
-            if libwebp::WebPAnimEncoderAssemble(encoder, std::ptr::addr_of_mut!(data)) == 0 {
-                return Err(Error::EncodingError("WebP encoding error".to_string()));
-            }
-            libwebp::WebPAnimEncoderDelete(encoder);
+            match libwebp::WebPMuxAssemble(mux, std::ptr::addr_of_mut!(data)) {
+                libwebp::WEBP_MUX_NOT_FOUND => return Err(Error::EmptyImageError),
+                libwebp::WEBP_MUX_INVALID_ARGUMENT => {
+                    return Err(Error::EncodingError(
+                        "WebP mux invalid argument".to_string(),
+                    ))
+                }
+                libwebp::WEBP_MUX_BAD_DATA => {
+                    return Err(Error::EncodingError("WebP mux bad data".to_string()))
+                }
+                libwebp::WEBP_MUX_MEMORY_ERROR => {
+                    return Err(Error::EncodingError("WebP mux memory error".to_string()))
+                }
+                libwebp::WEBP_MUX_NOT_ENOUGH_DATA => {
+                    return Err(Error::EncodingError("WebP mux not enough data".to_string()))
+                }
+                _ => (),
+            };
 
             let out = std::slice::from_raw_parts(data.bytes, data.size as _);
-            libwebp::WebPDataClear(std::ptr::addr_of_mut!(data));
-
             dest.write_all(out)?;
+
+            libwebp::WebPDataClear(std::ptr::addr_of_mut!(data));
+            libwebp::WebPMuxDelete(mux);
         }
 
         Ok(())
