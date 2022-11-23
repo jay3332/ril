@@ -184,9 +184,15 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Houses Encoder, Decoder, and frame iterator traits.
 
-</span><span class="kw">use crate</span>::{Frame, Image, ImageSequence, Pixel};
+</span><span class="kw">use crate</span>::{Error, Frame, Image, ImageSequence, Pixel};
 <span class="kw">use </span>std::io::{Read, Write};
 <span class="kw">use </span>std::marker::PhantomData;
 
@@ -214,7 +220,13 @@
         sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;,
         dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write,
     ) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="self">self</span>.encode(sequence.first_frame().image(), dest)
+        <span class="self">self</span>.encode(
+            sequence
+                .first_frame()
+                .ok_or(Error::EmptyImageError)<span class="question-mark">?
+                </span>.image(),
+            dest,
+        )
     }
 }
 

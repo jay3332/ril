@@ -502,6 +502,35 @@
 <span id="502">502</span>
 <span id="503">503</span>
 <span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the animated image and image sequence interface.
 
 </span><span class="kw">use crate</span>::{DynamicFrameIterator, Error, Image, ImageFormat, Pixel, <span class="prelude-ty">Result</span>};
@@ -995,15 +1024,44 @@
     }
 
     <span class="doccomment">/// Consumes this image sequence and returns the first image.
+    ///
+    /// # Panics
+    /// * The image sequence is empty.
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>into_first_image(<span class="self">self</span>) -&gt; Image&lt;P&gt; {
         <span class="self">self</span>.into_frames().swap_remove(<span class="number">0</span>).into_image()
     }
 
-    <span class="doccomment">/// Returns a reference to the first frame in the image sequence.
+    <span class="doccomment">/// Returns a reference to the first frame in the image sequence, if any.
     </span><span class="attribute">#[must_use]
-    </span><span class="kw">pub fn </span>first_frame(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Frame&lt;P&gt; {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.frames[<span class="number">0</span>]
+    </span><span class="kw">pub fn </span>first_frame(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Frame&lt;P&gt;&gt; {
+        <span class="self">self</span>.frames.get(<span class="number">0</span>)
+    }
+
+    <span class="doccomment">/// Returns a reference to the first frame in the image sequence. This does not check if there
+    /// are no frames in the image sequence.
+    ///
+    /// # Safety
+    /// You must guarantee that there is at least one frame in the image sequence.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub unsafe fn </span>first_frame_unchecked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Frame&lt;P&gt; {
+        <span class="self">self</span>.frames.get_unchecked(<span class="number">0</span>)
+    }
+
+    <span class="doccomment">/// Returns a mutable reference to the first frame in the image sequence, if any.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>first_frame_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Frame&lt;P&gt;&gt; {
+        <span class="self">self</span>.frames.get_mut(<span class="number">0</span>)
+    }
+
+    <span class="doccomment">/// Returns a mutable reference to the first frame in the image sequence. This does not check if
+    /// there are no frames in the image sequence.
+    ///
+    /// # Safety
+    /// You must guarantee that there is at least one frame in the image sequence.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub unsafe fn </span>first_frame_unchecked_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Frame&lt;P&gt; {
+        <span class="self">self</span>.frames.get_unchecked_mut(<span class="number">0</span>)
     }
 }
 </code></pre></div>

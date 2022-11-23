@@ -185,6 +185,7 @@
 <span id="185">185</span>
 <span id="186">186</span>
 <span id="187">187</span>
+<span id="188">188</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Common error types.
 
 </span><span class="kw">use </span>std::ffi::OsString;
@@ -244,7 +245,8 @@
     <span class="doccomment">/// An error occured when trying to read a file or when trying to write to a file.
     </span>IOError(std::io::Error),
 
-    <span class="doccomment">/// Tried to encode an empty image, or an image without data.
+    <span class="doccomment">/// Tried to encode an empty image, or an image without data. This is also raised when trying
+    /// to encode an image sequence with no frames.
     </span>EmptyImageError,
 
     <span class="doccomment">/// Attempted lossless quantization, but there are more unique colors than the desired palette

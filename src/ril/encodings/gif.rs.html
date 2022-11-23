@@ -324,6 +324,9 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
 </pre><pre class="rust"><code><span class="comment">// TODO: paletted images. GIF has native support for this.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::pixel::assume_pixel_from_palette;
@@ -481,7 +484,10 @@
         sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;,
         dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write,
     ) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="kw">let </span>image = sequence.first_frame().image();
+        <span class="kw">let </span>image = sequence
+            .first_frame()
+            .ok_or(Error::EmptyImageError)<span class="question-mark">?
+            </span>.image();
         <span class="kw">let </span><span class="kw-2">mut </span>encoder =
             gif::Encoder::new(dest, image.width() <span class="kw">as </span>u16, image.height() <span class="kw">as </span>u16, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
 
