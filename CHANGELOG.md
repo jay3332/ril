@@ -5,7 +5,15 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
-## v0.6 (dev)
+## v0.7 (2022-11-22)
+- Add crate-level support for image quantization
+  - The new `quantize` feature enables the `color_quant` dependency for more complex quantization algorithms  
+    This is enabled by default, mainly because `color_quant` appears to not pull any additional dependencies
+  - `Quantizer` struct can handle direct quantization of raw pixel data
+  - `Image::quantize` is a higher-level method that can quantize an image into a paletted image
+  - Implement `From<Image<Rgb[a]>>` for `Image<PalettedRgb[a]>` which utlizes quantization
+
+## v0.6 (2022-11-21)
 - Add WebP encoding and decoding support
 - Add the `all-pure` crate feature that enables all feature except for `webp`
   - This is because WASM does not support WebP since the feature uses the native `libwebp`. (as of v0.6-dev)

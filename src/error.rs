@@ -59,6 +59,15 @@ pub enum Error {
 
     /// Tried to encode an empty image, or an image without data.
     EmptyImageError,
+
+    /// Attempted lossless quantization, but there are more unique colors than the desired palette
+    /// size.
+    QuantizationOverflow {
+        /// The amount of unique colors in the image.
+        unique_colors: usize,
+        /// The desired palette size.
+        palette_size: usize,
+    },
 }
 
 impl fmt::Display for Error {
@@ -89,6 +98,16 @@ impl fmt::Display for Error {
             ),
             Self::IOError(error) => write!(f, "IO error: {error}"),
             Self::EmptyImageError => write!(f, "Tried encoding an empty image"),
+            Self::QuantizationOverflow {
+                unique_colors,
+                palette_size,
+            } => write!(
+                f,
+                "received an image with more unique colors ({unique_colors}) than the desired \
+                maximum ({palette_size}), use a lossy quantization algorithm (i.e. enable the \
+                `quantize` cargo feature) to reduce the number of colors before using this \
+                function.",
+            ),
         }
     }
 }

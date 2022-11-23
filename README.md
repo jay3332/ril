@@ -114,11 +114,12 @@ For every image encoding that requires a dependency, a corresponding feature can
 
 Other features:
 
-| Description                                               | Feature  | Dependencies        | Default? |
-|-----------------------------------------------------------|----------|---------------------|----------|
-| Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
-| Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
-| Enable all features,<br/> including all encoding features | `all`    |                     | no       |
+| Description                                               | Feature      | Dependencies        | Default? |
+|-----------------------------------------------------------|--------------|---------------------|----------|
+| Font/Text Rendering                                       | `text`       | `fontdue`           | yes      |
+| Image Resizing                                            | `resize`     | `fast_image_resize` | yes      |
+| Color Quantization (using NeuQuant)                       | `quantize`   | `color_quant`       | yes      |
+| Enable all features,<br/> including all encoding features | `all`        |                     | no       |
 
 ### WebP Support limitations
 WebP support uses `libwebp`, which is a native library. This means that if you try to use the `webp` feature

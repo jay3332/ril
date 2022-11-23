@@ -810,7 +810,6 @@ impl Pixel for Rgba {
     ) -> Result<Self> {
         propagate_palette!(palette, data);
         let data = scale_subpixels!(bit_depth, Self::BIT_DEPTH, data);
-        propagate_data!(data);
 
         match color_type {
             ColorType::Rgb => {
@@ -1473,6 +1472,7 @@ impl<P: Pixel + Copy + From<Rgb> + From<Rgba> + Into<Rgb> + Into<Rgba>> TrueColo
     }
 }
 
+#[allow(dead_code)]
 pub(crate) unsafe fn assume_pixel_from_palette<'p, P, Index: Into<usize>>(
     palette: &'p [P::Color],
     index: Index,

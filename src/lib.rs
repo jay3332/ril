@@ -265,7 +265,7 @@ pub mod encodings;
 pub mod error;
 mod image;
 pub mod pixel;
-mod quantize;
+pub mod quantize;
 #[cfg(feature = "resize")]
 mod resize;
 pub mod sequence;
@@ -290,6 +290,7 @@ inline_doc! {
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,
     };
+    pub use quantize::Quantizer;
     #[cfg(feature = "resize")]
     pub use resize::FilterType as ResizeAlgorithm;
     pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};

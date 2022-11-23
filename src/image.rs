@@ -1135,13 +1135,41 @@ impl<P: Pixel> Image<P> {
 
     /// Takes this image and flattens this paletted image into an unpaletted image. This is similar
     /// to [`Self::convert`] but the output type is automatically resolved.
-    #[must_use]
+    #[must_use = "the image is consumed by this method and returns a new image"]
     pub fn flatten_palette<'a>(self) -> Image<P::Color>
     where
         Self: 'a,
         P: Paletted<'a>,
     {
         self.map_pixels(|pixel| pixel.color())
+    }
+
+    /// Quantizes this image using its colors and turns it into its paletted counterpart.
+    /// This currently only works with 8-bit palettes.
+    ///
+    /// This is similar to [`Self::convert`] but the output type is automatically resolved.
+    /// This is also the inverse conversion of [`Self::flatten_palette`].
+    ///
+    /// # Errors
+    /// * The palette could not be created.
+    ///
+    /// # See Also
+    /// * [`Quantizer`] - Implementation of the core quantizer. Use this for more fine-grained
+    /// control over the quantization process, such as adjusting the quantization speed.
+    #[must_use = "the image is consumed by this method and returns a new image"]
+    pub fn quantize<'p, T>(self, palette_size: u8) -> Image<T>
+    where
+        Self: 'p,
+        P: TrueColor,
+        T: Pixel<Color = P> + Paletted<'p, Subpixel = u8>,
+    {
+        let width = self.width();
+        let (palette, pixels) = crate::quantize::Quantizer::new()
+            .with_palette_size(palette_size as usize)
+            .quantize(self.data)
+            .expect("unable to quantize image");
+
+        Image::from_paletted_pixels(width, palette, pixels)
     }
 }
 
@@ -1156,6 +1184,25 @@ impl<'a> From<Image<PalettedRgba<'a>>> for Image<PalettedRgb<'a>> {
         image.map_palette(Into::into)
     }
 }
+
+macro_rules! impl_cast_quantize {
+    ($t:ty: $p:ty) => {
+        impl From<Image<$t>> for Image<$p> {
+            fn from(image: Image<$t>) -> Self {
+                let width = image.width();
+                let (palette, pixels) = crate::quantize::Quantizer::new()
+                    .with_palette_size(image.data.len())
+                    .quantize(image.data)
+                    .expect("unable to quantize image");
+
+                Image::from_paletted_pixels(width, palette, pixels)
+            }
+        }
+    };
+}
+
+impl_cast_quantize!(Rgb: PalettedRgb<'_>);
+impl_cast_quantize!(Rgba: PalettedRgba<'_>);
 
 macro_rules! impl_cast {
     ($t:ty: $($f:ty)+) => {
