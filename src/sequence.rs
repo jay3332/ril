@@ -491,14 +491,43 @@ impl<P: Pixel> ImageSequence<P> {
     }
 
     /// Consumes this image sequence and returns the first image.
+    ///
+    /// # Panics
+    /// * The image sequence is empty.
     #[must_use]
     pub fn into_first_image(self) -> Image<P> {
         self.into_frames().swap_remove(0).into_image()
     }
 
-    /// Returns a reference to the first frame in the image sequence.
+    /// Returns a reference to the first frame in the image sequence, if any.
     #[must_use]
-    pub fn first_frame(&self) -> &Frame<P> {
-        &self.frames[0]
+    pub fn first_frame(&self) -> Option<&Frame<P>> {
+        self.frames.get(0)
+    }
+
+    /// Returns a reference to the first frame in the image sequence. This does not check if there
+    /// are no frames in the image sequence.
+    ///
+    /// # Safety
+    /// You must guarantee that there is at least one frame in the image sequence.
+    #[must_use]
+    pub unsafe fn first_frame_unchecked(&self) -> &Frame<P> {
+        self.frames.get_unchecked(0)
+    }
+
+    /// Returns a mutable reference to the first frame in the image sequence, if any.
+    #[must_use]
+    pub fn first_frame_mut(&mut self) -> Option<&mut Frame<P>> {
+        self.frames.get_mut(0)
+    }
+
+    /// Returns a mutable reference to the first frame in the image sequence. This does not check if
+    /// there are no frames in the image sequence.
+    ///
+    /// # Safety
+    /// You must guarantee that there is at least one frame in the image sequence.
+    #[must_use]
+    pub unsafe fn first_frame_unchecked_mut(&mut self) -> &mut Frame<P> {
+        self.frames.get_unchecked_mut(0)
     }
 }

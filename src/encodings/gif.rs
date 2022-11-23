@@ -155,7 +155,10 @@ impl Encoder for GifEncoder {
         sequence: &ImageSequence<P>,
         dest: &mut impl Write,
     ) -> crate::Result<()> {
-        let image = sequence.first_frame().image();
+        let image = sequence
+            .first_frame()
+            .ok_or(Error::EmptyImageError)?
+            .image();
         let mut encoder =
             gif::Encoder::new(dest, image.width() as u16, image.height() as u16, &[])?;
 

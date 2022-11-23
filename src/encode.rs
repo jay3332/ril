@@ -1,6 +1,6 @@
 //! Houses Encoder, Decoder, and frame iterator traits.
 
-use crate::{Frame, Image, ImageSequence, Pixel};
+use crate::{Error, Frame, Image, ImageSequence, Pixel};
 use std::io::{Read, Write};
 use std::marker::PhantomData;
 
@@ -28,7 +28,13 @@ pub trait Encoder {
         sequence: &ImageSequence<P>,
         dest: &mut impl Write,
     ) -> crate::Result<()> {
-        self.encode(sequence.first_frame().image(), dest)
+        self.encode(
+            sequence
+                .first_frame()
+                .ok_or(Error::EmptyImageError)?
+                .image(),
+            dest,
+        )
     }
 }
 

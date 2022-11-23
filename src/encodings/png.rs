@@ -1,8 +1,8 @@
 use super::ColorType;
 use crate::{
     encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod, Dynamic, Frame, Image, ImageFormat, ImageSequence, LoopCount, OverlayMode,
-    Pixel, Rgb, Rgba,
+    DisposalMethod, Dynamic, Error, Frame, Image, ImageFormat, ImageSequence, LoopCount,
+    OverlayMode, Pixel, Rgb, Rgba,
 };
 
 use crate::pixel::assume_pixel_from_palette;
@@ -152,7 +152,10 @@ impl Encoder for PngEncoder {
         sequence: &ImageSequence<P>,
         dest: &mut impl Write,
     ) -> crate::Result<()> {
-        let sample = sequence.first_frame().image();
+        let sample = sequence
+            .first_frame()
+            .ok_or(Error::EmptyImageError)?
+            .image();
         let pixel = &sample.data[0];
 
         let mut encoder = self.prepare(

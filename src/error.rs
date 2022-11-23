@@ -57,7 +57,8 @@ pub enum Error {
     /// An error occured when trying to read a file or when trying to write to a file.
     IOError(std::io::Error),
 
-    /// Tried to encode an empty image, or an image without data.
+    /// Tried to encode an empty image, or an image without data. This is also raised when trying
+    /// to encode an image sequence with no frames.
     EmptyImageError,
 
     /// Attempted lossless quantization, but there are more unique colors than the desired palette

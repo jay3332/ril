@@ -6,6 +6,11 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
 ## v0.7 (2022-11-22)
+### Breaking changes
+- `ImageSequence::first_frame` now returns `Option<&Frame>` instead of `&Frame`.
+  - Also introduces new `first_frame_mut` and `first_frame[_mut]_unchecked` methods.
+
+### Other changes
 - Add crate-level support for image quantization
   - The new `quantize` feature enables the `color_quant` dependency for more complex quantization algorithms  
     This is enabled by default, mainly because `color_quant` appears to not pull any additional dependencies

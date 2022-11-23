@@ -144,7 +144,7 @@ impl Encoder for WebPEncoder {
         sequence: &ImageSequence<P>,
         dest: &mut impl Write,
     ) -> crate::Result<()> {
-        let sample = sequence.first_frame();
+        let sample = sequence.first_frame().ok_or(Error::EmptyImageError)?;
 
         unsafe {
             let mux = libwebp::WebPMuxNew();
