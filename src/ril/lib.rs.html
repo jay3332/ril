@@ -323,6 +323,7 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
+<span id="326">326</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
 //!
 //! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril). It should
@@ -366,11 +367,12 @@
 //!
 //! Other features:
 //!
-//! | Description                                               | Feature  | Dependencies        | Default? |
-//! |-----------------------------------------------------------|----------|---------------------|----------|
-//! | Font/Text Rendering                                       | `text`   | `fontdue`           | yes      |
-//! | Image Resizing                                            | `resize` | `fast_image_resize` | yes      |
-//! | Enable all features,&lt;br/&gt; including all encoding features | `all`    |                     | no       |
+//! | Description                                               | Feature    | Dependencies        | Default? |
+//! |-----------------------------------------------------------|------------|---------------------|----------|
+//! | Font/Text Rendering                                       | `text`     | `fontdue`           | yes      |
+//! | Image Resizing                                            | `resize`   | `fast_image_resize` | yes      |
+//! | Color Quantization (using NeuQuant)                       | `quantize` | `color_quant`       | yes      |
+//! | Enable all features,&lt;br/&gt; including all encoding features | `all`      |                     | no       |
 //!
 //! ### WebP Support limitations
 //! WebP support uses `libwebp`, which is a native library. This means that if you try to use the
