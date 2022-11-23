@@ -2516,7 +2516,6 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="macro">propagate_palette!</span>(palette, data);
         <span class="kw">let </span>data = <span class="macro">scale_subpixels!</span>(bit_depth, <span class="self">Self</span>::BIT_DEPTH, data);
-        <span class="macro">propagate_data!</span>(data);
 
         <span class="kw">match </span>color_type {
             ColorType::Rgb =&gt; {
@@ -3179,7 +3178,8 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>assume_pixel_from_palette&lt;<span class="lifetime">&#39;p</span>, P, Index: Into&lt;usize&gt;&gt;(
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>assume_pixel_from_palette&lt;<span class="lifetime">&#39;p</span>, P, Index: Into&lt;usize&gt;&gt;(
     palette: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[P::Color],
     index: Index,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;P&gt;

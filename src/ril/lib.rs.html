@@ -322,6 +322,7 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
+<span id="325">325</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
 //!
 //! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril). It should
@@ -589,7 +590,7 @@
 <span class="kw">pub mod </span>error;
 <span class="kw">mod </span>image;
 <span class="kw">pub mod </span>pixel;
-<span class="kw">mod </span>quantize;
+<span class="kw">pub mod </span>quantize;
 <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
 </span><span class="kw">mod </span>resize;
 <span class="kw">pub mod </span>sequence;
@@ -614,6 +615,7 @@
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,
     };
+    <span class="kw">pub use </span>quantize::Quantizer;
     <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
     </span><span class="kw">pub use </span>resize::FilterType <span class="kw">as </span>ResizeAlgorithm;
     <span class="kw">pub use </span>sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};

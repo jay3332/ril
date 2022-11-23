@@ -1530,6 +1530,53 @@
 <span id="1530">1530</span>
 <span id="1531">1531</span>
 <span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
+<span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
+<span id="1547">1547</span>
+<span id="1548">1548</span>
+<span id="1549">1549</span>
+<span id="1550">1550</span>
+<span id="1551">1551</span>
+<span id="1552">1552</span>
+<span id="1553">1553</span>
+<span id="1554">1554</span>
+<span id="1555">1555</span>
+<span id="1556">1556</span>
+<span id="1557">1557</span>
+<span id="1558">1558</span>
+<span id="1559">1559</span>
+<span id="1560">1560</span>
+<span id="1561">1561</span>
+<span id="1562">1562</span>
+<span id="1563">1563</span>
+<span id="1564">1564</span>
+<span id="1565">1565</span>
+<span id="1566">1566</span>
+<span id="1567">1567</span>
+<span id="1568">1568</span>
+<span id="1569">1569</span>
+<span id="1570">1570</span>
+<span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -2667,13 +2714,41 @@
 
     <span class="doccomment">/// Takes this image and flattens this paletted image into an unpaletted image. This is similar
     /// to [`Self::convert`] but the output type is automatically resolved.
-    </span><span class="attribute">#[must_use]
+    </span><span class="attribute">#[must_use = <span class="string">&quot;the image is consumed by this method and returns a new image&quot;</span>]
     </span><span class="kw">pub fn </span>flatten_palette&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="self">self</span>) -&gt; Image&lt;P::Color&gt;
     <span class="kw">where
         </span><span class="self">Self</span>: <span class="lifetime">&#39;a</span>,
         P: Paletted&lt;<span class="lifetime">&#39;a</span>&gt;,
     {
         <span class="self">self</span>.map_pixels(|pixel| pixel.color())
+    }
+
+    <span class="doccomment">/// Quantizes this image using its colors and turns it into its paletted counterpart.
+    /// This currently only works with 8-bit palettes.
+    ///
+    /// This is similar to [`Self::convert`] but the output type is automatically resolved.
+    /// This is also the inverse conversion of [`Self::flatten_palette`].
+    ///
+    /// # Errors
+    /// * The palette could not be created.
+    ///
+    /// # See Also
+    /// * [`Quantizer`] - Implementation of the core quantizer. Use this for more fine-grained
+    /// control over the quantization process, such as adjusting the quantization speed.
+    </span><span class="attribute">#[must_use = <span class="string">&quot;the image is consumed by this method and returns a new image&quot;</span>]
+    </span><span class="kw">pub fn </span>quantize&lt;<span class="lifetime">&#39;p</span>, T&gt;(<span class="self">self</span>, palette_size: u8) -&gt; Image&lt;T&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">&#39;p</span>,
+        P: TrueColor,
+        T: Pixel&lt;Color = P&gt; + Paletted&lt;<span class="lifetime">&#39;p</span>, Subpixel = u8&gt;,
+    {
+        <span class="kw">let </span>width = <span class="self">self</span>.width();
+        <span class="kw">let </span>(palette, pixels) = <span class="kw">crate</span>::quantize::Quantizer::new()
+            .with_palette_size(palette_size <span class="kw">as </span>usize)
+            .quantize(<span class="self">self</span>.data)
+            .expect(<span class="string">&quot;unable to quantize image&quot;</span>);
+
+        Image::from_paletted_pixels(width, palette, pixels)
     }
 }
 
@@ -2688,6 +2763,25 @@
         image.map_palette(Into::into)
     }
 }
+
+<span class="macro">macro_rules! </span>impl_cast_quantize {
+    (<span class="macro-nonterminal">$t</span>:ty: <span class="macro-nonterminal">$p</span>:ty) =&gt; {
+        <span class="kw">impl </span>From&lt;Image&lt;<span class="macro-nonterminal">$t</span>&gt;&gt; <span class="kw">for </span>Image&lt;<span class="macro-nonterminal">$p</span>&gt; {
+            <span class="kw">fn </span>from(image: Image&lt;<span class="macro-nonterminal">$t</span>&gt;) -&gt; <span class="self">Self </span>{
+                <span class="kw">let </span>width = image.width();
+                <span class="kw">let </span>(palette, pixels) = <span class="kw">crate</span>::quantize::Quantizer::new()
+                    .with_palette_size(image.data.len())
+                    .quantize(image.data)
+                    .expect(<span class="string">&quot;unable to quantize image&quot;</span>);
+
+                Image::from_paletted_pixels(width, palette, pixels)
+            }
+        }
+    };
+}
+
+<span class="macro">impl_cast_quantize!</span>(Rgb: PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt;);
+<span class="macro">impl_cast_quantize!</span>(Rgba: PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
 
 <span class="macro">macro_rules! </span>impl_cast {
     (<span class="macro-nonterminal">$t</span>:ty: $(<span class="macro-nonterminal">$f</span>:ty)+) =&gt; {
