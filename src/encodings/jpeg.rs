@@ -132,6 +132,10 @@ impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
             .as_slice()
             .chunks_exact(info.pixel_format.pixel_bytes())
             .map(|chunk| {
+                if color_type == ColorType::L {
+                    return P::from_raw_parts(ColorType::L, bit_depth, chunk);
+                }
+
                 let chunk = &if perform_conversion {
                     let c = chunk[0] as f32 / 255.0;
                     let y = chunk[1] as f32 / 255.0;

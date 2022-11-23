@@ -12,6 +12,7 @@ Versions prior to v0.5 are not tagged/released on GitHub.
   - `Quantizer` struct can handle direct quantization of raw pixel data
   - `Image::quantize` is a higher-level method that can quantize an image into a paletted image
   - Implement `From<Image<Rgb[a]>>` for `Image<PalettedRgb[a]>` which utlizes quantization
+- Fix decoding bug for JPEG images with L pixels
 
 ## v0.6 (2022-11-21)
 - Add WebP encoding and decoding support
