@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>text_rendering/text_rendering (image-rs + imageproc) History - Criterion.rs</title>
+    <style type="text/css">body {
+    font: 14px Helvetica Neue;
+    text-rendering: optimizelegibility;
+}
+
+.body {
+    width: 960px;
+    margin: auto;
+}
+
+a:link {
+    color: #1F78B4;
+    text-decoration: none;
+}
+
+h2 {
+    font-size: 36px;
+    font-weight: 300;
+}
+
+h3 {
+    font-size: 24px;
+    font-weight: 300;
+}
+
+#footer {
+    height: 40px;
+    background: #888;
+    color: white;
+    font-size: larger;
+    font-weight: 300;
+}
+
+#footer a {
+    color: white;
+    text-decoration: underline;
+}
+
+#footer p {
+    text-align: center
+}
+
+        .number {
+            opacity: 0.6
+        }
+        .timestamp {
+            opacity: 0.6;
+            float: right
+        }
+        .improved {
+            color: green
+        }
+        .regressed {
+            color: brick
+        }
+
+        th.ci-bound {
+            opacity: 0.6
+        }
+
+        td.ci-bound {
+            opacity: 0.5
+        }
+    </style>
+</head>
+
+<body>
+    <div class="body">
+        <img alt="History of text_rendering/text_rendering (image-rs + imageproc)" src="history.svg"></img>
+        <h4> <span class="number"># 9</span><span class="timestamp">2022-11-25T18:05:50Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 6.78ms</td>
+            <td class="nochange"> 6.88ms</td>
+            <td class="ci-bound"> 6.96ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+16.334%</td>
+            <td>+18.129%</td>
+            <td class="ci-bound">+19.974%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 8</span><span class="timestamp">2022-11-25T16:59:48Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 5.71ms</td>
+            <td class="nochange"> 5.74ms</td>
+            <td class="ci-bound"> 5.77ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-0.0238%</td>
+            <td>+0.6596%</td>
+            <td class="ci-bound">+1.3861%</td>
+        </tr>
+        </table>
+        Change within noise threshold.<hr>
+        <h4> <span class="number"># 7</span><span class="timestamp">2022-11-25T16:59:13Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 5.78ms</td>
+            <td class="nochange"> 5.80ms</td>
+            <td class="ci-bound"> 5.83ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+1.0752%</td>
+            <td>+1.7241%</td>
+            <td class="ci-bound">+2.4290%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 6</span><span class="timestamp">2022-11-04T21:08:04Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 5.67ms</td>
+            <td class="nochange"> 5.70ms</td>
+            <td class="ci-bound"> 5.73ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-20.012%</td>
+            <td>-19.261%</td>
+            <td class="ci-bound">-18.537%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 5</span><span class="timestamp">2022-09-02T23:00:33Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 7.03ms</td>
+            <td class="nochange"> 7.07ms</td>
+            <td class="ci-bound"> 7.14ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+16.353%</td>
+            <td>+17.967%</td>
+            <td class="ci-bound">+19.572%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 4</span><span class="timestamp">2022-08-16T23:11:41Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 5.87ms</td>
+            <td class="nochange"> 5.97ms</td>
+            <td class="ci-bound"> 6.07ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-17.411%</td>
+            <td>-15.673%</td>
+            <td class="ci-bound">-14.235%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 3</span><span class="timestamp">2022-08-16T22:45:05Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 7.04ms</td>
+            <td class="nochange"> 7.09ms</td>
+            <td class="ci-bound"> 7.18ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+17.623%</td>
+            <td>+19.286%</td>
+            <td class="ci-bound">+22.064%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 2</span><span class="timestamp">2022-08-16T02:01:58Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 5.92ms</td>
+            <td class="nochange"> 5.94ms</td>
+            <td class="ci-bound"> 5.98ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-0.6589%</td>
+            <td>+0.1103%</td>
+            <td class="ci-bound">+0.8706%</td>
+        </tr>
+        </table>
+        Change within noise threshold.<hr>
+        <h4> <span class="number"># 1</span><span class="timestamp">2022-08-16T01:16:36Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 5.92ms</td>
+            <td class="nochange"> 5.94ms</td>
+            <td class="ci-bound"> 5.97ms</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-1.1246%</td>
+            <td>-0.3591%</td>
+            <td class="ci-bound">+0.3913%</td>
+        </tr>
+        </table>
+        Change within noise threshold.<hr>
+        <h4> <span class="number"># 0</span><span class="timestamp">2022-08-16T00:56:52Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound"> 5.93ms</td>
+            <td class="nochange"> 5.96ms</td>
+            <td class="ci-bound"> 5.99ms</td>
+        </tr>
+        </table>
+    </div>
+    <div id="footer">
+        <p>This report was generated by <a href="https://github.com/bheisler/cargo-criterion">cargo-criterion</a></p>
+    </div>
+</body>
+
+</html>
