@@ -220,12 +220,16 @@ fn read_frame<P: Pixel, R: Read>(
     #[allow(clippy::cast_lossless)]
     let height = decoder.height() as u32;
 
+    let global_palette = decoder.global_palette().map(ToOwned::to_owned);
     let frame = match decoder.read_next_frame() {
         Ok(Some(frame)) => frame,
         Ok(None) => return None,
         Err(e) => return Some(Err(e.into())),
     };
-    let raw_palette = frame.palette.as_deref()?.to_vec();
+    let raw_palette = match frame.palette {
+        Some(ref palette) => palette.clone(),
+        None => global_palette.expect("no global palette"),
+    };
     let transparent_index = frame.transparent.map(|i| i as usize);
 
     let palette = raw_palette

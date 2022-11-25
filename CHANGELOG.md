@@ -5,6 +5,9 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
+## v0.8 (dev)
+- Fix GIF decoding bug for images with a global palette
+
 ## v0.7 (2022-11-22)
 ### Breaking changes
 - `ImageSequence::first_frame` now returns `Option<&Frame>` instead of `&Frame`.
