@@ -228,7 +228,10 @@ fn read_frame<P: Pixel, R: Read>(
     };
     let raw_palette = match frame.palette {
         Some(ref palette) => palette.clone(),
-        None => global_palette.expect("no global palette"),
+        None => match global_palette {
+            Some(palette) => palette,
+            None => return Some(Err(Error::DecodingError("missing palette".to_string()))),
+        },
     };
     let transparent_index = frame.transparent.map(|i| i as usize);
 
