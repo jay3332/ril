@@ -331,6 +331,9 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
 </pre><pre class="rust"><code><span class="comment">// TODO: paletted images. GIF has native support for this.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::pixel::assume_pixel_from_palette;
@@ -561,7 +564,10 @@
     };
     <span class="kw">let </span>raw_palette = <span class="kw">match </span>frame.palette {
         <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>palette) =&gt; palette.clone(),
-        <span class="prelude-val">None </span>=&gt; global_palette.expect(<span class="string">&quot;no global palette&quot;</span>),
+        <span class="prelude-val">None </span>=&gt; <span class="kw">match </span>global_palette {
+            <span class="prelude-val">Some</span>(palette) =&gt; palette,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(Error::DecodingError(<span class="string">&quot;missing palette&quot;</span>.to_string()))),
+        },
     };
     <span class="kw">let </span>transparent_index = frame.transparent.map(|i| i <span class="kw">as </span>usize);
 
