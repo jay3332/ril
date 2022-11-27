@@ -99,6 +99,7 @@ impl<P: Pixel> Image<P> {
     /// assert_eq!(image.pixel(0, 0), &Rgb::white());
     /// # Ok(())
     /// # }
+    /// ```
     #[must_use]
     pub fn new(width: u32, height: u32, fill: P) -> Self {
         Self {
@@ -125,6 +126,7 @@ impl<P: Pixel> Image<P> {
     /// assert_eq!(gradient.pixel(255, 0), &L(255));
     /// # Ok(())
     /// # }
+    /// ```
     #[must_use]
     pub fn from_fn(width: u32, height: u32, f: impl Fn(u32, u32) -> P) -> Self {
         Self::new(width, height, P::default()).map_pixels_with_coords(|x, y, _| f(x, y))
@@ -190,6 +192,7 @@ impl<P: Pixel> Image<P> {
     /// assert_eq!(image.pixel(1, 1).color(), Rgb::black());
     /// # Ok(())
     /// # }
+    /// ```
     #[must_use]
     pub fn from_paletted_pixels<'p>(
         width: u32,
@@ -250,6 +253,7 @@ impl<P: Pixel> Image<P> {
     /// let image = Image::<Rgb>::from_reader(ImageFormat::Png, file)?;
     /// # Ok(())
     /// # }
+    /// ```
     pub fn from_reader(format: ImageFormat, bytes: impl Read) -> Result<Self> {
         format.run_decoder(bytes)
     }
@@ -272,6 +276,7 @@ impl<P: Pixel> Image<P> {
     /// let image = Image::<Rgb>::from_reader_inferred(file)?;
     /// # Ok(())
     /// # }
+    /// ```
     pub fn from_reader_inferred(mut bytes: impl Read) -> Result<Self> {
         let buf = &mut [0; 12];
         let n = bytes.read(buf)?;
@@ -357,6 +362,7 @@ impl<P: Pixel> Image<P> {
     /// println!("Image dimensions: {}x{}", image.width(), image.height());
     /// # Ok(())
     /// # }
+    /// ```
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let buffer = &mut Vec::new();
         let mut file = File::open(path.as_ref())?;
@@ -390,6 +396,7 @@ impl<P: Pixel> Image<P> {
     /// image.encode(ImageFormat::Png, &mut out)?;
     /// # Ok(())
     /// # }
+    /// ```
     pub fn encode(&self, encoding: ImageFormat, dest: &mut impl Write) -> Result<()> {
         encoding.run_encoder(self, dest)
     }
@@ -411,6 +418,7 @@ impl<P: Pixel> Image<P> {
     /// image.save(ImageFormat::Png, "out.png")?;
     /// # Ok(())
     /// # }
+    /// ```
     pub fn save(&self, encoding: ImageFormat, path: impl AsRef<Path>) -> Result<()> {
         let mut file = File::create(path).map_err(Error::IOError)?;
         self.encode(encoding, &mut file)
@@ -439,6 +447,7 @@ impl<P: Pixel> Image<P> {
     /// image.save_inferred("out.png")?;
     /// # Ok(())
     /// # }
+    /// ```
     pub fn save_inferred(&self, path: impl AsRef<Path>) -> Result<()> {
         let encoding = ImageFormat::from_path(path.as_ref())?;
 

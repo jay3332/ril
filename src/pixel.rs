@@ -11,10 +11,33 @@ use std::borrow::Cow;
 use std::fmt::{self, Debug, Formatter};
 use std::hash::Hash;
 
+mod sealed {
+    use super::{BitPixel, Dynamic, NoOp, PalettedRgb, PalettedRgba, Rgb, Rgba, L};
+    pub trait Sealed {}
+
+    macro_rules! sealed {
+        ($($t:ty)+) => {
+            $(impl Sealed for $t {})+
+        };
+    }
+
+    pub trait MaybeSealed {
+        const SEALED: bool = false;
+    }
+
+    impl<P: Sealed> MaybeSealed for P {
+        const SEALED: bool = true;
+    }
+
+    sealed!(NoOp BitPixel L Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+}
+
+pub(crate) use sealed::MaybeSealed;
+
 /// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
-pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash {
+pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeSealed {
     /// The color type of the pixel.
     const COLOR_TYPE: ColorType;
 
@@ -113,6 +136,7 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash {
         Ok(Self::from_bytes(data))
     }
 
+    // noinspection RsConstantConditionIf
     /// Creates this pixel from the given palette and index, but the conversion is done at runtime.
     ///
     /// # Errors
@@ -120,15 +144,14 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash {
     /// * If the color type is not supported by the pixel type.
     /// * An error occurs when trying to convert the data to the pixel type.
     fn from_arbitrary_palette<P: Pixel>(palette: &[P], index: usize) -> Result<Self> {
-        Self::from_raw_parts(
-            P::COLOR_TYPE,
-            P::BIT_DEPTH,
-            palette
-                .get(index)
-                .ok_or(InvalidPaletteIndex)?
-                .as_bytes()
-                .as_ref(),
-        )
+        let pixel = palette.get(index).ok_or(InvalidPaletteIndex)?;
+
+        if P::SEALED && P::COLOR_TYPE == ColorType::Dynamic {
+            // SAFETY: upheld by the `Sealed` trait
+            Ok(Self::from_dynamic(unsafe { *(pixel as *const P).cast() }))
+        } else {
+            Self::from_raw_parts(P::COLOR_TYPE, P::BIT_DEPTH, pixel.as_bytes().as_ref())
+        }
     }
 
     /// Creates this pixel from a raw bytes. This is used internally and is unchecked - it panics

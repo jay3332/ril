@@ -7,6 +7,7 @@ Versions prior to v0.5 are not tagged/released on GitHub.
 
 ## v0.8 (dev)
 - Fix GIF decoding bug for images with a global palette
+- Fix conversion using `Pixel::from_arbitrary_palette` with dynamic pixels
 
 ## v0.7 (2022-11-22)
 ### Breaking changes
