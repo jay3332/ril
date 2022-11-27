@@ -1704,6 +1704,29 @@
 <span id="1704">1704</span>
 <span id="1705">1705</span>
 <span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Encloses pixel-related traits and pixel type implementations.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::Error::DecodingError;
@@ -1717,10 +1740,33 @@
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug, Formatter};
 <span class="kw">use </span>std::hash::Hash;
 
+<span class="kw">mod </span>sealed {
+    <span class="kw">use super</span>::{BitPixel, Dynamic, NoOp, PalettedRgb, PalettedRgba, Rgb, Rgba, L};
+    <span class="kw">pub trait </span>Sealed {}
+
+    <span class="macro">macro_rules! </span>sealed {
+        ($(<span class="macro-nonterminal">$t</span>:ty)+) =&gt; {
+            $(<span class="kw">impl </span>Sealed <span class="kw">for </span><span class="macro-nonterminal">$t </span>{})+
+        };
+    }
+
+    <span class="kw">pub trait </span>MaybeSealed {
+        <span class="kw">const </span>SEALED: bool = <span class="bool-val">false</span>;
+    }
+
+    <span class="kw">impl</span>&lt;P: Sealed&gt; MaybeSealed <span class="kw">for </span>P {
+        <span class="kw">const </span>SEALED: bool = <span class="bool-val">true</span>;
+    }
+
+    <span class="macro">sealed!</span>(NoOp BitPixel L Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>sealed::MaybeSealed;
+
 <span class="doccomment">/// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
-</span><span class="kw">pub trait </span>Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash {
+</span><span class="kw">pub trait </span>Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeSealed {
     <span class="doccomment">/// The color type of the pixel.
     </span><span class="kw">const </span>COLOR_TYPE: ColorType;
 
@@ -1819,22 +1865,22 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_bytes(data))
     }
 
-    <span class="doccomment">/// Creates this pixel from the given palette and index, but the conversion is done at runtime.
+    <span class="comment">// noinspection RsConstantConditionIf
+    </span><span class="doccomment">/// Creates this pixel from the given palette and index, but the conversion is done at runtime.
     ///
     /// # Errors
     /// * The pixel index is invalid/out of bounds.
     /// * If the color type is not supported by the pixel type.
     /// * An error occurs when trying to convert the data to the pixel type.
     </span><span class="kw">fn </span>from_arbitrary_palette&lt;P: Pixel&gt;(palette: <span class="kw-2">&amp;</span>[P], index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">Self</span>::from_raw_parts(
-            P::COLOR_TYPE,
-            P::BIT_DEPTH,
-            palette
-                .get(index)
-                .ok_or(InvalidPaletteIndex)<span class="question-mark">?
-                </span>.as_bytes()
-                .as_ref(),
-        )
+        <span class="kw">let </span>pixel = palette.get(index).ok_or(InvalidPaletteIndex)<span class="question-mark">?</span>;
+
+        <span class="kw">if </span>P::SEALED &amp;&amp; P::COLOR_TYPE == ColorType::Dynamic {
+            <span class="comment">// SAFETY: upheld by the `Sealed` trait
+            </span><span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_dynamic(<span class="kw">unsafe </span>{ <span class="kw-2">*</span>(pixel <span class="kw">as </span><span class="kw-2">*const </span>P).cast() }))
+        } <span class="kw">else </span>{
+            <span class="self">Self</span>::from_raw_parts(P::COLOR_TYPE, P::BIT_DEPTH, pixel.as_bytes().as_ref())
+        }
     }
 
     <span class="doccomment">/// Creates this pixel from a raw bytes. This is used internally and is unchecked - it panics

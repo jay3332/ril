@@ -1577,6 +1577,15 @@
 <span id="1577">1577</span>
 <span id="1578">1578</span>
 <span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -1678,6 +1687,7 @@
     /// assert_eq!(image.pixel(0, 0), &amp;Rgb::white());
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>new(width: u32, height: u32, fill: P) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -1704,6 +1714,7 @@
     /// assert_eq!(gradient.pixel(255, 0), &amp;L(255));
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>from_fn(width: u32, height: u32, f: <span class="kw">impl </span>Fn(u32, u32) -&gt; P) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new(width, height, P::default()).map_pixels_with_coords(|x, y, <span class="kw">_</span>| f(x, y))
@@ -1769,6 +1780,7 @@
     /// assert_eq!(image.pixel(1, 1).color(), Rgb::black());
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>from_paletted_pixels&lt;<span class="lifetime">&#39;p</span>&gt;(
         width: u32,
@@ -1829,6 +1841,7 @@
     /// let image = Image::&lt;Rgb&gt;::from_reader(ImageFormat::Png, file)?;
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="kw">pub fn </span>from_reader(format: ImageFormat, bytes: <span class="kw">impl </span>Read) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         format.run_decoder(bytes)
     }
@@ -1851,6 +1864,7 @@
     /// let image = Image::&lt;Rgb&gt;::from_reader_inferred(file)?;
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="kw">pub fn </span>from_reader_inferred(<span class="kw-2">mut </span>bytes: <span class="kw">impl </span>Read) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>[<span class="number">0</span>; <span class="number">12</span>];
         <span class="kw">let </span>n = bytes.read(buf)<span class="question-mark">?</span>;
@@ -1936,6 +1950,7 @@
     /// println!(&quot;Image dimensions: {}x{}&quot;, image.width(), image.height());
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="kw">pub fn </span>open(path: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span>Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>file = File::open(path.as_ref())<span class="question-mark">?</span>;
@@ -1969,6 +1984,7 @@
     /// image.encode(ImageFormat::Png, &amp;mut out)?;
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="kw">pub fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, encoding: ImageFormat, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         encoding.run_encoder(<span class="self">self</span>, dest)
     }
@@ -1990,6 +2006,7 @@
     /// image.save(ImageFormat::Png, &quot;out.png&quot;)?;
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>, encoding: ImageFormat, path: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(path).map_err(Error::IOError)<span class="question-mark">?</span>;
         <span class="self">self</span>.encode(encoding, <span class="kw-2">&amp;mut </span>file)
@@ -2018,6 +2035,7 @@
     /// image.save_inferred(&quot;out.png&quot;)?;
     /// # Ok(())
     /// # }
+    /// ```
     </span><span class="kw">pub fn </span>save_inferred(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>encoding = ImageFormat::from_path(path.as_ref())<span class="question-mark">?</span>;
 
