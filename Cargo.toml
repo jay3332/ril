@@ -33,6 +33,7 @@ webp = ["dep:libwebp-sys2"]
 resize = ["dep:fast_image_resize"]
 text = ["dep:fontdue"]
 quantize = ["dep:color_quant"]
+static = ["libwebp-sys2?/static"]
 
 [dev-dependencies]
 criterion = "^0.4"
