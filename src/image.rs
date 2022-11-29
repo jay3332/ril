@@ -78,11 +78,22 @@ pub struct Image<P: Pixel = Dynamic> {
     pub(crate) palette: Option<Box<[P::Color]>>,
 }
 
+macro_rules! assert_nonzero {
+    ($width:expr) => {{
+        debug_assert_ne!($width, 0, "width must be non-zero");
+    }};
+    ($width:expr, $height:expr) => {{
+        assert_nonzero!($width);
+        debug_assert_ne!($height, 0, "height must be non-zero");
+    }};
+}
+
 impl<P: Pixel> Image<P> {
     /// Creates a new image with the given width and height, with all pixels being set
     /// intially to `fill`.
     ///
-    /// Both the width and height must be non-zero.
+    /// Both the width and height must be non-zero, or else this will panic. You should validate
+    /// the width and height before calling this function.
     ///
     /// # Panics
     /// * `width` or `height` is zero.
@@ -102,6 +113,8 @@ impl<P: Pixel> Image<P> {
     /// ```
     #[must_use]
     pub fn new(width: u32, height: u32, fill: P) -> Self {
+        assert_nonzero!(width, height);
+
         Self {
             width: NonZeroU32::new(width).unwrap(),
             height: NonZeroU32::new(height).unwrap(),
@@ -152,6 +165,7 @@ impl<P: Pixel> Image<P> {
     /// ```
     #[must_use]
     pub fn from_pixels(width: u32, pixels: impl AsRef<[P]>) -> Self {
+        assert_nonzero!(width);
         let pixels = pixels.as_ref();
 
         assert_eq!(
@@ -202,6 +216,8 @@ impl<P: Pixel> Image<P> {
     where
         P: Paletted<'p>,
     {
+        assert_nonzero!(width);
+
         let pixels = pixels.as_ref();
         debug_assert_eq!(
             pixels.len() % width as usize,
