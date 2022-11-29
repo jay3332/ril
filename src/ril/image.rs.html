@@ -1586,6 +1586,22 @@
 <span id="1586">1586</span>
 <span id="1587">1587</span>
 <span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
+<span id="1604">1604</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -1666,11 +1682,22 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) palette: <span class="prelude-ty">Option</span>&lt;Box&lt;[P::Color]&gt;&gt;,
 }
 
+<span class="macro">macro_rules! </span>assert_nonzero {
+    (<span class="macro-nonterminal">$width</span>:expr) =&gt; {{
+        <span class="macro">debug_assert_ne!</span>(<span class="macro-nonterminal">$width</span>, <span class="number">0</span>, <span class="string">&quot;width must be non-zero&quot;</span>);
+    }};
+    (<span class="macro-nonterminal">$width</span>:expr, <span class="macro-nonterminal">$height</span>:expr) =&gt; {{
+        <span class="macro">assert_nonzero!</span>(<span class="macro-nonterminal">$width</span>);
+        <span class="macro">debug_assert_ne!</span>(<span class="macro-nonterminal">$height</span>, <span class="number">0</span>, <span class="string">&quot;height must be non-zero&quot;</span>);
+    }};
+}
+
 <span class="kw">impl</span>&lt;P: Pixel&gt; Image&lt;P&gt; {
     <span class="doccomment">/// Creates a new image with the given width and height, with all pixels being set
     /// intially to `fill`.
     ///
-    /// Both the width and height must be non-zero.
+    /// Both the width and height must be non-zero, or else this will panic. You should validate
+    /// the width and height before calling this function.
     ///
     /// # Panics
     /// * `width` or `height` is zero.
@@ -1690,6 +1717,8 @@
     /// ```
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>new(width: u32, height: u32, fill: P) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert_nonzero!</span>(width, height);
+
         <span class="self">Self </span>{
             width: NonZeroU32::new(width).unwrap(),
             height: NonZeroU32::new(height).unwrap(),
@@ -1740,6 +1769,7 @@
     /// ```
     </span><span class="attribute">#[must_use]
     </span><span class="kw">pub fn </span>from_pixels(width: u32, pixels: <span class="kw">impl </span>AsRef&lt;[P]&gt;) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert_nonzero!</span>(width);
         <span class="kw">let </span>pixels = pixels.as_ref();
 
         <span class="macro">assert_eq!</span>(
@@ -1790,6 +1820,8 @@
     </span><span class="kw">where
         </span>P: Paletted&lt;<span class="lifetime">&#39;p</span>&gt;,
     {
+        <span class="macro">assert_nonzero!</span>(width);
+
         <span class="kw">let </span>pixels = pixels.as_ref();
         <span class="macro">debug_assert_eq!</span>(
             pixels.len() % width <span class="kw">as </span>usize,
