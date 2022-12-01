@@ -609,7 +609,7 @@
     <span class="kw">pub use </span><span class="kw">crate</span>::image::{
         Banded, Image, ImageFormat, OverlayMode,
     };
-    <span class="kw">pub use </span>draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
+    <span class="kw">pub use </span>draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
     <span class="kw">pub use </span>encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     <span class="kw">pub use </span>encodings::ColorType;
     <span class="kw">pub use </span>error::{Error, <span class="prelude-ty">Result</span>};
@@ -641,8 +641,8 @@
     <span class="kw">pub use super</span>::{
         Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
         DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
-        ImageSequence, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste, Pixel,
-        Rectangle, Rgb, Rgba, TrueColor, L,
+        ImageSequence, Line, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste,
+        Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
     <span class="attribute">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]

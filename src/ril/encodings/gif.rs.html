@@ -563,9 +563,9 @@
         <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e.into())),
     };
     <span class="kw">let </span>raw_palette = <span class="kw">match </span>frame.palette {
-        <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>palette) =&gt; palette.clone(),
+        <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>palette) =&gt; palette,
         <span class="prelude-val">None </span>=&gt; <span class="kw">match </span>global_palette {
-            <span class="prelude-val">Some</span>(palette) =&gt; palette,
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>palette) =&gt; palette,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(Error::DecodingError(<span class="string">&quot;missing palette&quot;</span>.to_string()))),
         },
     };
