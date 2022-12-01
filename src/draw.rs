@@ -43,7 +43,7 @@ pub struct Border<P: Pixel> {
 }
 
 impl<P: Pixel> Border<P> {
-    /// todo!()
+    /// Creates a new border with the given color and thickness.
     ///
     /// # Panics
     /// * Panics if the border thickness is 0.
@@ -63,7 +63,7 @@ impl<P: Pixel> Border<P> {
         self
     }
 
-    /// todo!()
+    /// Sets the thickness or width of the border.
     ///
     /// # Panics
     /// * Panics if the border thickness is 0.
@@ -74,6 +74,7 @@ impl<P: Pixel> Border<P> {
         self
     }
 
+    /// Sets the position of the border.
     #[must_use]
     pub const fn with_position(mut self, position: BorderPosition) -> Self {
         self.position = position;
@@ -100,6 +101,574 @@ impl<P: Pixel> Border<P> {
         };
 
         (inner, outer, *color)
+    }
+}
+
+/// A line.
+///
+/// At its core, this method utilizes
+/// [Bresenham's line algorithm](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm),
+/// and [Xiaolin Wu's line algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
+/// for antialiased lines. Thicker lines are drawn as polygons.
+#[derive(Clone, Debug)]
+pub struct Line<P: Pixel> {
+    /// The color of the line.
+    pub color: P,
+    /// The overlay mode of the line, or None to inherit from the overlay mode of the image.
+    pub mode: Option<OverlayMode>,
+    /// The thickness of the line, in pixels. Defaults to 1.
+    pub thickness: u32,
+    /// The start point of the line.
+    pub start: (u32, u32),
+    /// The end point of the line.
+    pub end: (u32, u32),
+    /// Whether the line should be antialiased. Note that drawing antialiased lines is slower than
+    /// drawing non-antialiased lines. Defaults to `false`.
+    pub antialiased: bool,
+    /// Whether the endpoints of the line should be "rounded off" with circles. Defaults to `false`.
+    /// Currently, endpoints are not antialiased, regardless of the value of `antialiased`.
+    ///
+    /// Note that for even-numbered thicknesses, the endpoints will not be perfectly aligned with
+    /// the line. For optimal results, use odd-numbered thicknesses when using enabling this field.
+    pub rounded: bool,
+    /// The position of the line relative to the start and end points. Defaults to `Center`
+    /// (which is different from the default of `Border`).
+    pub position: BorderPosition,
+}
+
+impl<P: Pixel> Default for Line<P> {
+    fn default() -> Self {
+        Self {
+            color: P::default(),
+            mode: None,
+            thickness: 1,
+            start: (0, 0),
+            end: (0, 0),
+            antialiased: false,
+            rounded: false,
+            position: BorderPosition::Center,
+        }
+    }
+}
+
+#[allow(clippy::cast_precision_loss, clippy::cast_possible_wrap)]
+impl<P: Pixel> Line<P> {
+    /// Creates a new line.
+    #[must_use]
+    pub fn new(start: (u32, u32), end: (u32, u32), color: P) -> Self {
+        Self {
+            color,
+            start,
+            end,
+            ..Default::default()
+        }
+    }
+
+    /// Sets the color of the line.
+    #[must_use]
+    pub const fn with_color(mut self, color: P) -> Self {
+        self.color = color;
+        self
+    }
+
+    /// Sets the overlay mode of the line.
+    #[must_use]
+    pub const fn with_mode(mut self, mode: OverlayMode) -> Self {
+        self.mode = Some(mode);
+        self
+    }
+
+    /// Sets the thickness of the line.
+    #[must_use]
+    pub const fn with_thickness(mut self, thickness: u32) -> Self {
+        self.thickness = thickness;
+        self
+    }
+
+    /// Sets the start coordinates of the line.
+    #[must_use]
+    pub const fn with_start(mut self, x: u32, y: u32) -> Self {
+        self.start = (x, y);
+        self
+    }
+
+    /// Sets the end coordinates of the line.
+    #[must_use]
+    pub const fn with_end(mut self, x: u32, y: u32) -> Self {
+        self.end = (x, y);
+        self
+    }
+
+    /// Sets whether the line should be antialiased. If this is set to `true`, the overlay
+    /// mode of this line will also be set to [`OverlayMode::Merge`].
+    #[must_use]
+    pub const fn with_antialiased(mut self, antialiased: bool) -> Self {
+        self.antialiased = antialiased;
+        if antialiased {
+            self.mode = Some(OverlayMode::Merge);
+        }
+        self
+    }
+
+    /// Sets whether the line should be rounded.
+    #[must_use]
+    pub const fn with_rounded(mut self, rounded: bool) -> Self {
+        self.rounded = rounded;
+        self
+    }
+
+    /// Sets the position of the line relative to the start and end points.
+    #[must_use]
+    pub const fn with_position(mut self, position: BorderPosition) -> Self {
+        self.position = position;
+        self
+    }
+
+    fn plot_endpoints(&self, image: &mut Image<P>) {
+        if self.rounded && self.thickness > 1 {
+            let (x1, y1) = self.start;
+            let (x2, y2) = self.end;
+            let mut reference = Ellipse::circle(x1, y1, self.thickness / 2).with_fill(self.color);
+
+            if let Some(mode) = self.mode {
+                reference = reference.with_overlay_mode(mode);
+            }
+
+            image.draw(&reference);
+            image.draw(&reference.with_position(x2, y2));
+        }
+    }
+
+    // assumes that `x1 == x2 || y1 == y2`
+    fn plot_perfect_line(&self, image: &mut Image<P>) {
+        let (mut x1, mut y1) = self.start;
+        let (mut x2, mut y2) = self.end;
+        let adjustment = self.thickness / 2;
+        let difference = self.thickness - adjustment;
+
+        // vertical line, adjust horizontal
+        if x1 == x2 {
+            x1 -= adjustment;
+            x2 += difference;
+        }
+        // horizontal line, adjust vertical
+        else {
+            y1 -= adjustment;
+            y2 += difference;
+        }
+
+        let mut rect = Rectangle::from_bounding_box(x1, y1, x2, y2).with_fill(self.color);
+        if let Some(mode) = self.mode {
+            rect = rect.with_overlay_mode(mode);
+        }
+
+        image.draw(&rect);
+    }
+
+    #[inline]
+    fn setup_points(&self) -> (bool, u32, u32, u32, u32) {
+        let (mut x1, mut y1) = self.start;
+        let (mut x2, mut y2) = self.end;
+
+        // absolute slope is greater than 1, optimize by swapping x and y
+        let swapped = y1.abs_diff(y2) > x1.abs_diff(x2);
+        if swapped {
+            std::mem::swap(&mut x1, &mut y1);
+            std::mem::swap(&mut x2, &mut y2);
+        }
+
+        // swap start and end if necessary, this preserves the order and prevents underflow
+        if x1 > x2 {
+            std::mem::swap(&mut x1, &mut x2);
+            std::mem::swap(&mut y1, &mut y2);
+        }
+
+        (swapped, x1, y1, x2, y2)
+    }
+
+    fn draw_thin_line(&self, image: &mut Image<P>) {
+        let (swapped, mut x1, y1, x2, y2) = self.setup_points();
+
+        let dx = (x2 - x1) as f32;
+        let dy = y1.abs_diff(y2) as f32;
+        let mut err = dx / 2.0;
+
+        let mut y = y1 as i32;
+        let y_step = if y1 < y2 { 1 } else { -1 };
+        let overlay = self.mode.unwrap_or(image.overlay);
+
+        while x1 <= x2 {
+            x1 += 1;
+            err -= dy;
+            if err < 0.0 {
+                y += y_step;
+                err += dx;
+            }
+
+            let (x, y) = if swapped {
+                (y as u32, x1)
+            } else {
+                (x1, y as u32)
+            };
+            image.overlay_pixel_with_mode(x, y, self.color, overlay);
+        }
+    }
+
+    fn draw_antialiased_line(&self, image: &mut Image<P>) {
+        let (swapped, x1_u, y1, x2_u, y2) = self.setup_points();
+        let (x1, mut y1, x2, y2) = (x1_u as f32, y1 as f32, x2_u as f32, y2 as f32);
+
+        let dx = x2 - x1;
+        let gradient = if dx == 0.0 {
+            1.0
+        } else {
+            // slope
+            (y2 - y1) / dx
+        };
+
+        let mut x = x1_u;
+        let mut lower = false;
+        let overlay = self.mode.unwrap_or(image.overlay);
+
+        while x <= x2_u {
+            let fract = y1.fract();
+            let mut py = y1 as u32;
+            if lower {
+                py += 1;
+            }
+
+            let (px, py) = if swapped { (py, x) } else { (x, py) };
+            if lower {
+                lower = false;
+                x += 1;
+                y1 += gradient;
+                image.overlay_pixel_with_alpha(px, py, self.color, overlay, (fract * 255.0) as u8);
+            } else {
+                if fract > 0.0 {
+                    lower = true;
+                } else {
+                    x += 1;
+                    y1 += gradient;
+                }
+                image.overlay_pixel_with_alpha(
+                    px,
+                    py,
+                    self.color,
+                    overlay,
+                    ((1.0 - fract) * 255.0) as u8,
+                );
+            }
+        }
+    }
+
+    fn draw_thick_line(&self, image: &mut Image<P>) {
+        let (x1, y1) = self.start;
+        let (x2, y2) = self.end;
+        let (x1, y1, x2, y2) = (x1 as f32, y1 as f32, x2 as f32, y2 as f32);
+
+        let mut angle = (y2 - y1).atan2(x2 - x1);
+        let polygon = if self.position == BorderPosition::Center {
+            let upper = angle + std::f32::consts::FRAC_PI_2;
+            let lower = angle - std::f32::consts::FRAC_PI_2;
+
+            let thickness = self.thickness as f32 / 2.0;
+            let upper_cos = thickness * upper.cos();
+            let upper_sin = thickness * upper.sin();
+            let lower_cos = thickness * lower.cos();
+            let lower_sin = thickness * lower.sin();
+
+            Polygon::from_vertices([
+                ((x1 + upper_cos) as u32, (y1 + upper_sin) as u32),
+                ((x1 + lower_cos) as u32, (y1 + lower_sin) as u32),
+                ((x2 + lower_cos) as u32, (y2 + lower_sin) as u32),
+                ((x2 + upper_cos) as u32, (y2 + upper_sin) as u32),
+            ])
+        } else {
+            if self.position == BorderPosition::Inset {
+                angle += std::f32::consts::PI;
+            } else {
+                angle -= std::f32::consts::PI;
+            }
+
+            let thickness = self.thickness as f32;
+            let cos = thickness * angle.cos();
+            let sin = thickness * angle.sin();
+
+            Polygon::from_vertices([
+                ((x1 + cos) as u32, (y1 + sin) as u32),
+                ((x1 - cos) as u32, (y1 - sin) as u32),
+                ((x2 - cos) as u32, (y2 - sin) as u32),
+                ((x2 + cos) as u32, (y2 + sin) as u32),
+            ])
+        };
+
+        image.draw(
+            &polygon
+                .with_fill(self.color)
+                .with_antialiased(self.antialiased),
+        );
+    }
+}
+
+impl<P: Pixel> Draw<P> for Line<P> {
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+        let (x1, y1) = self.start;
+        let (x2, y2) = self.end;
+        let image = &mut *image;
+
+        if x1 == x2 || y1 == y2 {
+            self.plot_perfect_line(image);
+        } else if self.thickness == 1 {
+            if self.antialiased {
+                self.draw_antialiased_line(image);
+            } else {
+                self.draw_thin_line(image);
+            }
+        } else {
+            self.draw_thick_line(image);
+        }
+
+        // TODO: still have to adjust endpoints for lines with adjusted positions
+        self.plot_endpoints(image);
+    }
+}
+
+/// A polygon.
+#[derive(Clone, Debug, Default)]
+pub struct Polygon<P: Pixel> {
+    /// A `Vec` of vertices that make up the polygon. The vertices are connected in the order they
+    /// are given.
+    ///
+    /// When drawing, a panic will occur if there is less than 3 vertices in this `Vec`.
+    ///
+    /// If the first and last vertices are the same, these points will remain untouched. Otherwise,
+    /// and extra vertex equivalent to the first vertex will be added to the end of the `Vec` to
+    /// close the polygon.
+    pub vertices: Vec<(u32, u32)>,
+    /// The border of the polygon. Either this or `fill` must be `Some`.
+    pub border: Option<Border<P>>,
+    /// Whether the border should be rounded off by drawing circles at each vertex. This is only
+    /// applied if `border` is `Some`. Additionally, these circles will not antialias.
+    pub rounded: bool,
+    /// The fill color of the polygon. Either this or `border` must be `Some`.
+    pub fill: Option<P>,
+    /// The overlay mode of the polygon. If `None`, the image's overlay mode will be used.
+    pub overlay: Option<OverlayMode>,
+    /// Whether to antialias the polygon's edges.
+    pub antialiased: bool,
+}
+
+#[allow(clippy::cast_precision_loss, clippy::cast_possible_wrap)]
+impl<P: Pixel> Polygon<P> {
+    /// Creates a new empty polygon.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Creates a new polygon with the given vertices.
+    #[must_use]
+    pub fn from_vertices(vertices: impl IntoIterator<Item = (u32, u32)>) -> Self {
+        Self {
+            vertices: vertices.into_iter().collect(),
+            ..Self::default()
+        }
+    }
+
+    /// Adds a vertex to the polygon.
+    #[must_use]
+    pub fn with_vertex(mut self, x: u32, y: u32) -> Self {
+        self.push_vertex(x, y);
+        self
+    }
+
+    /// Adds a vertex to the polygon in place.
+    pub fn push_vertex(&mut self, x: u32, y: u32) {
+        self.vertices.push((x, y));
+    }
+
+    /// Returns a slice of the vertices in the polygon.
+    #[must_use]
+    pub fn vertices(&self) -> &[(u32, u32)] {
+        &self.vertices
+    }
+
+    /// Returns a mutable slice of the vertices in the polygon.
+    #[must_use]
+    pub fn vertices_mut(&mut self) -> &mut [(u32, u32)] {
+        &mut self.vertices
+    }
+
+    /// Iterates over the vertices in the polygon.
+    pub fn iter_vertices(&self) -> impl Iterator<Item = &(u32, u32)> {
+        self.vertices.iter()
+    }
+
+    /// Iterates over the vertices in the polygon in mutable form.
+    pub fn iter_vertices_mut(&mut self) -> impl Iterator<Item = &mut (u32, u32)> {
+        self.vertices.iter_mut()
+    }
+
+    /// Sets the border of the polygon.
+    #[must_use]
+    pub const fn with_border(mut self, border: Border<P>) -> Self {
+        self.border = Some(border);
+        self
+    }
+
+    /// Sets whether the border should be rounded.
+    #[must_use]
+    pub const fn with_rounded(mut self, rounded: bool) -> Self {
+        self.rounded = rounded;
+        self
+    }
+
+    /// Sets the fill color of the polygon.
+    #[must_use]
+    pub const fn with_fill(mut self, fill: P) -> Self {
+        self.fill = Some(fill);
+        self
+    }
+
+    /// Sets the overlay mode of the polygon.
+    #[must_use]
+    pub const fn with_overlay_mode(mut self, overlay: OverlayMode) -> Self {
+        self.overlay = Some(overlay);
+        self
+    }
+
+    /// Sets whether to antialias the polygon's edges. If set to `true`, this will also set the
+    /// overlay mode to [`OverlayMode::Merge`].
+    #[must_use]
+    pub const fn with_antialiased(mut self, antialiased: bool) -> Self {
+        self.antialiased = antialiased;
+        if antialiased {
+            self.overlay = Some(OverlayMode::Merge);
+        }
+        self
+    }
+
+    #[inline]
+    fn sanitize_vertices(&self) -> Vec<(u32, u32)> {
+        assert!(
+            self.vertices.len() >= 3,
+            "polygon must have at least 3 vertices"
+        );
+
+        let mut vertices = self.vertices.clone();
+        if vertices.first() != vertices.last() {
+            // SAFETY: assertion above ensures that there are at least 3 points
+            vertices.push(unsafe { *self.vertices.get_unchecked(0) });
+        }
+        vertices
+    }
+
+    fn rasterize_fill(&self, image: &mut Image<P>, vertices: &[(u32, u32)]) {
+        let vertices = vertices
+            .iter()
+            .map(|(x, y)| (*x as i32, *y as i32))
+            .collect::<Vec<_>>();
+
+        // SAFETY: assertion in `sanitize_vertices` ensures that there are at least 3 points
+        let (y_min, y_max) = unsafe {
+            macro_rules! y_iter {
+                ($meth:ident) => {{
+                    vertices
+                        .iter()
+                        .map(|(_, y)| *y)
+                        .$meth()
+                        .unwrap_unchecked()
+                        .min(image.height() as i32 - 1)
+                }};
+            }
+
+            (y_iter!(min), y_iter!(max))
+        };
+        // SAFETY: this method is only called if `self.fill` is `Some`
+        let fill = unsafe { self.fill.unwrap_unchecked() };
+        let overlay = self.overlay.unwrap_or(image.overlay);
+        let mut intersections = Vec::new();
+
+        (y_min..=y_max).for_each(|y| {
+            vertices.windows(2).for_each(|edge| unsafe {
+                let &(x1, y1) = edge.get_unchecked(0);
+                let &(x2, y2) = edge.get_unchecked(1);
+
+                if y1 <= y && y2 >= y || y2 <= y && y1 >= y {
+                    if y1 == y2 {
+                        intersections.push(x1);
+                        intersections.push(x2);
+                    } else if y1 == y || y2 == y {
+                        if y2 > y {
+                            intersections.push(x1);
+                        }
+                        if y1 > y {
+                            intersections.push(x2);
+                        }
+                    } else {
+                        let frac = (y - y1) as f32 / (y2 - y1) as f32;
+                        intersections.push(frac.mul_add((x2 - x1) as f32, x1 as f32) as _);
+                    }
+                }
+            });
+
+            intersections.sort_unstable();
+            intersections.chunks_exact(2).for_each(|range| {
+                for x in range[0]..=range[1] {
+                    image.overlay_pixel_with_mode(x as u32, y as u32, fill, overlay);
+                }
+            });
+            intersections.clear();
+        });
+    }
+}
+
+impl<P: Pixel> Draw<P> for Polygon<P> {
+    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+        debug_assert!(
+            self.fill.is_some() || self.border.is_some(),
+            "polygon must have a fill or border"
+        );
+
+        let image = &mut *image;
+        let vertices = self.sanitize_vertices();
+
+        if let Some(fill) = self.fill {
+            self.rasterize_fill(image, &vertices);
+
+            if self.border.is_none() && self.antialiased {
+                for edge in vertices.windows(2) {
+                    unsafe {
+                        // SAFETY: windows(2) ensures that there are at least 2 points
+                        let &from = edge.get_unchecked(0);
+                        let &to = edge.get_unchecked(1);
+                        image.draw(&Line::new(from, to, fill).with_antialiased(true));
+                    }
+                }
+            }
+        }
+
+        if let Some(ref border) = self.border {
+            for edge in vertices.windows(2) {
+                unsafe {
+                    // SAFETY: windows(2) ensures that there are at least 2 points
+                    let &from @ (x, y) = edge.get_unchecked(0);
+                    let &to = edge.get_unchecked(1);
+                    image.draw(
+                        &Line::new(from, to, border.color)
+                            .with_antialiased(self.antialiased)
+                            .with_thickness(border.thickness)
+                            .with_position(border.position),
+                    );
+
+                    if self.rounded {
+                        image.draw(
+                            &Ellipse::circle(x, y, border.thickness / 2).with_fill(border.color),
+                        );
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -378,8 +947,8 @@ impl<P: Pixel> Ellipse<P> {
             ($from:expr, $to:expr, $y:expr) => {{
                 let y = ($y) as u32;
 
-                for x in ($from)..=($to) {
-                    image.overlay_pixel_with_mode(x as u32, y, fill, overlay);
+                for x in ($from as u32)..=($to as u32) {
+                    image.overlay_pixel_with_mode(x, y, fill, overlay);
                 }
             }};
         }
@@ -613,27 +1182,27 @@ impl<P: Pixel> Draw<P> for Ellipse<P> {
 
 /// Pastes or overlays an image on top of another image.
 #[derive(Clone)]
-pub struct Paste<P: Pixel> {
+pub struct Paste<'img, 'mask, P: Pixel> {
     /// The position of the image to paste.
     pub position: (u32, u32),
-    /// The image to paste, or the foreground image.
-    pub image: Image<P>,
-    /// An image that masks or filters out pixels based on the values of its own corresponding
-    /// pixels.
+    /// A reference to the image to paste, or the foreground image.
+    pub image: &'img Image<P>,
+    /// A refrence to an image that masks or filters out pixels based on the values of its own
+    /// corresponding pixels.
     ///
     /// Currently this ony supports images with the [`BitPixel`] type. If you want to mask alpha
     /// values, see [`Image::mask_alpha`].
     ///
     /// If this is None, all pixels will be overlaid on top of the image.
-    pub mask: Option<Image<crate::BitPixel>>,
+    pub mask: Option<&'mask Image<crate::BitPixel>>,
     /// The overlay mode of the image, or None to inherit from the background image.
     pub overlay: Option<OverlayMode>,
 }
 
-impl<P: Pixel> Paste<P> {
+impl<'img, 'mask, P: Pixel> Paste<'img, 'mask, P> {
     /// Creates a new image paste with from the given image with the position default to `(0, 0)`.
     #[must_use]
-    pub const fn new(image: Image<P>) -> Self {
+    pub const fn new(image: &'img Image<P>) -> Self {
         Self {
             position: (0, 0),
             image,
@@ -658,7 +1227,7 @@ impl<P: Pixel> Paste<P> {
     /// # Panics
     /// * The mask image has different dimensions than the foreground image.
     #[must_use]
-    pub fn with_mask(self, mask: Image<crate::BitPixel>) -> Self {
+    pub fn with_mask(self, mask: &'mask Image<crate::BitPixel>) -> Self {
         assert_eq!(
             self.image.dimensions(),
             mask.dimensions(),
@@ -681,7 +1250,7 @@ impl<P: Pixel> Paste<P> {
     /// are valid.
     #[must_use]
     #[allow(clippy::missing_const_for_fn)]
-    pub unsafe fn with_mask_unchecked(mut self, mask: Image<crate::BitPixel>) -> Self {
+    pub unsafe fn with_mask_unchecked(mut self, mask: &'mask Image<crate::BitPixel>) -> Self {
         self.mask = Some(mask);
         self
     }
@@ -694,7 +1263,7 @@ impl<P: Pixel> Paste<P> {
     }
 }
 
-impl<P: Pixel> Draw<P> for Paste<P> {
+impl<'img, 'mask, P: Pixel> Draw<P> for Paste<'img, 'mask, P> {
     fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         let (x1, y1) = self.position;
         let (w, h) = self.image.dimensions();

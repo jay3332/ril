@@ -5,7 +5,22 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
-## v0.8 (dev)
+## v0.8 (2022-11-30)
+### Breaking changes
+- `Paste` draw struct now stores images and masks by reference instead of by value. This is to prevent
+  unnecessary cloning of large images and/or masks.
+  - Paste now has two generic lifetime arguments: `Paste<'img, 'mask, _>`.
+  - This also means that `Image::paste`, `Image::paste_with_mask`, and `Image::with` methods now take images and masks
+    by reference instead of by value too.
+
+### Other changes
+- Add support for drawing lines and polygons using `Line` and `Polygon` draw entities
+  - Drawing a line or polygon with rounded vertices and a non-centered border position results in undesired output as
+    of now.
+- Add new `static` feature. When enabled, this will statically link any native dependencies
+- Add non-zero width/height assertions to image constructors
+
+#### Bug fixes
 - Fix GIF decoding bug for images with a global palette
 - Fix conversion using `Pixel::from_arbitrary_palette` with dynamic pixels
 

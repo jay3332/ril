@@ -283,7 +283,7 @@ inline_doc! {
     pub use crate::image::{
         Banded, Image, ImageFormat, OverlayMode,
     };
-    pub use draw::{Border, BorderPosition, Draw, Ellipse, Paste, Rectangle};
+    pub use draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     pub use encodings::ColorType;
     pub use error::{Error, Result};
@@ -315,8 +315,8 @@ pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
         DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
-        ImageSequence, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste, Pixel,
-        Rectangle, Rgb, Rgba, TrueColor, L,
+        ImageSequence, Line, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste,
+        Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
     #[cfg(feature = "resize")]

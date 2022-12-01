@@ -227,9 +227,9 @@ fn read_frame<P: Pixel, R: Read>(
         Err(e) => return Some(Err(e.into())),
     };
     let raw_palette = match frame.palette {
-        Some(ref palette) => palette.clone(),
+        Some(ref palette) => palette,
         None => match global_palette {
-            Some(palette) => palette,
+            Some(ref palette) => palette,
             None => return Some(Err(Error::DecodingError("missing palette".to_string()))),
         },
     };

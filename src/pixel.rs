@@ -933,6 +933,13 @@ impl Pixel for Rgba {
         self.merge(other.with_alpha((other.a as f32 * (alpha as f32 / 255.)) as u8))
     }
 
+    fn overlay_with_alpha(self, other: Self, mode: OverlayMode, alpha: u8) -> Self {
+        match mode {
+            OverlayMode::Replace => other.with_alpha(alpha),
+            OverlayMode::Merge => self.merge_with_alpha(other, alpha),
+        }
+    }
+
     fn from_dynamic(dynamic: Dynamic) -> Self {
         match dynamic {
             Dynamic::Rgba(value) => value,

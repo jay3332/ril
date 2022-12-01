@@ -608,6 +608,27 @@ impl<P: Pixel> Image<P> {
         }
     }
 
+    /// Overlays the pixel at the given coordinates with the given alpha intensity. This does not
+    /// regard the overlay mode, since this is usually used for anti-aliasing.
+    ///
+    /// If the pixel is out of bounds, nothing occurs. This is expected, use [`set_pixel`] if you
+    /// want this to panic, or to use a custom overlay mode use [`pixel_mut`].
+    #[inline]
+    pub fn overlay_pixel_with_alpha(
+        &mut self,
+        x: u32,
+        y: u32,
+        pixel: P,
+        mode: OverlayMode,
+        alpha: u8,
+    ) {
+        let pos = self.resolve_coordinate(x, y);
+
+        if let Some(target) = self.data.get_mut(pos) {
+            *target = target.overlay_with_alpha(pixel, mode, alpha);
+        }
+    }
+
     /// Inverts this image in place.
     pub fn invert(&mut self) {
         self.data.iter_mut().for_each(|p| *p = p.inverted());
@@ -983,10 +1004,28 @@ impl<P: Pixel> Image<P> {
     /// Resizes this image in place to the given dimensions using the given resizing algorithm
     /// in place.
     ///
+    /// `width` and `height` must be greater than 0, otherwise this method will panic. You should
+    /// validate user input before calling this method.
+    ///
     /// # Panics
     /// * `width` or `height` is zero.
+    ///
+    /// # Example
+    /// ```
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let mut image = Image::new(256, 256, Rgb::white());
+    /// assert_eq!(image.dimensions(), (256, 256));
+    ///
+    /// image.resize(64, 64, ResizeAlgorithm::Lanczos3);
+    /// assert_eq!(image.dimensions(), (64, 64));
+    /// # Ok(())
+    /// # }
+    /// ```
     #[cfg(feature = "resize")]
     pub fn resize(&mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) {
+        assert_nonzero!(width, height);
+
         let width = NonZeroU32::new(width).unwrap();
         let height = NonZeroU32::new(height).unwrap();
 
@@ -1005,8 +1044,14 @@ impl<P: Pixel> Image<P> {
     /// Takes this image and resizes this image to the given dimensions using the given
     /// resizing algorithm. Useful for method chaining.
     ///
+    /// `width` and `height` must be greater than 0, otherwise this method will panic. You should
+    /// validate user input before calling this method.
+    ///
     /// # Panics
     /// * `width` or `height` is zero.
+    ///
+    /// # See Also
+    /// * [`Self::resize`] for a version that operates in-place
     #[must_use]
     #[cfg(feature = "resize")]
     pub fn resized(mut self, width: u32, height: u32, algorithm: ResizeAlgorithm) -> Self {
@@ -1015,12 +1060,30 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Draws an object or shape onto this image.
+    ///
+    /// # Example
+    /// ```
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let mut image = Image::new(256, 256, Rgb::white());
+    /// let rectangle = Rectangle::new()
+    ///     .with_position(64, 64)
+    ///     .with_size(128, 128)
+    ///     .with_fill(Rgb::black());
+    ///
+    /// image.draw(&rectangle);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn draw(&mut self, entity: &impl Draw<P>) {
         entity.draw(self);
     }
 
     /// Takes this image, draws the given object or shape onto it, and returns it.
     /// Useful for method chaining and drawing multiple objects at once.
+    ///
+    /// # See Also
+    /// * [`Self::draw`] for a version that operates in-place
     #[must_use]
     pub fn with(mut self, entity: &impl Draw<P>) -> Self {
         self.draw(entity);
@@ -1028,9 +1091,20 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Pastes the given image onto this image at the given x and y coordinates.
-    ///
     /// This is a shorthand for using the [`draw`] method with [`Paste`].
-    pub fn paste(&mut self, x: u32, y: u32, image: Self) {
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let mut image = Image::new(256, 256, Rgb::white());
+    /// let overlay_image = Image::open("overlay.png")?;
+    ///
+    /// image.paste(64, 64, &overlay_image);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn paste(&mut self, x: u32, y: u32, image: &Self) {
         self.draw(&crate::Paste::new(image).with_position(x, y));
     }
 
@@ -1040,7 +1114,23 @@ impl<P: Pixel> Image<P> {
     /// Currently, only [`BitPixel`] images are supported for the masking image.
     ///
     /// This is a shorthand for using the [`draw`] method with [`Paste`].
-    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: Self, mask: Image<BitPixel>) {
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let mut image = Image::new(256, 256, Rgb::white());
+    /// let overlay_image = Image::open("overlay.png")?;
+    ///
+    /// let (w, h) = overlay_image.dimensions();
+    /// let mut mask = Image::new(w, h, BitPixel::off());
+    /// mask.draw(&Ellipse::from_bounding_box(0, 0, w, h).with_fill(BitPixel::on()));
+    ///
+    /// image.paste_with_mask(64, 64, &overlay_image, &mask);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn paste_with_mask(&mut self, x: u32, y: u32, image: &Self, mask: &Image<BitPixel>) {
         self.draw(&crate::Paste::new(image).with_position(x, y).with_mask(mask));
     }
 
