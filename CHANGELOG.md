@@ -5,6 +5,16 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
+## v0.9 (dev)
+### Breaking changes
+- `Pixel::force_into_rgb[a]` method is now replaced with `Pixel::as_rgb[a]`, which also takes self by reference instead
+  of by value.
+
+### Other changes
+- `ColorType::is_dynamic` is now a `const fn`
+- Add support for gradients
+  - TODO
+
 ## v0.8 (2022-11-30)
 ### Breaking changes
 - `Paste` draw struct now stores images and masks by reference instead of by value. This is to prevent

@@ -46,6 +46,7 @@
 //! | Font/Text Rendering                                       | `text`     | `fontdue`           | yes      |
 //! | Image Resizing                                            | `resize`   | `fast_image_resize` | yes      |
 //! | Color Quantization (using NeuQuant)                       | `quantize` | `color_quant`       | yes      |
+//! | Gradients                                                 | `gradient` | `colorgrad`         | yes      |
 //! | Enable all features,<br/> including all encoding features | `all`      |                     | no       |
 //!
 //! ### WebP Support limitations
@@ -259,11 +260,14 @@
     clippy::many_single_char_names,
     clippy::doc_markdown
 )]
+#![cfg_attr(feature = "const-pixels", feature(const_trait_impl))]
 
 pub mod draw;
 pub mod encode;
 pub mod encodings;
 pub mod error;
+#[cfg(feature = "gradient")]
+pub mod gradient;
 mod image;
 pub mod pixel;
 pub mod quantize;
@@ -287,6 +291,11 @@ inline_doc! {
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     pub use encodings::ColorType;
     pub use error::{Error, Result};
+    pub use gradient::{
+        BlendMode as LinearGradientBlendMode,
+        Interpolation as LinearGradientInterpolation,
+        LinearGradient,
+    };
     pub use pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,
@@ -323,4 +332,6 @@ pub mod prelude {
     pub use super::ResizeAlgorithm;
     #[cfg(feature = "text")]
     pub use super::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
+    #[cfg(feature = "gradient")]
+    pub use super::{LinearGradient, LinearGradientBlendMode, LinearGradientInterpolation};
 }

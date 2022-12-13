@@ -86,9 +86,9 @@ impl WebPEncoder {
             let sample = image.data[0].color_type();
             if match sample {
                 ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA => {
-                    import_libwebp_picture!(WebPPictureImportRGBA, 4, force_into_rgba)
+                    import_libwebp_picture!(WebPPictureImportRGBA, 4, as_rgba)
                 }
-                _ => import_libwebp_picture!(WebPPictureImportRGB, 3, force_into_rgb),
+                _ => import_libwebp_picture!(WebPPictureImportRGB, 3, as_rgb),
             } == 0
             {
                 return Err(Error::EncodingError("WebP encoding error".to_string()));
