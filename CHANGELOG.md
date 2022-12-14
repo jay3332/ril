@@ -63,6 +63,9 @@ fn main() -> ril::Result<()> {
 }
 ```
 
+#### Output
+![image](https://user-images.githubusercontent.com/40323796/207496707-11541d75-d491-4061-88be-112813b86498.png)
+
 ## v0.8 (2022-11-30)
 ### Breaking changes
 - `Paste` draw struct now stores images and masks by reference instead of by value. This is to prevent
