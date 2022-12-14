@@ -292,9 +292,12 @@ inline_doc! {
     pub use error::{Error, Result};
     #[cfg(feature = "gradient")]
     pub use gradient::{
-        BlendMode as LinearGradientBlendMode,
-        Interpolation as LinearGradientInterpolation,
+        BlendMode as GradientBlendMode,
+        Interpolation as GradientInterpolation,
         LinearGradient,
+        RadialGradient,
+        RadialGradientPosition,
+        RadialGradientCover,
     };
     pub use pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
@@ -333,5 +336,8 @@ pub mod prelude {
     #[cfg(feature = "text")]
     pub use super::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
     #[cfg(feature = "gradient")]
-    pub use super::{LinearGradient, LinearGradientBlendMode, LinearGradientInterpolation};
+    pub use super::{
+        GradientBlendMode, GradientInterpolation, LinearGradient, RadialGradient,
+        RadialGradientCover, RadialGradientPosition,
+    };
 }

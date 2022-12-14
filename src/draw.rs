@@ -925,6 +925,12 @@ impl<F: IntoFill> Rectangle<F> {
         }
     }
 
+    /// Creates a new square with side length `s` with the top-left corner at the given coordinates.
+    #[must_use]
+    pub fn square(s: u32, (x, y): (u32, u32)) -> Self {
+        Self::new().with_position(x, y).with_size(s, s)
+    }
+
     /// Creates a new rectangle from two coordinates specified as 4 parameters.
     ///
     /// The first coordinate is the top-left corner of the rectangle, and the second coordinate is
