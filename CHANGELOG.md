@@ -5,7 +5,7 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.5 are not tagged/released on GitHub.
 
-## v0.9 (dev)
+## v0.9 (2022-12-13)
 ### Breaking changes
 - `Pixel::force_into_rgb[a]` method is now replaced with `Pixel::as_rgb[a]`, which also takes self by reference instead
   of by value.
