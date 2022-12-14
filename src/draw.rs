@@ -1,10 +1,72 @@
 //! Encloses most drawing implementations and drawable objects.
 
-use crate::{
-    gradient::{Fill, IntoFill},
-    Image, OverlayMode, Pixel,
-};
+use crate::{Image, OverlayMode, Pixel};
 use std::ops::DerefMut;
+
+pub type BoundingBox<T> = (T, T, T, T);
+
+pub trait IntoFill: Clone + Default {
+    type Pixel: Pixel;
+    type Fill: Fill<Self::Pixel>;
+
+    fn into_fill(self) -> Self::Fill;
+}
+
+pub trait Fill<P: Pixel>: Clone {
+    fn set_bounding_box(&mut self, _bounding_box: BoundingBox<u32>) {}
+
+    #[must_use = "this method consumes the fill and returns it back, it does not modify it in-place"]
+    fn with_bounding_box(mut self, bounding_box: BoundingBox<u32>) -> Self
+    where
+        Self: Sized,
+    {
+        self.set_bounding_box(bounding_box);
+        self
+    }
+
+    fn get_pixel(&self, x: u32, y: u32) -> P;
+
+    fn plot(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode) {
+        image.overlay_pixel_with_mode(x, y, self.get_pixel(x, y), mode);
+    }
+
+    fn plot_with_alpha(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode, alpha: u8) {
+        image.overlay_pixel_with_alpha(x, y, self.get_pixel(x, y), mode, alpha);
+    }
+}
+
+impl<P: Pixel> IntoFill for P {
+    type Pixel = P;
+    type Fill = SolidFill<Self::Pixel>;
+
+    fn into_fill(self) -> Self::Fill {
+        SolidFill(self)
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct SolidFill<P: Pixel>(P);
+
+impl<P: Pixel> SolidFill<P> {
+    /// Creates a new solid fill.
+    #[must_use]
+    pub const fn new(color: P) -> Self {
+        Self(color)
+    }
+
+    /// Returns a the color (represented as a [`Pixel`]) of the fill.
+    #[must_use]
+    pub const fn color(&self) -> P {
+        self.0
+    }
+}
+
+impl<P: Pixel> Fill<P> for SolidFill<P> {
+    #[inline]
+    fn get_pixel(&self, _: u32, _: u32) -> P {
+        self.0
+    }
+}
 
 /// A common trait for all objects able to be drawn on an image.
 ///

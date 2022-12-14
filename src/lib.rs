@@ -286,10 +286,11 @@ inline_doc! {
     pub use crate::image::{
         Banded, Image, ImageFormat, OverlayMode,
     };
-    pub use draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
+    pub use draw::{Border, BorderPosition, Draw, Ellipse, Fill, IntoFill, Line, Paste, Polygon, Rectangle};
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     pub use encodings::ColorType;
     pub use error::{Error, Result};
+    #[cfg(feature = "gradient")]
     pub use gradient::{
         BlendMode as LinearGradientBlendMode,
         Interpolation as LinearGradientInterpolation,
@@ -322,9 +323,9 @@ inline_doc! {
 pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
-        ImageSequence, Line, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste,
-        Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
+        DynamicFrameIterator, DynamicSubpixel, Ellipse, Fill, Frame, FrameIterator, Image,
+        ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted, PalettedRgb,
+        PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
     #[cfg(feature = "resize")]
