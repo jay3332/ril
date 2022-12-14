@@ -335,6 +335,12 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
 //!
 //! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril). It should
@@ -629,9 +635,12 @@
     <span class="kw">pub use </span>error::{Error, <span class="prelude-ty">Result</span>};
     <span class="attribute">#[cfg(feature = <span class="string">&quot;gradient&quot;</span>)]
     </span><span class="kw">pub use </span>gradient::{
-        BlendMode <span class="kw">as </span>LinearGradientBlendMode,
-        Interpolation <span class="kw">as </span>LinearGradientInterpolation,
+        BlendMode <span class="kw">as </span>GradientBlendMode,
+        Interpolation <span class="kw">as </span>GradientInterpolation,
         LinearGradient,
+        RadialGradient,
+        RadialGradientPosition,
+        RadialGradientCover,
     };
     <span class="kw">pub use </span>pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
@@ -670,7 +679,10 @@
     <span class="attribute">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
     </span><span class="kw">pub use super</span>::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
     <span class="attribute">#[cfg(feature = <span class="string">&quot;gradient&quot;</span>)]
-    </span><span class="kw">pub use super</span>::{LinearGradient, LinearGradientBlendMode, LinearGradientInterpolation};
+    </span><span class="kw">pub use super</span>::{
+        GradientBlendMode, GradientInterpolation, LinearGradient, RadialGradient,
+        RadialGradientCover, RadialGradientPosition,
+    };
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ril" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

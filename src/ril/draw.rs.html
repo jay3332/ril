@@ -1538,6 +1538,12 @@
 <span id="1538">1538</span>
 <span id="1539">1539</span>
 <span id="1540">1540</span>
+<span id="1541">1541</span>
+<span id="1542">1542</span>
+<span id="1543">1543</span>
+<span id="1544">1544</span>
+<span id="1545">1545</span>
+<span id="1546">1546</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Encloses most drawing implementations and drawable objects.
 
 </span><span class="kw">use crate</span>::{Image, OverlayMode, Pixel};
@@ -2463,6 +2469,12 @@
             <span class="kw">let </span>(w, h) = <span class="self">self</span>.size;
             fill.set_bounding_box((x, y, x + w, y + h));
         }
+    }
+
+    <span class="doccomment">/// Creates a new square with side length `s` with the top-left corner at the given coordinates.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>square(s: u32, (x, y): (u32, u32)) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new().with_position(x, y).with_size(s, s)
     }
 
     <span class="doccomment">/// Creates a new rectangle from two coordinates specified as 4 parameters.
