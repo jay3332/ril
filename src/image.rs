@@ -787,12 +787,12 @@ impl<P: Pixel> Image<P> {
     /// but should rarely be used by you.
     ///
     /// # Panics
-    /// * Panics if the data is misinformed.
+    /// * Panics if the data is malformed.
     pub fn set_data(&mut self, data: Vec<P>) {
         assert_eq!(
             self.width() * self.height(),
             data.len() as u32,
-            "misformed data"
+            "malformed data"
         );
 
         self.data = data;

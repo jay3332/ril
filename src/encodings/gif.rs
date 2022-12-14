@@ -107,7 +107,7 @@ impl GifEncoder {
                     .palette()
                     .expect("paletted image without palette?")
                     .iter()
-                    .flat_map(|p| p.force_into_rgb().as_bytes())
+                    .flat_map(|p| p.as_rgb().as_bytes())
                     .collect::<Vec<_>>()
                     .as_slice(),
                 None,
@@ -117,7 +117,7 @@ impl GifEncoder {
                 // TODO: flatten all transparent pixels to the same color
                 let transparent_index = pixels
                     .iter()
-                    .position(|p| p.force_into_rgba().a == 0)
+                    .position(|p| p.as_rgba().a == 0)
                     .map(|i| i as u8);
 
                 gif::Frame::from_palette_pixels(
@@ -126,7 +126,7 @@ impl GifEncoder {
                     &data!(crate::Rgba),
                     pixels
                         .iter()
-                        .flat_map(|p| p.force_into_rgb().as_bytes())
+                        .flat_map(|p| p.as_rgb().as_bytes())
                         .collect::<Vec<_>>()
                         .as_slice(),
                     transparent_index,

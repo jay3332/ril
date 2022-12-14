@@ -74,6 +74,18 @@ Or, you can run `cargo add ril --features=all` if you have Rust 1.62.0 or newer.
 The above enables all features. See [Cargo Features](#cargo-features) for more information on how you can
 tune these features to reduce dependencies.
 
+### Linking errors on Windows
+If you get errors regarding `link.exe` on Windows, this is because `libwebp` has problems linking with Windows for now.
+
+This will be resolved when WebP encoders/decoders are rewritten in pure Rust. For now, you can use switch out the
+`all` feature with `all-pure`:
+
+```toml
+ril = { version = "0", features = ["all-pure"] }
+```
+
+This will hopefully resolve the linking errors, at the cost of not having WebP support.
+
 ## Benchmarks
 
 ### Decode GIF + Invert each frame + Encode GIF (600x600, 77 frames)
@@ -114,12 +126,13 @@ For every image encoding that requires a dependency, a corresponding feature can
 
 Other features:
 
-| Description                                               | Feature      | Dependencies        | Default? |
-|-----------------------------------------------------------|--------------|---------------------|----------|
-| Font/Text Rendering                                       | `text`       | `fontdue`           | yes      |
-| Image Resizing                                            | `resize`     | `fast_image_resize` | yes      |
-| Color Quantization (using NeuQuant)                       | `quantize`   | `color_quant`       | yes      |
-| Enable all features,<br/> including all encoding features | `all`        |                     | no       |
+| Description                                                                            | Feature      | Dependencies        | Default? |
+|----------------------------------------------------------------------------------------|--------------|---------------------|----------|
+| Font/Text Rendering                                                                    | `text`       | `fontdue`           | yes      |
+| Image Resizing                                                                         | `resize`     | `fast_image_resize` | yes      |
+| Color Quantization (using NeuQuant)                                                    | `quantize`   | `color_quant`       | yes      |
+| Gradients                                                                              | `gradient`   | `colorgrad`         | yes      |
+| Enable all features,<br/> including all encoding features (excludes `nightly` feature) | `all`        |                     | no       |
 
 ### WebP Support limitations
 WebP support uses `libwebp`, which is a native library. This means that if you try to use the `webp` feature

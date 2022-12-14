@@ -1,7 +1,7 @@
 [package]
 name = "ril"
 authors = ["jay3332"]
-version = "0.8.0"
+version = "0.9.0"
 license = "MIT"
 edition = "2021"
 description = "Rust Imaging Library: A performant and high-level image processing crate for Rust"
@@ -21,9 +21,10 @@ gif = { version = "^0.12", optional = true }
 libwebp-sys2 = { version = "^0.1", features = ["1_2", "mux", "demux"], optional = true }
 fontdue = { version = "^0.7", optional = true }
 color_quant = { version = "^1.1", optional = true }
+colorgrad = { version = "^0.6", optional = true, default_features = false }
 
 [features]
-default = ["resize", "text", "quantize"]
+default = ["resize", "text", "quantize", "gradient"]
 all-pure = ["resize", "png", "jpeg", "gif", "text", "quantize"]
 all = ["all-pure", "webp"]
 png = ["dep:png"]
@@ -33,6 +34,7 @@ webp = ["dep:libwebp-sys2"]
 resize = ["dep:fast_image_resize"]
 text = ["dep:fontdue"]
 quantize = ["dep:color_quant"]
+gradient = ["dep:colorgrad"]
 static = ["libwebp-sys2?/static"]
 
 [dev-dependencies]

@@ -127,15 +127,11 @@ impl Encoder for PngEncoder {
                 let pal = image.palette().expect("no palette for paletted image?");
                 encoder.set_palette(
                     pal.iter()
-                        .map(|p| p.force_into_rgb())
+                        .map(Pixel::as_rgb)
                         .flat_map(|p| p.as_bytes())
                         .collect::<Cow<_>>(),
                 );
-                encoder.set_trns(
-                    pal.iter()
-                        .map(|p| p.force_into_rgba().a)
-                        .collect::<Cow<_>>(),
-                );
+                encoder.set_trns(pal.iter().map(|p| p.as_rgba().a).collect::<Cow<_>>());
             }
             _ => (),
         }

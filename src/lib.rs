@@ -46,6 +46,7 @@
 //! | Font/Text Rendering                                       | `text`     | `fontdue`           | yes      |
 //! | Image Resizing                                            | `resize`   | `fast_image_resize` | yes      |
 //! | Color Quantization (using NeuQuant)                       | `quantize` | `color_quant`       | yes      |
+//! | Gradients                                                 | `gradient` | `colorgrad`         | yes      |
 //! | Enable all features,<br/> including all encoding features | `all`      |                     | no       |
 //!
 //! ### WebP Support limitations
@@ -264,6 +265,8 @@ pub mod draw;
 pub mod encode;
 pub mod encodings;
 pub mod error;
+#[cfg(feature = "gradient")]
+pub mod gradient;
 mod image;
 pub mod pixel;
 pub mod quantize;
@@ -283,10 +286,16 @@ inline_doc! {
     pub use crate::image::{
         Banded, Image, ImageFormat, OverlayMode,
     };
-    pub use draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
+    pub use draw::{Border, BorderPosition, Draw, Ellipse, Fill, IntoFill, Line, Paste, Polygon, Rectangle};
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     pub use encodings::ColorType;
     pub use error::{Error, Result};
+    #[cfg(feature = "gradient")]
+    pub use gradient::{
+        BlendMode as LinearGradientBlendMode,
+        Interpolation as LinearGradientInterpolation,
+        LinearGradient,
+    };
     pub use pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,
@@ -314,13 +323,15 @@ inline_doc! {
 pub mod prelude {
     pub use super::{
         Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, DynamicSubpixel, Ellipse, Frame, FrameIterator, Image, ImageFormat,
-        ImageSequence, Line, LoopCount, OverlayMode, Paletted, PalettedRgb, PalettedRgba, Paste,
-        Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
+        DynamicFrameIterator, DynamicSubpixel, Ellipse, Fill, Frame, FrameIterator, Image,
+        ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted, PalettedRgb,
+        PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
     };
 
     #[cfg(feature = "resize")]
     pub use super::ResizeAlgorithm;
     #[cfg(feature = "text")]
     pub use super::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
+    #[cfg(feature = "gradient")]
+    pub use super::{LinearGradient, LinearGradientBlendMode, LinearGradientInterpolation};
 }

@@ -50,13 +50,22 @@ impl ColorType {
         }
     }
 
+    /// Returns whether this color type can have a dynamic alpha value.
+    #[must_use]
+    pub const fn has_alpha(&self) -> bool {
+        matches!(
+            self,
+            Self::LA | Self::Rgba | Self::PaletteRgba | Self::Dynamic
+        )
+    }
+
     #[must_use]
     pub const fn is_paletted(&self) -> bool {
         matches!(self, Self::PaletteRgb | Self::PaletteRgba)
     }
 
     #[must_use]
-    pub fn is_dynamic(&self) -> bool {
-        *self == Self::Dynamic
+    pub const fn is_dynamic(&self) -> bool {
+        matches!(self, Self::Dynamic)
     }
 }

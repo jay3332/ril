@@ -65,13 +65,13 @@ impl Encoder for JpegEncoder {
             ColorType::PaletteRgb => image
                 .data
                 .iter()
-                .map(|&p| p.force_into_rgb())
+                .map(|&p| p.as_rgb())
                 .flat_map(|p| p.as_bytes())
                 .collect::<Vec<_>>(),
             ColorType::PaletteRgba => image
                 .data
                 .iter()
-                .map(|&p| p.force_into_rgba())
+                .map(|&p| p.as_rgba())
                 .flat_map(|p| p.as_bytes())
                 .collect::<Vec<_>>(),
             _ => image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>(),

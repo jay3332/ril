@@ -201,27 +201,27 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeS
         panic!("cannot convert from dynamic pixel for this pixel type");
     }
 
-    /// Converts this pixel into RGB despite its type. This can panic on some pixel types, you must
+    /// Returns this pixel as RGB despite its type. This can panic on some pixel types, you must
     /// be sure this pixel is able to be converted into RGB before using this.
     ///
-    /// You should use [`Rgb::from`] or [`TrueColor::into_rgb`] as they are safer methods, checked
-    /// at compile time. This is primarily used for internal purposes, for example when an encoder
+    /// You should use [`Rgb::from`] or ensure that the pixel is [`TrueColor`], as they are safer
+    /// methods, checked at compile time. This is primarily used for internal purposes, for example when an encoder
     /// can guarantee that a pixel is convertable into RGB.
     ///
     /// # Panics
     /// * If the pixel is not convertable into RGB.
-    fn force_into_rgb(self) -> Rgb;
+    fn as_rgb(&self) -> Rgb;
 
-    /// Converts this pixel into RGBA despite its type. This can panic on some pixel types, you must
+    /// Returns this pixel as RGBA despite its type. This can panic on some pixel types, you must
     /// be sure this pixel is able to be converted into RGBA before using this.
     ///
-    /// You should use [`Rgba::from`] or [`TrueColor::into_rgb`] as they are safer methods, checked
-    /// at compile time. This is primarily used for internal purposes, for example when an encoder
-    /// can guarantee that a pixel is convertable into RGBA.
+    /// You should use [`Rgba::from`] or ensure that the pixel is [`TrueColor`], as they are safer
+    /// methods, checked at compile time. This is primarily used for internal purposes, for example
+    /// when an encoder can guarantee that a pixel is convertable into RGBA.
     ///
     /// # Panics
     /// * If the pixel is not convertable into RGBA.
-    fn force_into_rgba(self) -> Rgba;
+    fn as_rgba(&self) -> Rgba;
 }
 
 /// Represents a pixel that supports alpha, or transparency values.
@@ -290,11 +290,11 @@ impl Pixel for NoOp {
         Self
     }
 
-    fn force_into_rgb(self) -> Rgb {
+    fn as_rgb(&self) -> Rgb {
         panic!("NoOp is a private pixel type and should not be used")
     }
 
-    fn force_into_rgba(self) -> Rgba {
+    fn as_rgba(&self) -> Rgba {
         panic!("NoOp is a private pixel type and should not be used")
     }
 }
@@ -378,12 +378,12 @@ impl BitPixel {
 
 macro_rules! force_into_impl {
     () => {
-        fn force_into_rgb(self) -> Rgb {
-            self.into()
+        fn as_rgb(&self) -> Rgb {
+            (*self).into()
         }
 
-        fn force_into_rgba(self) -> Rgba {
-            self.into()
+        fn as_rgba(&self) -> Rgba {
+            (*self).into()
         }
     };
 }
@@ -1450,7 +1450,7 @@ impl From<Rgb> for Rgba {
     }
 }
 
-/// A trait representing all pixels that can be represented as either RGB or RGBA true color.
+/// A trait representing all pixels that can be safely represented as either RGB or RGBA true color.
 pub trait TrueColor: Pixel {
     /// Returns the pixel as an (r, g, b) tuple.
     fn as_rgb_tuple(&self) -> (u8, u8, u8);
