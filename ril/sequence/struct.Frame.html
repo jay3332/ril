@@ -107,7 +107,7 @@ below and above will be wrapped using the modulo operator.</p>
 but should rarely be used by you.</p>
 <h5 id="panics-3"><a href="#panics-3">Panics</a></h5>
 <ul>
-<li>Panics if the data is misinformed.</li>
+<li>Panics if the data is malformed.</li>
 </ul>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.map_in_place" class="method has-srclink"><a class="srclink rightside" href="../../src/ril/image.rs.html#827-834">source</a><h4 class="code-header">pub fn <a href="#method.map_in_place" class="fnname">map_in_place</a>(&amp;mut self, f: impl <a class="trait" href="https://doc.rust-lang.org/1.65.0/core/ops/function/trait.Fn.html" title="trait core::ops::function::Fn">Fn</a>(<a class="primitive" href="https://doc.rust-lang.org/1.65.0/std/primitive.u32.html">u32</a>, <a class="primitive" href="https://doc.rust-lang.org/1.65.0/std/primitive.u32.html">u32</a>, <a class="primitive" href="https://doc.rust-lang.org/1.65.0/std/primitive.reference.html">&amp;mut </a>P))</h4></section></summary><div class="docblock"><p>Similar to [<code>map_pixels_with_coords</code>], but this maps the pixels in place.</p>
 <p>This means that the output pixel type must be the same.</p>

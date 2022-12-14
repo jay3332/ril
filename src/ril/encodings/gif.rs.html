@@ -443,7 +443,7 @@
                     .palette()
                     .expect(<span class="string">&quot;paletted image without palette?&quot;</span>)
                     .iter()
-                    .flat_map(|p| p.force_into_rgb().as_bytes())
+                    .flat_map(|p| p.as_rgb().as_bytes())
                     .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
                     .as_slice(),
                 <span class="prelude-val">None</span>,
@@ -453,7 +453,7 @@
                 <span class="comment">// TODO: flatten all transparent pixels to the same color
                 </span><span class="kw">let </span>transparent_index = pixels
                     .iter()
-                    .position(|p| p.force_into_rgba().a == <span class="number">0</span>)
+                    .position(|p| p.as_rgba().a == <span class="number">0</span>)
                     .map(|i| i <span class="kw">as </span>u8);
 
                 gif::Frame::from_palette_pixels(
@@ -462,7 +462,7 @@
                     <span class="kw-2">&amp;</span><span class="macro">data!</span>(<span class="kw">crate</span>::Rgba),
                     pixels
                         .iter()
-                        .flat_map(|p| p.force_into_rgb().as_bytes())
+                        .flat_map(|p| p.as_rgb().as_bytes())
                         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
                         .as_slice(),
                     transparent_index,

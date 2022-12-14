@@ -1937,27 +1937,27 @@
         <span class="macro">panic!</span>(<span class="string">&quot;cannot convert from dynamic pixel for this pixel type&quot;</span>);
     }
 
-    <span class="doccomment">/// Converts this pixel into RGB despite its type. This can panic on some pixel types, you must
+    <span class="doccomment">/// Returns this pixel as RGB despite its type. This can panic on some pixel types, you must
     /// be sure this pixel is able to be converted into RGB before using this.
     ///
-    /// You should use [`Rgb::from`] or [`TrueColor::into_rgb`] as they are safer methods, checked
-    /// at compile time. This is primarily used for internal purposes, for example when an encoder
+    /// You should use [`Rgb::from`] or ensure that the pixel is [`TrueColor`], as they are safer
+    /// methods, checked at compile time. This is primarily used for internal purposes, for example when an encoder
     /// can guarantee that a pixel is convertable into RGB.
     ///
     /// # Panics
     /// * If the pixel is not convertable into RGB.
-    </span><span class="kw">fn </span>force_into_rgb(<span class="self">self</span>) -&gt; Rgb;
+    </span><span class="kw">fn </span>as_rgb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgb;
 
-    <span class="doccomment">/// Converts this pixel into RGBA despite its type. This can panic on some pixel types, you must
+    <span class="doccomment">/// Returns this pixel as RGBA despite its type. This can panic on some pixel types, you must
     /// be sure this pixel is able to be converted into RGBA before using this.
     ///
-    /// You should use [`Rgba::from`] or [`TrueColor::into_rgb`] as they are safer methods, checked
-    /// at compile time. This is primarily used for internal purposes, for example when an encoder
-    /// can guarantee that a pixel is convertable into RGBA.
+    /// You should use [`Rgba::from`] or ensure that the pixel is [`TrueColor`], as they are safer
+    /// methods, checked at compile time. This is primarily used for internal purposes, for example
+    /// when an encoder can guarantee that a pixel is convertable into RGBA.
     ///
     /// # Panics
     /// * If the pixel is not convertable into RGBA.
-    </span><span class="kw">fn </span>force_into_rgba(<span class="self">self</span>) -&gt; Rgba;
+    </span><span class="kw">fn </span>as_rgba(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgba;
 }
 
 <span class="doccomment">/// Represents a pixel that supports alpha, or transparency values.
@@ -2026,11 +2026,11 @@
         <span class="self">Self
     </span>}
 
-    <span class="kw">fn </span>force_into_rgb(<span class="self">self</span>) -&gt; Rgb {
+    <span class="kw">fn </span>as_rgb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgb {
         <span class="macro">panic!</span>(<span class="string">&quot;NoOp is a private pixel type and should not be used&quot;</span>)
     }
 
-    <span class="kw">fn </span>force_into_rgba(<span class="self">self</span>) -&gt; Rgba {
+    <span class="kw">fn </span>as_rgba(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgba {
         <span class="macro">panic!</span>(<span class="string">&quot;NoOp is a private pixel type and should not be used&quot;</span>)
     }
 }
@@ -2114,12 +2114,12 @@
 
 <span class="macro">macro_rules! </span>force_into_impl {
     () =&gt; {
-        <span class="kw">fn </span>force_into_rgb(<span class="self">self</span>) -&gt; Rgb {
-            <span class="self">self</span>.into()
+        <span class="kw">fn </span>as_rgb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgb {
+            (<span class="kw-2">*</span><span class="self">self</span>).into()
         }
 
-        <span class="kw">fn </span>force_into_rgba(<span class="self">self</span>) -&gt; Rgba {
-            <span class="self">self</span>.into()
+        <span class="kw">fn </span>as_rgba(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgba {
+            (<span class="kw-2">*</span><span class="self">self</span>).into()
         }
     };
 }
@@ -3186,7 +3186,7 @@
     }
 }
 
-<span class="doccomment">/// A trait representing all pixels that can be represented as either RGB or RGBA true color.
+<span class="doccomment">/// A trait representing all pixels that can be safely represented as either RGB or RGBA true color.
 </span><span class="kw">pub trait </span>TrueColor: Pixel {
     <span class="doccomment">/// Returns the pixel as an (r, g, b) tuple.
     </span><span class="kw">fn </span>as_rgb_tuple(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (u8, u8, u8);

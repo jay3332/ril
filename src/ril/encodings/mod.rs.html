@@ -60,6 +60,15 @@
 <span id="60">60</span>
 <span id="61">61</span>
 <span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Contains encoder and decoder implementations for various image formats.
 
 </span><span class="attribute">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
@@ -112,14 +121,23 @@
         }
     }
 
+    <span class="doccomment">/// Returns whether this color type can have a dynamic alpha value.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub const fn </span>has_alpha(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(
+            <span class="self">self</span>,
+            <span class="self">Self</span>::LA | <span class="self">Self</span>::Rgba | <span class="self">Self</span>::PaletteRgba | <span class="self">Self</span>::Dynamic
+        )
+    }
+
     <span class="attribute">#[must_use]
     </span><span class="kw">pub const fn </span>is_paletted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::PaletteRgb | <span class="self">Self</span>::PaletteRgba)
     }
 
     <span class="attribute">#[must_use]
-    </span><span class="kw">pub fn </span>is_dynamic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw-2">*</span><span class="self">self </span>== <span class="self">Self</span>::Dynamic
+    </span><span class="kw">pub const fn </span>is_dynamic(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Dynamic)
     }
 }
 </code></pre></div>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["BlendMode","Color blending mode"],["Interpolation","Interpolation mode"]],"struct":[["LinearGradient","A linear gradient."],["LinearGradientFill",""]]};

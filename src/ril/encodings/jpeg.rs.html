@@ -238,13 +238,13 @@
             ColorType::PaletteRgb =&gt; image
                 .data
                 .iter()
-                .map(|<span class="kw-2">&amp;</span>p| p.force_into_rgb())
+                .map(|<span class="kw-2">&amp;</span>p| p.as_rgb())
                 .flat_map(|p| p.as_bytes())
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             ColorType::PaletteRgba =&gt; image
                 .data
                 .iter()
-                .map(|<span class="kw-2">&amp;</span>p| p.force_into_rgba())
+                .map(|<span class="kw-2">&amp;</span>p| p.as_rgba())
                 .flat_map(|p| p.as_bytes())
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
             <span class="kw">_ </span>=&gt; image.data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),

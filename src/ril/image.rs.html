@@ -2481,12 +2481,12 @@
     /// but should rarely be used by you.
     ///
     /// # Panics
-    /// * Panics if the data is misinformed.
+    /// * Panics if the data is malformed.
     </span><span class="kw">pub fn </span>set_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: Vec&lt;P&gt;) {
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.width() * <span class="self">self</span>.height(),
             data.len() <span class="kw">as </span>u32,
-            <span class="string">&quot;misformed data&quot;
+            <span class="string">&quot;malformed data&quot;
         </span>);
 
         <span class="self">self</span>.data = data;

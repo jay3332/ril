@@ -446,9 +446,9 @@
             <span class="kw">let </span>sample = image.data[<span class="number">0</span>].color_type();
             <span class="kw">if match </span>sample {
                 ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA =&gt; {
-                    <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGBA, <span class="number">4</span>, force_into_rgba)
+                    <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGBA, <span class="number">4</span>, as_rgba)
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGB, <span class="number">3</span>, force_into_rgb),
+                <span class="kw">_ </span>=&gt; <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGB, <span class="number">3</span>, as_rgb),
             } == <span class="number">0
             </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP encoding error&quot;</span>.to_string()));
