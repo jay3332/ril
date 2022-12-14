@@ -1,41 +1,73 @@
 //! Handles rendering and logic of gradients.
 
-use crate::{Pixel, Rgba};
+#![allow(clippy::cast_lossless, clippy::cast_precision_loss)]
+
+use crate::{Image, OverlayMode, Pixel, Rgba};
 use std::marker::PhantomData;
 
 pub use colorgrad::{BlendMode, Interpolation};
 
-pub(crate) trait IntoFill<P: Pixel> {
-    type Fill: Fill<P>;
+pub type BoundingBox<T> = (T, T, T, T);
+
+pub trait IntoFill: Clone + Default {
+    type Pixel: Pixel;
+    type Fill: Fill<Self::Pixel>;
 
     fn into_fill(self) -> Self::Fill;
 }
 
-#[cfg_attr(feature = "const-pixels", const_trait)]
-pub(crate) trait Fill<P: Pixel> {
-    fn get_pixel(&self, bounding_box: &(u32, u32, u32, u32), x: u32, y: u32) -> P;
+pub trait Fill<P: Pixel>: Clone {
+    fn set_bounding_box(&mut self, _bounding_box: BoundingBox<u32>) {}
+
+    #[must_use = "this method consumes the fill and returns it back, it does not modify it in-place"]
+    fn with_bounding_box(mut self, bounding_box: BoundingBox<u32>) -> Self
+    where
+        Self: Sized,
+    {
+        self.set_bounding_box(bounding_box);
+        self
+    }
+
+    fn get_pixel(&self, x: u32, y: u32) -> P;
+
+    fn plot(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode) {
+        image.overlay_pixel_with_mode(x, y, self.get_pixel(x, y), mode);
+    }
+
+    fn plot_with_alpha(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode, alpha: u8) {
+        image.overlay_pixel_with_alpha(x, y, self.get_pixel(x, y), mode, alpha);
+    }
 }
 
-impl<P: Pixel> IntoFill<P> for P {
-    type Fill = SolidFill<P>;
+impl<P: Pixel> IntoFill for P {
+    type Pixel = P;
+    type Fill = SolidFill<Self::Pixel>;
 
     fn into_fill(self) -> Self::Fill {
         SolidFill(self)
     }
 }
 
-pub(crate) struct SolidFill<P: Pixel>(P);
+#[derive(Copy, Clone, Debug)]
+pub struct SolidFill<P: Pixel>(P);
 
-#[cfg(feature = "const-pixels")]
-impl<P: Pixel> const Fill<P> for SolidFill<P> {
-    fn get_pixel(&self, _: &(u32, u32, u32, u32), _: u32, _: u32) -> P {
+impl<P: Pixel> SolidFill<P> {
+    /// Creates a new solid fill.
+    #[must_use]
+    pub const fn new(color: P) -> Self {
+        Self(color)
+    }
+
+    /// Returns a the color (represented as a [`Pixel`]) of the fill.
+    #[must_use]
+    pub const fn color(&self) -> P {
         self.0
     }
 }
 
-#[cfg(not(feature = "const-pixels"))]
 impl<P: Pixel> Fill<P> for SolidFill<P> {
-    fn get_pixel(&self, _: &(u32, u32, u32, u32), _: u32, _: u32) -> P {
+    #[inline]
+    fn get_pixel(&self, _: u32, _: u32) -> P {
         self.0
     }
 }
@@ -50,16 +82,16 @@ pub struct LinearGradient<P: Pixel> {
     /// where `position` is a value in the range [0.0, 1.0].
     ///
     /// # Normalization of positions
-    /// During building of this struct, there might be some positions of `-1.0`, these represent
-    /// positions that will be normalized later. For example, `[0.0, -1.0, 1.0]` is normalized to
+    /// During building of this struct, there might be some positions that are `nan` which represent
+    /// positions that will be normalized later. For example, `[0.0, nan, 1.0]` is normalized to
     /// `[0.0, 0.5, 1.0]` because `0.5` is the midpoint between `0.0` and `1.0`.
     ///
-    /// Similarly, `[0.0, -1.0, -1.0, -1.0, 1.0]` is normalized to `[0.0, 0.25, 0.5, 0.75, 1.0]`
+    /// Similarly, `[0.0, nan, nan, nan, 1.0]` is normalized to `[0.0, 0.25, 0.5, 0.75, 1.0]`
     /// because they evenly distribute between `0.0` and `1.0`.
     ///
     /// ## Normalization of endpoints
-    /// If the first position is `-1.0`, it will be normalized to `0.0`. If the last position is
-    /// `-1.0`, it will be normalized to `1.0`.
+    /// If the first position is `nan`, it will be normalized to `0.0`. If the last position is
+    /// `nan`, it will be normalized to `1.0`.
     pub colors: Vec<(P, f64)>,
     /// The interpolation mode to use when rendering the gradient. Defaults to
     /// [`Interpolation::Linear`].
@@ -92,11 +124,20 @@ impl<P: Pixel> LinearGradient<P> {
     /// will be normalized.
     ///
     /// If your angle is in degrees, the [`f64::to_radians`] method can be used to convert into
-    /// degrees.
+    /// degrees, or the convenience method [`Self::with_angle_degrees`] can be used.
     #[must_use]
     pub const fn with_angle(mut self, angle: f64) -> Self {
         self.angle = angle;
         self
+    }
+
+    /// A shortcut method to set the angle of the gradient in **degrees**. Angles outside of the
+    /// range `[0.0, 360.0)` will be normalized.
+    ///
+    /// See [`Self::with_angle`] for more information.
+    #[must_use]
+    pub fn with_angle_degrees(self, angle: f64) -> Self {
+        self.with_angle(angle.to_radians())
     }
 
     /// Sets the interpolation mode to use when rendering the gradient.
@@ -161,7 +202,7 @@ impl<P: Pixel> LinearGradient<P> {
     /// # See Also
     /// * [`Self::push_color_at`] for adding a color at a specific position.
     pub fn push_color(&mut self, color: P) {
-        self.colors.push((color, -1.0));
+        self.colors.push((color, f64::NAN));
     }
 
     /// Takes this gradient and adds a color to the gradient, automatically calculating its position.
@@ -193,7 +234,7 @@ impl<P: Pixel> LinearGradient<P> {
     /// * [`Self::extend_with_positions`] for adding colors at specific positions.
     pub fn extend<I: IntoIterator<Item = P>>(&mut self, iter: I) {
         self.colors
-            .extend(iter.into_iter().map(|color| (color, -1.0)));
+            .extend(iter.into_iter().map(|color| (color, f64::NAN)));
     }
 
     /// Checks if the gradient is safe to call [`Self::normalize_positions`].
@@ -204,8 +245,8 @@ impl<P: Pixel> LinearGradient<P> {
         );
 
         let mut last_known = 0.0;
-        for (_, pos) in self.colors.iter() {
-            if *pos == -1.0 {
+        for (_, pos) in &self.colors {
+            if pos.is_nan() {
                 continue;
             }
 
@@ -224,13 +265,13 @@ impl<P: Pixel> LinearGradient<P> {
     /// * Known colors of `self.colors` must be sorted by position.
     /// * `self.colors` must not be empty.
     unsafe fn normalize_positions(&mut self) {
-        // If the first position is -1.0, it will be normalized to 0.0.
-        if self.colors.get_unchecked(0).1 == -1.0 {
+        // If the first position is nan, it will be normalized to 0.0.
+        if self.colors.get_unchecked(0).1.is_nan() {
             self.colors[0].1 = 0.0;
         }
 
-        // If the last position is -1.0, it will be normalized to 1.0.
-        if self.colors.last().unwrap_unchecked().1 == -1.0 {
+        // If the last position is nan, it will be normalized to 1.0.
+        if self.colors.last().unwrap_unchecked().1.is_nan() {
             self.colors.last_mut().unwrap_unchecked().1 = 1.0;
         }
 
@@ -242,18 +283,18 @@ impl<P: Pixel> LinearGradient<P> {
 
             let position = self.colors.get_unchecked(i).1;
             let peek = self.colors.get_unchecked(i + 1).1;
-            if peek != -1.0 {
+            if !peek.is_nan() {
                 i += 1;
                 continue;
             }
 
-            // Count the number of -1.0 positions until the next known position.
+            // Count the number of nan positions until the next known position.
             let start = i;
             let mut count = 1;
             let mut next_position;
             loop {
                 next_position = self.colors.get_unchecked(start + count).1;
-                if next_position != -1.0 {
+                if !next_position.is_nan() {
                     break;
                 }
                 count += 1;
@@ -262,14 +303,14 @@ impl<P: Pixel> LinearGradient<P> {
 
             let increment = (next_position - position) / count as f64;
             for j in 1..count {
-                self.colors.get_unchecked_mut(start + j).1 = position + increment * j as f64;
+                self.colors.get_unchecked_mut(start + j).1 = increment.mul_add(j as f64, position);
             }
 
             i += 1;
         }
     }
 
-    fn into_colorgrad(mut self) -> colorgrad::Gradient {
+    fn into_colorgrad(mut self) -> colorgrad::CustomGradient {
         self.check_positions();
         // SAFETY: The preconditions are met.
         unsafe { self.normalize_positions() };
@@ -283,52 +324,97 @@ impl<P: Pixel> LinearGradient<P> {
             })
             .unzip();
 
-        // SAFETY: check_positions + normalize_positions guarantees a valid domain
-        unsafe {
-            colorgrad::CustomGradient::new()
-                .colors(&colors)
-                .domain(&positions)
-                .interpolation(self.interpolation)
-                .mode(self.blend_mode)
-                .build()
-                .unwrap_unchecked()
-        }
+        let mut gradient = colorgrad::CustomGradient::new();
+        gradient
+            .colors(&colors)
+            .domain(&positions)
+            .interpolation(self.interpolation)
+            .mode(self.blend_mode);
+
+        gradient
     }
 }
 
-impl<P: Pixel> IntoFill<P> for LinearGradient<P> {
-    type Fill = LinearGradientFill<P>;
+impl<P: Pixel> IntoFill for LinearGradient<P> {
+    type Pixel = P;
+    type Fill = LinearGradientFill<Self::Pixel>;
 
     fn into_fill(mut self) -> Self::Fill {
         self.angle = self.angle.rem_euclid(std::f64::consts::TAU);
+        let (ty, tx) = self.angle.sin_cos();
+        let clone_gradient = self.into_colorgrad();
 
         LinearGradientFill {
-            x: self.angle.cos(),
-            y: self.angle.sin(),
-            gradient: self.into_colorgrad(),
+            x: 0.0,
+            y: 0.0,
+            tx,
+            ty,
+            width: 0.0,
+            height: 0.0,
+            half_width: 0.0,
+            half_height: 0.0,
+            // SAFETY: validated by `check_positions` and `normalize_positions`.
+            gradient: unsafe { clone_gradient.build().unwrap_unchecked() },
+            clone_gradient,
             _marker: PhantomData,
         }
     }
 }
 
-pub(crate) struct LinearGradientFill<P: Pixel> {
+#[derive(Debug)]
+pub struct LinearGradientFill<P: Pixel> {
     x: f64,
     y: f64,
-    gradient: colorgrad::Gradient,
+    tx: f64,
+    ty: f64,
+    width: f64,
+    height: f64,
+    half_width: f64,
+    half_height: f64,
+    pub(crate) gradient: colorgrad::Gradient,
+    clone_gradient: colorgrad::CustomGradient,
     _marker: PhantomData<P>,
 }
 
+// We can't derive `Clone` because `colorgrad::Gradient` doesn't implement `Clone`.
+impl<P: Pixel> Clone for LinearGradientFill<P> {
+    fn clone(&self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y,
+            tx: self.tx,
+            ty: self.ty,
+            width: self.width,
+            height: self.height,
+            half_width: self.half_width,
+            half_height: self.half_height,
+            gradient: self.clone_gradient.build().unwrap(),
+            clone_gradient: self.clone_gradient.clone(),
+            _marker: PhantomData,
+        }
+    }
+}
+
 impl<P: Pixel> Fill<P> for LinearGradientFill<P> {
-    fn get_pixel(&self, (x1, y1, x2, y2): &(u32, u32, u32, u32), x: u32, y: u32) -> P {
+    fn set_bounding_box(&mut self, (x1, y1, x2, y2): BoundingBox<u32>) {
         let width = (x2 - x1) as f64;
         let height = (y2 - y1) as f64;
 
+        self.x = x1 as f64;
+        self.y = y1 as f64;
+        self.width = width;
+        self.height = height;
+        self.half_width = width / 2.0;
+        self.half_height = height / 2.0;
+    }
+
+    fn get_pixel(&self, x: u32, y: u32) -> P {
         // Make the coordinates relative to the center of the bounding box.
-        let x = x as f64 - width / 2.0;
-        let y = y as f64 - height / 2.0;
+        let x = x as f64 - self.half_width - self.x;
+        let y = y as f64 - self.half_height - self.y;
 
         // Calculate the dot product of the position vector and the angle vector.
-        let t = (x / width) * self.x + (y / height) * self.y;
+        let t = (x / self.width).mul_add(self.tx, (y / self.height) * self.ty);
 
         // Get the color from the gradient.
         let (r, g, b, a) = self.gradient.at(0.5 + t).to_linear_rgba_u8();

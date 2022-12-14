@@ -260,7 +260,6 @@
     clippy::many_single_char_names,
     clippy::doc_markdown
 )]
-#![cfg_attr(feature = "const-pixels", feature(const_trait_impl))]
 
 pub mod draw;
 pub mod encode;

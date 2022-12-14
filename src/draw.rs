@@ -1,6 +1,9 @@
 //! Encloses most drawing implementations and drawable objects.
 
-use crate::{Image, OverlayMode, Pixel};
+use crate::{
+    gradient::{Fill, IntoFill},
+    Image, OverlayMode, Pixel,
+};
 use std::ops::DerefMut;
 
 /// A common trait for all objects able to be drawn on an image.
@@ -111,9 +114,9 @@ impl<P: Pixel> Border<P> {
 /// and [Xiaolin Wu's line algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
 /// for antialiased lines. Thicker lines are drawn as polygons.
 #[derive(Clone, Debug)]
-pub struct Line<P: Pixel> {
+pub struct Line<F: IntoFill> {
     /// The color of the line.
-    pub color: P,
+    pub color: F::Fill,
     /// The overlay mode of the line, or None to inherit from the overlay mode of the image.
     pub mode: Option<OverlayMode>,
     /// The thickness of the line, in pixels. Defaults to 1.
@@ -136,10 +139,10 @@ pub struct Line<P: Pixel> {
     pub position: BorderPosition,
 }
 
-impl<P: Pixel> Default for Line<P> {
+impl<F: IntoFill> Default for Line<F> {
     fn default() -> Self {
         Self {
-            color: P::default(),
+            color: F::default().into_fill(),
             mode: None,
             thickness: 1,
             start: (0, 0),
@@ -152,21 +155,39 @@ impl<P: Pixel> Default for Line<P> {
 }
 
 #[allow(clippy::cast_precision_loss, clippy::cast_possible_wrap)]
-impl<P: Pixel> Line<P> {
+impl<F: IntoFill> Line<F> {
     /// Creates a new line.
     #[must_use]
-    pub fn new(start: (u32, u32), end: (u32, u32), color: P) -> Self {
-        Self {
-            color,
+    pub fn new(start: (u32, u32), end: (u32, u32), color: F) -> Self {
+        let mut this = Self {
+            color: color.into_fill(),
             start,
             end,
             ..Default::default()
-        }
+        };
+        this.update_bounding_box();
+        this
+    }
+
+    fn update_bounding_box(&mut self) {
+        self.color.set_bounding_box((
+            self.start.0.min(self.end.0),
+            self.start.1.min(self.end.1),
+            self.start.0.max(self.end.0),
+            self.start.1.max(self.end.1),
+        ));
     }
 
     /// Sets the color of the line.
     #[must_use]
-    pub const fn with_color(mut self, color: P) -> Self {
+    pub fn with_color(mut self, color: F) -> Self {
+        self.color = color.into_fill();
+        self.update_bounding_box();
+        self
+    }
+
+    #[allow(clippy::missing_const_for_fn)]
+    pub(crate) fn with_fill_color(mut self, color: F::Fill) -> Self {
         self.color = color;
         self
     }
@@ -187,15 +208,17 @@ impl<P: Pixel> Line<P> {
 
     /// Sets the start coordinates of the line.
     #[must_use]
-    pub const fn with_start(mut self, x: u32, y: u32) -> Self {
+    pub fn with_start(mut self, x: u32, y: u32) -> Self {
         self.start = (x, y);
+        self.update_bounding_box();
         self
     }
 
     /// Sets the end coordinates of the line.
     #[must_use]
-    pub const fn with_end(mut self, x: u32, y: u32) -> Self {
+    pub fn with_end(mut self, x: u32, y: u32) -> Self {
         self.end = (x, y);
+        self.update_bounding_box();
         self
     }
 
@@ -224,23 +247,28 @@ impl<P: Pixel> Line<P> {
         self
     }
 
-    fn plot_endpoints(&self, image: &mut Image<P>) {
+    fn plot_endpoints(&self, image: &mut Image<F::Pixel>) {
         if self.rounded && self.thickness > 1 {
             let (x1, y1) = self.start;
             let (x2, y2) = self.end;
-            let mut reference = Ellipse::circle(x1, y1, self.thickness / 2).with_fill(self.color);
+            let mut reference = Ellipse::<F>::circle(x1, y1, self.thickness / 2)
+                .with_fill_color(self.color.clone());
 
             if let Some(mode) = self.mode {
                 reference = reference.with_overlay_mode(mode);
             }
 
             image.draw(&reference);
-            image.draw(&reference.with_position(x2, y2));
+            image.draw(
+                &reference
+                    .with_position(x2, y2)
+                    .with_fill_color(self.color.clone()),
+            );
         }
     }
 
     // assumes that `x1 == x2 || y1 == y2`
-    fn plot_perfect_line(&self, image: &mut Image<P>) {
+    fn plot_perfect_line(&self, image: &mut Image<F::Pixel>) {
         let (mut x1, mut y1) = self.start;
         let (mut x2, mut y2) = self.end;
         let adjustment = self.thickness / 2;
@@ -257,7 +285,8 @@ impl<P: Pixel> Line<P> {
             y2 += difference;
         }
 
-        let mut rect = Rectangle::from_bounding_box(x1, y1, x2, y2).with_fill(self.color);
+        let mut rect =
+            Rectangle::<F>::from_bounding_box(x1, y1, x2, y2).with_fill_color(self.color.clone());
         if let Some(mode) = self.mode {
             rect = rect.with_overlay_mode(mode);
         }
@@ -286,7 +315,7 @@ impl<P: Pixel> Line<P> {
         (swapped, x1, y1, x2, y2)
     }
 
-    fn draw_thin_line(&self, image: &mut Image<P>) {
+    fn draw_thin_line(&self, image: &mut Image<F::Pixel>) {
         let (swapped, mut x1, y1, x2, y2) = self.setup_points();
 
         let dx = (x2 - x1) as f32;
@@ -310,11 +339,11 @@ impl<P: Pixel> Line<P> {
             } else {
                 (x1, y as u32)
             };
-            image.overlay_pixel_with_mode(x, y, self.color, overlay);
+            self.color.plot(image, x, y, overlay);
         }
     }
 
-    fn draw_antialiased_line(&self, image: &mut Image<P>) {
+    fn draw_antialiased_line(&self, image: &mut Image<F::Pixel>) {
         let (swapped, x1_u, y1, x2_u, y2) = self.setup_points();
         let (x1, mut y1, x2, y2) = (x1_u as f32, y1 as f32, x2_u as f32, y2 as f32);
 
@@ -342,7 +371,8 @@ impl<P: Pixel> Line<P> {
                 lower = false;
                 x += 1;
                 y1 += gradient;
-                image.overlay_pixel_with_alpha(px, py, self.color, overlay, (fract * 255.0) as u8);
+                self.color
+                    .plot_with_alpha(image, px, py, overlay, (fract * 255.0) as u8);
             } else {
                 if fract > 0.0 {
                     lower = true;
@@ -350,18 +380,13 @@ impl<P: Pixel> Line<P> {
                     x += 1;
                     y1 += gradient;
                 }
-                image.overlay_pixel_with_alpha(
-                    px,
-                    py,
-                    self.color,
-                    overlay,
-                    ((1.0 - fract) * 255.0) as u8,
-                );
+                self.color
+                    .plot_with_alpha(image, px, py, overlay, ((1.0 - fract) * 255.0) as u8);
             }
         }
     }
 
-    fn draw_thick_line(&self, image: &mut Image<P>) {
+    fn draw_thick_line(&self, image: &mut Image<F::Pixel>) {
         let (x1, y1) = self.start;
         let (x2, y2) = self.end;
         let (x1, y1, x2, y2) = (x1 as f32, y1 as f32, x2 as f32, y2 as f32);
@@ -377,7 +402,7 @@ impl<P: Pixel> Line<P> {
             let lower_cos = thickness * lower.cos();
             let lower_sin = thickness * lower.sin();
 
-            Polygon::from_vertices([
+            Polygon::<F>::from_vertices([
                 ((x1 + upper_cos) as u32, (y1 + upper_sin) as u32),
                 ((x1 + lower_cos) as u32, (y1 + lower_sin) as u32),
                 ((x2 + lower_cos) as u32, (y2 + lower_sin) as u32),
@@ -394,7 +419,7 @@ impl<P: Pixel> Line<P> {
             let cos = thickness * angle.cos();
             let sin = thickness * angle.sin();
 
-            Polygon::from_vertices([
+            Polygon::<F>::from_vertices([
                 ((x1 + cos) as u32, (y1 + sin) as u32),
                 ((x1 - cos) as u32, (y1 - sin) as u32),
                 ((x2 - cos) as u32, (y2 - sin) as u32),
@@ -404,17 +429,21 @@ impl<P: Pixel> Line<P> {
 
         image.draw(
             &polygon
-                .with_fill(self.color)
+                .with_fill_color(self.color.clone())
                 .with_antialiased(self.antialiased),
         );
     }
 }
 
-impl<P: Pixel> Draw<P> for Line<P> {
-    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+impl<F: IntoFill> Draw<F::Pixel> for Line<F> {
+    fn draw<I: DerefMut<Target = Image<F::Pixel>>>(&self, mut image: I) {
         let (x1, y1) = self.start;
         let (x2, y2) = self.end;
         let image = &mut *image;
+
+        // TODO: still have to adjust endpoints for lines with adjusted positions
+        // TODO: make endpoints smoothly adjust to gradient fills
+        self.plot_endpoints(image);
 
         if x1 == x2 || y1 == y2 {
             self.plot_perfect_line(image);
@@ -427,15 +456,12 @@ impl<P: Pixel> Draw<P> for Line<P> {
         } else {
             self.draw_thick_line(image);
         }
-
-        // TODO: still have to adjust endpoints for lines with adjusted positions
-        self.plot_endpoints(image);
     }
 }
 
 /// A polygon.
-#[derive(Clone, Debug, Default)]
-pub struct Polygon<P: Pixel> {
+#[derive(Clone, Debug)]
+pub struct Polygon<F: IntoFill> {
     /// A `Vec` of vertices that make up the polygon. The vertices are connected in the order they
     /// are given.
     ///
@@ -446,24 +472,53 @@ pub struct Polygon<P: Pixel> {
     /// close the polygon.
     pub vertices: Vec<(u32, u32)>,
     /// The border of the polygon. Either this or `fill` must be `Some`.
-    pub border: Option<Border<P>>,
+    pub border: Option<Border<F::Pixel>>,
     /// Whether the border should be rounded off by drawing circles at each vertex. This is only
     /// applied if `border` is `Some`. Additionally, these circles will not antialias.
     pub rounded: bool,
     /// The fill color of the polygon. Either this or `border` must be `Some`.
-    pub fill: Option<P>,
+    pub fill: Option<F::Fill>,
     /// The overlay mode of the polygon. If `None`, the image's overlay mode will be used.
     pub overlay: Option<OverlayMode>,
     /// Whether to antialias the polygon's edges.
     pub antialiased: bool,
 }
 
+impl<F: IntoFill> Default for Polygon<F> {
+    fn default() -> Self {
+        Self {
+            vertices: Vec::default(),
+            border: None,
+            rounded: false,
+            fill: None,
+            overlay: None,
+            antialiased: false,
+        }
+    }
+}
+
 #[allow(clippy::cast_precision_loss, clippy::cast_possible_wrap)]
-impl<P: Pixel> Polygon<P> {
+impl<F: IntoFill> Polygon<F> {
     /// Creates a new empty polygon.
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Updates the polygon's bounding box. This is automatically called, unless explicitly
+    /// specified in documentation.
+    pub fn update_bounding_box(&mut self) {
+        if let Some(ref mut fill) = self.fill {
+            let x_iter = self.vertices.iter().map(|(x, _)| *x);
+            let y_iter = self.vertices.iter().map(|(_, y)| *y);
+
+            fill.set_bounding_box((
+                x_iter.clone().min().unwrap_or(0),
+                y_iter.clone().min().unwrap_or(0),
+                x_iter.max().unwrap_or(0),
+                y_iter.max().unwrap_or(0),
+            ));
+        }
     }
 
     /// Creates a new polygon with the given vertices.
@@ -475,10 +530,58 @@ impl<P: Pixel> Polygon<P> {
         }
     }
 
+    /// Creates a regular polygon with `n` sides centered at `center`, with each of the points
+    /// `radius` away from the center. `angle` is measured in radians and is the angle offset of the
+    /// first point, which for `angle=0.0`, will be horizontally to the right of the center
+    /// (i.e. a unit circle).
+    ///
+    /// For angles specified in degrees, the [`f64::to_radians`] method can be used for conversion.
+    ///
+    /// # Note
+    /// Apart from `n=4`, the polygon will not be pixel-perfect since no polygons other than squares
+    /// have all of their vertices as perfect integers. This means that they will be rounded to the
+    /// nearest pixel.
+    ///
+    /// # Panics
+    /// * If `n < 3`
+    #[must_use]
+    #[allow(clippy::cast_lossless)]
+    pub fn regular_rotated(n: u32, center: (u32, u32), radius: u32, angle: f64) -> Self {
+        assert!(n >= 3, "n must be greater than or equal to 3");
+
+        let mut vertices = Vec::with_capacity(n as usize);
+        let base = std::f64::consts::TAU / n as f64;
+        let (cx, cy) = (center.0 as f64, center.1 as f64);
+        let radius = radius as f64;
+
+        for i in 0..n {
+            let (angle_sin, angle_cos) = base.mul_add(i as f64, -angle).sin_cos();
+            let x = radius.mul_add(angle_cos, cx).round() as u32;
+            let y = radius.mul_add(angle_sin, cy).round() as u32;
+
+            vertices.push((x, y));
+        }
+
+        Self::from_vertices(vertices)
+    }
+
+    /// Creates a regular polygon with the first point vertically up from the center (the polygon
+    /// will seem to be facing "upwards").
+    ///
+    /// This is a shortcut to calling [`Polygon::regular_rotated`] with `angle = PI / 2` (`90deg`).
+    ///
+    /// # See Also
+    /// * [`Polygon::regular_rotated`] for more information.
+    #[must_use]
+    pub fn regular(n: u32, center: (u32, u32), radius: u32) -> Self {
+        Self::regular_rotated(n, center, radius, std::f64::consts::FRAC_PI_2)
+    }
+
     /// Adds a vertex to the polygon.
     #[must_use]
     pub fn with_vertex(mut self, x: u32, y: u32) -> Self {
         self.push_vertex(x, y);
+        self.update_bounding_box();
         self
     }
 
@@ -504,14 +607,15 @@ impl<P: Pixel> Polygon<P> {
         self.vertices.iter()
     }
 
-    /// Iterates over the vertices in the polygon in mutable form.
+    /// Iterates over the vertices in the polygon in mutable form. Make sure to call
+    /// [`update_bounding_box`](#method.update_bounding_box) after mutating the vertices.
     pub fn iter_vertices_mut(&mut self) -> impl Iterator<Item = &mut (u32, u32)> {
         self.vertices.iter_mut()
     }
 
     /// Sets the border of the polygon.
     #[must_use]
-    pub const fn with_border(mut self, border: Border<P>) -> Self {
+    pub const fn with_border(mut self, border: Border<F::Pixel>) -> Self {
         self.border = Some(border);
         self
     }
@@ -525,7 +629,14 @@ impl<P: Pixel> Polygon<P> {
 
     /// Sets the fill color of the polygon.
     #[must_use]
-    pub const fn with_fill(mut self, fill: P) -> Self {
+    pub fn with_fill(mut self, fill: F) -> Self {
+        self.fill = Some(fill.into_fill());
+        self.update_bounding_box();
+        self
+    }
+
+    #[allow(clippy::missing_const_for_fn)]
+    pub(crate) fn with_fill_color(mut self, fill: F::Fill) -> Self {
         self.fill = Some(fill);
         self
     }
@@ -563,7 +674,7 @@ impl<P: Pixel> Polygon<P> {
         vertices
     }
 
-    fn rasterize_fill(&self, image: &mut Image<P>, vertices: &[(u32, u32)]) {
+    fn rasterize_fill(&self, image: &mut Image<F::Pixel>, vertices: &[(u32, u32)]) {
         let vertices = vertices
             .iter()
             .map(|(x, y)| (*x as i32, *y as i32))
@@ -585,7 +696,7 @@ impl<P: Pixel> Polygon<P> {
             (y_iter!(min), y_iter!(max))
         };
         // SAFETY: this method is only called if `self.fill` is `Some`
-        let fill = unsafe { self.fill.unwrap_unchecked() };
+        let fill = unsafe { self.fill.as_ref().unwrap_unchecked() };
         let overlay = self.overlay.unwrap_or(image.overlay);
         let mut intersections = Vec::new();
 
@@ -615,7 +726,7 @@ impl<P: Pixel> Polygon<P> {
             intersections.sort_unstable();
             intersections.chunks_exact(2).for_each(|range| {
                 for x in range[0]..=range[1] {
-                    image.overlay_pixel_with_mode(x as u32, y as u32, fill, overlay);
+                    fill.plot(image, x as u32, y as u32, overlay);
                 }
             });
             intersections.clear();
@@ -623,8 +734,8 @@ impl<P: Pixel> Polygon<P> {
     }
 }
 
-impl<P: Pixel> Draw<P> for Polygon<P> {
-    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+impl<F: IntoFill> Draw<F::Pixel> for Polygon<F> {
+    fn draw<I: DerefMut<Target = Image<F::Pixel>>>(&self, mut image: I) {
         debug_assert!(
             self.fill.is_some() || self.border.is_some(),
             "polygon must have a fill or border"
@@ -633,7 +744,7 @@ impl<P: Pixel> Draw<P> for Polygon<P> {
         let image = &mut *image;
         let vertices = self.sanitize_vertices();
 
-        if let Some(fill) = self.fill {
+        if let Some(ref fill) = self.fill {
             self.rasterize_fill(image, &vertices);
 
             if self.border.is_none() && self.antialiased {
@@ -642,7 +753,11 @@ impl<P: Pixel> Draw<P> for Polygon<P> {
                         // SAFETY: windows(2) ensures that there are at least 2 points
                         let &from = edge.get_unchecked(0);
                         let &to = edge.get_unchecked(1);
-                        image.draw(&Line::new(from, to, fill).with_antialiased(true));
+                        image.draw(
+                            &Line::new(from, to, F::default())
+                                .with_fill_color(fill.clone())
+                                .with_antialiased(true),
+                        );
                     }
                 }
             }
@@ -685,22 +800,34 @@ impl<P: Pixel> Draw<P> for Polygon<P> {
 ///
 /// Additionally, a panic will be raised during drawing if you do not specify either a fill color
 /// or a border. these can be set with [`with_fill`] and [`with_border`] respectively.
-#[derive(Clone, Debug, Default)]
-pub struct Rectangle<P: Pixel> {
+#[derive(Clone, Debug)]
+pub struct Rectangle<F: IntoFill> {
     /// The position of the rectangle. The top-left corner of the rectangle will be rendered at
     /// this position.
     pub position: (u32, u32),
     /// The dimensions of the rectangle, in pixels.
     pub size: (u32, u32),
     /// The border data of the rectangle, or None if there is no border.
-    pub border: Option<Border<P>>,
+    pub border: Option<Border<F::Pixel>>,
     /// The fill color of the rectangle, or None if there is no fill.
-    pub fill: Option<P>,
+    pub fill: Option<F::Fill>,
     /// The overlay mode of the rectangle, or None to inherit from the overlay mode of the image.
     pub overlay: Option<OverlayMode>,
 }
 
-impl<P: Pixel> Rectangle<P> {
+impl<F: IntoFill> Default for Rectangle<F> {
+    fn default() -> Self {
+        Self {
+            position: (0, 0),
+            size: (0, 0),
+            border: None,
+            fill: None,
+            overlay: None,
+        }
+    }
+}
+
+impl<F: IntoFill> Rectangle<F> {
     /// Creates a new rectangle with default values.
     ///
     /// This immediately sets the position to `(0, 0)`
@@ -713,6 +840,14 @@ impl<P: Pixel> Rectangle<P> {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    fn update_bounding_box(&mut self) {
+        if let Some(ref mut fill) = self.fill {
+            let (x, y) = self.position;
+            let (w, h) = self.size;
+            fill.set_bounding_box((x, y, x + w, y + h));
+        }
     }
 
     /// Creates a new rectangle from two coordinates specified as 4 parameters.
@@ -734,15 +869,17 @@ impl<P: Pixel> Rectangle<P> {
 
     /// Sets the position of the rectangle.
     #[must_use]
-    pub const fn with_position(mut self, x: u32, y: u32) -> Self {
+    pub fn with_position(mut self, x: u32, y: u32) -> Self {
         self.position = (x, y);
+        self.update_bounding_box();
         self
     }
 
     /// Sets the size of the rectangle in pixels.
     #[must_use]
-    pub const fn with_size(mut self, width: u32, height: u32) -> Self {
+    pub fn with_size(mut self, width: u32, height: u32) -> Self {
         self.size = (width, height);
+        self.update_bounding_box();
         self
     }
 
@@ -751,14 +888,21 @@ impl<P: Pixel> Rectangle<P> {
     /// # See Also
     /// * [`Border`]
     #[must_use]
-    pub const fn with_border(mut self, border: Border<P>) -> Self {
+    pub const fn with_border(mut self, border: Border<F::Pixel>) -> Self {
         self.border = Some(border);
         self
     }
 
     /// Sets the fill color of the rectangle.
     #[must_use]
-    pub const fn with_fill(mut self, fill: P) -> Self {
+    pub fn with_fill(mut self, fill: F) -> Self {
+        self.fill = Some(fill.into_fill());
+        self.update_bounding_box();
+        self
+    }
+
+    #[allow(clippy::missing_const_for_fn)]
+    pub(crate) fn with_fill_color(mut self, fill: F::Fill) -> Self {
         self.fill = Some(fill);
         self
     }
@@ -771,8 +915,8 @@ impl<P: Pixel> Rectangle<P> {
     }
 }
 
-impl<P: Pixel> Draw<P> for Rectangle<P> {
-    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+impl<F: IntoFill> Draw<F::Pixel> for Rectangle<F> {
+    fn draw<I: DerefMut<Target = Image<F::Pixel>>>(&self, mut image: I) {
         assert!(
             self.fill.is_some() || self.border.is_some(),
             "must provide one of either fill or border, try calling .with_fill()"
@@ -789,10 +933,10 @@ impl<P: Pixel> Draw<P> for Rectangle<P> {
         let overlay = self.overlay.unwrap_or(image.overlay);
 
         // Draw the fill first
-        if let Some(fill) = self.fill {
+        if let Some(ref fill) = self.fill {
             for y in y1..y2 {
                 for x in x1..x2 {
-                    image.overlay_pixel_with_mode(x, y, fill, overlay);
+                    fill.plot(&mut image, x, y, overlay);
                 }
             }
         }
@@ -828,22 +972,34 @@ impl<P: Pixel> Draw<P> for Rectangle<P> {
 /// This also does not set any border or fill for the ellipse, you must explicitly set either one
 /// of them with [`with_fill`] or [`with_border`] respectively or else you will receive a panic at
 /// draw-time.
-#[derive(Clone, Debug, Default)]
-pub struct Ellipse<P: Pixel> {
+#[derive(Clone, Debug)]
+pub struct Ellipse<F: IntoFill> {
     /// The center position of the ellipse.
     /// The center of this ellipse will be rendered at this position.
     pub position: (u32, u32),
     /// The radii of the ellipse, in pixels; (horizontal, vertical).
     pub radii: (u32, u32),
     // The border data for the ellipse if any.
-    pub border: Option<Border<P>>,
+    pub border: Option<Border<F::Pixel>>,
     // The fill color for the ellipse if any.
-    pub fill: Option<P>,
+    pub fill: Option<F::Fill>,
     // The overlay mode for the ellipse or None to inherit from the image's overlay mode.
     pub overlay: Option<OverlayMode>,
 }
 
-impl<P: Pixel> Ellipse<P> {
+impl<F: IntoFill> Default for Ellipse<F> {
+    fn default() -> Self {
+        Self {
+            position: (0, 0),
+            radii: (0, 0),
+            border: None,
+            fill: None,
+            overlay: None,
+        }
+    }
+}
+
+impl<F: IntoFill> Ellipse<F> {
     /// Creates a new ellipse.
     ///
     /// The ellipse by default will be centered at `(0, 0)` which will always cut off a portion
@@ -858,6 +1014,17 @@ impl<P: Pixel> Ellipse<P> {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    fn update_bounding_box(&mut self) {
+        if let Some(ref mut fill) = self.fill {
+            fill.set_bounding_box((
+                self.position.0 - self.radii.0,
+                self.position.1 - self.radii.1,
+                self.position.0 + self.radii.0,
+                self.position.1 + self.radii.1,
+            ));
+        }
     }
 
     /// Creates a new ellipse from the given bounding box.
@@ -886,35 +1053,45 @@ impl<P: Pixel> Ellipse<P> {
 
     /// Sets the position of the ellipse.
     #[must_use]
-    pub const fn with_position(mut self, x: u32, y: u32) -> Self {
+    pub fn with_position(mut self, x: u32, y: u32) -> Self {
         self.position = (x, y);
+        self.update_bounding_box();
         self
     }
 
     /// Sets the radii of the ellipse in pixels.
     #[must_use]
-    pub const fn with_radii(mut self, width: u32, height: u32) -> Self {
+    pub fn with_radii(mut self, width: u32, height: u32) -> Self {
         self.radii = (width, height);
+        self.update_bounding_box();
         self
     }
 
     /// Sets the diameters of the ellipse in pixels.
     #[must_use]
-    pub const fn with_size(mut self, width: u32, height: u32) -> Self {
+    pub fn with_size(mut self, width: u32, height: u32) -> Self {
         self.radii = (width / 2, height / 2);
+        self.update_bounding_box();
         self
     }
 
     /// Sets the border of the ellipse.
     #[must_use]
-    pub const fn with_border(mut self, border: Border<P>) -> Self {
+    pub const fn with_border(mut self, border: Border<F::Pixel>) -> Self {
         self.border = Some(border);
         self
     }
 
     /// Sets the fill color of the ellipse.
     #[must_use]
-    pub const fn with_fill(mut self, fill: P) -> Self {
+    pub fn with_fill(mut self, fill: F) -> Self {
+        self.fill = Some(fill.into_fill());
+        self.update_bounding_box();
+        self
+    }
+
+    #[allow(clippy::missing_const_for_fn)]
+    pub(crate) fn with_fill_color(mut self, fill: F::Fill) -> Self {
         self.fill = Some(fill);
         self
     }
@@ -928,7 +1105,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Used when there is no border
     #[allow(clippy::cast_possible_wrap)]
-    fn rasterize_filled_circle<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+    fn rasterize_filled_circle(&self, image: &mut Image<F::Pixel>) {
         let radius = self.radii.0 as i32;
 
         let mut x = 0;
@@ -939,16 +1116,16 @@ impl<P: Pixel> Ellipse<P> {
         let (h, k) = (h as i32, k as i32);
 
         #[allow(unused_variables)] // rust knows this, but the external linter doesn't
-        let fill = self.fill.unwrap();
+        let fill = self.fill.as_ref().unwrap();
         #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let overlay = self.overlay.unwrap_or(image.overlay);
 
         macro_rules! line {
             ($from:expr, $to:expr, $y:expr) => {{
-                let y = ($y) as u32;
+                let y = $y as u32;
 
                 for x in ($from as u32)..=($to as u32) {
-                    image.overlay_pixel_with_mode(x, y, fill, overlay);
+                    fill.plot(image, x, y, overlay);
                 }
             }};
         }
@@ -971,7 +1148,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Used when there is no border
     #[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
-    fn rasterize_filled_ellipse<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+    fn rasterize_filled_ellipse(&self, image: &mut Image<F::Pixel>) {
         let (ch, k) = self.position;
         #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let (ch, k) = (ch as i32, k as i32);
@@ -986,7 +1163,7 @@ impl<P: Pixel> Ellipse<P> {
         let mut py = 2 * w2 * y;
 
         #[allow(unused_variables)] // rust knows this, but the external linter doesn't
-        let fill = self.fill.unwrap();
+        let fill = self.fill.as_ref().unwrap();
         #[allow(unused_variables)] // rust knows this, but the external linter doesn't
         let overlay = self.overlay.unwrap_or(image.overlay);
 
@@ -995,7 +1172,7 @@ impl<P: Pixel> Ellipse<P> {
                 let y = ($y) as u32;
 
                 for x in ($from)..=($to) {
-                    image.overlay_pixel_with_mode(x as u32, y, fill, overlay);
+                    fill.plot(image, x as u32, y, overlay);
                 }
             }};
             ($x:expr, $y:expr) => {{
@@ -1040,7 +1217,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Standard, slower brute force algorithm that iterates through all pixels
     #[allow(clippy::cast_possible_wrap)]
-    fn render_circle<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+    fn render_circle(&self, image: &mut Image<F::Pixel>) {
         let (h, k) = self.position;
         let (h, k) = (h as i32, k as i32);
         let r = self.radii.0 as i32;
@@ -1082,8 +1259,8 @@ impl<P: Pixel> Ellipse<P> {
 
                 // Inside or on the circle
                 if d2 <= r2 {
-                    if let Some(fill) = self.fill {
-                        image.overlay_pixel_with_mode(x as u32, y as u32, fill, overlay);
+                    if let Some(ref fill) = self.fill {
+                        fill.plot(image, x as u32, y as u32, overlay);
                     }
                 }
             }
@@ -1092,7 +1269,7 @@ impl<P: Pixel> Ellipse<P> {
 
     // Standard, slower brute force algorithm that iterates through all pixels
     #[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
-    fn render_ellipse<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+    fn render_ellipse(&self, image: &mut Image<F::Pixel>) {
         let (h, k) = self.position;
         let (h, k) = (h as i32, k as i32);
         let (a, b) = self.radii;
@@ -1141,9 +1318,9 @@ impl<P: Pixel> Ellipse<P> {
                     }
                 }
 
-                if let Some(fill) = self.fill {
-                    if dx2 / a2 + dy2 / b2 <= 1. {
-                        image.overlay_pixel_with_mode(x as u32, y as u32, fill, overlay);
+                if let Some(ref fill) = self.fill {
+                    if dx2 / a2 + dy2 / b2 <= 1.0 {
+                        fill.plot(image, x as u32, y as u32, overlay);
                     }
                 }
             }
@@ -1151,8 +1328,8 @@ impl<P: Pixel> Ellipse<P> {
     }
 }
 
-impl<P: Pixel> Draw<P> for Ellipse<P> {
-    fn draw<I: DerefMut<Target = Image<P>>>(&self, image: I) {
+impl<F: IntoFill> Draw<F::Pixel> for Ellipse<F> {
+    fn draw<I: DerefMut<Target = Image<F::Pixel>>>(&self, mut image: I) {
         assert!(
             self.fill.is_some() || self.border.is_some(),
             "must provide one of either fill or border, try calling .with_fill()"
@@ -1161,6 +1338,8 @@ impl<P: Pixel> Draw<P> for Ellipse<P> {
             self.radii.0 > 0 || self.radii.1 > 0,
             "ellipse must have non-zero radii, have you called .with_size() yet?"
         );
+
+        let image = &mut *image;
 
         if self.border.is_none() {
             if self.radii.0 == self.radii.1 {

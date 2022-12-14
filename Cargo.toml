@@ -27,7 +27,6 @@ colorgrad = { version = "^0.6", optional = true, default_features = false }
 default = ["resize", "text", "quantize", "gradient"]
 all-pure = ["resize", "png", "jpeg", "gif", "text", "quantize"]
 all = ["all-pure", "webp"]
-nightly = ["const-pixels"]
 png = ["dep:png"]
 jpeg = ["dep:jpeg-decoder", "dep:jpeg-encoder"]
 gif = ["dep:gif"]
@@ -37,7 +36,6 @@ text = ["dep:fontdue"]
 quantize = ["dep:color_quant"]
 gradient = ["dep:colorgrad"]
 static = ["libwebp-sys2?/static"]
-const-pixels = []
 
 [dev-dependencies]
 criterion = "^0.4"
