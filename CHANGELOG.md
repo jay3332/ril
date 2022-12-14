@@ -9,11 +9,59 @@ Versions prior to v0.5 are not tagged/released on GitHub.
 ### Breaking changes
 - `Pixel::force_into_rgb[a]` method is now replaced with `Pixel::as_rgb[a]`, which also takes self by reference instead
   of by value.
+- All provided `Draw` objects (but not the `Draw` trait itself) are now generic over `F: IntoFill` instead of `P: Pixel`
+  - The trait `IntoFill` is explained below
+  - There should be no change in usage because for any `P: Pixel`, `P` is implemented for `IntoFill`
+  - If you are extracting the fill color from a `Draw` object, you will need to access the `.color()` method on
+    the `SolidColor` struct. It is a `const fn`.
+  - The `Draw` trait is still generic over `P: Pixel`, no changes there
 
 ### Other changes
 - `ColorType::is_dynamic` is now a `const fn`
+- Add `ColorType::has_alpha` for whether the color type has an alpha channel
+- Add new `Fill` trait, used to represent a fill color (or gradient, see below) for a `Draw` object. This replaces the
+  simple `Pixel` trait previously used for this purpose.
+  - Add new `IntoFill` trait, which provides a way to convert anything to a `Fill` object
+    - Associated type `<_ as IntoFill>::Pixel` is the pixel type of the fill.
+    - Associated type `<_ as IntoFill>::Fill` is the actual fill type.
+    - `IntoFill` is implemented for all `P: Pixel` and turns into `draw::SolidColor<P>`
+    - `IntoFill` is implemented for `LinearGradient` (see below) and turns into `gradient::LinearGradientFill<P>`
 - Add support for gradients
-  - TODO
+  - Enabled with the `gradient` feature, which is enabled by default
+  - New `LinearGradient` struct, which represents a linear gradient
+    - `LinearGradientBlendMode` and `LinearGradientInterpolation` enums are re-exports from the `colorgrad` crate,
+       which is used to configure the gradient's blending mode and interpolation.
+- Add `Polygon::regular` method, which creates a regular polygon with the given amount of sides, center, and radius
+  - This uses the `Polygon::regular_rotated` method, which is the same method, but you are able to specify the rotation
+    of the polygon in radians.
+
+### Linear gradient example
+```rust
+use ril::prelude::*;
+
+fn main() -> ril::Result<()> {
+    // Create a new 256x256 RGB image with a black background
+    let mut image = Image::new(256, 256, Rgb::black());
+    // Create the `LinearGradient` object
+    let gradient = LinearGradient::new()
+        // The gradient will be rotated 45 degrees
+        .with_angle_degrees(45.0)
+        // The first stop is at 0.0, and is red
+        .with_color(Rgb::new(255, 0, 0))
+        // The second stop is at 0.5, and is white
+        .with_color(Rgb::new(255, 255, 255))
+        // We can also specify color stop positions manually:
+        // .with_color_at(0.5, Rgb::new(255, 255, 255)) 
+        // ...  
+        // The third stop is at 1.0, and is green
+        .with_color(Rgb::new(0, 255, 0));
+    
+    // Fill a hexagon with the gradient and draw it to the image
+    image.draw(&Polygon::regular(6, image.center(), 64).with_fill(gradient));
+    // Save the image to a PNG file
+    image.save_inferred("gradient_output.png")
+}
+```
 
 ## v0.8 (2022-11-30)
 ### Breaking changes
