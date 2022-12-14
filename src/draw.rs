@@ -5,16 +5,25 @@ use std::ops::DerefMut;
 
 pub type BoundingBox<T> = (T, T, T, T);
 
+/// Any fill type that can be used to fill a shape, i.e. solid colors or gradients.
+///
+/// For solid colors, this trait is implemented for all `Pixel` types as [`SolidFill`].
 pub trait IntoFill: Clone + Default {
+    /// The pixel type of the fill.
     type Pixel: Pixel;
+    /// The fill type.
     type Fill: Fill<Self::Pixel>;
 
+    /// Converts the fill into a fill type.
     fn into_fill(self) -> Self::Fill;
 }
 
+/// Handles the actual filling of a shape. See [`IntoFill`] for more information.
 pub trait Fill<P: Pixel>: Clone {
+    /// Sets the bounding box of the fill in place. This is used internally.
     fn set_bounding_box(&mut self, _bounding_box: BoundingBox<u32>) {}
 
+    /// Sets the overlay mode of the fill. This is used internally.
     #[must_use = "this method consumes the fill and returns it back, it does not modify it in-place"]
     fn with_bounding_box(mut self, bounding_box: BoundingBox<u32>) -> Self
     where
@@ -24,12 +33,15 @@ pub trait Fill<P: Pixel>: Clone {
         self
     }
 
+    /// Gets the color of the fill at the given coordinates.
     fn get_pixel(&self, x: u32, y: u32) -> P;
 
+    /// Plots the fill at the given coordinates on the given image.
     fn plot(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode) {
         image.overlay_pixel_with_mode(x, y, self.get_pixel(x, y), mode);
     }
 
+    /// Plots the fill at the given coordinates on the given image with a custom alpha value.
     fn plot_with_alpha(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode, alpha: u8) {
         image.overlay_pixel_with_alpha(x, y, self.get_pixel(x, y), mode, alpha);
     }
@@ -44,6 +56,7 @@ impl<P: Pixel> IntoFill for P {
     }
 }
 
+/// Represents a solid color fill.
 #[derive(Copy, Clone, Debug)]
 pub struct SolidFill<P: Pixel>(P);
 
