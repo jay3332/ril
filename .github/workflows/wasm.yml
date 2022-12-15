@@ -27,6 +27,9 @@ jobs:
 
     - name: Setup cache
       uses: Swatinem/rust-cache@v1
+
+    - name: Find stdlib.h
+      run: sudo find / -name stdlib.h
      
     - name: Build wasm32-unknown-unknown
       run: cargo build --features=all-pure --target wasm32-unknown-unknown
