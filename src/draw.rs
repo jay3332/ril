@@ -20,6 +20,11 @@ pub trait IntoFill: Clone + Default {
 
 /// Handles the actual filling of a shape. See [`IntoFill`] for more information.
 pub trait Fill<P: Pixel>: Clone {
+    /// Whether this fill still needs a bounding box.
+    fn needs_bounding_box(&self) -> bool {
+        false
+    }
+
     /// Sets the bounding box of the fill in place. This is used internally.
     fn set_bounding_box(&mut self, _bounding_box: BoundingBox<u32>) {}
 

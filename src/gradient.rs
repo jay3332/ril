@@ -301,7 +301,7 @@ impl<P: Pixel> IntoFill for LinearGradient<P> {
         let clone_gradient = into_colorgrad(self.colors, self.interpolation, self.blend_mode);
 
         LinearGradientFill {
-            x: 0.0,
+            x: f64::NAN, // needs_bounding_box indicator
             y: 0.0,
             tx,
             ty,
@@ -351,6 +351,11 @@ impl<P: Pixel> Clone for LinearGradientFill<P> {
 }
 
 impl<P: Pixel> Fill<P> for LinearGradientFill<P> {
+    #[inline]
+    fn needs_bounding_box(&self) -> bool {
+        self.x.is_nan()
+    }
+
     fn set_bounding_box(&mut self, (x1, y1, x2, y2): BoundingBox<u32>) {
         let width = (x2 - x1) as f64;
         let height = (y2 - y1) as f64;
@@ -501,7 +506,7 @@ impl<P: Pixel> IntoFill for RadialGradient<P> {
         RadialGradientFill {
             cx,
             cy,
-            dist: 0.0,
+            dist: f64::NAN,
             ratio: 0.0,
             position: self.position,
             cover: self.cover,
@@ -533,6 +538,11 @@ impl<P: Pixel> Clone for RadialGradientFill<P> {
 }
 
 impl<P: Pixel> Fill<P> for RadialGradientFill<P> {
+    #[inline]
+    fn needs_bounding_box(&self) -> bool {
+        self.dist.is_nan()
+    }
+
     fn set_bounding_box(&mut self, (x1, y1, x2, y2): BoundingBox<u32>) {
         let width = (x2 - x1) as f64;
         let height = (y2 - y1) as f64;

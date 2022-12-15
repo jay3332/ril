@@ -2,7 +2,7 @@
 
 #![allow(clippy::cast_precision_loss, clippy::too_many_arguments)]
 
-use crate::{Draw, Error::FontError, Image, OverlayMode, Pixel};
+use crate::{Draw, Error::FontError, Fill, Image, IntoFill, OverlayMode, Pixel};
 
 use fontdue::layout::{CoordinateSystem, TextStyle};
 use fontdue::{
@@ -148,7 +148,7 @@ impl Default for WrapStyle {
 /// Note that [`TextLayout`] is not cloneable while text segments are, which is one advantage
 /// of using this over [`TextLayout`].
 #[derive(Clone)]
-pub struct TextSegment<'a, P: Pixel> {
+pub struct TextSegment<'a, F: IntoFill> {
     /// The position the text will be rendered at. Ignored if this is used in a [`TextLayout`].
     pub position: (u32, u32),
     /// The width of the text box. If this is used in a [`TextLayout`], this is ignored and
@@ -158,8 +158,8 @@ pub struct TextSegment<'a, P: Pixel> {
     pub text: String,
     /// The font to use to render the text.
     pub font: &'a Font,
-    /// The fill color the text will be in.
-    pub fill: P,
+    /// The fill of the text.
+    pub fill: F::Fill,
     /// The overlay mode of the text. Note that anti-aliasing is still a bit funky with
     /// [`OverlayMode::Replace`], so it is best to use [`OverlayMode::Merge`] for this, which is
     /// the default.
@@ -172,7 +172,7 @@ pub struct TextSegment<'a, P: Pixel> {
     pub wrap: WrapStyle,
 }
 
-impl<'a, P: Pixel> TextSegment<'a, P> {
+impl<'a, F: IntoFill> TextSegment<'a, F> {
     /// Creates a new text segment with the given text, font, and fill color.
     /// The text can be anything that implements [`AsRef<str>`].
     ///
@@ -183,13 +183,13 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
     /// The size defaults to the font's optimal size.
     /// You can override this by using the [`with_size`][Self::with_size] method.
     #[must_use]
-    pub fn new(font: &'a Font, text: impl AsRef<str>, fill: P) -> Self {
+    pub fn new(font: &'a Font, text: impl AsRef<str>, fill: F) -> Self {
         Self {
             position: (0, 0),
             width: None,
             text: text.as_ref().to_string(),
             font,
-            fill,
+            fill: fill.into_fill(),
             overlay: OverlayMode::Merge,
             size: font.optimal_size(),
             wrap: WrapStyle::Word,
@@ -233,7 +233,7 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
         self
     }
 
-    fn layout(&self) -> Layout<(P, OverlayMode)> {
+    fn layout(&self) -> Layout<(usize, OverlayMode)> {
         let mut layout = Layout::new(CoordinateSystem::PositiveYDown);
         layout.reset(&LayoutSettings {
             x: self.position.0 as f32,
@@ -251,16 +251,17 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
         });
         layout.append(
             &[self.font.inner()],
-            &TextStyle::with_user_data(&self.text, self.size, 0, (self.fill, self.overlay)),
+            &TextStyle::with_user_data(&self.text, self.size, 0, (0, self.overlay)),
         );
         layout
     }
 }
 
-fn render_layout<P: Pixel>(
+fn render_layout<P: Pixel, F: Fill<P>>(
     image: &mut Image<P>,
+    fills: &[F],
     fonts: &[&fontdue::Font],
-    layout: &Layout<(P, OverlayMode)>,
+    layout: &Layout<(usize, OverlayMode)>,
 ) {
     let glyphs = layout.glyphs();
     if glyphs.is_empty() {
@@ -269,14 +270,43 @@ fn render_layout<P: Pixel>(
 
     // SAFETY: already checked before calling
     let lines = unsafe { layout.lines().unwrap_unchecked() };
+    let mut fill_updated_for_line;
+
     for line in lines {
-        for glyph in &glyphs[line.glyph_start..=line.glyph_end] {
-            let (fill, overlay) = glyph.user_data;
+        fill_updated_for_line = false;
+
+        let line_glyphs = &glyphs[line.glyph_start..=line.glyph_end];
+        for glyph in line_glyphs {
+            let (fill_idx, overlay) = glyph.user_data;
+            let fill = &fills[fill_idx];
             let font = fonts[glyph.font_index];
             let (metrics, bitmap) = font.rasterize_config(glyph.key);
 
             if metrics.width == 0 || glyph.char_data.is_whitespace() || metrics.height == 0 {
                 continue;
+            }
+
+            if fill.needs_bounding_box() || !fill_updated_for_line {
+                let first_glyph = line_glyphs
+                    .iter()
+                    .find(|g| g.user_data.0 == fill_idx)
+                    .unwrap_or(glyph);
+                let last_glyph = line_glyphs
+                    .iter()
+                    .rev()
+                    .find(|g| g.user_data.0 == fill_idx)
+                    .unwrap_or_else(|| unsafe { line_glyphs.last().unwrap_unchecked() });
+
+                // SAFETY: we own the fill (it was cloned)
+                #[allow(clippy::cast_ref_to_mut)]
+                let fill = unsafe { &mut *(fill as *const _ as *mut F) };
+                fill.set_bounding_box((
+                    first_glyph.x as u32,
+                    first_glyph.y as u32,
+                    (last_glyph.x as usize + last_glyph.width) as u32,
+                    (last_glyph.y as usize + last_glyph.height) as u32,
+                ));
+                fill_updated_for_line = true;
             }
 
             for (row, y) in bitmap.chunks_exact(metrics.width).zip(glyph.y as i32..) {
@@ -292,19 +322,18 @@ fn render_layout<P: Pixel>(
                         continue;
                     }
 
-                    if let Some(pixel) = image.get_pixel(x, y) {
-                        *image.pixel_mut(x, y) = pixel.overlay_with_alpha(fill, overlay, value);
-                    }
+                    fill.plot_with_alpha(image, x, y, overlay, value);
                 }
             }
         }
     }
 }
 
-fn render_layout_with_alignment<P: Pixel>(
+fn render_layout_with_alignment<P: Pixel, F: Fill<P>>(
     image: &mut Image<P>,
+    fills: &[F],
     fonts: &[&fontdue::Font],
-    layout: &Layout<(P, OverlayMode)>,
+    layout: &Layout<(usize, OverlayMode)>,
     widths: Vec<u32>,
     max_width: u32,
     fx: f32,
@@ -318,16 +347,44 @@ fn render_layout_with_alignment<P: Pixel>(
 
     // SAFETY: this was checked before calling
     let lines = unsafe { layout.lines().unwrap_unchecked() };
+    let mut fill_updated_for_line;
+
     for (line, width) in lines.iter().zip(widths) {
+        fill_updated_for_line = false;
         let ox = ((max_width - width) as f32).mul_add(fx, ox);
 
-        for glyph in &glyphs[line.glyph_start..=line.glyph_end] {
-            let (fill, overlay) = glyph.user_data;
+        let line_glyphs = &glyphs[line.glyph_start..=line.glyph_end];
+        for glyph in line_glyphs {
+            let (fill_idx, overlay) = glyph.user_data;
+            let fill = &fills[fill_idx];
             let font = fonts[glyph.font_index];
             let (metrics, bitmap) = font.rasterize_config(glyph.key);
 
             if metrics.width == 0 || glyph.char_data.is_whitespace() || metrics.height == 0 {
                 continue;
+            }
+
+            if fill.needs_bounding_box() || !fill_updated_for_line {
+                let first_glyph = line_glyphs
+                    .iter()
+                    .find(|g| g.user_data.0 == fill_idx)
+                    .unwrap_or(glyph);
+                let last_glyph = line_glyphs
+                    .iter()
+                    .rev()
+                    .find(|g| g.user_data.0 == fill_idx)
+                    .unwrap_or_else(|| unsafe { line_glyphs.last().unwrap_unchecked() });
+
+                // SAFETY: we own the fill (it was cloned)
+                #[allow(clippy::cast_ref_to_mut)]
+                let fill = unsafe { &mut *(fill as *const _ as *mut F) };
+                fill.set_bounding_box((
+                    first_glyph.x as u32,
+                    first_glyph.y as u32,
+                    (last_glyph.x as usize + last_glyph.width) as u32,
+                    (last_glyph.y as usize + last_glyph.height) as u32,
+                ));
+                fill_updated_for_line = true;
             }
 
             let x = (glyph.x + ox) as i32;
@@ -346,18 +403,22 @@ fn render_layout_with_alignment<P: Pixel>(
                         continue;
                     }
 
-                    if let Some(pixel) = image.get_pixel(x, y) {
-                        *image.pixel_mut(x, y) = pixel.overlay_with_alpha(fill, overlay, value);
-                    }
+                    fill.plot_with_alpha(image, x, y, overlay, value);
                 }
             }
         }
     }
 }
 
-impl<'a, P: Pixel> Draw<P> for TextSegment<'a, P> {
-    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
-        render_layout(&mut *image, &[self.font.inner()], &self.layout());
+impl<'a, F: IntoFill> Draw<F::Pixel> for TextSegment<'a, F> {
+    fn draw<I: DerefMut<Target = Image<F::Pixel>>>(&self, mut image: I) {
+        // TODO: this involves a triple clone with self.fill
+        render_layout(
+            &mut *image,
+            &[self.fill.clone()],
+            &[self.font.inner()],
+            &self.layout(),
+        );
     }
 }
 
@@ -409,20 +470,22 @@ impl Default for VerticalAnchor {
 /// # Note
 /// This is does not implement [`Clone`] and therefore it is not cloneable! Consider using
 /// [`TextSegment`] if you require cloning functionality.
-pub struct TextLayout<'a, P: Pixel> {
-    inner: Layout<(P, OverlayMode)>,
+pub struct TextLayout<'a, F: IntoFill> {
+    inner: Layout<(usize, OverlayMode)>,
+    fills: Vec<F::Fill>,
     fonts: Vec<&'a fontdue::Font>,
     settings: LayoutSettings,
     x_anchor: HorizontalAnchor,
     y_anchor: VerticalAnchor,
 }
 
-impl<'a, P: Pixel> TextLayout<'a, P> {
+impl<'a, F: IntoFill> TextLayout<'a, F> {
     /// Creates a new text layout with default settings.
     #[must_use]
     pub fn new() -> Self {
         Self {
             inner: Layout::new(CoordinateSystem::PositiveYDown),
+            fills: Vec::new(),
             fonts: Vec::new(),
             settings: LayoutSettings::default(),
             x_anchor: HorizontalAnchor::default(),
@@ -477,8 +540,8 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self
     }
 
-    /// Adds a text segment to the text layout.
-    pub fn push_segment(&mut self, segment: &TextSegment<'a, P>) {
+    /// Adds a borrowed text segment to the text layout.
+    pub fn push_segment(&mut self, segment: &TextSegment<'a, F>) {
         self.fonts.push(segment.font.inner());
         self.inner.append(
             &self.fonts,
@@ -486,15 +549,16 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
                 &segment.text,
                 segment.size,
                 0,
-                (segment.fill, segment.overlay),
+                (self.fills.len(), segment.overlay),
             ),
         );
+        self.fills.push(segment.fill.clone());
     }
 
-    /// Takes this text layout and returns it with the given text segment added to the text layout.
-    /// Useful for method chaining.
+    /// Takes this text layout and returns it with the given borrowed text segment added to the text
+    /// layout. Useful for method chaining.
     #[must_use]
-    pub fn with_segment(mut self, segment: &TextSegment<'a, P>) -> Self {
+    pub fn with_segment(mut self, segment: &TextSegment<'a, F>) -> Self {
         self.push_segment(segment);
         self
     }
@@ -507,7 +571,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     /// # Note
     /// The overlay mode is set to [`OverlayMode::Merge`] and not the image's overlay mode, since
     /// anti-aliasing is funky with the replace overlay mode.
-    pub fn push_basic_text(&mut self, font: &'a Font, text: impl AsRef<str>, fill: P) {
+    pub fn push_basic_text(&mut self, font: &'a Font, text: impl AsRef<str>, fill: F) {
         self.push_segment(&TextSegment::new(font, text, fill));
     }
 
@@ -521,7 +585,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     /// # See Also
     /// * [`push_basic_text`][TextLayout::push_basic_text]
     #[must_use]
-    pub fn with_basic_text(mut self, font: &'a Font, text: impl AsRef<str>, fill: P) -> Self {
+    pub fn with_basic_text(mut self, font: &'a Font, text: impl AsRef<str>, fill: F) -> Self {
         self.push_basic_text(font, text, fill);
         self
     }
@@ -663,18 +727,19 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     }
 }
 
-impl<'a, P: Pixel> Draw<P> for TextLayout<'a, P> {
-    fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
+impl<F: IntoFill> Draw<F::Pixel> for TextLayout<'_, F> {
+    fn draw<I: DerefMut<Target = Image<F::Pixel>>>(&self, mut image: I) {
         let image = &mut *image;
 
         // Skips the calculation of offsets
         if self.x_anchor == HorizontalAnchor::Left && self.y_anchor == VerticalAnchor::Top {
-            render_layout(image, &self.fonts, &self.inner);
+            render_layout(image, &self.fills, &self.fonts, &self.inner);
         }
 
         let (widths, max_width, fx, ox, oy) = self.calculate_offsets();
         render_layout_with_alignment(
             image,
+            &self.fills,
             &self.fonts,
             &self.inner,
             widths,
@@ -686,7 +751,7 @@ impl<'a, P: Pixel> Draw<P> for TextLayout<'a, P> {
     }
 }
 
-impl<'a, P: Pixel> Default for TextLayout<'a, P> {
+impl<P: Pixel> Default for TextLayout<'_, P> {
     fn default() -> Self {
         Self::new()
     }
