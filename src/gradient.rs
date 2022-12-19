@@ -377,9 +377,9 @@ impl<P: Pixel> Fill<P> for LinearGradientFill<P> {
     }
 }
 
-/// Represents where the center of a radial gradient is placed.
+/// Represents where the center of a radial or conic gradient is placed.
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum RadialGradientPosition {
+pub enum GradientPosition {
     /// A pair of coordinates relative to the shape rendered, where `0.0` is the left-most/top-most
     /// coordinate of the bounding box and `1.0` is the right-most/bottom-most coordinate of the
     /// bounding box. For example `Relative(0.5, 0.5)` indicates the center.
@@ -388,12 +388,12 @@ pub enum RadialGradientPosition {
     Absolute(u32, u32),
 }
 
-impl RadialGradientPosition {
+impl GradientPosition {
     /// A shorthand for `Relative(0.5, 0.5)`.
     pub const CENTER: Self = Self::Relative(0.5, 0.5);
 }
 
-impl Default for RadialGradientPosition {
+impl Default for GradientPosition {
     fn default() -> Self {
         Self::CENTER
     }
@@ -423,7 +423,7 @@ impl Default for RadialGradientCover {
 pub struct RadialGradient<P: Pixel> {
     /// The position of the center of the radial gradient (where the radial gradient "radiates"
     /// from).
-    pub position: RadialGradientPosition,
+    pub position: GradientPosition,
     /// How the gradient should cover the bounding box.
     pub cover: RadialGradientCover,
     /// A `Vec` of colors and their positions in the gradient, represented as `(color, position)`
@@ -453,7 +453,7 @@ pub struct RadialGradient<P: Pixel> {
 impl<P: Pixel> Default for RadialGradient<P> {
     fn default() -> Self {
         Self {
-            position: RadialGradientPosition::CENTER,
+            position: GradientPosition::CENTER,
             cover: RadialGradientCover::Stretch,
             colors: Vec::new(),
             interpolation: Interpolation::Linear,
@@ -472,7 +472,7 @@ impl<P: Pixel> RadialGradient<P> {
     /// Sets the position of the center of the radial gradient (where the radial gradient "radiates"
     /// from).
     #[must_use]
-    pub const fn with_position(mut self, position: RadialGradientPosition) -> Self {
+    pub const fn with_position(mut self, position: GradientPosition) -> Self {
         self.position = position;
         self
     }
@@ -494,8 +494,8 @@ impl<P: Pixel> IntoFill for RadialGradient<P> {
     fn into_fill(self) -> Self::Fill {
         let clone_gradient = into_colorgrad(self.colors, self.interpolation, self.blend_mode);
         let (cx, cy) = match self.position {
-            RadialGradientPosition::Absolute(x, y) => (x as f64, y as f64),
-            RadialGradientPosition::Relative(..) => (0.0, 0.0),
+            GradientPosition::Absolute(x, y) => (x as f64, y as f64),
+            GradientPosition::Relative(..) => (0.0, 0.0),
         };
 
         RadialGradientFill {
@@ -518,7 +518,7 @@ pub struct RadialGradientFill<P: Pixel> {
     cy: f64,
     dist: f64,
     ratio: f64,
-    position: RadialGradientPosition,
+    position: GradientPosition,
     cover: RadialGradientCover,
     pub(crate) gradient: colorgrad::Gradient,
     clone_gradient: colorgrad::CustomGradient,
@@ -557,7 +557,7 @@ impl<P: Pixel> Fill<P> for RadialGradientFill<P> {
             }
         };
 
-        if let RadialGradientPosition::Relative(x, y) = self.position {
+        if let GradientPosition::Relative(x, y) = self.position {
             self.cx = x.mul_add(width, x1 as f64);
             self.cy = y.mul_add(height, y1 as f64);
         }
@@ -580,6 +580,151 @@ impl<P: Pixel> Fill<P> for RadialGradientFill<P> {
 
         // Get the color from the gradient
         let (r, g, b, a) = self.gradient.at(dist / self.dist).to_linear_rgba_u8();
+        P::from_raw_parts(crate::ColorType::Rgba, 8, &[r, g, b, a]).unwrap()
+    }
+}
+
+/// A conic gradient.
+#[derive(Clone, Debug)]
+pub struct ConicGradient<P: Pixel> {
+    /// The angle of the conic gradient, in radians. Defaults to `0.0`, where the start and end
+    /// values will meet vertically at the top.
+    pub angle: f64,
+    /// The position of the center of the conic gradient. Defaults to the center of the bounding
+    /// box.
+    pub position: GradientPosition,
+    /// A `Vec` of colors and their positions in the gradient, represented as `(color, position)`
+    /// where `position` is a value in the range [0.0, 1.0].
+    ///
+    /// # Normalization of positions
+    /// During building of this struct, there might be some positions that are `nan` which represent
+    /// positions that will be normalized later. For example, `[0.0, nan, 1.0]` is normalized to
+    /// `[0.0, 0.5, 1.0]` because `0.5` is the midpoint between `0.0` and `1.0`.
+    ///
+    /// Similarly, `[0.0, nan, nan, nan, 1.0]` is normalized to `[0.0, 0.25, 0.5, 0.75, 1.0]`
+    /// because they evenly distribute between `0.0` and `1.0`.
+    ///
+    /// ## Normalization of endpoints
+    /// If the first position is `nan`, it will be normalized to `0.0`. If the last position is
+    /// `nan`, it will be normalized to `1.0`.
+    pub colors: Vec<(P, f64)>,
+    /// The interpolation mode to use when rendering the gradient. Defaults to
+    /// [`Interpolation::Linear`].
+    pub interpolation: Interpolation,
+    /// The blending mode to use when rendering the gradient. Defaults to
+    /// [`BlendMode::LinearRgb`]. If the gradient looks off or some colors are weirdly balanced,
+    /// trying different blend modes here could help.
+    pub blend_mode: BlendMode,
+}
+
+impl<P: Pixel> Default for ConicGradient<P> {
+    fn default() -> Self {
+        Self {
+            angle: 0.0,
+            position: GradientPosition::CENTER,
+            colors: Vec::new(),
+            interpolation: Interpolation::Linear,
+            blend_mode: BlendMode::LinearRgb,
+        }
+    }
+}
+
+impl<P: Pixel> ConicGradient<P> {
+    /// Creates a new conic gradient.
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Sets the angle of the gradient in **radians**. Angles outside of the range `[0.0, 2 * PI)`
+    /// will be normalized.
+    ///
+    /// If your angle is in degrees, the [`f64::to_radians`] method can be used to convert into
+    /// degrees, or the convenience method [`Self::with_angle_degrees`] can be used.
+    #[must_use]
+    pub const fn with_angle(mut self, angle: f64) -> Self {
+        self.angle = angle;
+        self
+    }
+
+    /// A shortcut method to set the angle of the gradient in **degrees**. Angles outside of the
+    /// range `[0.0, 360.0)` will be normalized.
+    ///
+    /// See [`Self::with_angle`] for more information.
+    #[must_use]
+    pub fn with_angle_degrees(self, angle: f64) -> Self {
+        self.with_angle(angle.to_radians())
+    }
+
+    /// Sets the position of the center of the gradient.
+    #[must_use]
+    pub const fn with_position(mut self, position: GradientPosition) -> Self {
+        self.position = position;
+        self
+    }
+
+    gradient_methods!();
+}
+
+impl<P: Pixel> IntoFill for ConicGradient<P> {
+    type Pixel = P;
+    type Fill = ConicGradientFill<Self::Pixel>;
+
+    fn into_fill(self) -> Self::Fill {
+        let clone_gradient = into_colorgrad(self.colors, self.interpolation, self.blend_mode);
+        let (cx, cy) = match self.position {
+            GradientPosition::Absolute(x, y) => (x as f64, y as f64),
+            GradientPosition::Relative(..) => (0.0, 0.0),
+        };
+
+        ConicGradientFill {
+            cx,
+            cy,
+            angle: self.angle,
+            position: self.position,
+            // SAFETY: validated by `check_positions` and `normalize_positions`.
+            gradient: unsafe { clone_gradient.build().unwrap_unchecked() },
+            clone_gradient,
+            _marker: PhantomData,
+        }
+    }
+}
+
+/// A conic gradient fill.
+#[derive(Debug)]
+pub struct ConicGradientFill<P: Pixel> {
+    cx: f64,
+    cy: f64,
+    angle: f64,
+    position: GradientPosition,
+    gradient: colorgrad::Gradient,
+    clone_gradient: colorgrad::CustomGradient,
+    _marker: PhantomData<P>,
+}
+
+impl<P: Pixel> Clone for ConicGradientFill<P> {
+    fn clone(&self) -> Self {
+        gradient_clone!(self: cx, cy, angle, position)
+    }
+}
+
+impl<P: Pixel> Fill<P> for ConicGradientFill<P> {
+    fn set_bounding_box(&mut self, (x1, y1, x2, y2): BoundingBox<u32>) {
+        if let GradientPosition::Relative(x, y) = self.position {
+            let x1 = x1 as f64;
+            let y1 = y1 as f64;
+
+            self.cx = x.mul_add(x2 as f64 - x1, x1);
+            self.cy = y.mul_add(y2 as f64 - y1, y1);
+        }
+    }
+
+    fn get_pixel(&self, x: u32, y: u32) -> P {
+        let mut angle = (x as f64 - self.cx).atan2(y as f64 - self.cy) - self.angle;
+        angle /= std::f64::consts::TAU;
+
+        // Get the color from the gradient
+        let (r, g, b, a) = self.gradient.at(angle + 0.5).to_linear_rgba_u8();
         P::from_raw_parts(crate::ColorType::Rgba, 8, &[r, g, b, a]).unwrap()
     }
 }

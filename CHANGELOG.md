@@ -5,16 +5,21 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.7 are not tagged/released on GitHub.
 
-## v0.10 (2022-12-14)
+## v0.10 (dev)
 ### Breaking changes
 - `LinearGradientInterpolation` renamed to `GradientInterpolation`
 - `LinearGradientBlendMode` renamed to `GradientBlendMode`
 
 ### Other changes
 - Add radial gradients via `RadialGradient`
-  - This adds `RadialGradientPosition` and `RadialGradientCover` enums
+  - This adds `GradientPosition` and `RadialGradientCover` enums
+- Add conic gradients via `ConicGradient`
 - Add `Rectangle::square` to create a rectangle with equal side lengths
 - Document `Fill`/`IntoFill` structs
+
+#### Bug fixes
+- Fix `Line` panicking with reversed vertices
+  - This error was most commonly encountered with rendering `Polygon` with borders or antialiasing
 
 ## v0.9 (2022-12-13)
 ### Breaking changes

@@ -294,9 +294,10 @@ inline_doc! {
     pub use gradient::{
         BlendMode as GradientBlendMode,
         Interpolation as GradientInterpolation,
+        GradientPosition,
         LinearGradient,
         RadialGradient,
-        RadialGradientPosition,
+        ConicGradient,
         RadialGradientCover,
     };
     pub use pixel::{
@@ -333,11 +334,11 @@ pub mod prelude {
 
     #[cfg(feature = "resize")]
     pub use super::ResizeAlgorithm;
-    #[cfg(feature = "text")]
-    pub use super::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
     #[cfg(feature = "gradient")]
     pub use super::{
-        GradientBlendMode, GradientInterpolation, LinearGradient, RadialGradient,
-        RadialGradientCover, RadialGradientPosition,
+        ConicGradient, GradientBlendMode, GradientInterpolation, GradientPosition, LinearGradient,
+        RadialGradient, RadialGradientCover,
     };
+    #[cfg(feature = "text")]
+    pub use super::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
 }

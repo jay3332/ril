@@ -935,13 +935,14 @@ impl<F: IntoFill> Rectangle<F> {
     ///
     /// The first coordinate is the top-left corner of the rectangle, and the second coordinate is
     /// the bottom-right corner of the rectangle.
-    ///
-    /// # Panics
-    /// * Panics if the bounding box is invalid.
     #[must_use]
-    pub fn from_bounding_box(x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
-        assert!(x2 >= x1, "invalid bounding box");
-        assert!(y2 >= y1, "invalid bounding box");
+    pub fn from_bounding_box(mut x1: u32, mut y1: u32, mut x2: u32, mut y2: u32) -> Self {
+        if x1 > x2 {
+            std::mem::swap(&mut x1, &mut x2);
+        }
+        if y1 > y2 {
+            std::mem::swap(&mut y1, &mut y2);
+        }
 
         Self::default()
             .with_position(x1, y1)
