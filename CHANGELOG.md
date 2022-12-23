@@ -9,6 +9,13 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 ### Breaking changes
 - `LinearGradientInterpolation` renamed to `GradientInterpolation`
 - `LinearGradientBlendMode` renamed to `GradientBlendMode`
+- `Pixel::inverted` now inverts alpha.
+  - Adds various implementations for `Image<Rgba>`:
+    - `Image::<Rgba>::split_rgb_and_alpha` splits the image into `(Image<Rgb>, Image<L>)`
+    - `Image::<Rgba>::from_rgb_and_alpha` creates an RGBA image from `(Image<Rgb>, Image<L>)`
+    - `Image::<Rgba>::map_rgb_pixels` maps only the RGB pixels of the image
+      - Allows for `image.map_rgb_pixels(|p| p.inverted())`
+    - `Image::<Rgba>::map_alpha_pixels` maps only the alpha pixels of the image
 
 ### Other changes
 - Add radial gradients via `RadialGradient`
