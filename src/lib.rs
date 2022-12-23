@@ -276,6 +276,8 @@ pub mod sequence;
 #[cfg(feature = "text")]
 pub mod text;
 
+mod arch;
+
 macro_rules! inline_doc {
     ($($token:item)*) => {
         $(#[doc(inline)] $token)*
