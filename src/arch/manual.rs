@@ -1,11 +1,11 @@
 use crate::Rgba;
 
-pub fn _merge_impl(original: Rgba, other: Rgba) -> Rgba {
+pub fn _merge_impl(base: Rgba, other: Rgba) -> Rgba {
     let (base_r, base_g, base_b, base_a) = (
-        original.r as f32 / 255.,
-        original.g as f32 / 255.,
-        original.b as f32 / 255.,
-        original.a as f32 / 255.,
+        base.r as f32 / 255.,
+        base.g as f32 / 255.,
+        base.b as f32 / 255.,
+        base.a as f32 / 255.,
     );
 
     let (overlay_r, overlay_g, overlay_b, overlay_a) = (
@@ -28,5 +28,15 @@ pub fn _merge_impl(original: Rgba, other: Rgba) -> Rgba {
         g: (g * 255.) as u8,
         b: (b * 255.) as u8,
         a: (a * 255.) as u8,
+    }
+}
+
+#[inline]
+pub fn _invert_impl(base: Rgba) -> Rgba {
+    Rgba {
+        r: !base.r,
+        g: !base.g,
+        b: !base.b,
+        a: !base.a,
     }
 }

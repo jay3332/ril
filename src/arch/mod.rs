@@ -1,5 +1,6 @@
 #![allow(clippy::cast_lossless)]
 #![allow(clippy::wildcard_imports)]
+#![allow(dead_code)]
 
 mod aarch64;
 mod manual;
@@ -27,4 +28,16 @@ pub fn merge_impl(base: Rgba, other: Rgba) -> Rgba {
     }
 
     manual::_merge_impl(base, other)
+}
+
+#[inline]
+pub fn invert_impl(base: Rgba) -> Rgba {
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    if is_x86_feature_detected!("sse") {
+        unsafe {
+            return x86::_invert_impl(base);
+        }
+    }
+
+    manual::_invert_impl(base)
 }

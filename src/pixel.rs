@@ -625,11 +625,7 @@ impl Pixel for Rgb {
     type Data = [u8; 3];
 
     fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
-        }
+        arch::invert_impl((*self).into()).into()
     }
 
     fn map_subpixels<F, A>(self, f: F, _: A) -> Self
@@ -791,12 +787,7 @@ impl Pixel for Rgba {
     type Data = [u8; 4];
 
     fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
-            a: !self.a,
-        }
+        arch::invert_impl(*self)
     }
 
     fn map_subpixels<F, A>(self, f: F, a: A) -> Self

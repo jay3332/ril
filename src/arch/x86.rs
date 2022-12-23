@@ -3,13 +3,14 @@ use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 
+use crate::Rgba;
+
+const ONES: f32 = unsafe { std::mem::transmute(0xff_ff_ff_ff_u32) };
+
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[target_feature(enable = "sse")]
 #[target_feature(enable = "fma")]
-pub unsafe fn _merge_impl(
-    base: crate::pixel::Rgba,
-    other: crate::pixel::Rgba,
-) -> crate::pixel::Rgba {
+pub unsafe fn _merge_impl(base: Rgba, other: Rgba) -> Rgba {
     let mut base_rgba = [0_f32; 4];
     let mut overlay = [0_f32; 4];
     let mut overlay_rgba = [0_f32; 4];
@@ -72,7 +73,30 @@ pub unsafe fn _merge_impl(
 
     let [r, g, b, a] = res;
 
-    crate::pixel::Rgba {
+    Rgba {
+        r: r as u8,
+        g: g as u8,
+        b: b as u8,
+        a: a as u8,
+    }
+}
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[target_feature(enable = "sse")]
+pub unsafe fn _invert_impl(base: Rgba) -> Rgba {
+    let mut res = [0_f32; 4];
+
+    _mm_store_ps(
+        res.as_mut_ptr(),
+        _mm_xor_ps(
+            _mm_setr_ps(base.r as f32, base.g as f32, base.b as f32, base.a as f32),
+            _mm_set1_ps(ONES),
+        ),
+    );
+
+    let [r, g, b, a] = res;
+
+    Rgba {
         r: r as u8,
         g: g as u8,
         b: b as u8,
