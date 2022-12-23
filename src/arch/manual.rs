@@ -1,14 +1,6 @@
 use crate::Rgba;
 
-#[allow(clippy::cast_lossless)]
 pub fn _merge_impl(original: Rgba, other: Rgba) -> Rgba {
-    // Optimize for common cases
-    if other.a == 255 {
-        return other;
-    } else if other.a == 0 {
-        return original;
-    }
-
     let (base_r, base_g, base_b, base_a) = (
         original.r as f32 / 255.,
         original.g as f32 / 255.,

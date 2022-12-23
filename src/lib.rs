@@ -261,6 +261,7 @@
     clippy::doc_markdown
 )]
 
+mod arch;
 pub mod draw;
 pub mod encode;
 pub mod encodings;
@@ -275,8 +276,6 @@ mod resize;
 pub mod sequence;
 #[cfg(feature = "text")]
 pub mod text;
-
-mod arch;
 
 macro_rules! inline_doc {
     ($($token:item)*) => {

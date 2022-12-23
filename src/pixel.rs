@@ -1,11 +1,10 @@
 //! Encloses pixel-related traits and pixel type implementations.
 
-use crate::Error::DecodingError;
-use crate::arch;
 use crate::{
+    arch,
     encodings::ColorType,
     image::OverlayMode,
-    Error::{InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
+    Error::{DecodingError, InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
     Result,
 };
 use std::borrow::Cow;
@@ -890,7 +889,7 @@ impl Pixel for Rgba {
     }
 
     fn merge(self, other: Self) -> Self {
-        unsafe { arch::merge_impl()(self, other) }
+        arch::merge_impl(self, other)
     }
 
     #[allow(clippy::cast_lossless)]
