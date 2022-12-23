@@ -801,7 +801,7 @@ impl<P: Pixel> Image<P> {
     /// Returns the image with each pixel in the image mapped to the given function.
     ///
     /// The function should take the pixel and return another pixel.
-    pub fn map_pixels<T: Pixel>(self, f: impl Fn(P) -> T) -> Image<T> {
+    pub fn map_pixels<T: Pixel>(self, f: impl FnMut(P) -> T) -> Image<T> {
         self.map_data(|data| data.into_iter().map(f).collect())
     }
 
@@ -1288,6 +1288,107 @@ impl<P: Pixel> Image<P> {
     }
 }
 
+impl Image<Rgba> {
+    /// Splits this image into an `Rgb` image and an `L` image, where the `Rgb` image contains the
+    /// red, green, and blue color channels and the `L` image contains the alpha channel.
+    ///
+    /// There is a more optimized method available, [`Self::map_rgb`], if you only need to perform
+    /// operations on individual RGB pixels. If you can, you should use that instead.
+    ///
+    /// # Example
+    /// Rotating the image by 90 degrees but keeping the alpha channel untouched:
+    ///
+    /// ```no_run
+    /// use ril::prelude::*;
+    ///
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::<Rgba>::open("image.png")?;
+    /// let (rgb, alpha) = image.split_rgb_and_alpha();
+    /// let inverted = Image::from_rgb_and_alpha(rgb.rotated(90), alpha);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # See Also
+    /// * [`Self::from_rgb_and_alpha`] - The inverse of this method.
+    /// * [`Self::map_rgb`] - A more optimized method for performing operations on individual RGB
+    /// pixels.
+    #[must_use]
+    pub fn split_rgb_and_alpha(self) -> (Image<Rgb>, Image<L>) {
+        let (r, g, b, a) = self.bands();
+        (Image::from_bands((r, g, b)), a)
+    }
+
+    /// Creates an `Rgba` image from an `Rgb` image and an `L` image, where the `Rgb` image contains
+    /// the red, green, and blue color channels and the `L` image contains the alpha channel.
+    ///
+    /// # Panics
+    /// * The dimensions of the two images do not match.
+    ///
+    /// # See Also
+    /// * [`Self::split_rgb_and_alpha`] - The inverse of this method.
+    #[must_use]
+    pub fn from_rgb_and_alpha(rgb: Image<Rgb>, alpha: Image<L>) -> Self {
+        debug_assert_eq!(
+            rgb.dimensions(),
+            alpha.dimensions(),
+            "dimensions of RGB and alpha images do not match",
+        );
+        rgb.map_data(|data| {
+            data.into_iter()
+                .zip(alpha.data)
+                .map(|(Rgb { r, g, b }, L(a))| Rgba { r, g, b, a })
+                .collect()
+        })
+    }
+
+    /// Performs the given operation `f` on every pixel in this image, ignoring the alpha channel.
+    /// The alpha channel is left untouched.
+    ///
+    /// # Example
+    /// Inverting the image but keeping the alpha channel untouched:
+    ///
+    /// ```no_run
+    /// use ril::prelude::*;
+    ///
+    /// # fn main() -> ril::Result<()> {
+    /// let image = Image::<Rgba>::open("image.png")?;
+    /// let inverted = image.map_rgb(|rgb| rgb.inverted());
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # See Also
+    /// * [`Self::map_alpha_pixels`] - Performs the given operation on every pixel in the alpha
+    /// channel.
+    /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<Rgb>`
+    /// (and `Image<L>`).
+    #[must_use]
+    pub fn map_rgb_pixels<F>(self, mut f: impl FnMut(Rgb) -> Rgb) -> Self {
+        self.map_pixels(|Rgba { r, g, b, a }| {
+            let Rgb { r, g, b } = f(Rgb { r, g, b });
+            Rgba { r, g, b, a }
+        })
+    }
+
+    /// Performs the given operation `f` on every pixel in the alpha channel of this image.
+    /// The RGB channels are left untouched.
+    ///
+    /// # See Also
+    /// * [`Self::map_rgb_pixels`] - Performs the given operation on every pixel in the RGB channels.
+    /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<L>`
+    /// (and `Image<Rgb>`).
+    #[must_use]
+    pub fn map_alpha_pixels<F>(self, mut f: impl FnMut(L) -> L) -> Self {
+        self.map_pixels(|Rgba { r, g, b, a }| Rgba {
+            r,
+            g,
+            b,
+            a: f(L(a)).value(),
+        })
+    }
+}
+
 impl<'a> From<Image<PalettedRgb<'a>>> for Image<PalettedRgba<'a>> {
     fn from(image: Image<PalettedRgb<'a>>) -> Self {
         image.map_palette(Into::into)
@@ -1472,7 +1573,7 @@ impl ImageFormat {
     /// If the extension is an unknown extension, Ok([`ImageFormat::unknown`]) is returned.
     ///
     /// If the extension is completely invalid and fails to be converted into a `&str`,
-    /// the [`Error::InvalidExtension`] error is returned.
+    /// the [`InvalidExtension`] error is returned.
     ///
     /// # Errors
     /// * The extension is completely invalid and failed to be converted into a `&str`.

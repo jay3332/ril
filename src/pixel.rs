@@ -32,7 +32,7 @@ mod sealed {
     sealed!(NoOp BitPixel L Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
 }
 
-pub(crate) use sealed::MaybeSealed;
+pub use sealed::MaybeSealed;
 
 /// Represents any type of pixel in an image.
 ///
@@ -62,22 +62,9 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeS
 
     /// Returns the inverted value of this pixel.
     ///
-    /// This does not independently invert the alpha value, instead you may need to
-    /// split the image and isolate the alpha channel into an Image<L>, invert it, then merge the
-    /// bands.
-    ///
-    /// # Why not invert alpha?
-    /// In most cases the alpha channel is favored to be not inverted.
-    ///
-    /// In the case that a pixel is completely transparent, this behavior is almost always the case.
-    /// The user cannot actually see the color of the pixel, so inverting it to a seemingly
-    /// unknown color could be unexpected.
-    ///
-    /// For translucent pixels, in most cases the expected behavior is to only invert the color
-    /// shown for the translucent pixel and not change the alpha itself.
-    ///
-    /// Finally, the most obvious reasoning is that for fully opaque pixels, those pixels will
-    /// become fully transparent which is obviously not favored.
+    /// For pixels with alpha values, the value of the alpha channel will also be inverted, so
+    /// opaque pixels will become transparent and vice versa. To only invert non-alpha channels,
+    /// methods like [`Self::map_subpixels`] or [`Image::<Rgba>::map_rgb_pixels`] can be used.
     #[must_use]
     fn inverted(&self) -> Self;
 
@@ -808,7 +795,7 @@ impl Pixel for Rgba {
             r: !self.r,
             g: !self.g,
             b: !self.b,
-            a: self.a,
+            a: !self.a,
         }
     }
 
