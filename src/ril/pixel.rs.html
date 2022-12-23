@@ -1721,19 +1721,6 @@
 <span id="1721">1721</span>
 <span id="1722">1722</span>
 <span id="1723">1723</span>
-<span id="1724">1724</span>
-<span id="1725">1725</span>
-<span id="1726">1726</span>
-<span id="1727">1727</span>
-<span id="1728">1728</span>
-<span id="1729">1729</span>
-<span id="1730">1730</span>
-<span id="1731">1731</span>
-<span id="1732">1732</span>
-<span id="1733">1733</span>
-<span id="1734">1734</span>
-<span id="1735">1735</span>
-<span id="1736">1736</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Encloses pixel-related traits and pixel type implementations.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::Error::DecodingError;
@@ -1768,7 +1755,7 @@
     <span class="macro">sealed!</span>(NoOp BitPixel L Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>sealed::MaybeSealed;
+<span class="kw">pub use </span>sealed::MaybeSealed;
 
 <span class="doccomment">/// Represents any type of pixel in an image.
 ///
@@ -1798,22 +1785,9 @@
 
     <span class="doccomment">/// Returns the inverted value of this pixel.
     ///
-    /// This does not independently invert the alpha value, instead you may need to
-    /// split the image and isolate the alpha channel into an Image&lt;L&gt;, invert it, then merge the
-    /// bands.
-    ///
-    /// # Why not invert alpha?
-    /// In most cases the alpha channel is favored to be not inverted.
-    ///
-    /// In the case that a pixel is completely transparent, this behavior is almost always the case.
-    /// The user cannot actually see the color of the pixel, so inverting it to a seemingly
-    /// unknown color could be unexpected.
-    ///
-    /// For translucent pixels, in most cases the expected behavior is to only invert the color
-    /// shown for the translucent pixel and not change the alpha itself.
-    ///
-    /// Finally, the most obvious reasoning is that for fully opaque pixels, those pixels will
-    /// become fully transparent which is obviously not favored.
+    /// For pixels with alpha values, the value of the alpha channel will also be inverted, so
+    /// opaque pixels will become transparent and vice versa. To only invert non-alpha channels,
+    /// methods like [`Self::map_subpixels`] or [`Image::&lt;Rgba&gt;::map_rgb_pixels`] can be used.
     </span><span class="attribute">#[must_use]
     </span><span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
 
@@ -2544,7 +2518,7 @@
             r: !<span class="self">self</span>.r,
             g: !<span class="self">self</span>.g,
             b: !<span class="self">self</span>.b,
-            a: <span class="self">self</span>.a,
+            a: !<span class="self">self</span>.a,
         }
     }
 

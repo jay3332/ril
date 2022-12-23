@@ -1692,6 +1692,107 @@
 <span id="1692">1692</span>
 <span id="1693">1693</span>
 <span id="1694">1694</span>
+<span id="1695">1695</span>
+<span id="1696">1696</span>
+<span id="1697">1697</span>
+<span id="1698">1698</span>
+<span id="1699">1699</span>
+<span id="1700">1700</span>
+<span id="1701">1701</span>
+<span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
+<span id="1725">1725</span>
+<span id="1726">1726</span>
+<span id="1727">1727</span>
+<span id="1728">1728</span>
+<span id="1729">1729</span>
+<span id="1730">1730</span>
+<span id="1731">1731</span>
+<span id="1732">1732</span>
+<span id="1733">1733</span>
+<span id="1734">1734</span>
+<span id="1735">1735</span>
+<span id="1736">1736</span>
+<span id="1737">1737</span>
+<span id="1738">1738</span>
+<span id="1739">1739</span>
+<span id="1740">1740</span>
+<span id="1741">1741</span>
+<span id="1742">1742</span>
+<span id="1743">1743</span>
+<span id="1744">1744</span>
+<span id="1745">1745</span>
+<span id="1746">1746</span>
+<span id="1747">1747</span>
+<span id="1748">1748</span>
+<span id="1749">1749</span>
+<span id="1750">1750</span>
+<span id="1751">1751</span>
+<span id="1752">1752</span>
+<span id="1753">1753</span>
+<span id="1754">1754</span>
+<span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
+<span id="1758">1758</span>
+<span id="1759">1759</span>
+<span id="1760">1760</span>
+<span id="1761">1761</span>
+<span id="1762">1762</span>
+<span id="1763">1763</span>
+<span id="1764">1764</span>
+<span id="1765">1765</span>
+<span id="1766">1766</span>
+<span id="1767">1767</span>
+<span id="1768">1768</span>
+<span id="1769">1769</span>
+<span id="1770">1770</span>
+<span id="1771">1771</span>
+<span id="1772">1772</span>
+<span id="1773">1773</span>
+<span id="1774">1774</span>
+<span id="1775">1775</span>
+<span id="1776">1776</span>
+<span id="1777">1777</span>
+<span id="1778">1778</span>
+<span id="1779">1779</span>
+<span id="1780">1780</span>
+<span id="1781">1781</span>
+<span id="1782">1782</span>
+<span id="1783">1783</span>
+<span id="1784">1784</span>
+<span id="1785">1785</span>
+<span id="1786">1786</span>
+<span id="1787">1787</span>
+<span id="1788">1788</span>
+<span id="1789">1789</span>
+<span id="1790">1790</span>
+<span id="1791">1791</span>
+<span id="1792">1792</span>
+<span id="1793">1793</span>
+<span id="1794">1794</span>
+<span id="1795">1795</span>
 </pre><pre class="rust"><code><span class="attribute">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -2495,7 +2596,7 @@
     <span class="doccomment">/// Returns the image with each pixel in the image mapped to the given function.
     ///
     /// The function should take the pixel and return another pixel.
-    </span><span class="kw">pub fn </span>map_pixels&lt;T: Pixel&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>Fn(P) -&gt; T) -&gt; Image&lt;T&gt; {
+    </span><span class="kw">pub fn </span>map_pixels&lt;T: Pixel&gt;(<span class="self">self</span>, f: <span class="kw">impl </span>FnMut(P) -&gt; T) -&gt; Image&lt;T&gt; {
         <span class="self">self</span>.map_data(|data| data.into_iter().map(f).collect())
     }
 
@@ -2982,6 +3083,107 @@
     }
 }
 
+<span class="kw">impl </span>Image&lt;Rgba&gt; {
+    <span class="doccomment">/// Splits this image into an `Rgb` image and an `L` image, where the `Rgb` image contains the
+    /// red, green, and blue color channels and the `L` image contains the alpha channel.
+    ///
+    /// There is a more optimized method available, [`Self::map_rgb`], if you only need to perform
+    /// operations on individual RGB pixels. If you can, you should use that instead.
+    ///
+    /// # Example
+    /// Rotating the image by 90 degrees but keeping the alpha channel untouched:
+    ///
+    /// ```no_run
+    /// use ril::prelude::*;
+    ///
+    /// # fn main() -&gt; ril::Result&lt;()&gt; {
+    /// let image = Image::&lt;Rgba&gt;::open(&quot;image.png&quot;)?;
+    /// let (rgb, alpha) = image.split_rgb_and_alpha();
+    /// let inverted = Image::from_rgb_and_alpha(rgb.rotated(90), alpha);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # See Also
+    /// * [`Self::from_rgb_and_alpha`] - The inverse of this method.
+    /// * [`Self::map_rgb`] - A more optimized method for performing operations on individual RGB
+    /// pixels.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>split_rgb_and_alpha(<span class="self">self</span>) -&gt; (Image&lt;Rgb&gt;, Image&lt;L&gt;) {
+        <span class="kw">let </span>(r, g, b, a) = <span class="self">self</span>.bands();
+        (Image::from_bands((r, g, b)), a)
+    }
+
+    <span class="doccomment">/// Creates an `Rgba` image from an `Rgb` image and an `L` image, where the `Rgb` image contains
+    /// the red, green, and blue color channels and the `L` image contains the alpha channel.
+    ///
+    /// # Panics
+    /// * The dimensions of the two images do not match.
+    ///
+    /// # See Also
+    /// * [`Self::split_rgb_and_alpha`] - The inverse of this method.
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>from_rgb_and_alpha(rgb: Image&lt;Rgb&gt;, alpha: Image&lt;L&gt;) -&gt; <span class="self">Self </span>{
+        <span class="macro">debug_assert_eq!</span>(
+            rgb.dimensions(),
+            alpha.dimensions(),
+            <span class="string">&quot;dimensions of RGB and alpha images do not match&quot;</span>,
+        );
+        rgb.map_data(|data| {
+            data.into_iter()
+                .zip(alpha.data)
+                .map(|(Rgb { r, g, b }, L(a))| Rgba { r, g, b, a })
+                .collect()
+        })
+    }
+
+    <span class="doccomment">/// Performs the given operation `f` on every pixel in this image, ignoring the alpha channel.
+    /// The alpha channel is left untouched.
+    ///
+    /// # Example
+    /// Inverting the image but keeping the alpha channel untouched:
+    ///
+    /// ```no_run
+    /// use ril::prelude::*;
+    ///
+    /// # fn main() -&gt; ril::Result&lt;()&gt; {
+    /// let image = Image::&lt;Rgba&gt;::open(&quot;image.png&quot;)?;
+    /// let inverted = image.map_rgb(|rgb| rgb.inverted());
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # See Also
+    /// * [`Self::map_alpha_pixels`] - Performs the given operation on every pixel in the alpha
+    /// channel.
+    /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image&lt;Rgb&gt;`
+    /// (and `Image&lt;L&gt;`).
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>map_rgb_pixels&lt;F&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(Rgb) -&gt; Rgb) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.map_pixels(|Rgba { r, g, b, a }| {
+            <span class="kw">let </span>Rgb { r, g, b } = f(Rgb { r, g, b });
+            Rgba { r, g, b, a }
+        })
+    }
+
+    <span class="doccomment">/// Performs the given operation `f` on every pixel in the alpha channel of this image.
+    /// The RGB channels are left untouched.
+    ///
+    /// # See Also
+    /// * [`Self::map_rgb_pixels`] - Performs the given operation on every pixel in the RGB channels.
+    /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image&lt;L&gt;`
+    /// (and `Image&lt;Rgb&gt;`).
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>map_alpha_pixels&lt;F&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(L) -&gt; L) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.map_pixels(|Rgba { r, g, b, a }| Rgba {
+            r,
+            g,
+            b,
+            a: f(L(a)).value(),
+        })
+    }
+}
+
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Image&lt;PalettedRgb&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; <span class="kw">for </span>Image&lt;PalettedRgba&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
     <span class="kw">fn </span>from(image: Image&lt;PalettedRgb&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
         image.map_palette(Into::into)
@@ -3166,7 +3368,7 @@
     /// If the extension is an unknown extension, Ok([`ImageFormat::unknown`]) is returned.
     ///
     /// If the extension is completely invalid and fails to be converted into a `&amp;str`,
-    /// the [`Error::InvalidExtension`] error is returned.
+    /// the [`InvalidExtension`] error is returned.
     ///
     /// # Errors
     /// * The extension is completely invalid and failed to be converted into a `&amp;str`.
