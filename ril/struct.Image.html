@@ -423,7 +423,7 @@ control over the quantization process, such as adjusting the quantization speed.
 </ul>
 </div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><section id="impl-Image%3CRgba%3E" class="impl has-srclink"><a class="srclink rightside" href="../src/ril/image.rs.html#1291-1390">source</a><a href="#impl-Image%3CRgba%3E" class="anchor">§</a><h3 class="code-header">impl <a class="struct" href="prelude/struct.Image.html" title="struct ril::prelude::Image">Image</a>&lt;<a class="struct" href="struct.Rgba.html" title="struct ril::Rgba">Rgba</a>&gt;</h3></section></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><section id="method.split_rgb_and_alpha" class="method has-srclink"><a class="srclink rightside" href="../src/ril/image.rs.html#1317-1320">source</a><h4 class="code-header">pub fn <a href="#method.split_rgb_and_alpha" class="fn">split_rgb_and_alpha</a>(self) -&gt; (<a class="struct" href="prelude/struct.Image.html" title="struct ril::prelude::Image">Image</a>&lt;<a class="struct" href="struct.Rgb.html" title="struct ril::Rgb">Rgb</a>&gt;, <a class="struct" href="prelude/struct.Image.html" title="struct ril::prelude::Image">Image</a>&lt;<a class="struct" href="struct.L.html" title="struct ril::L">L</a>&gt;)</h4></section></summary><div class="docblock"><p>Splits this image into an <code>Rgb</code> image and an <code>L</code> image, where the <code>Rgb</code> image contains the
 red, green, and blue color channels and the <code>L</code> image contains the alpha channel.</p>
-<p>There is a more optimized method available, [<code>Self::map_rgb</code>], if you only need to perform
+<p>There is a more optimized method available, <a href="prelude/struct.Image.html#method.map_rgb_pixels" title="Self::map_rgb_pixels"><code>Self::map_rgb_pixels</code></a>, if you only need to perform
 operations on individual RGB pixels. If you can, you should use that instead.</p>
 <h5 id="example-14"><a href="#example-14">Example</a></h5>
 <p>Rotating the image by 90 degrees but keeping the alpha channel untouched:</p>
@@ -436,7 +436,7 @@ operations on individual RGB pixels. If you can, you should use that instead.</p
 <h5 id="see-also-9"><a href="#see-also-9">See Also</a></h5>
 <ul>
 <li><a href="prelude/struct.Image.html#method.from_rgb_and_alpha" title="Self::from_rgb_and_alpha"><code>Self::from_rgb_and_alpha</code></a> - The inverse of this method.</li>
-<li>[<code>Self::map_rgb</code>] - A more optimized method for performing operations on individual RGB
+<li><a href="prelude/struct.Image.html#method.map_rgb_pixels" title="Self::map_rgb_pixels"><code>Self::map_rgb_pixels</code></a> - A more optimized method for performing operations on individual RGB
 pixels.</li>
 </ul>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.from_rgb_and_alpha" class="method has-srclink"><a class="srclink rightside" href="../src/ril/image.rs.html#1331-1343">source</a><h4 class="code-header">pub fn <a href="#method.from_rgb_and_alpha" class="fn">from_rgb_and_alpha</a>(rgb: <a class="struct" href="prelude/struct.Image.html" title="struct ril::prelude::Image">Image</a>&lt;<a class="struct" href="struct.Rgb.html" title="struct ril::Rgb">Rgb</a>&gt;, alpha: <a class="struct" href="prelude/struct.Image.html" title="struct ril::prelude::Image">Image</a>&lt;<a class="struct" href="struct.L.html" title="struct ril::L">L</a>&gt;) -&gt; Self</h4></section></summary><div class="docblock"><p>Creates an <code>Rgba</code> image from an <code>Rgb</code> image and an <code>L</code> image, where the <code>Rgb</code> image contains
@@ -457,7 +457,7 @@ The alpha channel is left untouched.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>ril::prelude::<span class="kw-2">*</span>;
 
 <span class="kw">let </span>image = Image::&lt;Rgba&gt;::open(<span class="string">&quot;image.png&quot;</span>)<span class="question-mark">?</span>;
-<span class="kw">let </span>inverted = image.map_rgb(|rgb| rgb.inverted());</code></pre></div>
+<span class="kw">let </span>inverted = image.map_rgb_pixels(|rgb| rgb.inverted());</code></pre></div>
 <h5 id="see-also-11"><a href="#see-also-11">See Also</a></h5>
 <ul>
 <li><a href="prelude/struct.Image.html#method.map_alpha_pixels" title="Self::map_alpha_pixels"><code>Self::map_alpha_pixels</code></a> - Performs the given operation on every pixel in the alpha
