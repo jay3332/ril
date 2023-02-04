@@ -30,7 +30,7 @@ jobs:
       uses: Swatinem/rust-cache@v1
     
     - name: Install gnuplot and neofetch
-      run: sudo apt install gnuplot neofetch
+      run: sudo apt update && sudo apt install gnuplot neofetch
     
     - name: Show system specs
       run: neofetch --stdout
