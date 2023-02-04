@@ -1292,7 +1292,7 @@ impl Image<Rgba> {
     /// Splits this image into an `Rgb` image and an `L` image, where the `Rgb` image contains the
     /// red, green, and blue color channels and the `L` image contains the alpha channel.
     ///
-    /// There is a more optimized method available, [`Self::map_rgb`], if you only need to perform
+    /// There is a more optimized method available, [`Self::map_rgb_pixels`], if you only need to perform
     /// operations on individual RGB pixels. If you can, you should use that instead.
     ///
     /// # Example
@@ -1311,7 +1311,7 @@ impl Image<Rgba> {
     ///
     /// # See Also
     /// * [`Self::from_rgb_and_alpha`] - The inverse of this method.
-    /// * [`Self::map_rgb`] - A more optimized method for performing operations on individual RGB
+    /// * [`Self::map_rgb_pixels`] - A more optimized method for performing operations on individual RGB
     /// pixels.
     #[must_use]
     pub fn split_rgb_and_alpha(self) -> (Image<Rgb>, Image<L>) {
@@ -1353,7 +1353,7 @@ impl Image<Rgba> {
     ///
     /// # fn main() -> ril::Result<()> {
     /// let image = Image::<Rgba>::open("image.png")?;
-    /// let inverted = image.map_rgb(|rgb| rgb.inverted());
+    /// let inverted = image.map_rgb_pixels(|rgb| rgb.inverted());
     /// # Ok(())
     /// # }
     /// ```
