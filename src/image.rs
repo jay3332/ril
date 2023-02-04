@@ -1364,7 +1364,7 @@ impl Image<Rgba> {
     /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<Rgb>`
     /// (and `Image<L>`).
     #[must_use]
-    pub fn map_rgb_pixels<F>(self, mut f: impl FnMut(Rgb) -> Rgb) -> Self {
+    pub fn map_rgb_pixels(self, mut f: impl FnMut(Rgb) -> Rgb) -> Self {
         self.map_pixels(|Rgba { r, g, b, a }| {
             let Rgb { r, g, b } = f(Rgb { r, g, b });
             Rgba { r, g, b, a }
@@ -1379,7 +1379,7 @@ impl Image<Rgba> {
     /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<L>`
     /// (and `Image<Rgb>`).
     #[must_use]
-    pub fn map_alpha_pixels<F>(self, mut f: impl FnMut(L) -> L) -> Self {
+    pub fn map_alpha_pixels(self, mut f: impl FnMut(L) -> L) -> Self {
         self.map_pixels(|Rgba { r, g, b, a }| Rgba {
             r,
             g,
