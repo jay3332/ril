@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["ImageFill","Represents a fill that pulls pixels from an image."],["SolidFill","Represents a solid color fill."]],"trait":[["Fill","Handles the actual filling of a shape. See [`IntoFill`] for more information."],["IntoFill","Any fill type that can be used to fill a shape, i.e. solid colors or gradients."]],"type":[["BoundingBox",""]]};

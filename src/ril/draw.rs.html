@@ -1488,145 +1488,13 @@
 <a href="#1488" id="1488">1488</a>
 <a href="#1489" id="1489">1489</a>
 <a href="#1490" id="1490">1490</a>
-<a href="#1491" id="1491">1491</a>
-<a href="#1492" id="1492">1492</a>
-<a href="#1493" id="1493">1493</a>
-<a href="#1494" id="1494">1494</a>
-<a href="#1495" id="1495">1495</a>
-<a href="#1496" id="1496">1496</a>
-<a href="#1497" id="1497">1497</a>
-<a href="#1498" id="1498">1498</a>
-<a href="#1499" id="1499">1499</a>
-<a href="#1500" id="1500">1500</a>
-<a href="#1501" id="1501">1501</a>
-<a href="#1502" id="1502">1502</a>
-<a href="#1503" id="1503">1503</a>
-<a href="#1504" id="1504">1504</a>
-<a href="#1505" id="1505">1505</a>
-<a href="#1506" id="1506">1506</a>
-<a href="#1507" id="1507">1507</a>
-<a href="#1508" id="1508">1508</a>
-<a href="#1509" id="1509">1509</a>
-<a href="#1510" id="1510">1510</a>
-<a href="#1511" id="1511">1511</a>
-<a href="#1512" id="1512">1512</a>
-<a href="#1513" id="1513">1513</a>
-<a href="#1514" id="1514">1514</a>
-<a href="#1515" id="1515">1515</a>
-<a href="#1516" id="1516">1516</a>
-<a href="#1517" id="1517">1517</a>
-<a href="#1518" id="1518">1518</a>
-<a href="#1519" id="1519">1519</a>
-<a href="#1520" id="1520">1520</a>
-<a href="#1521" id="1521">1521</a>
-<a href="#1522" id="1522">1522</a>
-<a href="#1523" id="1523">1523</a>
-<a href="#1524" id="1524">1524</a>
-<a href="#1525" id="1525">1525</a>
-<a href="#1526" id="1526">1526</a>
-<a href="#1527" id="1527">1527</a>
-<a href="#1528" id="1528">1528</a>
-<a href="#1529" id="1529">1529</a>
-<a href="#1530" id="1530">1530</a>
-<a href="#1531" id="1531">1531</a>
-<a href="#1532" id="1532">1532</a>
-<a href="#1533" id="1533">1533</a>
-<a href="#1534" id="1534">1534</a>
-<a href="#1535" id="1535">1535</a>
-<a href="#1536" id="1536">1536</a>
-<a href="#1537" id="1537">1537</a>
-<a href="#1538" id="1538">1538</a>
-<a href="#1539" id="1539">1539</a>
-<a href="#1540" id="1540">1540</a>
-<a href="#1541" id="1541">1541</a>
-<a href="#1542" id="1542">1542</a>
-<a href="#1543" id="1543">1543</a>
-<a href="#1544" id="1544">1544</a>
-<a href="#1545" id="1545">1545</a>
-<a href="#1546" id="1546">1546</a>
-<a href="#1547" id="1547">1547</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Encloses most drawing implementations and drawable objects.
 
-</span><span class="kw">use crate</span>::{Image, OverlayMode, Pixel};
+</span><span class="kw">use crate</span>::{
+    fill::{Fill, IntoFill},
+    Image, OverlayMode, Pixel,
+};
 <span class="kw">use </span>std::ops::DerefMut;
-
-<span class="kw">pub type </span>BoundingBox&lt;T&gt; = (T, T, T, T);
-
-<span class="doccomment">/// Any fill type that can be used to fill a shape, i.e. solid colors or gradients.
-///
-/// For solid colors, this trait is implemented for all `Pixel` types as [`SolidFill`].
-</span><span class="kw">pub trait </span>IntoFill: Clone + Default {
-    <span class="doccomment">/// The pixel type of the fill.
-    </span><span class="kw">type </span>Pixel: Pixel;
-    <span class="doccomment">/// The fill type.
-    </span><span class="kw">type </span>Fill: Fill&lt;<span class="self">Self</span>::Pixel&gt;;
-
-    <span class="doccomment">/// Converts the fill into a fill type.
-    </span><span class="kw">fn </span>into_fill(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Fill;
-}
-
-<span class="doccomment">/// Handles the actual filling of a shape. See [`IntoFill`] for more information.
-</span><span class="kw">pub trait </span>Fill&lt;P: Pixel&gt;: Clone {
-    <span class="doccomment">/// Sets the bounding box of the fill in place. This is used internally.
-    </span><span class="kw">fn </span>set_bounding_box(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _bounding_box: BoundingBox&lt;u32&gt;) {}
-
-    <span class="doccomment">/// Sets the overlay mode of the fill. This is used internally.
-    </span><span class="attr">#[must_use = <span class="string">&quot;this method consumes the fill and returns it back, it does not modify it in-place&quot;</span>]
-    </span><span class="kw">fn </span>with_bounding_box(<span class="kw-2">mut </span><span class="self">self</span>, bounding_box: BoundingBox&lt;u32&gt;) -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-    {
-        <span class="self">self</span>.set_bounding_box(bounding_box);
-        <span class="self">self
-    </span>}
-
-    <span class="doccomment">/// Gets the color of the fill at the given coordinates.
-    </span><span class="kw">fn </span>get_pixel(<span class="kw-2">&amp;</span><span class="self">self</span>, x: u32, y: u32) -&gt; P;
-
-    <span class="doccomment">/// Plots the fill at the given coordinates on the given image.
-    </span><span class="kw">fn </span>plot(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;, x: u32, y: u32, mode: OverlayMode) {
-        image.overlay_pixel_with_mode(x, y, <span class="self">self</span>.get_pixel(x, y), mode);
-    }
-
-    <span class="doccomment">/// Plots the fill at the given coordinates on the given image with a custom alpha value.
-    </span><span class="kw">fn </span>plot_with_alpha(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;P&gt;, x: u32, y: u32, mode: OverlayMode, alpha: u8) {
-        image.overlay_pixel_with_alpha(x, y, <span class="self">self</span>.get_pixel(x, y), mode, alpha);
-    }
-}
-
-<span class="kw">impl</span>&lt;P: Pixel&gt; IntoFill <span class="kw">for </span>P {
-    <span class="kw">type </span>Pixel = P;
-    <span class="kw">type </span>Fill = SolidFill&lt;<span class="self">Self</span>::Pixel&gt;;
-
-    <span class="kw">fn </span>into_fill(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Fill {
-        SolidFill(<span class="self">self</span>)
-    }
-}
-
-<span class="doccomment">/// Represents a solid color fill.
-</span><span class="attr">#[derive(Copy, Clone, Debug)]
-</span><span class="kw">pub struct </span>SolidFill&lt;P: Pixel&gt;(P);
-
-<span class="kw">impl</span>&lt;P: Pixel&gt; SolidFill&lt;P&gt; {
-    <span class="doccomment">/// Creates a new solid fill.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(color: P) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(color)
-    }
-
-    <span class="doccomment">/// Returns a the color (represented as a [`Pixel`]) of the fill.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>color(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; P {
-        <span class="self">self</span>.<span class="number">0
-    </span>}
-}
-
-<span class="kw">impl</span>&lt;P: Pixel&gt; Fill&lt;P&gt; <span class="kw">for </span>SolidFill&lt;P&gt; {
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>get_pixel(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: u32, <span class="kw">_</span>: u32) -&gt; P {
-        <span class="self">self</span>.<span class="number">0
-    </span>}
-}
 
 <span class="doccomment">/// A common trait for all objects able to be drawn on an image.
 ///
@@ -1761,17 +1629,25 @@
     </span><span class="kw">pub </span>position: BorderPosition,
 }
 
-<span class="kw">impl</span>&lt;F: IntoFill&gt; Default <span class="kw">for </span>Line&lt;F&gt; {
+<span class="attr">#[inline]
+</span><span class="kw">unsafe fn </span>_unsafe_default_fields&lt;F: IntoFill&gt;() -&gt; Line&lt;F&gt; {
+    Line {
+        color: std::mem::zeroed::&lt;F&gt;().into_fill(),
+        mode: <span class="prelude-val">None</span>,
+        thickness: <span class="number">1</span>,
+        start: (<span class="number">0</span>, <span class="number">0</span>),
+        end: (<span class="number">0</span>, <span class="number">0</span>),
+        antialiased: <span class="bool-val">false</span>,
+        rounded: <span class="bool-val">false</span>,
+        position: BorderPosition::Center,
+    }
+}
+
+<span class="kw">impl</span>&lt;F: IntoFill + Default&gt; Default <span class="kw">for </span>Line&lt;F&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            color: F::default().into_fill(),
-            mode: <span class="prelude-val">None</span>,
-            thickness: <span class="number">1</span>,
-            start: (<span class="number">0</span>, <span class="number">0</span>),
-            end: (<span class="number">0</span>, <span class="number">0</span>),
-            antialiased: <span class="bool-val">false</span>,
-            rounded: <span class="bool-val">false</span>,
-            position: BorderPosition::Center,
+        <span class="kw">unsafe </span>{
+            <span class="comment">// SAFETY: unsafe field `color` is overwritten
+            </span>_unsafe_default_fields().with_color(F::default())
         }
     }
 }
@@ -1785,7 +1661,8 @@
             color: color.into_fill(),
             start,
             end,
-            ..Default::default()
+            <span class="comment">// SAFETY: unsafe field `color` is overwritten
+            </span>..<span class="kw">unsafe </span>{ _unsafe_default_fields() }
         };
         this.update_bounding_box();
         this
@@ -2376,7 +2253,8 @@
                         </span><span class="kw">let </span><span class="kw-2">&amp;</span>from = edge.get_unchecked(<span class="number">0</span>);
                         <span class="kw">let </span><span class="kw-2">&amp;</span>to = edge.get_unchecked(<span class="number">1</span>);
                         image.draw(
-                            <span class="kw-2">&amp;</span>Line::new(from, to, F::default())
+                            <span class="comment">// SAFETY: color is overridden
+                            </span><span class="kw-2">&amp;</span>Line::new(from, to, std::mem::zeroed::&lt;F&gt;())
                                 .with_fill_color(fill.clone())
                                 .with_antialiased(<span class="bool-val">true</span>),
                         );
@@ -2410,9 +2288,6 @@
 }
 
 <span class="doccomment">/// A rectangle.
-///
-/// Using any of the predefined construction methods will automatically set the position to
-/// `(0, 0)`. If you want to specify a different position, use the `with_position` method.
 ///
 /// # Note
 /// You must specify a width and height for the rectangle with something such as [`with_size`].
@@ -2460,8 +2335,19 @@
     /// one of them with [`with_fill`] or [`with_border`] respectively or else you will receive a
     /// panic at draw-time.
     </span><span class="attr">#[must_use]
+    #[deprecated = <span class="string">&quot;use `Rectangle::at` instead&quot;</span>]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::default()
+    }
+
+    <span class="doccomment">/// Creates a new rectangle at the specified coordinates with default values.
+    ///
+    /// # Note
+    /// You must explicitly set the size of the rectangle with [`with_size`]. If no size is set
+    /// before drawing, you will receive a panic.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>at(x: u32, y: u32) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::default().with_position(x, y)
     }
 
     <span class="kw">fn </span>update_bounding_box(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
@@ -2475,7 +2361,7 @@
     <span class="doccomment">/// Creates a new square with side length `s` with the top-left corner at the given coordinates.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>square(s: u32, (x, y): (u32, u32)) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new().with_position(x, y).with_size(s, s)
+        <span class="self">Self</span>::at(x, y).with_size(s, s)
     }
 
     <span class="doccomment">/// Creates a new rectangle from two coordinates specified as 4 parameters.

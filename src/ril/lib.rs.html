@@ -342,6 +342,8 @@
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
 </pre><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
 //!
 //! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril). It should
@@ -609,6 +611,7 @@
 <span class="kw">pub mod </span>encode;
 <span class="kw">pub mod </span>encodings;
 <span class="kw">pub mod </span>error;
+<span class="kw">pub mod </span>fill;
 <span class="attr">#[cfg(feature = <span class="string">&quot;gradient&quot;</span>)]
 </span><span class="kw">pub mod </span>gradient;
 <span class="kw">mod </span>image;
@@ -630,7 +633,7 @@
     <span class="kw">pub use </span><span class="kw">crate</span>::image::{
         Banded, Image, ImageFormat, OverlayMode,
     };
-    <span class="kw">pub use </span>draw::{Border, BorderPosition, Draw, Ellipse, Fill, IntoFill, Line, Paste, Polygon, Rectangle};
+    <span class="kw">pub use </span>draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
     <span class="kw">pub use </span>encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     <span class="kw">pub use </span>encodings::ColorType;
     <span class="kw">pub use </span>error::{Error, <span class="prelude-ty">Result</span>};
@@ -644,6 +647,7 @@
         ConicGradient,
         RadialGradientCover,
     };
+    <span class="kw">pub use </span>fill::{Fill, IntoFill};
     <span class="kw">pub use </span>pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,
