@@ -32,8 +32,7 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 - Fix `Line` panicking with reversed vertices
   - This error was most commonly encountered with rendering `Polygon` with borders or antialiasing
 
-
-### Deprecated methods
+#### Deprecated methods
 - `Rectangle::new` deprecated in favor of `Rectangle::at`. Additionally, identical behavior can be found with
   `<Rectangle as Default>::default`.
 
