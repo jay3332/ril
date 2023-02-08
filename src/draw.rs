@@ -1,85 +1,10 @@
 //! Encloses most drawing implementations and drawable objects.
 
-use crate::{Image, OverlayMode, Pixel};
+use crate::{
+    fill::{Fill, IntoFill},
+    Image, OverlayMode, Pixel,
+};
 use std::ops::DerefMut;
-
-pub type BoundingBox<T> = (T, T, T, T);
-
-/// Any fill type that can be used to fill a shape, i.e. solid colors or gradients.
-///
-/// For solid colors, this trait is implemented for all `Pixel` types as [`SolidFill`].
-pub trait IntoFill: Clone + Default {
-    /// The pixel type of the fill.
-    type Pixel: Pixel;
-    /// The fill type.
-    type Fill: Fill<Self::Pixel>;
-
-    /// Converts the fill into a fill type.
-    fn into_fill(self) -> Self::Fill;
-}
-
-/// Handles the actual filling of a shape. See [`IntoFill`] for more information.
-pub trait Fill<P: Pixel>: Clone {
-    /// Sets the bounding box of the fill in place. This is used internally.
-    fn set_bounding_box(&mut self, _bounding_box: BoundingBox<u32>) {}
-
-    /// Sets the overlay mode of the fill. This is used internally.
-    #[must_use = "this method consumes the fill and returns it back, it does not modify it in-place"]
-    fn with_bounding_box(mut self, bounding_box: BoundingBox<u32>) -> Self
-    where
-        Self: Sized,
-    {
-        self.set_bounding_box(bounding_box);
-        self
-    }
-
-    /// Gets the color of the fill at the given coordinates.
-    fn get_pixel(&self, x: u32, y: u32) -> P;
-
-    /// Plots the fill at the given coordinates on the given image.
-    fn plot(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode) {
-        image.overlay_pixel_with_mode(x, y, self.get_pixel(x, y), mode);
-    }
-
-    /// Plots the fill at the given coordinates on the given image with a custom alpha value.
-    fn plot_with_alpha(&self, image: &mut Image<P>, x: u32, y: u32, mode: OverlayMode, alpha: u8) {
-        image.overlay_pixel_with_alpha(x, y, self.get_pixel(x, y), mode, alpha);
-    }
-}
-
-impl<P: Pixel> IntoFill for P {
-    type Pixel = P;
-    type Fill = SolidFill<Self::Pixel>;
-
-    fn into_fill(self) -> Self::Fill {
-        SolidFill(self)
-    }
-}
-
-/// Represents a solid color fill.
-#[derive(Copy, Clone, Debug)]
-pub struct SolidFill<P: Pixel>(P);
-
-impl<P: Pixel> SolidFill<P> {
-    /// Creates a new solid fill.
-    #[must_use]
-    pub const fn new(color: P) -> Self {
-        Self(color)
-    }
-
-    /// Returns a the color (represented as a [`Pixel`]) of the fill.
-    #[must_use]
-    pub const fn color(&self) -> P {
-        self.0
-    }
-}
-
-impl<P: Pixel> Fill<P> for SolidFill<P> {
-    #[inline]
-    fn get_pixel(&self, _: u32, _: u32) -> P {
-        self.0
-    }
-}
 
 /// A common trait for all objects able to be drawn on an image.
 ///
@@ -214,17 +139,25 @@ pub struct Line<F: IntoFill> {
     pub position: BorderPosition,
 }
 
-impl<F: IntoFill> Default for Line<F> {
+#[inline]
+unsafe fn _unsafe_default_fields<F: IntoFill>() -> Line<F> {
+    Line {
+        color: std::mem::zeroed::<F>().into_fill(),
+        mode: None,
+        thickness: 1,
+        start: (0, 0),
+        end: (0, 0),
+        antialiased: false,
+        rounded: false,
+        position: BorderPosition::Center,
+    }
+}
+
+impl<F: IntoFill + Default> Default for Line<F> {
     fn default() -> Self {
-        Self {
-            color: F::default().into_fill(),
-            mode: None,
-            thickness: 1,
-            start: (0, 0),
-            end: (0, 0),
-            antialiased: false,
-            rounded: false,
-            position: BorderPosition::Center,
+        unsafe {
+            // SAFETY: unsafe field `color` is overwritten
+            _unsafe_default_fields().with_color(F::default())
         }
     }
 }
@@ -238,7 +171,8 @@ impl<F: IntoFill> Line<F> {
             color: color.into_fill(),
             start,
             end,
-            ..Default::default()
+            // SAFETY: unsafe field `color` is overwritten
+            ..unsafe { _unsafe_default_fields() }
         };
         this.update_bounding_box();
         this
@@ -829,7 +763,8 @@ impl<F: IntoFill> Draw<F::Pixel> for Polygon<F> {
                         let &from = edge.get_unchecked(0);
                         let &to = edge.get_unchecked(1);
                         image.draw(
-                            &Line::new(from, to, F::default())
+                            // SAFETY: color is overridden
+                            &Line::new(from, to, std::mem::zeroed::<F>())
                                 .with_fill_color(fill.clone())
                                 .with_antialiased(true),
                         );
@@ -863,9 +798,6 @@ impl<F: IntoFill> Draw<F::Pixel> for Polygon<F> {
 }
 
 /// A rectangle.
-///
-/// Using any of the predefined construction methods will automatically set the position to
-/// `(0, 0)`. If you want to specify a different position, use the `with_position` method.
 ///
 /// # Note
 /// You must specify a width and height for the rectangle with something such as [`with_size`].
@@ -913,8 +845,19 @@ impl<F: IntoFill> Rectangle<F> {
     /// one of them with [`with_fill`] or [`with_border`] respectively or else you will receive a
     /// panic at draw-time.
     #[must_use]
+    #[deprecated = "use `Rectangle::at` instead"]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Creates a new rectangle at the specified coordinates with default values.
+    ///
+    /// # Note
+    /// You must explicitly set the size of the rectangle with [`with_size`]. If no size is set
+    /// before drawing, you will receive a panic.
+    #[must_use]
+    pub fn at(x: u32, y: u32) -> Self {
+        Self::default().with_position(x, y)
     }
 
     fn update_bounding_box(&mut self) {
@@ -928,7 +871,7 @@ impl<F: IntoFill> Rectangle<F> {
     /// Creates a new square with side length `s` with the top-left corner at the given coordinates.
     #[must_use]
     pub fn square(s: u32, (x, y): (u32, u32)) -> Self {
-        Self::new().with_position(x, y).with_size(s, s)
+        Self::at(x, y).with_size(s, s)
     }
 
     /// Creates a new rectangle from two coordinates specified as 4 parameters.

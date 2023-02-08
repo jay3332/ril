@@ -265,6 +265,7 @@ pub mod draw;
 pub mod encode;
 pub mod encodings;
 pub mod error;
+pub mod fill;
 #[cfg(feature = "gradient")]
 pub mod gradient;
 mod image;
@@ -286,7 +287,7 @@ inline_doc! {
     pub use crate::image::{
         Banded, Image, ImageFormat, OverlayMode,
     };
-    pub use draw::{Border, BorderPosition, Draw, Ellipse, Fill, IntoFill, Line, Paste, Polygon, Rectangle};
+    pub use draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
     pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
     pub use encodings::ColorType;
     pub use error::{Error, Result};
@@ -300,6 +301,7 @@ inline_doc! {
         ConicGradient,
         RadialGradientCover,
     };
+    pub use fill::{Fill, IntoFill};
     pub use pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,

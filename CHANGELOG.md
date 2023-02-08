@@ -16,17 +16,26 @@ Versions prior to v0.7 are not tagged/released on GitHub.
     - `Image::<Rgba>::map_rgb_pixels` maps only the RGB pixels of the image
       - Allows for `image.map_rgb_pixels(|p| p.inverted())`
     - `Image::<Rgba>::map_alpha_pixels` maps only the alpha pixels of the image
+- `Fill`/`IntoFill` structs are now moved into a standalone `fill` module.
 
 ### Other changes
 - Add radial gradients via `RadialGradient`
   - This adds `GradientPosition` and `RadialGradientCover` enums
 - Add conic gradients via `ConicGradient`
+- Add `Rectangle::at` method, which creates a rectangle at specified coordinates.
 - Add `Rectangle::square` to create a rectangle with equal side lengths
 - Document `Fill`/`IntoFill` structs
+- Add `ImageFill` fill struct for image-clipped fills.
+  - `IntoFill` is implemented for `&Image`.
 
 #### Bug fixes
 - Fix `Line` panicking with reversed vertices
   - This error was most commonly encountered with rendering `Polygon` with borders or antialiasing
+
+
+### Deprecated methods
+- `Rectangle::new` deprecated in favor of `Rectangle::at`. Additionally, identical behavior can be found with
+  `<Rectangle as Default>::default`.
 
 ## v0.9 (2022-12-13)
 ### Breaking changes

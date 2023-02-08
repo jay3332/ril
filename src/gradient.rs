@@ -2,7 +2,7 @@
 
 #![allow(clippy::cast_lossless, clippy::cast_precision_loss)]
 
-use crate::draw::{BoundingBox, Fill, IntoFill};
+use crate::fill::{BoundingBox, Fill, IntoFill};
 use crate::{Pixel, Rgba};
 
 pub use colorgrad::{BlendMode, Interpolation};
