@@ -31,6 +31,7 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 #### Bug fixes
 - Fix `Line` panicking with reversed vertices
   - This error was most commonly encountered with rendering `Polygon` with borders or antialiasing
+- Fix compile-time errors when enabling `jpeg` feature without enabling the `gif` feature
 
 #### Deprecated methods
 - `Rectangle::new` deprecated in favor of `Rectangle::at`. Additionally, identical behavior can be found with
