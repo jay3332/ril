@@ -157,7 +157,7 @@ impl From<jpeg_decoder::Error> for Error {
     }
 }
 
-#[cfg(feature = "gif")]
+#[cfg(feature = "jpeg")]
 impl From<jpeg_encoder::EncodingError> for Error {
     fn from(err: jpeg_encoder::EncodingError) -> Self {
         match err {
