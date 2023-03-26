@@ -613,13 +613,12 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self.dimensions().0
     }
 
-    /// Returns the height of the text. This is a slightly expensive operation and is not a simple
-    /// getter.
+    /// Returns the height of the text.
     ///
     /// If you want both width and height, use [`dimensions`][TextLayout::dimensions].
     #[must_use]
     pub fn height(&self) -> u32 {
-        self.dimensions().1
+        self.inner.height() as u32
     }
 
     /// Returns the bounding box of the text. Left and top bounds are inclusive; right and bottom
