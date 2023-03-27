@@ -465,7 +465,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self
     }
 
-    /// Sets the wrapping width of the text. This does not impact [`Self::dimensions`].
+    /// Sets the wrapping width of the text. This does not impact [`Self::width`] and [`Self::dimensions`].
     ///
     /// **This must be set before adding any text segments!**
     #[must_use]
