@@ -465,7 +465,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self
     }
 
-    /// Sets the wrapping width of the text. This does not impact [`Self::dimensions`].
+    /// Sets the wrapping width of the text. This does not impact [`Self::width`] and [`Self::dimensions`].
     ///
     /// **This must be set before adding any text segments!**
     #[must_use]
@@ -573,13 +573,15 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         (widths, max_width, self.inner.height() as u32)
     }
 
-    /// Returns the width and height of the text. This is a slightly expensive operation and should
-    /// be used sparingly - it is not a simple getter.
+    /// Returns the width of the text. This is a slightly expensive operation and is not a simple
+    /// getter.
+    ///
+    /// If you want both width and height, use [`dimensions`][TextLayout::dimensions].
     #[must_use]
-    pub fn dimensions(&self) -> (u32, u32) {
+    pub fn width(&self) -> u32 {
         let glyphs = self.inner.glyphs();
         if glyphs.is_empty() {
-            return (0, 0);
+            return 0;
         }
 
         let mut width = 0;
@@ -601,25 +603,22 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
             }
         }
 
-        (width, self.inner.height() as u32)
+        width
     }
 
-    /// Returns the width of the text. This is a slightly expensive operation and is not a simple
-    /// getter.
-    ///
-    /// If you want both width and height, use [`dimensions`][TextLayout::dimensions].
-    #[must_use]
-    pub fn width(&self) -> u32 {
-        self.dimensions().0
-    }
-
-    /// Returns the height of the text. This is a slightly expensive operation and is not a simple
-    /// getter.
+    /// Returns the height of the text.
     ///
     /// If you want both width and height, use [`dimensions`][TextLayout::dimensions].
     #[must_use]
     pub fn height(&self) -> u32 {
-        self.dimensions().1
+        self.inner.height() as u32
+    }
+
+    /// Returns the width and height of the text. This is a slightly expensive operation and should
+    /// be used sparingly - it is not a simple getter.
+    #[must_use]
+    pub fn dimensions(&self) -> (u32, u32) {
+        (self.width(), self.height())
     }
 
     /// Returns the bounding box of the text. Left and top bounds are inclusive; right and bottom
