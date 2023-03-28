@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"ril":[["impl&lt;P:&nbsp;<a class=\"trait\" href=\"ril/trait.Pixel.html\" title=\"trait ril::Pixel\">Pixel</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.67.1/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"ril/struct.Frame.html\" title=\"struct ril::Frame\">Frame</a>&lt;P&gt;"]]
+"ril":[["impl&lt;P:&nbsp;<a class=\"trait\" href=\"ril/trait.Pixel.html\" title=\"trait ril::Pixel\">Pixel</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.68.1/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"struct\" href=\"ril/struct.Frame.html\" title=\"struct ril::Frame\">Frame</a>&lt;P&gt;"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
