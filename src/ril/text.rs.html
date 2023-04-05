@@ -689,16 +689,14 @@
 <a href="#689" id="689">689</a>
 <a href="#690" id="690">690</a>
 <a href="#691" id="691">691</a>
-<a href="#692" id="692">692</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Implements the font/text rasterizing and layout interface.
 
 </span><span class="attr">#![allow(clippy::cast_precision_loss, clippy::too_many_arguments)]
 
 </span><span class="kw">use crate</span>::{Draw, Error::FontError, Image, OverlayMode, Pixel};
 
-<span class="kw">use </span>fontdue::layout::{CoordinateSystem, TextStyle};
 <span class="kw">use </span>fontdue::{
-    layout::{Layout, LayoutSettings},
+    layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle},
     FontSettings,
 };
 <span class="kw">use </span>std::{fs::File, io::Read, ops::DerefMut, path::Path};
@@ -1383,4 +1381,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -1792,7 +1792,6 @@
 <a href="#1792" id="1792">1792</a>
 <a href="#1793" id="1793">1793</a>
 <a href="#1794" id="1794">1794</a>
-<a href="#1795" id="1795">1795</a>
 </pre><pre class="rust"><code><span class="attr">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -2231,7 +2230,7 @@
     /// # }
     /// ```
     </span><span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>, encoding: ImageFormat, path: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(path).map_err(Error::IOError)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(path).map_err(Error::IoError)<span class="question-mark">?</span>;
         <span class="self">self</span>.encode(encoding, <span class="kw-2">&amp;mut </span>file)
     }
 
@@ -2861,8 +2860,7 @@
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
     /// let mut image = Image::new(256, 256, Rgb::white());
-    /// let rectangle = Rectangle::new()
-    ///     .with_position(64, 64)
+    /// let rectangle = Rectangle::at(64, 64)
     ///     .with_size(128, 128)
     ///     .with_fill(Rgb::black());
     ///
@@ -3589,4 +3587,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

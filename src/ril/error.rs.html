@@ -186,6 +186,8 @@
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Common error types.
 
 </span><span class="kw">use </span>std::ffi::OsString;
@@ -243,7 +245,7 @@
     </span>UnsupportedColorType,
 
     <span class="doccomment">/// An error occured when trying to read a file or when trying to write to a file.
-    </span>IOError(std::io::Error),
+    </span>IoError(std::io::Error),
 
     <span class="doccomment">/// Tried to encode an empty image, or an image without data. This is also raised when trying
     /// to encode an image sequence with no frames.
@@ -258,6 +260,8 @@
         </span>palette_size: usize,
     },
 }
+
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
@@ -285,7 +289,7 @@
                 <span class="string">&quot;An image with dimensions {width}x{height} should have {} pixels, received {received} instead&quot;</span>,
                 width * height,
             ),
-            <span class="self">Self</span>::IOError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;IO error: {error}&quot;</span>),
+            <span class="self">Self</span>::IoError(error) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;IO error: {error}&quot;</span>),
             <span class="self">Self</span>::EmptyImageError =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Tried encoding an empty image&quot;</span>),
             <span class="self">Self</span>::QuantizationOverflow {
                 unique_colors,
@@ -303,7 +307,7 @@
 
 <span class="kw">impl </span>From&lt;std::io::Error&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: std::io::Error) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::IOError(err)
+        <span class="self">Self</span>::IoError(err)
     }
 }
 
@@ -311,7 +315,7 @@
 </span><span class="kw">impl </span>From&lt;png::EncodingError&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: png::EncodingError) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>err {
-            png::EncodingError::IoError(err) =&gt; <span class="self">Self</span>::IOError(err),
+            png::EncodingError::IoError(err) =&gt; <span class="self">Self</span>::IoError(err),
             png::EncodingError::Format(err) =&gt; <span class="self">Self</span>::EncodingError(err.to_string()),
             png::EncodingError::LimitsExceeded =&gt; {
                 <span class="self">Self</span>::EncodingError(<span class="string">&quot;limits exceeded&quot;</span>.to_string())
@@ -325,7 +329,7 @@
 </span><span class="kw">impl </span>From&lt;png::DecodingError&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: png::DecodingError) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>err {
-            png::DecodingError::IoError(err) =&gt; <span class="self">Self</span>::IOError(err),
+            png::DecodingError::IoError(err) =&gt; <span class="self">Self</span>::IoError(err),
             png::DecodingError::Format(err) =&gt; <span class="self">Self</span>::DecodingError(err.to_string()),
             png::DecodingError::LimitsExceeded =&gt; {
                 <span class="self">Self</span>::DecodingError(<span class="string">&quot;limits exceeded&quot;</span>.to_string())
@@ -339,7 +343,7 @@
 </span><span class="kw">impl </span>From&lt;jpeg_decoder::Error&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: jpeg_decoder::Error) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>err {
-            jpeg_decoder::Error::Io(err) =&gt; <span class="self">Self</span>::IOError(err),
+            jpeg_decoder::Error::Io(err) =&gt; <span class="self">Self</span>::IoError(err),
             err =&gt; <span class="self">Self</span>::DecodingError(err.to_string()),
         }
     }
@@ -349,7 +353,7 @@
 </span><span class="kw">impl </span>From&lt;jpeg_encoder::EncodingError&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: jpeg_encoder::EncodingError) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>err {
-            jpeg_encoder::EncodingError::IoError(err) =&gt; <span class="self">Self</span>::IOError(err),
+            jpeg_encoder::EncodingError::IoError(err) =&gt; <span class="self">Self</span>::IoError(err),
             err =&gt; <span class="self">Self</span>::EncodingError(err.to_string()),
         }
     }
@@ -359,7 +363,7 @@
 </span><span class="kw">impl </span>From&lt;gif::EncodingError&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: gif::EncodingError) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>err {
-            gif::EncodingError::Io(err) =&gt; <span class="self">Self</span>::IOError(err),
+            gif::EncodingError::Io(err) =&gt; <span class="self">Self</span>::IoError(err),
             gif::EncodingError::Format(err) =&gt; <span class="self">Self</span>::EncodingError(err.to_string()),
         }
     }
@@ -369,10 +373,10 @@
 </span><span class="kw">impl </span>From&lt;gif::DecodingError&gt; <span class="kw">for </span>Error {
     <span class="kw">fn </span>from(err: gif::DecodingError) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>err {
-            gif::DecodingError::Io(err) =&gt; <span class="self">Self</span>::IOError(err),
+            gif::DecodingError::Io(err) =&gt; <span class="self">Self</span>::IoError(err),
             gif::DecodingError::Format(err) =&gt; <span class="self">Self</span>::DecodingError(err.to_string()),
         }
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
