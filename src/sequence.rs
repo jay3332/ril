@@ -372,7 +372,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// # Panics
     /// * No encoder implementation for the given encoding format.
     pub fn save(&self, encoding: ImageFormat, path: impl AsRef<Path>) -> Result<()> {
-        let mut file = File::create(path).map_err(Error::IOError)?;
+        let mut file = File::create(path).map_err(Error::IoError)?;
         self.encode(encoding, &mut file)
     }
 

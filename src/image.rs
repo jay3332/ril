@@ -436,7 +436,7 @@ impl<P: Pixel> Image<P> {
     /// # }
     /// ```
     pub fn save(&self, encoding: ImageFormat, path: impl AsRef<Path>) -> Result<()> {
-        let mut file = File::create(path).map_err(Error::IOError)?;
+        let mut file = File::create(path).map_err(Error::IoError)?;
         self.encode(encoding, &mut file)
     }
 
@@ -1066,8 +1066,7 @@ impl<P: Pixel> Image<P> {
     /// # use ril::prelude::*;
     /// # fn main() -> ril::Result<()> {
     /// let mut image = Image::new(256, 256, Rgb::white());
-    /// let rectangle = Rectangle::new()
-    ///     .with_position(64, 64)
+    /// let rectangle = Rectangle::at(64, 64)
     ///     .with_size(128, 128)
     ///     .with_fill(Rgb::black());
     ///

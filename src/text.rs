@@ -4,9 +4,8 @@
 
 use crate::{Draw, Error::FontError, Image, OverlayMode, Pixel};
 
-use fontdue::layout::{CoordinateSystem, TextStyle};
 use fontdue::{
-    layout::{Layout, LayoutSettings},
+    layout::{CoordinateSystem, Layout, LayoutSettings, TextStyle},
     FontSettings,
 };
 use std::{fs::File, io::Read, ops::DerefMut, path::Path};

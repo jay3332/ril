@@ -55,7 +55,7 @@ pub enum Error {
     UnsupportedColorType,
 
     /// An error occured when trying to read a file or when trying to write to a file.
-    IOError(std::io::Error),
+    IoError(std::io::Error),
 
     /// Tried to encode an empty image, or an image without data. This is also raised when trying
     /// to encode an image sequence with no frames.
@@ -70,6 +70,8 @@ pub enum Error {
         palette_size: usize,
     },
 }
+
+impl std::error::Error for Error {}
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -97,7 +99,7 @@ impl fmt::Display for Error {
                 "An image with dimensions {width}x{height} should have {} pixels, received {received} instead",
                 width * height,
             ),
-            Self::IOError(error) => write!(f, "IO error: {error}"),
+            Self::IoError(error) => write!(f, "IO error: {error}"),
             Self::EmptyImageError => write!(f, "Tried encoding an empty image"),
             Self::QuantizationOverflow {
                 unique_colors,
@@ -115,7 +117,7 @@ impl fmt::Display for Error {
 
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
-        Self::IOError(err)
+        Self::IoError(err)
     }
 }
 
@@ -123,7 +125,7 @@ impl From<std::io::Error> for Error {
 impl From<png::EncodingError> for Error {
     fn from(err: png::EncodingError) -> Self {
         match err {
-            png::EncodingError::IoError(err) => Self::IOError(err),
+            png::EncodingError::IoError(err) => Self::IoError(err),
             png::EncodingError::Format(err) => Self::EncodingError(err.to_string()),
             png::EncodingError::LimitsExceeded => {
                 Self::EncodingError("limits exceeded".to_string())
@@ -137,7 +139,7 @@ impl From<png::EncodingError> for Error {
 impl From<png::DecodingError> for Error {
     fn from(err: png::DecodingError) -> Self {
         match err {
-            png::DecodingError::IoError(err) => Self::IOError(err),
+            png::DecodingError::IoError(err) => Self::IoError(err),
             png::DecodingError::Format(err) => Self::DecodingError(err.to_string()),
             png::DecodingError::LimitsExceeded => {
                 Self::DecodingError("limits exceeded".to_string())
@@ -151,7 +153,7 @@ impl From<png::DecodingError> for Error {
 impl From<jpeg_decoder::Error> for Error {
     fn from(err: jpeg_decoder::Error) -> Self {
         match err {
-            jpeg_decoder::Error::Io(err) => Self::IOError(err),
+            jpeg_decoder::Error::Io(err) => Self::IoError(err),
             err => Self::DecodingError(err.to_string()),
         }
     }
@@ -161,7 +163,7 @@ impl From<jpeg_decoder::Error> for Error {
 impl From<jpeg_encoder::EncodingError> for Error {
     fn from(err: jpeg_encoder::EncodingError) -> Self {
         match err {
-            jpeg_encoder::EncodingError::IoError(err) => Self::IOError(err),
+            jpeg_encoder::EncodingError::IoError(err) => Self::IoError(err),
             err => Self::EncodingError(err.to_string()),
         }
     }
@@ -171,7 +173,7 @@ impl From<jpeg_encoder::EncodingError> for Error {
 impl From<gif::EncodingError> for Error {
     fn from(err: gif::EncodingError) -> Self {
         match err {
-            gif::EncodingError::Io(err) => Self::IOError(err),
+            gif::EncodingError::Io(err) => Self::IoError(err),
             gif::EncodingError::Format(err) => Self::EncodingError(err.to_string()),
         }
     }
@@ -181,7 +183,7 @@ impl From<gif::EncodingError> for Error {
 impl From<gif::DecodingError> for Error {
     fn from(err: gif::DecodingError) -> Self {
         match err {
-            gif::DecodingError::Io(err) => Self::IOError(err),
+            gif::DecodingError::Io(err) => Self::IoError(err),
             gif::DecodingError::Format(err) => Self::DecodingError(err.to_string()),
         }
     }

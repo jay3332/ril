@@ -17,8 +17,10 @@ Versions prior to v0.7 are not tagged/released on GitHub.
       - Allows for `image.map_rgb_pixels(|p| p.inverted())`
     - `Image::<Rgba>::map_alpha_pixels` maps only the alpha pixels of the image
 - `Fill`/`IntoFill` structs are now moved into a standalone `fill` module.
+- `Error::IOError` renamed to `Error::IoError`
 
 ### Other changes
+- Implement `std::error::Error` for `Error`
 - Add radial gradients via `RadialGradient`
   - This adds `GradientPosition` and `RadialGradientCover` enums
 - Add conic gradients via `ConicGradient`
