@@ -1479,10 +1479,14 @@ impl<'img, 'mask, P: Pixel> Draw<P> for Paste<'img, 'mask, P> {
 
         for (y, i) in (y1..y2).zip(0..) {
             for (x, j) in (x1..x2).zip(0..) {
-                let mask = mask.map(|mask| mask.pixel(j, i).value());
-
-                if mask.unwrap_or(true) {
-                    image.overlay_pixel_with_mode(x, y, *self.image.pixel(j, i), overlay);
+                if !mask
+                    .and_then(|mask| mask.get_pixel(j, i).map(|p| p.value()))
+                    .unwrap_or(true)
+                {
+                    continue;
+                }
+                if let Some(pixel) = self.image.get_pixel(j, i) {
+                    image.overlay_pixel_with_mode(x, y, *pixel, overlay);
                 }
             }
         }

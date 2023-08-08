@@ -846,7 +846,6 @@ impl<P: Pixel> Image<P> {
 
         self.map_data(|data| {
             data.chunks(width as usize)
-                .into_iter()
                 .zip(0..)
                 .flat_map(|(row, y)| f(y, row))
                 .collect()
