@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["DisposalMethod","The method used to dispose a frame before transitioning to the next frame in an image sequence."],["LoopCount","Determines how many times an image sequence should repeat itself, or if it should repeat infinitely."]],"struct":[["Frame","Represents a frame in an image sequence. It encloses an [`Image`] and extra metadata about the frame."],["ImageSequence","Represents a sequence of image frames such as an animated image."]]};
+window.SIDEBAR_ITEMS = {"enum":["DisposalMethod","LoopCount"],"struct":["Frame","ImageSequence"]};

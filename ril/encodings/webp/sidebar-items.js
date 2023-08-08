@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["WebPDecoder","An interface for decoding WebP images and animations."],["WebPEncoder","A WebP image encoder."],["WebPSequenceDecoder",""]]};
+window.SIDEBAR_ITEMS = {"struct":["WebPDecoder","WebPEncoder","WebPSequenceDecoder"]};

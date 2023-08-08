@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["DynamicFrameIterator","Represents any one of the different types of frame iterators, compacted into one common enum with common methods."]],"trait":[["Decoder","Low-level decoder interface around an image format."],["Encoder","Low-level encoder interface around an image format."],["FrameIterator","Represents the lazy decoding of frames from an encoded image sequence, such as an animated image."]]};
+window.SIDEBAR_ITEMS = {"enum":["DynamicFrameIterator"],"trait":["Decoder","Encoder","FrameIterator"]};
