@@ -62,6 +62,9 @@ impl WebPEncoder {
             if libwebp::WebPPictureAlloc(std::ptr::addr_of_mut!(picture)) == 0 {
                 return Err(Error::EncodingError("WebP memory error".to_string()));
             }
+            let free = |mut picture| {
+                libwebp::WebPPictureFree(std::ptr::addr_of_mut!(picture));
+            };
 
             let mut writer = std::mem::zeroed::<libwebp::WebPMemoryWriter>();
             libwebp::WebPMemoryWriterInit(std::ptr::addr_of_mut!(writer));
@@ -91,23 +94,22 @@ impl WebPEncoder {
                 _ => import_libwebp_picture!(WebPPictureImportRGB, 3, as_rgb),
             } == 0
             {
+                free(picture);
                 return Err(Error::EncodingError("WebP encoding error".to_string()));
             }
 
             let mut config = std::mem::zeroed::<libwebp::WebPConfig>();
             if libwebp::WebPConfigInit(std::ptr::addr_of_mut!(config)) == 0 {
+                free(picture);
                 return Err(Error::EncodingError("WebP version error".to_string()));
             }
 
             config.lossless = self.lossless as _;
             config.quality = self.quality;
 
-            let res =
-                libwebp::WebPEncode(std::ptr::addr_of!(config), std::ptr::addr_of_mut!(picture));
-
-            let mut free = || libwebp::WebPPictureFree(std::ptr::addr_of_mut!(picture));
+            let res = libwebp::WebPEncode(std::ptr::addr_of!(config), std::ptr::addr_of_mut!(picture));
             if res == 0 {
-                free();
+                free(picture);
                 return Err(Error::EncodingError("WebP encoding error".to_string()));
             }
 
@@ -116,7 +118,7 @@ impl WebPEncoder {
                 size: writer.size,
             };
 
-            free();
+            free(picture);
             Ok(data)
         }
     }
@@ -133,9 +135,12 @@ extern "C" fn _wrapped(
 #[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
 impl Encoder for WebPEncoder {
     fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
-        let data = self.encode_image(image)?;
-        dest.write_all(unsafe { std::slice::from_raw_parts(data.bytes, data.size as _) })?;
-
+        let mut data = self.encode_image(image)?;
+        unsafe {
+            let result = dest.write_all(std::slice::from_raw_parts(data.bytes, data.size));
+            libwebp::WebPDataClear(std::ptr::addr_of_mut!(data));
+            result?
+        }
         Ok(())
     }
 
