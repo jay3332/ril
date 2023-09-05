@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>resize/resize RGBA 600x600 to 64x64 (image-rs, nearest) History - Criterion.rs</title>
+    <style type="text/css">body {
+    font: 14px Helvetica Neue;
+    text-rendering: optimizelegibility;
+}
+
+.body {
+    width: 960px;
+    margin: auto;
+}
+
+a:link {
+    color: #1F78B4;
+    text-decoration: none;
+}
+
+h2 {
+    font-size: 36px;
+    font-weight: 300;
+}
+
+h3 {
+    font-size: 24px;
+    font-weight: 300;
+}
+
+#footer {
+    height: 40px;
+    background: #888;
+    color: white;
+    font-size: larger;
+    font-weight: 300;
+}
+
+#footer a {
+    color: white;
+    text-decoration: underline;
+}
+
+#footer p {
+    text-align: center
+}
+
+        .number {
+            opacity: 0.6
+        }
+        .timestamp {
+            opacity: 0.6;
+            float: right
+        }
+        .improved {
+            color: green
+        }
+        .regressed {
+            color: brick
+        }
+
+        th.ci-bound {
+            opacity: 0.6
+        }
+
+        td.ci-bound {
+            opacity: 0.5
+        }
+    </style>
+</head>
+
+<body>
+    <div class="body">
+        <img alt="History of resize/resize RGBA 600x600 to 64x64 (image-rs, nearest)" src="history.svg"></img>
+        <h4> <span class="number"># 29</span><span class="timestamp">2023-09-05T14:50:39Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">414.28µs</td>
+            <td class="nochange">414.40µs</td>
+            <td class="ci-bound">414.52µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-0.9010%</td>
+            <td>-0.8617%</td>
+            <td class="ci-bound">-0.8229%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 28</span><span class="timestamp">2023-08-08T14:59:10Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">418.01µs</td>
+            <td class="nochange">418.09µs</td>
+            <td class="ci-bound">418.15µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-10.718%</td>
+            <td>-10.663%</td>
+            <td class="ci-bound">-10.616%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 27</span><span class="timestamp">2023-04-05T00:10:56Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">467.74µs</td>
+            <td class="nochange">467.94µs</td>
+            <td class="ci-bound">468.25µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-20.667%</td>
+            <td>-19.924%</td>
+            <td class="ci-bound">-19.208%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 26</span><span class="timestamp">2023-03-28T12:29:39Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">579.19µs</td>
+            <td class="nochange">587.76µs</td>
+            <td class="ci-bound">591.91µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+7.8851%</td>
+            <td>+8.8675%</td>
+            <td class="ci-bound">+9.8932%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 25</span><span class="timestamp">2023-02-25T20:20:48Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">536.36µs</td>
+            <td class="nochange">536.58µs</td>
+            <td class="ci-bound">536.87µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-17.422%</td>
+            <td>-17.115%</td>
+            <td class="ci-bound">-16.810%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 24</span><span class="timestamp">2023-02-25T20:18:56Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">438.19µs</td>
+            <td class="nochange">438.33µs</td>
+            <td class="ci-bound">438.60µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-32.545%</td>
+            <td>-32.293%</td>
+            <td class="ci-bound">-32.034%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 23</span><span class="timestamp">2023-02-08T03:53:29Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">645.91µs</td>
+            <td class="nochange">648.03µs</td>
+            <td class="ci-bound">650.50µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+9.9846%</td>
+            <td>+10.397%</td>
+            <td class="ci-bound">+10.790%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 22</span><span class="timestamp">2023-02-08T03:51:08Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">535.43µs</td>
+            <td class="nochange">535.64µs</td>
+            <td class="ci-bound">535.81µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-8.8213%</td>
+            <td>-8.6772%</td>
+            <td class="ci-bound">-8.5671%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 21</span><span class="timestamp">2023-02-08T03:50:00Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">435.80µs</td>
+            <td class="nochange">435.92µs</td>
+            <td class="ci-bound">436.01µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-25.812%</td>
+            <td>-25.698%</td>
+            <td class="ci-bound">-25.612%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 20</span><span class="timestamp">2023-02-04T03:18:33Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">585.78µs</td>
+            <td class="nochange">586.08µs</td>
+            <td class="ci-bound">586.42µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+17.368%</td>
+            <td>+17.502%</td>
+            <td class="ci-bound">+17.656%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 19</span><span class="timestamp">2023-02-04T02:31:38Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">499.07µs</td>
+            <td class="nochange">499.22µs</td>
+            <td class="ci-bound">499.35µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-12.320%</td>
+            <td>-12.219%</td>
+            <td class="ci-bound">-12.122%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 18</span><span class="timestamp">2022-12-23T20:24:13Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">567.67µs</td>
+            <td class="nochange">568.44µs</td>
+            <td class="ci-bound">569.21µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+29.605%</td>
+            <td>+29.744%</td>
+            <td class="ci-bound">+29.890%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 17</span><span class="timestamp">2022-12-19T16:16:05Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">438.11µs</td>
+            <td class="nochange">438.23µs</td>
+            <td class="ci-bound">438.35µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-23.258%</td>
+            <td>-23.217%</td>
+            <td class="ci-bound">-23.176%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 16</span><span class="timestamp">2022-12-14T18:20:10Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">570.56µs</td>
+            <td class="nochange">570.79µs</td>
+            <td class="ci-bound">571.05µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+29.949%</td>
+            <td>+30.013%</td>
+            <td class="ci-bound">+30.080%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 15</span><span class="timestamp">2022-12-14T03:43:11Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">438.95µs</td>
+            <td class="nochange">439.04µs</td>
+            <td class="ci-bound">439.15µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-12.750%</td>
+            <td>-12.592%</td>
+            <td class="ci-bound">-12.451%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 14</span><span class="timestamp">2022-12-14T03:32:07Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">535.18µs</td>
+            <td class="nochange">535.51µs</td>
+            <td class="ci-bound">536.19µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+6.4599%</td>
+            <td>+6.6949%</td>
+            <td class="ci-bound">+6.9315%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 13</span><span class="timestamp">2022-12-01T03:08:20Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">501.53µs</td>
+            <td class="nochange">502.08µs</td>
+            <td class="ci-bound">502.64µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-10.588%</td>
+            <td>-10.030%</td>
+            <td class="ci-bound">-9.4573%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 12</span><span class="timestamp">2022-11-29T03:26:24Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">557.37µs</td>
+            <td class="nochange">559.67µs</td>
+            <td class="ci-bound">562.14µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+27.369%</td>
+            <td>+28.220%</td>
+            <td class="ci-bound">+28.945%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 11</span><span class="timestamp">2022-11-27T19:25:35Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">435.33µs</td>
+            <td class="nochange">435.46µs</td>
+            <td class="ci-bound">435.61µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-25.928%</td>
+            <td>-25.086%</td>
+            <td class="ci-bound">-24.449%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 10</span><span class="timestamp">2022-11-26T20:33:20Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">573.80µs</td>
+            <td class="nochange">575.73µs</td>
+            <td class="ci-bound">579.31µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+4.9563%</td>
+            <td>+7.2196%</td>
+            <td class="ci-bound">+9.3691%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 9</span><span class="timestamp">2022-11-25T17:55:11Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">528.91µs</td>
+            <td class="nochange">533.49µs</td>
+            <td class="ci-bound">541.69µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+22.316%</td>
+            <td>+24.533%</td>
+            <td class="ci-bound">+26.893%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 8</span><span class="timestamp">2022-11-25T16:53:04Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">434.86µs</td>
+            <td class="nochange">435.61µs</td>
+            <td class="ci-bound">436.35µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+0.4233%</td>
+            <td>+0.5306%</td>
+            <td class="ci-bound">+0.6569%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 7</span><span class="timestamp">2022-11-25T16:52:35Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">439.93µs</td>
+            <td class="nochange">440.28µs</td>
+            <td class="ci-bound">440.50µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+1.5027%</td>
+            <td>+1.5971%</td>
+            <td class="ci-bound">+1.6957%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 6</span><span class="timestamp">2022-11-04T21:01:17Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">433.03µs</td>
+            <td class="nochange">433.16µs</td>
+            <td class="ci-bound">433.22µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-28.061%</td>
+            <td>-26.789%</td>
+            <td class="ci-bound">-25.543%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 5</span><span class="timestamp">2022-09-02T22:51:31Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">583.81µs</td>
+            <td class="nochange">588.25µs</td>
+            <td class="ci-bound">592.88µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+7.0487%</td>
+            <td>+9.0705%</td>
+            <td class="ci-bound">+11.257%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 4</span><span class="timestamp">2022-08-16T23:02:13Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">543.83µs</td>
+            <td class="nochange">545.91µs</td>
+            <td class="ci-bound">547.94µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-9.9982%</td>
+            <td>-8.6894%</td>
+            <td class="ci-bound">-7.4925%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 3</span><span class="timestamp">2022-08-16T22:36:06Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">590.35µs</td>
+            <td class="nochange">596.32µs</td>
+            <td class="ci-bound">601.36µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+23.088%</td>
+            <td>+24.428%</td>
+            <td class="ci-bound">+25.513%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 2</span><span class="timestamp">2022-08-16T01:53:28Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">477.08µs</td>
+            <td class="nochange">477.30µs</td>
+            <td class="ci-bound">477.46µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">-3.5008%</td>
+            <td>-3.4544%</td>
+            <td class="ci-bound">-3.4075%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 1</span><span class="timestamp">2022-08-16T01:14:13Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">494.23µs</td>
+            <td class="nochange">494.32µs</td>
+            <td class="ci-bound">494.44µs</td>
+        </tr>
+        <tr>
+            <td>Change in Value:</td>
+            <td class="ci-bound">+0.0582%</td>
+            <td>+0.1644%</td>
+            <td class="ci-bound">+0.2433%</td>
+        </tr>
+        </table>
+        No change in performance detected.<hr>
+        <h4> <span class="number"># 0</span><span class="timestamp">2022-08-16T00:54:39Z</span> </h4>
+        <br>
+        <br>
+        <table>
+        <tr>
+            <th></th>
+            <th class="ci-bound"> Lower Bound</th>
+            <th>Estimate</th>
+            <th class="ci-bound">Upper Bound</th>
+        </tr>
+        <tr>
+            <td>Value:</td>
+            <td class="ci-bound">493.23µs</td>
+            <td class="nochange">493.48µs</td>
+            <td class="ci-bound">493.94µs</td>
+        </tr>
+        </table>
+    </div>
+    <div id="footer">
+        <p>This report was generated by <a href="https://github.com/bheisler/cargo-criterion">cargo-criterion</a></p>
+    </div>
+</body>
+
+</html>
