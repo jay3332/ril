@@ -62,6 +62,9 @@ impl WebPEncoder {
             if libwebp::WebPPictureAlloc(std::ptr::addr_of_mut!(picture)) == 0 {
                 return Err(Error::EncodingError("WebP memory error".to_string()));
             }
+            let free = |mut picture| {
+                libwebp::WebPPictureFree(std::ptr::addr_of_mut!(picture));
+            };
 
             let mut writer = std::mem::zeroed::<libwebp::WebPMemoryWriter>();
             libwebp::WebPMemoryWriterInit(std::ptr::addr_of_mut!(writer));
@@ -91,23 +94,22 @@ impl WebPEncoder {
                 _ => import_libwebp_picture!(WebPPictureImportRGB, 3, as_rgb),
             } == 0
             {
+                free(picture);
                 return Err(Error::EncodingError("WebP encoding error".to_string()));
             }
 
             let mut config = std::mem::zeroed::<libwebp::WebPConfig>();
             if libwebp::WebPConfigInit(std::ptr::addr_of_mut!(config)) == 0 {
+                free(picture);
                 return Err(Error::EncodingError("WebP version error".to_string()));
             }
 
             config.lossless = self.lossless as _;
             config.quality = self.quality;
 
-            let res =
-                libwebp::WebPEncode(std::ptr::addr_of!(config), std::ptr::addr_of_mut!(picture));
-
-            let mut free = || libwebp::WebPPictureFree(std::ptr::addr_of_mut!(picture));
+            let res = libwebp::WebPEncode(std::ptr::addr_of!(config), std::ptr::addr_of_mut!(picture));
             if res == 0 {
-                free();
+                free(picture);
                 return Err(Error::EncodingError("WebP encoding error".to_string()));
             }
 
@@ -116,7 +118,7 @@ impl WebPEncoder {
                 size: writer.size,
             };
 
-            free();
+            free(picture);
             Ok(data)
         }
     }
@@ -133,9 +135,12 @@ extern "C" fn _wrapped(
 #[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
 impl Encoder for WebPEncoder {
     fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
-        let data = self.encode_image(image)?;
-        dest.write_all(unsafe { std::slice::from_raw_parts(data.bytes, data.size as _) })?;
-
+        let mut data = self.encode_image(image)?;
+        unsafe {
+            let result = dest.write_all(std::slice::from_raw_parts(data.bytes, data.size));
+            libwebp::WebPDataClear(std::ptr::addr_of_mut!(data));
+            result?
+        }
         Ok(())
     }
 
@@ -155,9 +160,29 @@ impl Encoder for WebPEncoder {
             libwebp::WebPMuxSetCanvasSize(mux, sample.width() as _, sample.height() as _);
             libwebp::WebPMuxSetAnimationParams(mux, std::ptr::addr_of!(params));
 
+            let mut final_image = std::mem::zeroed::<libwebp::WebPData>();
+            let mut encoded_frames = Vec::new();
+
+            let free = |mut final_image: libwebp::WebPData, encoded_frames: Vec<libwebp::WebPData>, mux: *mut libwebp::WebPMux| {
+                libwebp::WebPDataClear(std::ptr::addr_of_mut!(final_image));
+                for mut f in encoded_frames {
+                    libwebp::WebPDataClear(std::ptr::addr_of_mut!(f));
+                }
+                libwebp::WebPMuxDelete(mux);
+            };
+
             for frame in sequence.iter() {
-                let frame = libwebp::WebPMuxFrameInfo {
-                    bitstream: self.encode_image(frame)?,
+                let encoded_frame = match self.encode_image(frame) {
+                    Ok(d) => d,
+                    Err(e) => {
+                        free(final_image, encoded_frames, mux);
+                        return Err(e);
+                    }
+                };
+                encoded_frames.push(encoded_frame);
+
+                let frame_info = libwebp::WebPMuxFrameInfo {
+                    bitstream: encoded_frame,
                     duration: frame.delay().as_millis() as _,
                     id: libwebp::WEBP_CHUNK_ANMF,
                     dispose_method: match frame.disposal() {
@@ -167,34 +192,44 @@ impl Encoder for WebPEncoder {
                     ..std::mem::zeroed() // TODO: blend method could be configurable
                 };
 
-                libwebp::WebPMuxPushFrame(mux, std::ptr::addr_of!(frame), 0);
+                libwebp::WebPMuxPushFrame(mux, std::ptr::addr_of!(frame_info), 0);
             }
 
-            let mut data = std::mem::zeroed::<libwebp::WebPData>();
-            match libwebp::WebPMuxAssemble(mux, std::ptr::addr_of_mut!(data)) {
-                libwebp::WEBP_MUX_NOT_FOUND => return Err(Error::EmptyImageError),
+            let mux_error = libwebp::WebPMuxAssemble(mux, std::ptr::addr_of_mut!(final_image));
+            match mux_error {
+                libwebp::WEBP_MUX_OK => {}
+                libwebp::WEBP_MUX_NOT_FOUND => {
+                    free(final_image, encoded_frames, mux);
+                    return Err(Error::EmptyImageError);
+                }
                 libwebp::WEBP_MUX_INVALID_ARGUMENT => {
+                    free(final_image, encoded_frames, mux);
                     return Err(Error::EncodingError(
                         "WebP mux invalid argument".to_string(),
-                    ))
+                    ));
                 }
                 libwebp::WEBP_MUX_BAD_DATA => {
-                    return Err(Error::EncodingError("WebP mux bad data".to_string()))
+                    free(final_image, encoded_frames, mux);
+                    return Err(Error::EncodingError("WebP mux bad data".to_string()));
                 }
                 libwebp::WEBP_MUX_MEMORY_ERROR => {
-                    return Err(Error::EncodingError("WebP mux memory error".to_string()))
+                    free(final_image, encoded_frames, mux);
+                    return Err(Error::EncodingError("WebP mux memory error".to_string()));
                 }
                 libwebp::WEBP_MUX_NOT_ENOUGH_DATA => {
-                    return Err(Error::EncodingError("WebP mux not enough data".to_string()))
+                    free(final_image, encoded_frames, mux);
+                    return Err(Error::EncodingError("WebP mux not enough data".to_string()));
                 }
-                _ => (),
+                i32::MIN..=-5_i32 | 2_i32..=i32::MAX => {
+                    free(final_image, encoded_frames, mux);
+                    return Err(Error::EncodingError(format!("WebP mux error {}", mux_error)));
+                }
             };
 
-            let out = std::slice::from_raw_parts(data.bytes, data.size as _);
-            dest.write_all(out)?;
-
-            libwebp::WebPDataClear(std::ptr::addr_of_mut!(data));
-            libwebp::WebPMuxDelete(mux);
+            let data = std::slice::from_raw_parts(final_image.bytes, final_image.size);
+            let result = dest.write_all(data);
+            free(final_image, encoded_frames, mux);
+            result?;
         }
 
         Ok(())
