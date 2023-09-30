@@ -943,7 +943,7 @@ impl<P: Pixel> Image<P> {
             for column in (1..old_height).rev() {
                 let splice_index = (column * old_width) as usize;
                 let splice = splice_index..splice_index;
-                data.splice(splice, edge_insert.iter().cloned());
+                data.splice(splice, edge_insert.iter().copied());
             }
         }
 
