@@ -905,54 +905,29 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * The new width or height would exceed [`u32::MAX`].
-    /// * The new area would exceed [`isize::MAX`].
+    /// * The padding on either side would exceed [`u32::MAX`].
     pub fn pad(&mut self, x1: u32, y1: u32, x2: u32, y2: u32, padding: P) {
-        let (old_width, old_height) = self.dimensions();
-        // Set the new width and height
-        // Since everything's unsigned, these cannot be 0 unless the width and height are 0,
-        // which is already impossible
-        self.width = old_width
-            .checked_add(x1 + x2)
-            .expect("new image width would not fit into a u32")
-            .try_into()
-            .unwrap();
-        self.height = old_height
-            .checked_add(y1 + y2)
-            .expect("new image height would not fit into a u32")
-            .try_into()
-            .unwrap();
-
-        let (width, height): (u32, u32) = (self.width(), self.height());
-        // Reserve space for the new data
-        let data = &mut self.data;
-        data.reserve(
-            // New area - old area = added area
-            (height * width - old_height * old_width) as usize,
-        );
-        // Add both the bottom padding and the last row's rightward padding at once
-        // Since this is on the end of the list, we don't need to splice
-        if (x2 + y2) > 0 {
-            data.resize((old_width * old_height + width * y2 + x2) as usize, padding);
-        }
-        if (x1 + x2) > 0 {
-            // Splice in the leftwards and rightwards padding at every edge
-            // We construct this in two statements to prevent a stack overflow with vec![]
-            let mut edge_insert = Vec::new();
-            edge_insert.resize((x1 + x2) as usize, padding);
-            // Insert these back-to-front, as to not mess up offsets
-            for column in (1..old_height).rev() {
-                let splice_index = (column * old_width) as usize;
-                let splice = splice_index..splice_index;
-                data.splice(splice, edge_insert.iter().copied());
-            }
-        }
-
-        // Splice in the top and upwards left padding
-        if (width * y1 + x1) > 0 {
-            let mut top_insert = Vec::new();
-            top_insert.resize((width * y1 + x1) as usize, padding);
-            // This is always added at the beginning
-            data.splice(0..0, top_insert);
+        let h_padding = x1
+            .checked_add(x2)
+            .expect("new horizontal padding overflowed u32");
+        let v_padding = y1
+            .checked_add(y2)
+            .expect("new vertical padding overflowed u32");
+        let Some(new_width) = self.width().checked_add(h_padding) else {
+            panic!("new width overflowed u32")
+        };
+        let Some(new_height) = self.height().checked_add(v_padding) else {
+            panic!("new height overflowed u32")
+        };
+        let mut output = Self::new(new_width, new_height, padding);
+        output.paste(x1, y1, self);
+        // Only copy some fields, to preserve metadata
+        self.data = output.data;
+        // These both are guaranteed to be non-zero as long as the values didn't overflow,
+        // which we checked for earlier
+        unsafe {
+            self.width = new_width.try_into().unwrap_unchecked();
+            self.height = new_height.try_into().unwrap_unchecked();
         }
     }
 
