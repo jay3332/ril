@@ -900,7 +900,7 @@ impl<P: Pixel> Image<P> {
         self.crop(x1, y1, x2, y2);
         self
     }
-    
+
     /// Pads this image in place on each side with the given value.
     ///
     /// # Panics
@@ -914,29 +914,25 @@ impl<P: Pixel> Image<P> {
         self.width = old_width
             .checked_add(x1 + x2)
             .expect("new image width would not fit into a u32")
-            .try_into().unwrap();
+            .try_into()
+            .unwrap();
         self.height = old_height
             .checked_add(y1 + y2)
             .expect("new image height would not fit into a u32")
-            .try_into().unwrap();
+            .try_into()
+            .unwrap();
 
         let (width, height): (u32, u32) = (self.width(), self.height());
         // Reserve space for the new data
         let data = &mut self.data;
         data.reserve(
             // New area - old area = added area
-            (
-                height * width
-                    - old_height * old_width
-            ) as usize
+            (height * width - old_height * old_width) as usize,
         );
         // Add both the bottom padding and the last row's rightward padding at once
         // Since this is on the end of the list, we don't need to splice
         if (x2 + y2) > 0 {
-            data.resize(
-                (old_width * old_height + width * y2 + x2) as usize,
-                padding
-            )
+            data.resize((old_width * old_height + width * y2 + x2) as usize, padding);
         }
         if (x1 + x2) > 0 {
             // Splice in the leftwards and rightwards padding at every edge
