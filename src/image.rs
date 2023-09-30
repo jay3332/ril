@@ -900,6 +900,72 @@ impl<P: Pixel> Image<P> {
         self.crop(x1, y1, x2, y2);
         self
     }
+    
+    /// Pads this image in place on each side with the given value.
+    ///
+    /// # Panics
+    /// * The new width or height would exceed [`u32::MAX`].
+    /// * The new area would exceed [`isize::MAX`].
+    pub fn pad(&mut self, x1: u32, y1: u32, x2: u32, y2: u32, padding: P) {
+        let (old_width, old_height) = self.dimensions();
+        // Set the new width and height
+        // Since everything's unsigned, these cannot be 0 unless the width and height are 0,
+        // which is already impossible
+        self.width = old_width
+            .checked_add(x1 + x2)
+            .expect("new image width would not fit into a u32")
+            .try_into().unwrap();
+        self.height = old_height
+            .checked_add(y1 + y2)
+            .expect("new image height would not fit into a u32")
+            .try_into().unwrap();
+
+        let (width, height): (u32, u32) = (self.width(), self.height());
+        // Reserve space for the new data
+        let data = &mut self.data;
+        data.reserve(
+            // New area - old area = added area
+            (
+                height * width
+                    - old_height * old_width
+            ) as usize
+        );
+        // Add both the bottom padding and the last row's rightward padding at once
+        // Since this is on the end of the list, we don't need to splice
+        if (x2 + y2) > 0 {
+            data.resize(
+                (old_width * old_height + width * y2 + x2) as usize,
+                padding
+            )
+        }
+        if (x1 + x2) > 0 {
+            // Splice in the leftwards and rightwards padding at every edge
+            // We construct this in two statements to prevent a stack overflow with vec![]
+            let mut edge_insert = Vec::new();
+            edge_insert.resize((x1 + x2) as usize, padding);
+            // Insert these back-to-front, as to not mess up offsets
+            for column in (1..old_height).rev() {
+                let splice_index = (column * old_width) as usize;
+                let splice = splice_index..splice_index;
+                data.splice(splice, edge_insert.iter().cloned());
+            }
+        }
+
+        // Splice in the top and upwards left padding
+        if (width * y1 + x1) > 0 {
+            let mut top_insert = Vec::new();
+            top_insert.resize((width * y1 + x1) as usize, padding);
+            // This is always added at the beginning
+            data.splice(0..0, top_insert);
+        }
+    }
+
+    /// Takes this image and pads it on each side. Useful for method chaining.
+    #[must_use]
+    pub fn padded(mut self, x1: u32, y1: u32, x2: u32, y2: u32, padding: P) -> Self {
+        self.pad(x1, y1, x2, y2, padding);
+        self
+    }
 
     /// Mirrors, or flips this image horizontally (about the y-axis) in place.
     pub fn mirror(&mut self) {
