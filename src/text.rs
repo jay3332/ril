@@ -377,6 +377,23 @@ impl Default for HorizontalAnchor {
     }
 }
 
+/// Represents how to align text horizontally within its bounding box.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum TextAlign {
+    /// Aligns the text to the left.
+    Left,
+    /// Aligns the text to the center.
+    Center,
+    /// Aligns the text to the right.
+    Right,
+}
+
+impl Default for TextAlign {
+    fn default() -> Self {
+        Self::Left
+    }
+}
+
 /// Represents where text is anchored vertically.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum VerticalAnchor {
@@ -414,6 +431,7 @@ pub struct TextLayout<'a, P: Pixel> {
     settings: LayoutSettings,
     x_anchor: HorizontalAnchor,
     y_anchor: VerticalAnchor,
+    align: TextAlign,
 }
 
 impl<'a, P: Pixel> TextLayout<'a, P> {
@@ -426,6 +444,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
             settings: LayoutSettings::default(),
             x_anchor: HorizontalAnchor::default(),
             y_anchor: VerticalAnchor::default(),
+            align: TextAlign::default(),
         }
     }
 
@@ -541,6 +560,14 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self
     }
 
+    /// Sets the horizontal text alignment. This determines how text is aligned within its bounding
+    /// box (which is determined by [`Self::width`] and [`Self::height`]).
+    #[must_use]
+    pub const fn with_align(mut self, align: TextAlign) -> Self {
+        self.align = align;
+        self
+    }
+
     /// Sets the horizontal anchor and vertial anchor of the text to be centered. This makes the
     /// position of the text be the center as opposed to the top-left corner.
     #[must_use]
@@ -646,10 +673,10 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     fn calculate_offsets(&self) -> (Vec<u32>, u32, f32, f32, f32) {
         let (widths, width, height) = self.line_widths();
 
-        let (ox, fx) = match self.x_anchor {
-            HorizontalAnchor::Left => (0.0, 0.0),
-            HorizontalAnchor::Center => (width as f32 / -2.0, 0.5),
-            HorizontalAnchor::Right => (-(width as f32), 1.0),
+        let (ox, fx) = match self.align {
+            TextAlign::Left => (0.0, 0.0),
+            TextAlign::Center => (width as f32 / -2.0, 0.5),
+            TextAlign::Right => (-(width as f32), 1.0),
         };
         let oy = match self.y_anchor {
             VerticalAnchor::Top => 0.0,

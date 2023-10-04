@@ -17,6 +17,13 @@ Versions prior to v0.7 are not tagged/released on GitHub.
       - Allows for `image.map_rgb_pixels(|p| p.inverted())`
     - `Image::<Rgba>::map_alpha_pixels` maps only the alpha pixels of the image
 - `Fill`/`IntoFill` structs are now moved into a standalone `fill` module.
+- Differentiate text anchor and text alignment
+  - `TextLayout::{centered, with_horizontal_anchor, with_vertical_anchor}` will now only center the text *anchor* but
+    not center-align the text
+  - Adds `TextAlign` enum for text alignment (left, center, right)
+  - Adds `TextLayout::with_align` to specify text alignment
+  - This is a breaking change behavior-wise, if you have `.centered()` in your code, you will need to change it to
+    `.with_align(TextAlign::Center).centered()` to produce the same results.
 - `Error::IOError` renamed to `Error::IoError`
 
 ### Other changes
