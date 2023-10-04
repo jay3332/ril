@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["HorizontalAnchor","VerticalAnchor","WrapStyle"],"struct":["Font","TextLayout","TextSegment"]};
+window.SIDEBAR_ITEMS = {"enum":["HorizontalAnchor","TextAlign","VerticalAnchor","WrapStyle"],"struct":["Font","TextLayout","TextSegment"]};
