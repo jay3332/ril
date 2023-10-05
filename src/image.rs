@@ -1,14 +1,9 @@
 #![allow(clippy::wildcard_imports)]
 
-use crate::{
-    draw::Draw,
-    error::{
-        Error::{self, InvalidExtension},
-        Result,
-    },
-    pixel::*,
-    Dynamic, DynamicFrameIterator,
-};
+use crate::{draw::Draw, error::{
+    Error::{self, InvalidExtension},
+    Result,
+}, pixel::*, Dynamic, DynamicFrameIterator, Paste};
 
 #[cfg(feature = "gif")]
 use crate::encodings::gif;
@@ -923,7 +918,11 @@ impl<P: Pixel> Image<P> {
                 panic!("new height overflowed u32")
             };
         let mut output = Self::new(new_width, new_height, padding);
-        output.draw(&Paste::new(self).with_overlay_mode(OverlayMode::Replace))
+        output.draw(
+            &Paste::new(self)
+                .with_overlay_mode(OverlayMode::Replace)
+                .with_position(x1, y1)
+        );
         // Only copy some fields, to preserve metadata
         self.data = output.data;
         // These both are guaranteed to be non-zero as long as the values didn't overflow,
