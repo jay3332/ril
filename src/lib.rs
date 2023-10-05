@@ -261,6 +261,7 @@
     clippy::doc_markdown
 )]
 
+mod arch;
 pub mod draw;
 pub mod encode;
 pub mod encodings;

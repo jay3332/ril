@@ -37,6 +37,9 @@ quantize = ["dep:color_quant"]
 gradient = ["dep:colorgrad"]
 static = ["libwebp-sys2?/static"]
 
+[build-dependencies]
+rustc_version = "0.4"
+
 [dev-dependencies]
 criterion = "^0.4"
 image = "^0"

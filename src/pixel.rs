@@ -1,10 +1,10 @@
 //! Encloses pixel-related traits and pixel type implementations.
 
-use crate::Error::DecodingError;
 use crate::{
+    arch,
     encodings::ColorType,
     image::OverlayMode,
-    Error::{InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
+    Error::{DecodingError, InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
     Result,
 };
 use std::borrow::Cow;
@@ -625,11 +625,7 @@ impl Pixel for Rgb {
     type Data = [u8; 3];
 
     fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
-        }
+        arch::invert_impl((*self).into()).into()
     }
 
     fn map_subpixels<F, A>(self, f: F, _: A) -> Self
@@ -791,12 +787,7 @@ impl Pixel for Rgba {
     type Data = [u8; 4];
 
     fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
-            a: !self.a,
-        }
+        arch::invert_impl(*self)
     }
 
     fn map_subpixels<F, A>(self, f: F, a: A) -> Self
@@ -875,44 +866,8 @@ impl Pixel for Rgba {
         [self.r, self.g, self.b, self.a]
     }
 
-    // TODO: SIMD could speed this up significantly
-    #[allow(clippy::cast_lossless)]
     fn merge(self, other: Self) -> Self {
-        // Optimize for common cases
-        if other.a == 255 {
-            return other;
-        } else if other.a == 0 {
-            return self;
-        }
-
-        let (base_r, base_g, base_b, base_a) = (
-            self.r as f32 / 255.,
-            self.g as f32 / 255.,
-            self.b as f32 / 255.,
-            self.a as f32 / 255.,
-        );
-
-        let (overlay_r, overlay_g, overlay_b, overlay_a) = (
-            other.r as f32 / 255.,
-            other.g as f32 / 255.,
-            other.b as f32 / 255.,
-            other.a as f32 / 255.,
-        );
-
-        let a_diff = 1. - overlay_a;
-        let a = a_diff.mul_add(base_a, overlay_a);
-
-        let a_ratio = a_diff * base_a;
-        let r = a_ratio.mul_add(base_r, overlay_a * overlay_r) / a;
-        let g = a_ratio.mul_add(base_g, overlay_a * overlay_g) / a;
-        let b = a_ratio.mul_add(base_b, overlay_a * overlay_b) / a;
-
-        Self {
-            r: (r * 255.) as u8,
-            g: (g * 255.) as u8,
-            b: (b * 255.) as u8,
-            a: (a * 255.) as u8,
-        }
+        arch::merge_impl(self, other)
     }
 
     #[allow(clippy::cast_lossless)]
