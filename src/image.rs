@@ -913,21 +913,24 @@ impl<P: Pixel> Image<P> {
         let v_padding = y1
             .checked_add(y2)
             .expect("new vertical padding overflowed u32");
-        let Some(new_width) = self.width().checked_add(h_padding) else {
-            panic!("new width overflowed u32")
-        };
-        let Some(new_height) = self.height().checked_add(v_padding) else {
-            panic!("new height overflowed u32")
-        };
+        // Strange syntax to avoid if let, as it would bump the MSRV
+        let new_width = 
+            if let Some(new) = self.width().checked_add(h_padding) {new} else {
+                panic!("new width overflowed u32")
+            };
+        let new_height = 
+            if let Some(new) = self.height().checked_add(v_padding) {new} else {
+                panic!("new height overflowed u32")
+            };
         let mut output = Self::new(new_width, new_height, padding);
-        output.paste(x1, y1, self);
+        output.draw(&Paste::new(self).with_overlay_mode(OverlayMode::Replace))
         // Only copy some fields, to preserve metadata
         self.data = output.data;
         // These both are guaranteed to be non-zero as long as the values didn't overflow,
         // which we checked for earlier
         unsafe {
-            self.width = new_width.try_into().unwrap_unchecked();
-            self.height = new_height.try_into().unwrap_unchecked();
+            self.width = NonZeroU32::new_unchecked(new_width);
+            self.height = NonZeroU32::new_unchecked(new_height);
         }
     }
 
