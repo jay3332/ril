@@ -673,10 +673,15 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     fn calculate_offsets(&self) -> (Vec<u32>, u32, f32, f32, f32) {
         let (widths, width, height) = self.line_widths();
 
-        let (ox, fx) = match self.align {
-            TextAlign::Left => (0.0, 0.0),
-            TextAlign::Center => (width as f32 / -2.0, 0.5),
-            TextAlign::Right => (-(width as f32), 1.0),
+        let fx = match self.align {
+            TextAlign::Left => 0.0,
+            TextAlign::Center => 0.5,
+            TextAlign::Right => 1.0,
+        };
+        let ox = match self.x_anchor {
+            HorizontalAnchor::Left => 0.0,
+            HorizontalAnchor::Center => width as f32 / -2.0,
+            HorizontalAnchor::Right => -(width as f32),
         };
         let oy = match self.y_anchor {
             VerticalAnchor::Top => 0.0,
