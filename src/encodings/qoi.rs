@@ -6,7 +6,6 @@ use crate::{encode::{Decoder, Encoder}, DynamicFrameIterator, Error, Image, Imag
 
 // Re-export this
 use crate::Error::{EmptyImageError, IoError, UnsupportedColorType};
-use qoi::ColorSpace::*;
 
 /// A QOI encoder interface around [`qoi::Encoder`].
 #[derive(Default)]
@@ -80,6 +79,7 @@ impl Encoder for QoiEncoder {
             return Err(UnsupportedColorType);
         }
 
+        // Since [u8; 3] isn't [u8; 4], I can't put the if statement inside the .map() call.
         let data = if P::COLOR_TYPE.has_alpha() {
             image.data
                 .iter()
@@ -128,7 +128,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for QoiDecoder<P, R> {
         if (width == 0) || (height == 0) {
             return Err(EmptyImageError);
         }
-        let (channels) = match info.channels {
+        let channels = match info.channels {
             Channels::Rgb => 3,
             Channels::Rgba => 4,
         };

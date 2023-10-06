@@ -26,7 +26,7 @@ qoi = { version = "^0.4", optional = true }
 
 [features]
 default = ["resize", "text", "quantize", "gradient"]
-all-pure = ["resize", "png", "jpeg", "gif", "text", "quantize"]
+all-pure = ["resize", "png", "jpeg", "gif", "qoi", "text", "quantize"]
 all = ["all-pure", "webp"]
 png = ["dep:png"]
 qoi = ["dep:qoi"]
