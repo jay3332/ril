@@ -99,6 +99,16 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeS
         Self::from_raw_parts_paletted::<NoOp>(color_type, bit_depth, data, None)
     }
 
+    /// Creates this pixel from this type's color type and bit depth, and the given data.
+    /// This may require a lossy conversion.
+    ///
+    /// # Errors
+    /// * If the color type is not supported by the pixel type.
+    /// * An error occurs when trying to convert the data to the pixel type.
+    fn from_raw(data: &[u8]) -> Result<Self> {
+        Self::from_raw_parts(Self::COLOR_TYPE, Self::BIT_DEPTH, data)
+    }
+
     /// Creates this pixel from the given color type, bit depth, data, and possibly a color palette.
     /// This may require a lossy conversion.
     ///

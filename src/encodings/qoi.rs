@@ -2,15 +2,10 @@ use qoi::{Channels, ColorSpace};
 use std::io::{Read, Write};
 use std::marker::PhantomData;
 use std::num::NonZeroU32;
-// (Creating this in the GitHub website because I can't figure out how to open a pull request without initially adding something)
-use super::ColorType;
-use crate::{
-    encode::{Decoder, Encoder},
-    pixel, DynamicFrameIterator, Error, Image, ImageFormat, Pixel, Rgb, Rgba, TrueColor,
-};
+use crate::{encode::{Decoder, Encoder}, DynamicFrameIterator, Error, Image, ImageFormat, Pixel};
 
 // Re-export this
-use crate::Error::{EmptyImageError, IoError};
+use crate::Error::{EmptyImageError, IoError, UnsupportedColorType};
 use qoi::ColorSpace::*;
 
 /// A QOI encoder interface around [`qoi::Encoder`].
@@ -81,36 +76,26 @@ impl From<qoi::Error> for Error {
 
 impl Encoder for QoiEncoder {
     fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
-        // TODO: Do a second pass on this!
-        //       There's some weird code that needs optimization!
-        let map: &dyn Fn(_) -> Result<Vec<u8>, Error> = &if P::COLOR_TYPE.has_alpha() {
-            |pixel: &P| {
-                Ok(
-                    Rgba::from_raw_parts(P::COLOR_TYPE, P::BIT_DEPTH, pixel.as_bytes().as_ref())?
-                        .as_bytes()
-                        .to_vec(),
-                )
-            }
-        } else {
-            |pixel: &P| {
-                Ok(
-                    Rgb::from_raw_parts(P::COLOR_TYPE, P::BIT_DEPTH, pixel.as_bytes().as_ref())?
-                        .as_bytes()
-                        .to_vec(),
-                )
-            }
-        };
-        // See https://stackoverflow.com/a/59852696
-        let encoded = qoi::encode_to_vec(
-            image
-                .data
+        if P::BIT_DEPTH != 8 {
+            return Err(UnsupportedColorType);
+        }
+
+        let data = if P::COLOR_TYPE.has_alpha() {
+            image.data
                 .iter()
-                .map(map)
-                .flat_map(|result| match result {
-                    Ok(vec) => vec.into_iter().map(|item| Ok(item)).collect(),
-                    Err(err) => vec![Err(err)],
-                })
-                .collect::<Result<Vec<u8>, Error>>()?,
+                .map(|&px| px.as_rgb().as_bytes())
+                .flatten()
+                .collect::<Box<[u8]>>()
+        } else {
+            image.data
+                .iter()
+                .map(|&px| px.as_rgba().as_bytes())
+                .flatten()
+                .collect::<Box<[u8]>>()
+        };
+
+        let encoded = qoi::encode_to_vec(
+            data.as_ref(),
             image.width(),
             image.height(),
         )?;
@@ -143,9 +128,9 @@ impl<P: Pixel, R: Read> Decoder<P, R> for QoiDecoder<P, R> {
         if (width == 0) || (height == 0) {
             return Err(EmptyImageError);
         }
-        let (channels, color_type) = match info.channels {
-            Channels::Rgb => (3, ColorType::Rgb),
-            Channels::Rgba => (4, ColorType::Rgba),
+        let (channels) = match info.channels {
+            Channels::Rgb => 3,
+            Channels::Rgba => 4,
         };
         // TODO: If/when sRGB support is added, grab it from the decoder.
         let _color_mode = info.colorspace;
@@ -154,7 +139,7 @@ impl<P: Pixel, R: Read> Decoder<P, R> for QoiDecoder<P, R> {
 
         let data = raw_data
             .chunks(channels)
-            .map(|chunk| P::from_raw_parts(color_type, 8, chunk))
+            .map(|chunk| P::from_raw(chunk))
             .collect::<Result<Vec<_>, Error>>()?;
 
         return Ok(Image {
