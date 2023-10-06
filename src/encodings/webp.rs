@@ -107,7 +107,8 @@ impl WebPEncoder {
             config.lossless = self.lossless as _;
             config.quality = self.quality;
 
-            let res = libwebp::WebPEncode(std::ptr::addr_of!(config), std::ptr::addr_of_mut!(picture));
+            let res =
+                libwebp::WebPEncode(std::ptr::addr_of!(config), std::ptr::addr_of_mut!(picture));
             if res == 0 {
                 free(picture);
                 return Err(Error::EncodingError("WebP encoding error".to_string()));
@@ -163,7 +164,9 @@ impl Encoder for WebPEncoder {
             let mut final_image = std::mem::zeroed::<libwebp::WebPData>();
             let mut encoded_frames = Vec::new();
 
-            let free = |mut final_image: libwebp::WebPData, encoded_frames: Vec<libwebp::WebPData>, mux: *mut libwebp::WebPMux| {
+            let free = |mut final_image: libwebp::WebPData,
+                        encoded_frames: Vec<libwebp::WebPData>,
+                        mux: *mut libwebp::WebPMux| {
                 libwebp::WebPDataClear(std::ptr::addr_of_mut!(final_image));
                 for mut f in encoded_frames {
                     libwebp::WebPDataClear(std::ptr::addr_of_mut!(f));
@@ -222,7 +225,10 @@ impl Encoder for WebPEncoder {
                 }
                 i32::MIN..=-5_i32 | 2_i32..=i32::MAX => {
                     free(final_image, encoded_frames, mux);
-                    return Err(Error::EncodingError(format!("WebP mux error {}", mux_error)));
+                    return Err(Error::EncodingError(format!(
+                        "WebP mux error {}",
+                        mux_error
+                    )));
                 }
             };
 

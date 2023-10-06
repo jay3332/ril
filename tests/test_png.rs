@@ -1,5 +1,5 @@
 use ril::prelude::*;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 pub const COLORS: [Rgb; 12] = [
     Rgb::new(255, 0, 0),

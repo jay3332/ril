@@ -100,7 +100,7 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeS
     }
 
     /// Creates this pixel from the given color type, bit depth, data, and possibly a color palette.
-    /// This may require a lossy xonversion.
+    /// This may require a lossy conversion.
     ///
     /// A palette should be supplied if the color type is paletted, else `None`.
     ///

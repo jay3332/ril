@@ -6,6 +6,8 @@ pub mod gif;
 pub mod jpeg;
 #[cfg(feature = "png")]
 pub mod png;
+#[cfg(feature = "qoi")]
+pub mod qoi;
 #[cfg(feature = "webp")]
 pub mod webp;
 

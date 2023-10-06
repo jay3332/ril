@@ -16,11 +16,19 @@ use crate::encodings::gif;
 use crate::encodings::jpeg;
 #[cfg(feature = "png")]
 use crate::encodings::png;
+#[cfg(feature = "qoi")]
+use crate::encodings::qoi;
 #[cfg(feature = "webp")]
 use crate::encodings::webp;
 #[cfg(feature = "resize")]
 use crate::ResizeAlgorithm;
-#[cfg(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp"))]
+#[cfg(any(
+    feature = "png",
+    feature = "gif",
+    feature = "jpeg",
+    feature = "webp",
+    feature = "qoi"
+))]
 use crate::{Decoder, Encoder};
 
 use num_traits::{SaturatingAdd, SaturatingSub};
@@ -90,7 +98,7 @@ macro_rules! assert_nonzero {
 
 impl<P: Pixel> Image<P> {
     /// Creates a new image with the given width and height, with all pixels being set
-    /// intially to `fill`.
+    /// initially to `fill`.
     ///
     /// Both the width and height must be non-zero, or else this will panic. You should validate
     /// the width and height before calling this function.
@@ -398,7 +406,7 @@ impl<P: Pixel> Image<P> {
     /// Encodes the image with the given encoding and writes it to the given write buffer.
     ///
     /// # Errors
-    /// * An error occured during encoding.
+    /// * An error occurred during encoding.
     ///
     /// # Panics
     /// * No encoder implementation for the given encoding format.
@@ -421,7 +429,7 @@ impl<P: Pixel> Image<P> {
     /// You can try saving to a memory buffer by using the [`encode`] method.
     ///
     /// # Errors
-    /// * An error occured during encoding.
+    /// * An error occurred during encoding.
     ///
     /// # Panics
     /// * No encoder implementation for the given encoding format.
@@ -450,7 +458,7 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Errors
     /// * Could not infer encoding format.
-    /// * An error occured during encoding.
+    /// * An error occurred during encoding.
     ///
     /// # Panics
     /// * No encoder implementation for the given encoding format.
@@ -705,6 +713,7 @@ impl<P: Pixel> Image<P> {
         self.map_pixels(|pixel| pixel.map_subpixels(|value| value.saturating_sub(&amount), |a| a))
     }
 
+    //noinspection SpellCheckingInspection
     #[allow(clippy::cast_lossless)]
     fn prepare_hue_matrix(degrees: i32) -> (f64, f64, f64, f64, f64, f64, f64, f64, f64) {
         let degrees = (degrees % 360) as f64;
@@ -1477,7 +1486,7 @@ macro_rules! validate_dimensions {
                 $target.dimensions(),
                 $others.dimensions(),
                 "bands have different dimensions: {} has dimensions of {:?}, which is different \
-                from {} which has dimenesions of {:?}",
+                from {} which has dimensions of {:?}",
                 stringify!($target),
                 $target.dimensions(),
                 stringify!($others),
@@ -1550,6 +1559,9 @@ pub enum ImageFormat {
 
     /// The image is encoded in the WebP format.
     WebP,
+
+    /// The image is encoded in the QOI format.
+    Qoi,
 }
 
 impl Default for ImageFormat {
@@ -1590,6 +1602,7 @@ impl ImageFormat {
                 "bmp" => Self::Bmp,
                 "tiff" => Self::Tiff,
                 "webp" => Self::WebP,
+                "qoi" => Self::Qoi,
                 _ => Self::Unknown,
             },
         )
@@ -1622,6 +1635,8 @@ impl ImageFormat {
             "image/bmp" => Self::Bmp,
             "image/tiff" => Self::Tiff,
             "image/webp" => Self::WebP,
+            // Unofficial, but in the specification
+            "image/qoi" => Self::Qoi,
             _ => Self::Unknown,
         }
     }
@@ -1644,6 +1659,8 @@ impl ImageFormat {
             && sample[9] != 0x52
         {
             Self::Tiff
+        } else if sample.starts_with(b"qoif") {
+            Self::Qoi
         } else {
             Self::Unknown
         }
@@ -1652,12 +1669,18 @@ impl ImageFormat {
     /// Encodes the `Image` into raw bytes.
     ///
     /// # Errors
-    /// * An error occured while encoding.
+    /// * An error occurred while encoding.
     ///
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     pub fn run_encoder<P: Pixel>(&self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
@@ -1670,6 +1693,8 @@ impl ImageFormat {
             Self::Gif => gif::GifEncoder::new().encode(image, dest),
             #[cfg(feature = "webp")]
             Self::WebP => webp::WebPEncoder::default().encode(image, dest),
+            #[cfg(feature = "qoi")]
+            Self::Qoi => qoi::QoiEncoder::default().encode(image, dest),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
@@ -1681,12 +1706,18 @@ impl ImageFormat {
     /// sequences (or multi-frame images), it will only encode the first frame.
     ///
     /// # Errors
-    /// * An error occured while encoding.
+    /// * An error occurred while encoding.
     ///
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     pub fn run_sequence_encoder<P: Pixel>(
@@ -1703,6 +1734,8 @@ impl ImageFormat {
             Self::Gif => gif::GifEncoder::new().encode_sequence(seq, dest),
             #[cfg(feature = "webp")]
             Self::WebP => webp::WebPEncoder::default().encode_sequence(seq, dest),
+            #[cfg(feature = "qoi")]
+            Self::Qoi => qoi::QoiEncoder::default().encode_sequence(seq, dest),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
@@ -1713,12 +1746,18 @@ impl ImageFormat {
     /// Decodes the image data from into an image.
     ///
     /// # Errors
-    /// * An error occured while decoding.
+    /// * An error occurred while decoding.
     ///
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] // would require a major refactor
@@ -1732,6 +1771,8 @@ impl ImageFormat {
             Self::Gif => gif::GifDecoder::new().decode(stream),
             #[cfg(feature = "webp")]
             Self::WebP => webp::WebPDecoder::default().decode(stream),
+            #[cfg(feature = "qoi")]
+            Self::Qoi => qoi::QoiDecoder::new().decode(stream),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
@@ -1742,12 +1783,18 @@ impl ImageFormat {
     /// Decodes the image sequence data into an image sequence.
     ///
     /// # Errors
-    /// * An error occured while decoding.
+    /// * An error occurred while decoding.
     ///
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] // would require a major refactor
@@ -1760,11 +1807,13 @@ impl ImageFormat {
             Self::Png => DynamicFrameIterator::Png(png::PngDecoder::new().decode_sequence(stream)?),
             #[cfg(feature = "jpeg")]
             Self::Jpeg => jpeg::JpegDecoder::new().decode_sequence(stream)?,
+            #[cfg(feature = "qoi")]
+            Self::Qoi => qoi::QoiDecoder::new().decode_sequence(stream)?,
             #[cfg(feature = "gif")]
             Self::Gif => DynamicFrameIterator::Gif(gif::GifDecoder::new().decode_sequence(stream)?),
             #[cfg(feature = "webp")]
             Self::WebP => {
-                DynamicFrameIterator::WebP(webp::WebPDecoder::default().decode_sequence(stream)?)
+                DynamicFrameIterator::WebP(webp::WebPDecoder::new().decode_sequence(stream)?)
             }
             _ => panic!(
                 "No encoder implementation is found for this image format. \
@@ -1786,6 +1835,7 @@ impl Display for ImageFormat {
                 Self::Bmp => "bmp",
                 Self::Tiff => "tiff",
                 Self::WebP => "webp",
+                Self::Qoi => "qoi",
                 Self::Unknown => "",
             }
         )
