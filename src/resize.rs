@@ -34,6 +34,9 @@ pub enum FilterType {
     /// A Lanczos filter with a window of 3. Calculates output pixel value using a high-quality
     /// Lanczos filter on all pixels. This can give antialiasing effects.
     Lanczos3,
+    /// If upscaling, repeats the image in a tiling fashion to fill the desired size.
+    /// If downscaling, this just crops the image.
+    Tile,
 }
 
 impl Default for FilterType {
@@ -54,53 +57,94 @@ impl From<FilterType> for ResizeAlg {
             FilterType::Bicubic => F::CatmullRom,
             FilterType::Mitchell => F::Mitchell,
             FilterType::Lanczos3 => F::Lanczos3,
+            FilterType::Tile => unimplemented!("tile filter is implemented separately"),
         })
     }
 }
 
-#[allow(clippy::ptr_arg)]
+impl FilterType {
+    pub fn resize<P: Pixel>(
+        &self,
+        data: &[P],
+        src_width: NonZeroU32,
+        src_height: NonZeroU32,
+        dst_width: NonZeroU32,
+        dst_height: NonZeroU32,
+    ) -> Vec<P> {
+        let color_type = data[0].color_type();
+        let pixel_type = match P::BIT_DEPTH {
+            1 | 2 | 4 | 8 => match color_type {
+                ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => {
+                    ResizePixelType::U8
+                }
+                ColorType::LA => ResizePixelType::U8x2,
+                ColorType::Rgb => ResizePixelType::U8x3,
+                ColorType::Rgba => ResizePixelType::U8x4,
+                ColorType::Dynamic => unreachable!(),
+            },
+            16 => match color_type {
+                ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => {
+                    ResizePixelType::U16
+                }
+                ColorType::LA => ResizePixelType::U16x2,
+                ColorType::Rgb => ResizePixelType::U16x3,
+                ColorType::Rgba => ResizePixelType::U16x4,
+                ColorType::Dynamic => unreachable!(),
+            },
+            _ => panic!("Unsupported bit depth"),
+        };
+
+        let buffer = data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
+        // We are able to unwrap here since we validated the buffer throughout the creation of the image.
+        let image = ResizeImage::from_vec_u8(src_width, src_height, buffer, pixel_type).unwrap();
+        let view = image.view();
+
+        let mut dest = ResizeImage::new(dst_width, dst_height, pixel_type);
+        let mut dst_view = dest.view_mut();
+
+        let mut resizer = Resizer::new(ResizeAlg::from(*self));
+        // The pixel type is the same, we can unwrap here
+        resizer.resize(&view, &mut dst_view).unwrap();
+
+        let bpp = color_type.channels() * ((P::BIT_DEPTH as usize + 7) >> 3);
+        dest.into_vec()
+            .chunks_exact(bpp)
+            .map(P::from_bytes)
+            .collect()
+    }
+}
+
+fn resize_tiled<P: Pixel>(
+    data: &[P],
+    src_width: NonZeroU32,
+    dst_width: NonZeroU32,
+    dst_height: NonZeroU32,
+) -> Vec<P> {
+    let src_width = src_width.get();
+    let dst_width = dst_width.get();
+    let dst_height = dst_height.get();
+
+    let chunks = data.chunks_exact(src_width as _);
+
+    chunks
+        .flat_map(|chunk| chunk.iter().cycle().take(dst_width as _))
+        .cycle()
+        .take((dst_width * dst_height) as _)
+        .copied()
+        .collect()
+}
+
+/// Performs a resize operation on the given data.
 pub fn resize<P: Pixel>(
-    data: &Vec<P>,
+    data: &[P],
     src_width: NonZeroU32,
     src_height: NonZeroU32,
     dst_width: NonZeroU32,
     dst_height: NonZeroU32,
     filter: FilterType,
 ) -> Vec<P> {
-    let color_type = data[0].color_type();
-    let pixel_type = match P::BIT_DEPTH {
-        1 | 2 | 4 | 8 => match color_type {
-            ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => ResizePixelType::U8,
-            ColorType::LA => ResizePixelType::U8x2,
-            ColorType::Rgb => ResizePixelType::U8x3,
-            ColorType::Rgba => ResizePixelType::U8x4,
-            ColorType::Dynamic => unreachable!(),
-        },
-        16 => match color_type {
-            ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => ResizePixelType::U16,
-            ColorType::LA => ResizePixelType::U16x2,
-            ColorType::Rgb => ResizePixelType::U16x3,
-            ColorType::Rgba => ResizePixelType::U16x4,
-            ColorType::Dynamic => unreachable!(),
-        },
-        _ => panic!("Unsupported bit depth"),
-    };
-
-    let buffer = data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
-    // We are able to unwrap here since we validated the buffer throughout the creation of the image.
-    let image = ResizeImage::from_vec_u8(src_width, src_height, buffer, pixel_type).unwrap();
-    let view = image.view();
-
-    let mut dest = ResizeImage::new(dst_width, dst_height, pixel_type);
-    let mut dst_view = dest.view_mut();
-
-    let mut resizer = Resizer::new(filter.into());
-    // The pixel type is the same, we can unwrap here
-    resizer.resize(&view, &mut dst_view).unwrap();
-
-    let bpp = color_type.channels() * ((P::BIT_DEPTH as usize + 7) >> 3);
-    dest.into_vec()
-        .chunks_exact(bpp)
-        .map(P::from_bytes)
-        .collect()
+    match filter {
+        FilterType::Tile => resize_tiled(data, src_width, dst_width, dst_height),
+        _ => filter.resize(data, src_width, src_height, dst_width, dst_height),
+    }
 }

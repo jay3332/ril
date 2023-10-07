@@ -37,6 +37,7 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 - Document `Fill`/`IntoFill` structs
 - Add `ImageFill` fill struct for image-clipped fills.
   - `IntoFill` is implemented for `&Image`.
+- Add `ResizeAlgorithm::Tile` which repeats copies of the image to fill the target dimensions
 
 #### Bug fixes
 - Fix `Line` panicking with reversed vertices
