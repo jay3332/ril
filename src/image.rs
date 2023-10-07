@@ -1,14 +1,9 @@
 #![allow(clippy::wildcard_imports)]
 
-use crate::{
-    draw::Draw,
-    error::{
-        Error::{self, InvalidExtension},
-        Result,
-    },
-    pixel::*,
-    Dynamic, DynamicFrameIterator,
-};
+use crate::{draw::Draw, error::{
+    Error::{self, InvalidExtension},
+    Result,
+}, pixel::*, Dynamic, DynamicFrameIterator, Paste};
 
 #[cfg(feature = "gif")]
 use crate::encodings::gif;
@@ -898,6 +893,50 @@ impl<P: Pixel> Image<P> {
     #[must_use]
     pub fn cropped(mut self, x1: u32, y1: u32, x2: u32, y2: u32) -> Self {
         self.crop(x1, y1, x2, y2);
+        self
+    }
+
+    /// Pads this image in place on each side with the given value.
+    ///
+    /// # Panics
+    /// * The new width or height would exceed [`u32::MAX`].
+    /// * The padding on either side would exceed [`u32::MAX`].
+    pub fn pad(&mut self, x1: u32, y1: u32, x2: u32, y2: u32, padding: P) {
+        let h_padding = x1
+            .checked_add(x2)
+            .expect("new horizontal padding overflowed u32");
+        let v_padding = y1
+            .checked_add(y2)
+            .expect("new vertical padding overflowed u32");
+        // Strange syntax to avoid if let, as it would bump the MSRV
+        let new_width = 
+            if let Some(new) = self.width().checked_add(h_padding) {new} else {
+                panic!("new width overflowed u32")
+            };
+        let new_height = 
+            if let Some(new) = self.height().checked_add(v_padding) {new} else {
+                panic!("new height overflowed u32")
+            };
+        let mut output = Self::new(new_width, new_height, padding);
+        output.draw(
+            &Paste::new(self)
+                .with_overlay_mode(OverlayMode::Replace)
+                .with_position(x1, y1)
+        );
+        // Only copy some fields, to preserve metadata
+        self.data = output.data;
+        // These both are guaranteed to be non-zero as long as the values didn't overflow,
+        // which we checked for earlier
+        unsafe {
+            self.width = NonZeroU32::new_unchecked(new_width);
+            self.height = NonZeroU32::new_unchecked(new_height);
+        }
+    }
+
+    /// Takes this image and pads it on each side. Useful for method chaining.
+    #[must_use]
+    pub fn padded(mut self, x1: u32, y1: u32, x2: u32, y2: u32, padding: P) -> Self {
+        self.pad(x1, y1, x2, y2, padding);
         self
     }
 
