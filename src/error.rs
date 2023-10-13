@@ -188,3 +188,50 @@ impl From<gif::DecodingError> for Error {
         }
     }
 }
+
+#[cfg(feature = "qoi")]
+impl From<qoi::Error> for Error {
+    fn from(value: qoi::Error) -> Self {
+        use crate::Error::*;
+        use qoi::Error::*;
+        match value {
+            InvalidMagic { .. } => DecodingError("invalid magic number".to_string()),
+            InvalidChannels { channels } => EncodingError(format!(
+                "qoi only supports either 3 or 4 channels, got {channels}"
+            )),
+            InvalidColorSpace { .. } => {
+                DecodingError("colorspace of image is malformed".to_string())
+            }
+            InvalidImageDimensions { width, height } => {
+                if width.min(height) == 0 {
+                    EmptyImageError
+                } else {
+                    EncodingError(format!(
+                        "image dimensions of {} by {} are not valid, must be below 400Mp",
+                        width, height
+                    ))
+                }
+            }
+            InvalidImageLength {
+                size,
+                width,
+                height,
+            } => IncompatibleImageData {
+                width,
+                height,
+                received: size,
+            },
+            OutputBufferTooSmall { size, required } => EncodingError(format!(
+                "buffer of size {} is too small to hold image of size {}",
+                size, required
+            )),
+            UnexpectedBufferEnd => {
+                DecodingError("buffer reached end before decoding was finished".to_string())
+            }
+            InvalidPadding => DecodingError(
+                "incorrectly placed stream end marker encountered during decoding".to_string(),
+            ),
+            qoi::Error::IoError(error) => Error::IoError(error),
+        }
+    }
+}
