@@ -148,6 +148,10 @@
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
 <a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! An interfacing layer between `fast_image_resize` and this crate.
 
 </span><span class="kw">use crate</span>::{encodings::ColorType, Pixel};
@@ -285,6 +289,10 @@
 }
 
 <span class="doccomment">/// Performs a resize operation on the given data.
+///
+/// # Panics
+/// * The given data is empty.
+/// * Unsupported bit depth.
 </span><span class="kw">pub fn </span>resize&lt;P: Pixel&gt;(
     data: <span class="kw-2">&amp;</span>[P],
     src_width: NonZeroU32,
