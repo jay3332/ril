@@ -5,16 +5,78 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.7 are not tagged/released on GitHub.
 
-## v0.10 (dev)
-### Breaking changes
+## v0.10 (2023-10-12)
+
+### Major encoder/decoder interface changes
+v0.10 introduces a major overhaul to the `Encoder`/`Decoder` interfaces.
+
+- **Added support for lazy encoding of image sequences.**
+  - The `Encoder` trait has been overhauled
+    - New associated type `<_ as Encoder>::Config` for configuring specific encoders
+    - Encoding logic between static images and image sequences are now unified: main encoding logic will occur in
+      `Encoder::add_frame`
+    - Shortcut associated methods `Encoder::encode_static` and `Encoder::encode_sequence` have been added
+    - Encoders now take *metadata*, which can be an `&Image`, `&Frame`, or `EncoderMetadata`
+      - You can derive an `EncoderMetadata` from an `Image` or `Frame` with the `From`/`Into` trait
+        (i.e. `EncoderMetadata::from(&image)`)
+    - See below to see how you can lazily encode a stream of frames into a GIF
+- Removed `DynamicFrameIterator`
+  - Replaced with `Box<dyn FrameIterator<_>>`
+  - The new `SingleFrameIterator` struct allows for iterating over a single static image
+- `ImageFormat` struct is now moved into a private standalone `format` module.
+  - This is breaking if you were importing `ril::image::ImageFormat` (use `ril::ImageFormat` instead)
+
+#### Example: Lazily encoding a GIF
+```rust
+use std::fs::File;
+use std::time::Duration;
+use ril::encodings::gif::GifEncoder; // import the encoder for your desired format
+use ril::prelude::*;
+
+fn main() -> ril::Result<()> {
+    let mut dest = File::create("output.gif")?;
+    // Create a new 256x256 RGB image with a black background
+    let black_image = Image::new(256, 256, Rgb::black());
+    // Create a new 256x256 RGB image with a white background
+    let white_image = Image::new(256, 256, Rgb::white());
+    // Prepare the encoder, using one of our images as metadata
+    // note: the image ONLY serves as metadata (e.g. dimensions, bit depth, etc.),
+    //       it is not encoded into the GIF itself when calling `Encoder::new`
+    // note: you will see what `into_handle` does later 
+    let mut encoder = GifEncoder::new(&mut dest, &image)?;
+  
+    // Lazily encode 10 frames into the GIF
+    for i in 0..10 {
+        // Create a new frame with a delay of 1 second
+        let frame = if i % 2 == 0 { black_image.clone() } else { white_image.clone() };
+        let frame = Frame::from_image(frame).with_delay(Duration::from_secs(1));
+        // Add the frame to the encoder
+        encoder.add_frame(&frame)?;
+    }
+    
+    // Finish the encoding process
+    encoder.finish()
+}
+```
+
+### Other breaking changes
+- Image generic type `P` does not have a default anymore
+  - In other words: `struct Image<P: Pixel = Dynamic>` is now `struct Image<P: Pixel>`
+  - This means when you create a new image, you will need to specify the pixel type:
+    - `Image::<Rgb>::new(256, 256, Rgb::black())`
+    - `Image::<Dynamic>::open("image.png")?`
+  - You can add a type alias `type DynamicImage = Image<Dynamic>;` if you want to keep the old behavior
 - `LinearGradientInterpolation` renamed to `GradientInterpolation`
 - `LinearGradientBlendMode` renamed to `GradientBlendMode`
-- `Pixel::inverted` now inverts alpha.
+- Removes `Pixel::inverted` in favor of `std::ops::Not`
+  - Instead of `pixel.inverted()`, you can now do `!pixel`
+    - `image.inverted()` is removed and replaced with `!image`
+  - This is not the same as the old `Pixel::inverted` as it will also invert alpha
   - Adds various implementations for `Image<Rgba>`:
     - `Image::<Rgba>::split_rgb_and_alpha` splits the image into `(Image<Rgb>, Image<L>)`
     - `Image::<Rgba>::from_rgb_and_alpha` creates an RGBA image from `(Image<Rgb>, Image<L>)`
-    - `Image::<Rgba>::map_rgb_pixels` maps only the RGB pixels of the image
-      - Allows for `image.map_rgb_pixels(|p| p.inverted())`
+    - `Image::<Rgba>::map_rgb_pixels` maps only the R@claGB pixels of the image
+      - Allows for `image.map_rgb_pixels(|p| !p)` for the previous behavior
     - `Image::<Rgba>::map_alpha_pixels` maps only the alpha pixels of the image
 - `Fill`/`IntoFill` structs are now moved into a standalone `fill` module.
 - Differentiate text anchor and text alignment
@@ -38,6 +100,10 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 - Add `ImageFill` fill struct for image-clipped fills.
   - `IntoFill` is implemented for `&Image`.
 - Add `ResizeAlgorithm::Tile` which repeats copies of the image to fill the target dimensions
+
+#### Performance improvements
+
+- `Not` (invert/negation) for `Rgb` is much more efficient in release mode
 
 #### Bug fixes
 - Fix `Line` panicking with reversed vertices

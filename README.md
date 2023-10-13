@@ -9,8 +9,19 @@
   </sup>
 </p>
 
+## ril v0.10 has been published to crates.io!
+This is the biggest release since the beginning of ril and includes a lot of breaking changes.
+
+### Notable Additions:
+- Major refactor of `Encoder` trait
+- Support for lazy image sequence encoding
+- Tile resize
+- Radial and conic gradients
+
+### [See the changelog](https://github.com/jay3332/ril/blob/main/CHANGELOG.md) for more information.
+
 ## What's this?
-This is a Rust crate designed to provide an easy-to-use, high-level interface
+RIL (Rust Imaging Library) is a Rust crate designed to provide an easy-to-use, high-level interface
 around image processing in Rust. Image and animation processing has never been
 this easy before, and it's hard to find a good crate for it.
 
