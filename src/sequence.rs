@@ -1,6 +1,6 @@
 //! Implements the animated image and image sequence interface.
 
-use crate::{DynamicFrameIterator, Error, Image, ImageFormat, Pixel, Result};
+use crate::{Error, FrameIterator, Image, ImageFormat, Pixel, Result};
 use std::{
     fs::File,
     io::{Read, Write},
@@ -229,10 +229,13 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
-    pub fn from_reader<R: Read>(
+    pub fn from_reader<'a, R: Read + 'a>(
         format: ImageFormat,
         bytes: R,
-    ) -> Result<DynamicFrameIterator<P, R>> {
+    ) -> Result<Box<dyn FrameIterator<P> + 'a>>
+    where
+        P: 'a,
+    {
         format.run_sequence_decoder(bytes)
     }
 
@@ -261,9 +264,12 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    pub fn from_reader_inferred<R: Read + Write>(
+    pub fn from_reader_inferred<'a, R: Read + Write + 'a>(
         mut bytes: R,
-    ) -> Result<DynamicFrameIterator<P, R>> {
+    ) -> Result<Box<dyn FrameIterator<P> + 'a>>
+    where
+        P: 'a,
+    {
         let mut buffer = Vec::new();
         bytes.read_to_end(&mut buffer)?;
 
@@ -296,7 +302,13 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    pub fn from_bytes(format: ImageFormat, bytes: &[u8]) -> Result<DynamicFrameIterator<P, &[u8]>> {
+    pub fn from_bytes<'a>(
+        format: ImageFormat,
+        bytes: &'a [u8],
+    ) -> Result<Box<dyn FrameIterator<P> + 'a>>
+    where
+        P: 'a,
+    {
         format.run_sequence_decoder(bytes)
     }
 
@@ -323,7 +335,10 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    pub fn from_bytes_inferred(bytes: &[u8]) -> Result<DynamicFrameIterator<P, &[u8]>> {
+    pub fn from_bytes_inferred<'a>(bytes: &'a [u8]) -> Result<Box<dyn FrameIterator<P> + 'a>>
+    where
+        P: 'a,
+    {
         match ImageFormat::infer_encoding(bytes) {
             ImageFormat::Unknown => Err(Error::UnknownEncodingFormat),
             format => format.run_sequence_decoder(bytes),
@@ -341,7 +356,10 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Errors
     /// todo!()
-    pub fn open(path: impl AsRef<Path>) -> Result<DynamicFrameIterator<P, File>> {
+    pub fn open<'a>(path: impl AsRef<Path> + 'a) -> Result<Box<dyn FrameIterator<P> + 'a>>
+    where
+        P: 'a,
+    {
         let file = File::open(path.as_ref())?;
 
         let format = match ImageFormat::from_path(path)? {
