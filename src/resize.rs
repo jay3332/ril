@@ -63,6 +63,11 @@ impl From<FilterType> for ResizeAlg {
 }
 
 impl FilterType {
+    /// Performs a resize operation on the given data.
+    ///
+    /// # Panics
+    /// * The given data is empty.
+    /// * Unsupported bit depth.
     pub fn resize<P: Pixel>(
         &self,
         data: &[P],
