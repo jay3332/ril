@@ -367,41 +367,16 @@
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::ColorType;
 <span class="kw">use crate</span>::{
-    encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod, Dynamic, Error, Frame, Image, ImageFormat, ImageSequence, LoopCount,
-    OverlayMode, Pixel, Rgb, Rgba,
+    encode::{<span class="self">self</span>, Decoder, Encoder, FrameIterator},
+    pixel::assume_pixel_from_palette,
+    DisposalMethod, Dynamic, Frame, Image, ImageFormat, LoopCount, OverlayMode, Pixel, Rgb, Rgba,
 };
 
-<span class="kw">use </span><span class="kw">crate</span>::pixel::assume_pixel_from_palette;
 <span class="kw">pub use </span>png::{AdaptiveFilterType, Compression, FilterType};
-<span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::{
+    borrow::Cow,
     io::{Read, Write},
     marker::PhantomData,
     num::NonZeroU32,
@@ -437,8 +412,9 @@
     }
 }
 
-<span class="doccomment">/// A PNG encoder interface around [`png::Encoder`].
-</span><span class="kw">pub struct </span>PngEncoder {
+<span class="doccomment">/// PNG configuration options for [`PngEncoder`].
+</span><span class="attr">#[derive(Copy, Clone, Debug, Default)]
+</span><span class="kw">pub struct </span>PngEncoderOptions {
     <span class="doccomment">/// The adaptive filter type to use.
     </span><span class="kw">pub </span>adaptive_filter: AdaptiveFilterType,
     <span class="doccomment">/// The filter type to use.
@@ -447,17 +423,7 @@
     </span><span class="kw">pub </span>compression: Compression,
 }
 
-<span class="kw">impl </span>PngEncoder {
-    <span class="doccomment">/// Creates a new encoder with the default settings.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            adaptive_filter: AdaptiveFilterType::NonAdaptive,
-            filter: FilterType::NoFilter,
-            compression: Compression::Default,
-        }
-    }
-
+<span class="kw">impl </span>PngEncoderOptions {
     <span class="doccomment">/// Sets the adaptive filter type to use.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>with_adaptive_filter(<span class="kw-2">mut </span><span class="self">self</span>, value: AdaptiveFilterType) -&gt; <span class="self">Self </span>{
@@ -478,46 +444,38 @@
         <span class="self">self</span>.compression = value;
         <span class="self">self
     </span>}
-
-    <span class="kw">fn </span>prepare&lt;<span class="lifetime">&#39;a</span>, W: Write&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        width: u32,
-        height: u32,
-        color_type: ColorType,
-        bit_depth: u8,
-        dest: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>W,
-    ) -&gt; png::Encoder&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>W&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder = png::Encoder::new(dest, width, height);
-        encoder.set_adaptive_filter(<span class="self">self</span>.adaptive_filter);
-        encoder.set_filter(<span class="self">self</span>.filter);
-        encoder.set_compression(<span class="self">self</span>.compression);
-        encoder.set_color(get_png_color_type(color_type));
-        encoder.set_depth(png::BitDepth::from_u8(bit_depth).unwrap());
-
-        encoder
-    }
 }
 
-<span class="kw">impl </span>Encoder <span class="kw">for </span>PngEncoder {
-    <span class="kw">fn </span>encode&lt;P: Pixel&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="kw">let </span>data = image.data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-        <span class="kw">let </span>color_type = image.data[<span class="number">0</span>].color_type();
+<span class="doccomment">/// A PNG encoder interface around [`png::Encoder`].
+///
+/// # Note
+/// You **must** anticipate the frame and loop counts of the sequence with
+/// [`crate::EncoderMetadata::with_sequence`] before calling [`PngEncoder::add_frame`].
+/// See [`Encoder#anticipating-frame-and-loop-counts`] for more information.
+</span><span class="kw">pub struct </span>PngEncoder&lt;P: Pixel, W: Write&gt; {
+    writer: png::Writer&lt;W&gt;,
+    dimensions: (u32, u32),
+    _marker: PhantomData&lt;P&gt;,
+}
 
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self</span>.prepare(
-            image.width(),
-            image.height(),
-            color_type,
-            P::BIT_DEPTH,
-            dest,
-        );
+<span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; Encoder&lt;P, W&gt; <span class="kw">for </span>PngEncoder&lt;P, W&gt; {
+    <span class="kw">type </span>Config = PngEncoderOptions;
 
-        <span class="kw">match </span>color_type {
+    <span class="kw">fn </span>new(
+        dest: W,
+        metadata: <span class="kw">impl </span>encode::HasEncoderMetadata&lt;<span class="self">Self</span>::Config, P&gt;,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>encoder = png::Encoder::new(dest, metadata.width(), metadata.height());
+        encoder.set_color(get_png_color_type(metadata.color_type()));
+        encoder.set_depth(png::BitDepth::from_u8(metadata.bit_depth()).unwrap());
+
+        <span class="kw">match </span>metadata.color_type() {
             ColorType::PaletteRgb =&gt; {
-                <span class="kw">let </span>pal = image.palette().expect(<span class="string">&quot;no palette for paletted image?&quot;</span>);
+                <span class="kw">let </span>pal = metadata.palette().expect(<span class="string">&quot;no palette for paletted image?&quot;</span>);
                 encoder.set_palette(pal.iter().flat_map(Pixel::as_bytes).collect::&lt;Cow&lt;<span class="kw">_</span>&gt;&gt;());
             }
             ColorType::PaletteRgba =&gt; {
-                <span class="kw">let </span>pal = image.palette().expect(<span class="string">&quot;no palette for paletted image?&quot;</span>);
+                <span class="kw">let </span>pal = metadata.palette().expect(<span class="string">&quot;no palette for paletted image?&quot;</span>);
                 encoder.set_palette(
                     pal.iter()
                         .map(Pixel::as_rgb)
@@ -529,60 +487,54 @@
             <span class="kw">_ </span>=&gt; (),
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>writer = encoder.write_header()<span class="question-mark">?</span>;
-        writer.write_image_data(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
-        writer.finish()<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((len, loops)) = metadata.sequence() {
+            encoder.set_animated(len <span class="kw">as _</span>, loops.count_or_zero())<span class="question-mark">?</span>;
+        }
 
-        <span class="prelude-val">Ok</span>(())
+        <span class="kw">let </span>dimensions = (metadata.width(), metadata.height());
+        <span class="kw">let </span>config = metadata.config();
+        encoder.set_adaptive_filter(config.adaptive_filter);
+        encoder.set_filter(config.filter);
+        encoder.set_compression(config.compression);
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            writer: encoder.write_header()<span class="question-mark">?</span>,
+            dimensions,
+            _marker: PhantomData,
+        })
     }
 
-    <span class="kw">fn </span>encode_sequence&lt;P: Pixel&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;,
-        dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write,
-    ) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="kw">let </span>sample = sequence
-            .first_frame()
-            .ok_or(Error::EmptyImageError)<span class="question-mark">?
-            </span>.image();
-        <span class="kw">let </span>pixel = <span class="kw-2">&amp;</span>sample.data[<span class="number">0</span>];
+    <span class="kw">fn </span>add_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span><span class="kw">impl </span>encode::FrameLike&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">if </span>(frame.image().dimensions()) != <span class="self">self</span>.dimensions {
+            <span class="self">self</span>.writer
+                .set_frame_dimension(frame.image().width(), frame.image().height())<span class="question-mark">?</span>;
+        }
+        <span class="kw">let </span>data = frame
+            .image()
+            .data
+            .iter()
+            .flat_map(P::as_bytes)
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">self</span>.prepare(
-            sample.width(),
-            sample.height(),
-            pixel.color_type(),
-            P::BIT_DEPTH,
-            dest,
-        );
-        encoder.set_animated(sequence.len() <span class="kw">as </span>u32, sequence.loop_count().count_or_zero())<span class="question-mark">?</span>;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>writer = encoder.write_header()<span class="question-mark">?</span>;
-
-        <span class="kw">for </span>frame <span class="kw">in </span>sequence.iter() {
-            <span class="kw">let </span>data = frame
-                .image()
-                .data
-                .iter()
-                .flat_map(P::as_bytes)
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-
-            writer.set_frame_delay(frame.delay().as_millis() <span class="kw">as </span>u16, <span class="number">1000</span>)<span class="question-mark">?</span>;
-            writer.set_dispose_op(<span class="kw">match </span>frame.disposal() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(delay) = frame.delay() {
+            <span class="self">self</span>.writer
+                .set_frame_delay(delay.as_millis() <span class="kw">as </span>u16, <span class="number">1000</span>)<span class="question-mark">?</span>;
+        }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(disposal) = frame.disposal() {
+            <span class="self">self</span>.writer.set_dispose_op(<span class="kw">match </span>disposal {
                 DisposalMethod::None =&gt; png::DisposeOp::None,
                 DisposalMethod::Background =&gt; png::DisposeOp::Background,
                 DisposalMethod::Previous =&gt; png::DisposeOp::Previous,
             })<span class="question-mark">?</span>;
-            writer.write_image_data(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
         }
 
-        writer.finish()<span class="question-mark">?</span>;
+        <span class="self">self</span>.writer.write_image_data(<span class="kw-2">&amp;</span>data)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
-}
 
-<span class="kw">impl </span>Default <span class="kw">for </span>PngEncoder {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new()
+    <span class="kw">fn </span>finish(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="self">self</span>.writer.finish()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
     }
 }
 

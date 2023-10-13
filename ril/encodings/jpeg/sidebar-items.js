@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["JpegDecoder","JpegEncoder"]};
+window.SIDEBAR_ITEMS = {"struct":["JpegDecoder","JpegEncoder","JpegEncoderOptions"]};

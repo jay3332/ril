@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["DynamicFrameIterator"],"trait":["Decoder","Encoder","FrameIterator"]};
+window.SIDEBAR_ITEMS = {"struct":["EncoderMetadata","EncoderMetadataWithConfig","SingleFrameIterator"],"trait":["Decoder","Encoder","FrameIterator"]};

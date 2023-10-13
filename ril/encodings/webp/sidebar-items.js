@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["WebPDecoder","WebPEncoder","WebPSequenceDecoder"]};
+window.SIDEBAR_ITEMS = {"struct":["WebPDecoder","WebPEncoderOptions","WebPMuxEncoder","WebPSequenceDecoder","WebPStaticEncoder"]};

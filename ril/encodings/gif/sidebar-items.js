@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["GifDecoder","GifEncoder","GifFrameIterator"]};
+window.SIDEBAR_ITEMS = {"struct":["GifDecoder","GifEncoder","GifEncoderOptions","GifFrameIterator"]};

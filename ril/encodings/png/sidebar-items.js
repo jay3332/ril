@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AdaptiveFilterType","Compression","FilterType"],"struct":["ApngFrameIterator","PngDecoder","PngEncoder"]};
+window.SIDEBAR_ITEMS = {"enum":["AdaptiveFilterType","Compression","FilterType"],"struct":["ApngFrameIterator","PngDecoder","PngEncoder","PngEncoderOptions"]};

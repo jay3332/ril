@@ -344,6 +344,11 @@
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
 <a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The Rust Imaging Library. A performant and high-level image processing crate for Rust.
 //!
 //! See benchmarks and more by viewing the [README](https://github.com/jay3332/ril#ril). It should
@@ -581,19 +586,18 @@
 //! `(255, 0, 0)` (red) inverts to `(0, 255, 255)` (cyan), so that should be the color of the
 //! output image.
 //!
-//! We can also use [`inverted`][Image::inverted] to use method chaining:
+//! We can also use the [`std::ops::Not`] trait to invert an image:
 //!
 //! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -&gt; ril::Result&lt;()&gt; {
-//! Image::new(256, 256, Rgb::new(255, 0, 0))
-//!     .inverted()
-//!     .save_inferred(&quot;output.png&quot;)?;
+//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
+//! (!image).save_inferred(&quot;output.png&quot;)?;
 //! # Ok(()) }
 //! ```
 //!
 //! Seems to be a bit cleaner than the first way, but it really just comes down to preference...
-//! and whether or not you have ownership of the image object - you likely want to stay away from
+//! and whether or not you have ownership of the image object; you likely want to stay away from
 //! cloning images for no benefit as it is a very expensive operation.
 //!
 //! TODO: finish guide
@@ -612,6 +616,8 @@
 <span class="kw">pub mod </span>encodings;
 <span class="kw">pub mod </span>error;
 <span class="kw">pub mod </span>fill;
+<span class="kw">pub mod </span>filter;
+<span class="kw">mod </span>format;
 <span class="attr">#[cfg(feature = <span class="string">&quot;gradient&quot;</span>)]
 </span><span class="kw">pub mod </span>gradient;
 <span class="kw">mod </span>image;
@@ -630,11 +636,9 @@
 }
 
 <span class="macro">inline_doc! </span>{
-    <span class="kw">pub use </span><span class="kw">crate</span>::image::{
-        Banded, Image, ImageFormat, OverlayMode,
-    };
+    <span class="kw">pub use </span><span class="kw">crate</span>::image::{Banded, Image, OverlayMode};
     <span class="kw">pub use </span>draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
-    <span class="kw">pub use </span>encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
+    <span class="kw">pub use </span>encode::{Decoder, Encoder, EncoderMetadata, SingleFrameIterator, FrameIterator};
     <span class="kw">pub use </span>encodings::ColorType;
     <span class="kw">pub use </span>error::{Error, <span class="prelude-ty">Result</span>};
     <span class="attr">#[cfg(feature = <span class="string">&quot;gradient&quot;</span>)]
@@ -648,6 +652,7 @@
         RadialGradientCover,
     };
     <span class="kw">pub use </span>fill::{Fill, IntoFill};
+    <span class="kw">pub use </span>format::ImageFormat;
     <span class="kw">pub use </span>pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,
@@ -657,7 +662,9 @@
     </span><span class="kw">pub use </span>resize::FilterType <span class="kw">as </span>ResizeAlgorithm;
     <span class="kw">pub use </span>sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
     <span class="attr">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
-    </span><span class="kw">pub use </span>text::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
+    </span><span class="kw">pub use </span>text::{
+        Font, HorizontalAnchor, TextAlign, TextLayout, TextSegment, VerticalAnchor, WrapStyle,
+    };
 }
 
 <span class="doccomment">/// The crate prelude exports. Importing this with a wildcard will import most items from RIL that
@@ -674,10 +681,11 @@
 /// ```
 </span><span class="kw">pub mod </span>prelude {
     <span class="kw">pub use super</span>::{
-        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, DynamicSubpixel, Ellipse, Fill, Frame, FrameIterator, Image,
-        ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted, PalettedRgb,
-        PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
+        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, Decoder, DisposalMethod, Draw,
+        Dynamic, DynamicSubpixel, Ellipse, Encoder, EncoderMetadata, Fill, Frame, FrameIterator,
+        Image, ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted,
+        PalettedRgb, PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba,
+        SingleFrameIterator, TrueColor, L,
     };
 
     <span class="attr">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
@@ -688,6 +696,8 @@
         RadialGradient, RadialGradientCover,
     };
     <span class="attr">#[cfg(feature = <span class="string">&quot;text&quot;</span>)]
-    </span><span class="kw">pub use super</span>::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
+    </span><span class="kw">pub use super</span>::{
+        Font, HorizontalAnchor, TextAlign, TextLayout, TextSegment, VerticalAnchor, WrapStyle,
+    };
 }
 </code></pre></div></section></main></body></html>

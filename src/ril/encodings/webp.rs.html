@@ -393,20 +393,114 @@
 <a href="#393" id="393">393</a>
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
-    ColorType, Decoder, DisposalMethod, Encoder, Error, Frame, FrameIterator, Image, ImageFormat,
-    ImageSequence, LoopCount, OverlayMode, Pixel,
+    encode, ColorType, Decoder, DisposalMethod, Encoder, Error, Frame, FrameIterator, Image,
+    ImageFormat, LoopCount, OverlayMode, Pixel,
 };
 <span class="kw">use </span>libwebp_sys <span class="kw">as </span>libwebp;
 <span class="kw">use </span>std::{
     io::{Read, Write},
     marker::PhantomData,
     num::NonZeroU32,
+    ptr::{addr_of, addr_of_mut},
     time::Duration,
 };
 
-<span class="doccomment">/// A WebP image encoder.
-</span><span class="kw">pub struct </span>WebPEncoder {
+<span class="doccomment">/// Options for the WebP image encoder.
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>WebPEncoderOptions {
     <span class="doccomment">/// Image quality to encode at. Larger values produce higher quality images at
     /// the expense of larger file sizes. Valid values are in the range [0, 100]. For lossless
     /// encoding, higher values will produce better compression at the expense of more computation
@@ -416,20 +510,20 @@
     </span><span class="kw">pub </span>lossless: bool,
 }
 
-<span class="kw">impl </span>Default <span class="kw">for </span>WebPEncoder {
+<span class="kw">impl </span>Default <span class="kw">for </span>WebPEncoderOptions {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
+<span class="kw">impl </span>WebPEncoderOptions {
+    <span class="doccomment">/// Creates a new WebP encoder that uses lossy encoding with a quality of 75.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             quality: <span class="number">75.0</span>,
             lossless: <span class="bool-val">false</span>,
         }
-    }
-}
-
-<span class="kw">impl </span>WebPEncoder {
-    <span class="doccomment">/// Creates a new WebP encoder that uses lossy encoding with a quality of 75.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::default()
     }
 
     <span class="doccomment">/// Sets the quality to encode at.
@@ -445,77 +539,93 @@
         <span class="self">self</span>.lossless = lossless;
         <span class="self">self
     </span>}
+}
 
-    <span class="attr">#[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
-    </span><span class="kw">fn </span>encode_image&lt;P: Pixel&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;libwebp::WebPData&gt; {
-        <span class="kw">unsafe </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>picture = std::mem::zeroed::&lt;libwebp::WebPPicture&gt;();
-            picture.width = image.width() <span class="kw">as _</span>;
-            picture.height = image.height() <span class="kw">as _</span>;
-            picture.use_argb = <span class="number">1</span>;
+<span class="attr">#[inline]
+</span><span class="kw">unsafe fn </span>free_mux(
+    encoded_frames: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">*mut </span>libwebp::WebPData&gt;,
+    mux: <span class="kw-2">*mut </span>libwebp::WebPMux,
+) {
+    <span class="kw">for </span>f <span class="kw">in </span>encoded_frames {
+        libwebp::WebPDataClear(f);
+    }
+    libwebp::WebPMuxDelete(mux);
+}
 
-            <span class="kw">if </span>libwebp::WebPPictureAlloc(<span class="macro">std::ptr::addr_of_mut!</span>(picture)) == <span class="number">0 </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP memory error&quot;</span>.to_string()));
-            }
-            <span class="kw">let </span>free = |<span class="kw-2">mut </span>picture| {
-                libwebp::WebPPictureFree(<span class="macro">std::ptr::addr_of_mut!</span>(picture));
-            };
+<span class="attr">#[inline]
+</span><span class="kw">unsafe fn </span>free_picture(<span class="kw-2">mut </span>picture: libwebp::WebPPicture) {
+    libwebp::WebPPictureFree(<span class="macro">addr_of_mut!</span>(picture));
+}
 
-            <span class="kw">let </span><span class="kw-2">mut </span>writer = std::mem::zeroed::&lt;libwebp::WebPMemoryWriter&gt;();
-            libwebp::WebPMemoryWriterInit(<span class="macro">std::ptr::addr_of_mut!</span>(writer));
+<span class="attr">#[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
+</span><span class="kw">fn </span>encode_image&lt;P: Pixel&gt;(
+    options: <span class="kw-2">&amp;</span>WebPEncoderOptions,
+    image: <span class="kw-2">&amp;</span>Image&lt;P&gt;,
+) -&gt; <span class="kw">crate</span>::Result&lt;libwebp::WebPData&gt; {
+    <span class="kw">unsafe </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>picture = std::mem::zeroed::&lt;libwebp::WebPPicture&gt;();
+        picture.width = image.width() <span class="kw">as _</span>;
+        picture.height = image.height() <span class="kw">as _</span>;
+        picture.use_argb = <span class="number">1</span>;
 
-            picture.writer = <span class="prelude-val">Some</span>(_wrapped);
-            picture.custom_ptr = <span class="macro">std::ptr::addr_of_mut!</span>(writer).cast();
-
-            <span class="macro">macro_rules! </span>import_libwebp_picture {
-                (<span class="macro-nonterminal">$func</span>:ident, <span class="macro-nonterminal">$stride</span>:literal, <span class="macro-nonterminal">$force_into</span>:ident) =&gt; {{
-                    libwebp::<span class="macro-nonterminal">$func</span>(
-                        <span class="macro">std::ptr::addr_of_mut!</span>(picture),
-                        image
-                            .data
-                            .iter()
-                            .flat_map(|p| p.<span class="macro-nonterminal">$force_into</span>().as_bytes())
-                            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                            .as_ptr(),
-                        (image.width() * <span class="macro-nonterminal">$stride</span>) <span class="kw">as _</span>,
-                    )
-                }};
-            }
-            <span class="kw">let </span>sample = image.data[<span class="number">0</span>].color_type();
-            <span class="kw">if match </span>sample {
-                ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA =&gt; {
-                    <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGBA, <span class="number">4</span>, as_rgba)
-                }
-                <span class="kw">_ </span>=&gt; <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGB, <span class="number">3</span>, as_rgb),
-            } == <span class="number">0
-            </span>{
-                free(picture);
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP encoding error&quot;</span>.to_string()));
-            }
-
-            <span class="kw">let </span><span class="kw-2">mut </span>config = std::mem::zeroed::&lt;libwebp::WebPConfig&gt;();
-            <span class="kw">if </span>libwebp::WebPConfigInit(<span class="macro">std::ptr::addr_of_mut!</span>(config)) == <span class="number">0 </span>{
-                free(picture);
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP version error&quot;</span>.to_string()));
-            }
-
-            config.lossless = <span class="self">self</span>.lossless <span class="kw">as _</span>;
-            config.quality = <span class="self">self</span>.quality;
-
-            <span class="kw">let </span>res = libwebp::WebPEncode(<span class="macro">std::ptr::addr_of!</span>(config), <span class="macro">std::ptr::addr_of_mut!</span>(picture));
-            <span class="kw">if </span>res == <span class="number">0 </span>{
-                free(picture);
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP encoding error&quot;</span>.to_string()));
-            }
-
-            <span class="kw">let </span>data = libwebp::WebPData {
-                bytes: writer.mem,
-                size: writer.size,
-            };
-
-            free(picture);
-            <span class="prelude-val">Ok</span>(data)
+        <span class="kw">if </span>libwebp::WebPPictureAlloc(<span class="macro">addr_of_mut!</span>(picture)) == <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP memory error&quot;</span>.to_string()));
         }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>writer = std::mem::zeroed::&lt;libwebp::WebPMemoryWriter&gt;();
+        libwebp::WebPMemoryWriterInit(<span class="macro">addr_of_mut!</span>(writer));
+
+        picture.writer = <span class="prelude-val">Some</span>(_wrapped);
+        picture.custom_ptr = <span class="macro">addr_of_mut!</span>(writer).cast();
+
+        <span class="macro">macro_rules! </span>import_libwebp_picture {
+            (<span class="macro-nonterminal">$func</span>:ident, <span class="macro-nonterminal">$stride</span>:literal, <span class="macro-nonterminal">$force_into</span>:ident) =&gt; {{
+                libwebp::<span class="macro-nonterminal">$func</span>(
+                    <span class="macro">addr_of_mut!</span>(picture),
+                    image
+                        .data
+                        .iter()
+                        .flat_map(|p| p.<span class="macro-nonterminal">$force_into</span>().as_bytes())
+                        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+                        .as_ptr(),
+                    (image.width() * <span class="macro-nonterminal">$stride</span>) <span class="kw">as _</span>,
+                )
+            }};
+        }
+        <span class="kw">let </span>sample = image.data[<span class="number">0</span>].color_type();
+        <span class="kw">if match </span>sample {
+            ColorType::Rgba | ColorType::PaletteRgba | ColorType::LA =&gt; {
+                <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGBA, <span class="number">4</span>, as_rgba)
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">import_libwebp_picture!</span>(WebPPictureImportRGB, <span class="number">3</span>, as_rgb),
+        } == <span class="number">0
+        </span>{
+            free_picture(picture);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP encoding error&quot;</span>.to_string()));
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>config = std::mem::zeroed::&lt;libwebp::WebPConfig&gt;();
+        <span class="kw">if </span>libwebp::WebPConfigInit(<span class="macro">addr_of_mut!</span>(config)) == <span class="number">0 </span>{
+            free_picture(picture);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP version error&quot;</span>.to_string()));
+        }
+
+        config.lossless = options.lossless <span class="kw">as _</span>;
+        config.quality = options.quality;
+
+        <span class="kw">let </span>res = libwebp::WebPEncode(<span class="macro">addr_of!</span>(config), <span class="macro">addr_of_mut!</span>(picture));
+        <span class="kw">if </span>res == <span class="number">0 </span>{
+            free_picture(picture);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP encoding error&quot;</span>.to_string()));
+        }
+
+        <span class="kw">let </span>data = libwebp::WebPData {
+            bytes: writer.mem,
+            size: writer.size,
+        };
+
+        free_picture(picture);
+        <span class="prelude-val">Ok</span>(data)
     }
 }
 
@@ -527,106 +637,180 @@
     <span class="kw">unsafe </span>{ libwebp::WebPMemoryWrite(data, size, picture) }
 }
 
-<span class="attr">#[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
-</span><span class="kw">impl </span>Encoder <span class="kw">for </span>WebPEncoder {
-    <span class="kw">fn </span>encode&lt;P: Pixel&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.encode_image(image)<span class="question-mark">?</span>;
+<span class="doccomment">/// An interface for encoding static WebP images.
+///
+/// # See Also
+/// * [`WebPMuxEncoder`] for encoding WebP animations instead of just static images.
+</span><span class="kw">pub struct </span>WebPStaticEncoder&lt;P: Pixel, W: Write&gt; {
+    options: WebPEncoderOptions,
+    writer: W,
+    _marker: PhantomData&lt;P&gt;,
+}
+
+<span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; Encoder&lt;P, W&gt; <span class="kw">for </span>WebPStaticEncoder&lt;P, W&gt; {
+    <span class="kw">type </span>Config = WebPEncoderOptions;
+
+    <span class="kw">fn </span>new(
+        dest: W,
+        metadata: <span class="kw">impl </span>encode::HasEncoderMetadata&lt;<span class="self">Self</span>::Config, P&gt;,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            options: metadata.config(),
+            writer: dest,
+            _marker: PhantomData,
+        })
+    }
+
+    <span class="kw">fn </span>add_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span><span class="kw">impl </span>encode::FrameLike&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>data = encode_image(<span class="kw-2">&amp;</span><span class="self">self</span>.options, frame.image())<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>result = dest.write_all(std::slice::from_raw_parts(data.bytes, data.size));
-            libwebp::WebPDataClear(<span class="macro">std::ptr::addr_of_mut!</span>(data));
-            result<span class="question-mark">?
-        </span>}
+            <span class="kw">let </span>result = <span class="self">self
+                </span>.writer
+                .write_all(std::slice::from_raw_parts(data.bytes, data.size));
+            libwebp::WebPDataClear(<span class="macro">addr_of_mut!</span>(data));
+            result<span class="question-mark">?</span>;
+        }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>encode_sequence&lt;P: Pixel&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;,
-        dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write,
-    ) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="kw">let </span>sample = sequence.first_frame().ok_or(Error::EmptyImageError)<span class="question-mark">?</span>;
+    <span class="comment">// no-op
+    </span><span class="kw">fn </span>finish(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="prelude-val">Ok</span>(())
+    }
+}
 
-        <span class="kw">unsafe </span>{
+<span class="doccomment">/// An interface for encoding WebP animations.
+///
+/// # See Also
+/// * [`WebPStaticEncoder`] for encoding static WebP images instead of animations.
+</span><span class="kw">pub struct </span>WebPMuxEncoder&lt;P: Pixel, W: Write&gt; {
+    options: WebPEncoderOptions,
+    writer: W,
+    mux: <span class="kw-2">*mut </span>libwebp::WebPMux,
+    encoded_frames: Vec&lt;libwebp::WebPData&gt;, <span class="comment">// drop later
+    </span>_marker: PhantomData&lt;P&gt;,
+}
+
+<span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; WebPMuxEncoder&lt;P, W&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">unsafe fn </span>free(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        free_mux(
+            <span class="self">self</span>.encoded_frames.iter_mut().map(|f| f <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>),
+            <span class="self">self</span>.mux,
+        );
+    }
+}
+
+<span class="attr">#[allow(clippy::cast_lossless, clippy::cast_possible_wrap)]
+</span><span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; Encoder&lt;P, W&gt; <span class="kw">for </span>WebPMuxEncoder&lt;P, W&gt; {
+    <span class="kw">type </span>Config = WebPEncoderOptions;
+
+    <span class="kw">fn </span>new(
+        dest: W,
+        metadata: <span class="kw">impl </span>encode::HasEncoderMetadata&lt;<span class="self">Self</span>::Config, P&gt;,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>mux = <span class="kw">unsafe </span>{
             <span class="kw">let </span>mux = libwebp::WebPMuxNew();
+            libwebp::WebPMuxSetCanvasSize(mux, metadata.width() <span class="kw">as _</span>, metadata.height() <span class="kw">as _</span>);
+
             <span class="kw">let </span>params = libwebp::WebPMuxAnimParams {
                 bgcolor: <span class="number">0</span>,
-                loop_count: sequence.loop_count().count_or_zero() <span class="kw">as _</span>,
+                loop_count: metadata.sequence().map_or(<span class="number">0</span>, |(<span class="kw">_</span>, l)| l.count_or_zero()) <span class="kw">as _</span>,
             };
-            libwebp::WebPMuxSetCanvasSize(mux, sample.width() <span class="kw">as _</span>, sample.height() <span class="kw">as _</span>);
-            libwebp::WebPMuxSetAnimationParams(mux, <span class="macro">std::ptr::addr_of!</span>(params));
+            libwebp::WebPMuxSetAnimationParams(mux, <span class="macro">addr_of!</span>(params));
+            mux
+        };
 
-            <span class="kw">let </span><span class="kw-2">mut </span>final_image = std::mem::zeroed::&lt;libwebp::WebPData&gt;();
-            <span class="kw">let </span><span class="kw-2">mut </span>encoded_frames = Vec::new();
+        <span class="kw">let </span>encoded_frames = <span class="kw">match </span>metadata.sequence() {
+            <span class="prelude-val">Some</span>((<span class="number">0</span>, <span class="kw">_</span>)) | <span class="prelude-val">None </span>=&gt; Vec::new(),
+            <span class="prelude-val">Some</span>((frame_count, <span class="kw">_</span>)) =&gt; Vec::with_capacity(frame_count <span class="kw">as _</span>),
+        };
 
-            <span class="kw">let </span>free = |<span class="kw-2">mut </span>final_image: libwebp::WebPData, encoded_frames: Vec&lt;libwebp::WebPData&gt;, mux: <span class="kw-2">*mut </span>libwebp::WebPMux| {
-                libwebp::WebPDataClear(<span class="macro">std::ptr::addr_of_mut!</span>(final_image));
-                <span class="kw">for </span><span class="kw-2">mut </span>f <span class="kw">in </span>encoded_frames {
-                    libwebp::WebPDataClear(<span class="macro">std::ptr::addr_of_mut!</span>(f));
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            options: metadata.config(),
+            writer: dest,
+            mux,
+            encoded_frames,
+            _marker: PhantomData,
+        })
+    }
+
+    <span class="kw">fn </span>add_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span><span class="kw">impl </span>encode::FrameLike&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span>encoded_frame = <span class="kw">match </span>encode_image(<span class="kw-2">&amp;</span><span class="self">self</span>.options, frame.image()) {
+            <span class="prelude-val">Ok</span>(d) =&gt; d,
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="kw">unsafe </span>{
+                    <span class="self">self</span>.free();
                 }
-                libwebp::WebPMuxDelete(mux);
-            };
-
-            <span class="kw">for </span>frame <span class="kw">in </span>sequence.iter() {
-                <span class="kw">let </span>encoded_frame = <span class="kw">match </span><span class="self">self</span>.encode_image(frame) {
-                    <span class="prelude-val">Ok</span>(d) =&gt; d,
-                    <span class="prelude-val">Err</span>(e) =&gt; {
-                        free(final_image, encoded_frames, mux);
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(e);
-                    }
-                };
-                encoded_frames.push(encoded_frame);
-
-                <span class="kw">let </span>frame_info = libwebp::WebPMuxFrameInfo {
-                    bitstream: encoded_frame,
-                    duration: frame.delay().as_millis() <span class="kw">as _</span>,
-                    id: libwebp::WEBP_CHUNK_ANMF,
-                    dispose_method: <span class="kw">match </span>frame.disposal() {
-                        DisposalMethod::None =&gt; libwebp::WEBP_MUX_DISPOSE_NONE,
-                        <span class="kw">_ </span>=&gt; libwebp::WEBP_MUX_DISPOSE_BACKGROUND,
-                    },
-                    ..std::mem::zeroed() <span class="comment">// TODO: blend method could be configurable
-                </span>};
-
-                libwebp::WebPMuxPushFrame(mux, <span class="macro">std::ptr::addr_of!</span>(frame_info), <span class="number">0</span>);
+                <span class="kw">return </span><span class="prelude-val">Err</span>(e);
             }
+        };
+        <span class="self">self</span>.encoded_frames.push(encoded_frame);
 
-            <span class="kw">let </span>mux_error = libwebp::WebPMuxAssemble(mux, <span class="macro">std::ptr::addr_of_mut!</span>(final_image));
+        <span class="kw">let </span>frame_info = libwebp::WebPMuxFrameInfo {
+            bitstream: encoded_frame,
+            duration: frame.delay().as_ref().map_or(<span class="number">0</span>, Duration::as_millis) <span class="kw">as _</span>,
+            id: libwebp::WEBP_CHUNK_ANMF,
+            dispose_method: <span class="kw">match </span>frame.disposal() {
+                <span class="prelude-val">Some</span>(DisposalMethod::None) =&gt; libwebp::WEBP_MUX_DISPOSE_NONE,
+                <span class="kw">_ </span>=&gt; libwebp::WEBP_MUX_DISPOSE_BACKGROUND,
+            },
+            ..<span class="kw">unsafe </span>{ std::mem::zeroed() } <span class="comment">// TODO: blend method could be configurable
+        </span>};
+
+        <span class="kw">unsafe </span>{
+            libwebp::WebPMuxPushFrame(<span class="self">self</span>.mux, <span class="macro">addr_of!</span>(frame_info), <span class="number">0</span>);
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn </span>finish(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>final_image = <span class="kw">unsafe </span>{ std::mem::zeroed::&lt;libwebp::WebPData&gt;() };
+        <span class="kw">let </span>mux_error = <span class="kw">unsafe </span>{ libwebp::WebPMuxAssemble(<span class="self">self</span>.mux, <span class="macro">addr_of_mut!</span>(final_image)) };
+        {
+            <span class="kw">let </span><span class="kw-2">mut </span>free = || <span class="kw">unsafe </span>{
+                <span class="self">self</span>.free();
+                libwebp::WebPDataClear(<span class="macro">addr_of_mut!</span>(final_image));
+            };
             <span class="kw">match </span>mux_error {
                 libwebp::WEBP_MUX_OK =&gt; {}
                 libwebp::WEBP_MUX_NOT_FOUND =&gt; {
-                    free(final_image, encoded_frames, mux);
+                    free();
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EmptyImageError);
                 }
                 libwebp::WEBP_MUX_INVALID_ARGUMENT =&gt; {
-                    free(final_image, encoded_frames, mux);
+                    free();
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(
                         <span class="string">&quot;WebP mux invalid argument&quot;</span>.to_string(),
                     ));
                 }
                 libwebp::WEBP_MUX_BAD_DATA =&gt; {
-                    free(final_image, encoded_frames, mux);
+                    free();
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP mux bad data&quot;</span>.to_string()));
                 }
                 libwebp::WEBP_MUX_MEMORY_ERROR =&gt; {
-                    free(final_image, encoded_frames, mux);
+                    free();
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP mux memory error&quot;</span>.to_string()));
                 }
                 libwebp::WEBP_MUX_NOT_ENOUGH_DATA =&gt; {
-                    free(final_image, encoded_frames, mux);
+                    free();
                     <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="string">&quot;WebP mux not enough data&quot;</span>.to_string()));
                 }
-                i32::MIN..=-<span class="number">5_i32 </span>| <span class="number">2_i32</span>..=i32::MAX =&gt; {
-                    free(final_image, encoded_frames, mux);
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="macro">format!</span>(<span class="string">&quot;WebP mux error {}&quot;</span>, mux_error)));
+                <span class="kw">_ </span>=&gt; {
+                    free();
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::EncodingError(<span class="macro">format!</span>(<span class="string">&quot;WebP mux error {mux_error}&quot;</span>)));
                 }
             };
-
-            <span class="kw">let </span>data = std::slice::from_raw_parts(final_image.bytes, final_image.size);
-            <span class="kw">let </span>result = dest.write_all(data);
-            free(final_image, encoded_frames, mux);
-            result<span class="question-mark">?</span>;
         }
 
+        <span class="kw">let </span>data = <span class="kw">unsafe </span>{ std::slice::from_raw_parts(final_image.bytes, final_image.size) };
+        <span class="kw">let </span>result = <span class="self">self</span>.writer.write_all(data);
+
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.free();
+            libwebp::WebPDataClear(<span class="macro">addr_of_mut!</span>(final_image));
+        }
+        result<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -663,8 +847,8 @@
             <span class="kw">let </span>out_ptr = libwebp::WebPDecodeRGBA(
                 data.as_ptr(),
                 data.len() <span class="kw">as _</span>,
-                <span class="macro">std::ptr::addr_of_mut!</span>(width),
-                <span class="macro">std::ptr::addr_of_mut!</span>(height),
+                <span class="macro">addr_of_mut!</span>(width),
+                <span class="macro">addr_of_mut!</span>(height),
             );
             <span class="kw">if </span>out_ptr.is_null() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DecodingError(<span class="string">&quot;WebP decoding failed&quot;</span>.to_string()));
@@ -695,7 +879,7 @@
                 bytes: bytes.as_ptr(),
                 size: bytes.len() <span class="kw">as _</span>,
             };
-            <span class="kw">let </span>demuxer = libwebp::WebPDemux(<span class="macro">std::ptr::addr_of!</span>(data));
+            <span class="kw">let </span>demuxer = libwebp::WebPDemux(<span class="macro">addr_of!</span>(data));
 
             <span class="prelude-val">Ok</span>(WebPSequenceDecoder {
                 _marker: PhantomData,
@@ -740,8 +924,8 @@
             <span class="kw">let </span>out_ptr = libwebp::WebPDecodeRGBA(
                 fragment.bytes,
                 fragment.size,
-                <span class="macro">std::ptr::addr_of_mut!</span>(width),
-                <span class="macro">std::ptr::addr_of_mut!</span>(height),
+                <span class="macro">addr_of_mut!</span>(width),
+                <span class="macro">addr_of_mut!</span>(height),
             );
             <span class="kw">if </span>out_ptr.is_null() {
                 <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(Error::DecodingError(

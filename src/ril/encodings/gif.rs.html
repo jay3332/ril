@@ -330,16 +330,10 @@
 <a href="#330" id="330">330</a>
 <a href="#331" id="331">331</a>
 <a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-</pre></div><pre class="rust"><code><span class="comment">// TODO: paletted images. GIF has native support for this.
-
-</span><span class="kw">use </span><span class="kw">crate</span>::pixel::assume_pixel_from_palette;
-<span class="kw">use crate</span>::{
-    encodings::ColorType, Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator,
-    Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
+</pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
+    encode, encodings::ColorType, pixel::assume_pixel_from_palette, Decoder, DisposalMethod,
+    Dynamic, Encoder, Error, Frame, FrameIterator, Image, ImageFormat, LoopCount, OverlayMode,
+    Pixel, Rgba,
 };
 <span class="kw">use </span>std::{
     io::{Read, Write},
@@ -348,12 +342,19 @@
     time::Duration,
 };
 
-<span class="doccomment">/// A GIF encoder interface over [`gif::Encoder`].
-</span><span class="kw">pub struct </span>GifEncoder {
+<span class="doccomment">/// Options for encoding GIFs.
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>GifEncoderOptions {
     speed: u8,
 }
 
-<span class="kw">impl </span>GifEncoder {
+<span class="kw">impl </span>Default <span class="kw">for </span>GifEncoderOptions {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
+<span class="kw">impl </span>GifEncoderOptions {
     <span class="doccomment">/// Creates a new encoder with default settings.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
@@ -366,27 +367,23 @@
     /// # Panics
     /// * Speed is not between 1 and 30.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>with_speed(<span class="self">self</span>, speed: u8) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert!</span>(speed &gt; <span class="number">0 </span>&amp;&amp; speed &lt;= <span class="number">30</span>, <span class="string">&quot;speed must be between 1 and 30&quot;</span>);
+    </span><span class="kw">pub const fn </span>with_speed(<span class="kw-2">mut </span><span class="self">self</span>, speed: u8) -&gt; <span class="self">Self </span>{
+        <span class="macro">debug_assert!</span>(speed &gt; <span class="number">0 </span>&amp;&amp; speed &lt;= <span class="number">30</span>, <span class="string">&quot;speed must be between 1 and 30&quot;</span>);
 
-        <span class="kw">unsafe </span>{ <span class="self">self</span>.with_speed_unchecked(speed) }
-    }
-
-    <span class="doccomment">/// Sets the speed of the encoder. Higher speeds come at the cost of lower image quality.
-    /// Should be between 1 and 30, but this doesn&#39;t check for that.
-    ///
-    /// # Safety
-    /// Make sure `speed` is between 1 and 30.
-    ///
-    /// # See Also
-    /// * [`with_speed`] for the safe, checked version of this method.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const unsafe fn </span>with_speed_unchecked(<span class="kw-2">mut </span><span class="self">self</span>, speed: u8) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.speed = speed;
         <span class="self">self
     </span>}
+}
 
-    <span class="kw">fn </span>encode_frame&lt;<span class="lifetime">&#39;a</span>, P: Pixel&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;gif::Frame&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
+<span class="doccomment">/// A GIF encoder interface over [`gif::Encoder`].
+</span><span class="kw">pub struct </span>GifEncoder&lt;P: Pixel, W: Write&gt; {
+    options: GifEncoderOptions,
+    encoder: gif::Encoder&lt;W&gt;,
+    _marker: PhantomData&lt;P&gt;,
+}
+
+<span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; GifEncoder&lt;P, W&gt; {
+    <span class="kw">fn </span>build_frame&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;gif::Frame&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
         <span class="macro">macro_rules! </span>data {
             (<span class="macro-nonterminal">$t</span>:ty) =&gt; {{
                 image
@@ -412,7 +409,7 @@
                     image.width() <span class="kw">as </span>u16,
                     image.height() <span class="kw">as </span>u16,
                     <span class="kw-2">&amp;</span>pixels,
-                    <span class="self">self</span>.speed <span class="kw">as </span>i32,
+                    <span class="self">self</span>.options.speed <span class="kw">as </span>i32,
                 )
             }};
         }
@@ -425,7 +422,7 @@
                     image.width() <span class="kw">as </span>u16,
                     image.height() <span class="kw">as </span>u16,
                     <span class="kw-2">&amp;mut </span>pixels,
-                    <span class="self">self</span>.speed <span class="kw">as </span>i32,
+                    <span class="self">self</span>.options.speed <span class="kw">as </span>i32,
                 )
             }};
         }
@@ -473,57 +470,52 @@
     }
 }
 
-<span class="kw">impl </span>Encoder <span class="kw">for </span>GifEncoder {
-    <span class="attr">#[allow(clippy::cast_lossless)]
-    </span><span class="kw">fn </span>encode&lt;P: Pixel&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="comment">// TODO: support global/sequence-scoped palettes
-        </span><span class="kw">let </span><span class="kw-2">mut </span>encoder =
-            gif::Encoder::new(dest, image.width() <span class="kw">as </span>u16, image.height() <span class="kw">as </span>u16, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; Encoder&lt;P, W&gt; <span class="kw">for </span>GifEncoder&lt;P, W&gt; {
+    <span class="kw">type </span>Config = GifEncoderOptions;
 
-        <span class="kw">let </span>frame = <span class="self">self</span>.encode_frame(image)<span class="question-mark">?</span>;
-        encoder.write_frame(<span class="kw-2">&amp;</span>frame)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(())
+    <span class="kw">fn </span>new(
+        dest: W,
+        metadata: <span class="kw">impl </span>encode::HasEncoderMetadata&lt;<span class="self">Self</span>::Config, P&gt;,
+    ) -&gt; <span class="kw">crate</span>::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>encoder =
+            gif::Encoder::new(dest, metadata.width() <span class="kw">as </span>u16, metadata.height() <span class="kw">as </span>u16, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, loop_count)) = metadata.sequence() {
+            encoder.set_repeat(<span class="kw">match </span>loop_count {
+                LoopCount::Exactly(n) =&gt; gif::Repeat::Finite(n <span class="kw">as </span>u16),
+                LoopCount::Infinite =&gt; gif::Repeat::Infinite,
+            })<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            options: metadata.config(),
+            encoder,
+            _marker: PhantomData,
+        })
     }
 
-    <span class="attr">#[allow(clippy::cast_lossless, clippy::cast_precision_loss)]
-    </span><span class="kw">fn </span>encode_sequence&lt;P: Pixel&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;,
-        dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write,
-    ) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
-        <span class="kw">let </span>image = sequence
-            .first_frame()
-            .ok_or(Error::EmptyImageError)<span class="question-mark">?
-            </span>.image();
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder =
-            gif::Encoder::new(dest, image.width() <span class="kw">as </span>u16, image.height() <span class="kw">as </span>u16, <span class="kw-2">&amp;</span>[])<span class="question-mark">?</span>;
+    <span class="attr">#[allow(clippy::cast_precision_loss)]
+    </span><span class="kw">fn </span>add_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span><span class="kw">impl </span>encode::FrameLike&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="self">self</span>.build_frame(frame.image())<span class="question-mark">?</span>;
 
-        encoder.set_repeat(<span class="kw">match </span>sequence.loop_count() {
-            LoopCount::Exactly(n) =&gt; gif::Repeat::Finite(n <span class="kw">as </span>u16),
-            LoopCount::Infinite =&gt; gif::Repeat::Infinite,
-        })<span class="question-mark">?</span>;
-
-        <span class="kw">for </span>frame <span class="kw">in </span>sequence.iter() {
-            <span class="kw">let </span>image = frame.image();
-            <span class="kw">let </span><span class="kw-2">mut </span>out = <span class="self">self</span>.encode_frame(image)<span class="question-mark">?</span>;
-
-            out.delay = (frame.delay().as_millis() <span class="kw">as </span>f64 / <span class="number">10.</span>).round() <span class="kw">as </span>u16;
-            out.dispose = <span class="kw">match </span>frame.disposal() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(delay) = frame.delay() {
+            out.delay = (delay.as_millis() <span class="kw">as </span>f64 / <span class="number">10.</span>).round() <span class="kw">as </span>u16;
+        }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(disposal) = frame.disposal() {
+            out.dispose = <span class="kw">match </span>disposal {
                 DisposalMethod::None =&gt; gif::DisposalMethod::Keep,
                 DisposalMethod::Background =&gt; gif::DisposalMethod::Background,
                 DisposalMethod::Previous =&gt; gif::DisposalMethod::Previous,
             };
-
-            encoder.write_frame(<span class="kw-2">&amp;</span>out)<span class="question-mark">?</span>;
         }
 
+        <span class="self">self</span>.encoder.write_frame(<span class="kw-2">&amp;</span>out)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
-}
 
-<span class="kw">impl </span>Default <span class="kw">for </span>GifEncoder {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new()
+    <span class="comment">// no-op
+    </span><span class="kw">fn </span>finish(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="prelude-val">Ok</span>(())
     }
 }
 

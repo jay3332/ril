@@ -1496,7 +1496,7 @@
 
 </span><span class="kw">use crate</span>::{
     fill::{Fill, IntoFill},
-    Image, OverlayMode, Pixel,
+    BitPixel, Image, OverlayMode, Pixel,
 };
 <span class="kw">use </span>std::ops::DerefMut;
 
@@ -2892,7 +2892,7 @@
     /// values, see [`Image::mask_alpha`].
     ///
     /// If this is None, all pixels will be overlaid on top of the image.
-    </span><span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;<span class="kw">crate</span>::BitPixel&gt;&gt;,
+    </span><span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;BitPixel&gt;&gt;,
     <span class="doccomment">/// The overlay mode of the image, or None to inherit from the background image.
     </span><span class="kw">pub </span>overlay: <span class="prelude-ty">Option</span>&lt;OverlayMode&gt;,
 }
@@ -2925,7 +2925,7 @@
     /// # Panics
     /// * The mask image has different dimensions than the foreground image.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>with_mask(<span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;<span class="kw">crate</span>::BitPixel&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>with_mask(<span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;BitPixel&gt;) -&gt; <span class="self">Self </span>{
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.image.dimensions(),
             mask.dimensions(),
@@ -2948,7 +2948,7 @@
     /// are valid.
     </span><span class="attr">#[must_use]
     #[allow(clippy::missing_const_for_fn)]
-    </span><span class="kw">pub unsafe fn </span>with_mask_unchecked(<span class="kw-2">mut </span><span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;<span class="kw">crate</span>::BitPixel&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub unsafe fn </span>with_mask_unchecked(<span class="kw-2">mut </span><span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;BitPixel&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.mask = <span class="prelude-val">Some</span>(mask);
         <span class="self">self
     </span>}
@@ -2974,7 +2974,7 @@
         <span class="kw">for </span>(y, i) <span class="kw">in </span>(y1..y2).zip(<span class="number">0</span>..) {
             <span class="kw">for </span>(x, j) <span class="kw">in </span>(x1..x2).zip(<span class="number">0</span>..) {
                 <span class="kw">if </span>!mask
-                    .and_then(|mask| mask.get_pixel(j, i).map(|p| p.value()))
+                    .and_then(|mask| mask.get_pixel(j, i).map(BitPixel::value))
                     .unwrap_or(<span class="bool-val">true</span>)
                 {
                     <span class="kw">continue</span>;

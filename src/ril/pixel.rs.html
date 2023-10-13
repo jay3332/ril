@@ -1721,18 +1721,52 @@
 <a href="#1721" id="1721">1721</a>
 <a href="#1722" id="1722">1722</a>
 <a href="#1723" id="1723">1723</a>
+<a href="#1724" id="1724">1724</a>
+<a href="#1725" id="1725">1725</a>
+<a href="#1726" id="1726">1726</a>
+<a href="#1727" id="1727">1727</a>
+<a href="#1728" id="1728">1728</a>
+<a href="#1729" id="1729">1729</a>
+<a href="#1730" id="1730">1730</a>
+<a href="#1731" id="1731">1731</a>
+<a href="#1732" id="1732">1732</a>
+<a href="#1733" id="1733">1733</a>
+<a href="#1734" id="1734">1734</a>
+<a href="#1735" id="1735">1735</a>
+<a href="#1736" id="1736">1736</a>
+<a href="#1737" id="1737">1737</a>
+<a href="#1738" id="1738">1738</a>
+<a href="#1739" id="1739">1739</a>
+<a href="#1740" id="1740">1740</a>
+<a href="#1741" id="1741">1741</a>
+<a href="#1742" id="1742">1742</a>
+<a href="#1743" id="1743">1743</a>
+<a href="#1744" id="1744">1744</a>
+<a href="#1745" id="1745">1745</a>
+<a href="#1746" id="1746">1746</a>
+<a href="#1747" id="1747">1747</a>
+<a href="#1748" id="1748">1748</a>
+<a href="#1749" id="1749">1749</a>
+<a href="#1750" id="1750">1750</a>
+<a href="#1751" id="1751">1751</a>
+<a href="#1752" id="1752">1752</a>
+<a href="#1753" id="1753">1753</a>
+<a href="#1754" id="1754">1754</a>
+<a href="#1755" id="1755">1755</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Encloses pixel-related traits and pixel type implementations.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::Error::DecodingError;
-<span class="kw">use crate</span>::{
+</span><span class="kw">use crate</span>::{
     encodings::ColorType,
     image::OverlayMode,
-    Error::{InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
+    Error::{DecodingError, InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
     <span class="prelude-ty">Result</span>,
 };
-<span class="kw">use </span>std::borrow::Cow;
-<span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug, Formatter};
-<span class="kw">use </span>std::hash::Hash;
+<span class="kw">use </span>std::{
+    borrow::Cow,
+    fmt::{<span class="self">self</span>, Debug, Formatter},
+    hash::Hash,
+    ops::Not,
+};
 
 <span class="kw">mod </span>sealed {
     <span class="kw">use super</span>::{BitPixel, Dynamic, NoOp, PalettedRgb, PalettedRgba, Rgb, Rgba, L};
@@ -1760,7 +1794,9 @@
 <span class="doccomment">/// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
-</span><span class="kw">pub trait </span>Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeSealed {
+</span><span class="kw">pub trait </span>Pixel:
+    Copy + Clone + Debug + Default + PartialEq + Eq + Hash + Not&lt;Output = <span class="self">Self</span>&gt; + MaybeSealed
+{
     <span class="doccomment">/// The color type of the pixel.
     </span><span class="kw">const </span>COLOR_TYPE: ColorType;
 
@@ -1782,14 +1818,6 @@
     </span><span class="kw">fn </span>color_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ColorType {
         <span class="self">Self</span>::COLOR_TYPE
     }
-
-    <span class="doccomment">/// Returns the inverted value of this pixel.
-    ///
-    /// For pixels with alpha values, the value of the alpha channel will also be inverted, so
-    /// opaque pixels will become transparent and vice versa. To only invert non-alpha channels,
-    /// methods like [`Self::map_subpixels`] or [`Image::&lt;Rgba&gt;::map_rgb_pixels`] can be used.
-    </span><span class="attr">#[must_use]
-    </span><span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// The luminance of the pixel.
     </span><span class="attr">#[must_use]
@@ -1948,6 +1976,13 @@
     </span><span class="kw">fn </span>with_alpha(<span class="self">self</span>, alpha: u8) -&gt; <span class="self">Self</span>;
 }
 
+<span class="doccomment">/// Represents a pixel that can be modulated, i.e. transformed in hue, saturation, and brightness.
+</span><span class="kw">pub trait </span>Modulate: Pixel {
+    <span class="doccomment">/// Modulates this pixel with the given hue, saturation, and brightness values.
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">fn </span>modulate(<span class="self">self</span>, hue: f64, saturation: f64, brightness: f64) -&gt; <span class="self">Self</span>;
+}
+
 <span class="doccomment">/// A pixel type that does and stores nothing. This pixel type is useless and will behave weirdly
 /// with your code. This is usually only used for internal or polyfill purposes.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
@@ -1971,10 +2006,6 @@
     <span class="kw">type </span>Subpixel = NoOpSubpixel;
     <span class="kw">type </span>Color = <span class="self">Self</span>;
     <span class="kw">type </span>Data = [u8; <span class="number">0</span>];
-
-    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self
-    </span>}
 
     <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, _f: F, _a: A) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -2007,6 +2038,14 @@
     <span class="kw">fn </span>as_rgba(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgba {
         <span class="macro">panic!</span>(<span class="string">&quot;NoOp is a private pixel type and should not be used&quot;</span>)
     }
+}
+
+<span class="kw">impl </span>Not <span class="kw">for </span>NoOp {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+    <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">Self
+    </span>}
 }
 
 <span class="kw">impl </span>Alpha <span class="kw">for </span>NoOp {
@@ -2106,10 +2145,6 @@
     <span class="kw">type </span>Color = <span class="self">Self</span>;
     <span class="kw">type </span>Data = [u8; <span class="number">1</span>];
 
-    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(!<span class="self">self</span>.<span class="number">0</span>)
-    }
-
     <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, <span class="kw">_</span>: A) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
@@ -2159,6 +2194,14 @@
     }
 
     <span class="macro">force_into_impl!</span>();
+}
+
+<span class="kw">impl </span>Not <span class="kw">for </span>BitPixel {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+    <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">Self</span>(!<span class="self">self</span>.<span class="number">0</span>)
+    }
 }
 
 <span class="macro">macro_rules! </span>scale_subpixels {
@@ -2250,10 +2293,6 @@
     <span class="kw">type </span>Color = <span class="self">Self</span>;
     <span class="kw">type </span>Data = [u8; <span class="number">1</span>];
 
-    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(!<span class="self">self</span>.<span class="number">0</span>)
-    }
-
     <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, <span class="kw">_</span>: A) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
@@ -2314,6 +2353,14 @@
     <span class="macro">force_into_impl!</span>();
 }
 
+<span class="kw">impl </span>Not <span class="kw">for </span>L {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+    <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">Self</span>(!<span class="self">self</span>.<span class="number">0</span>)
+    }
+}
+
 <span class="kw">impl </span>L {
     <span class="doccomment">/// Creates a new L pixel with the given luminance value.
     </span><span class="attr">#[must_use]
@@ -2346,14 +2393,6 @@
     <span class="kw">type </span>Subpixel = u8;
     <span class="kw">type </span>Color = <span class="self">Self</span>;
     <span class="kw">type </span>Data = [u8; <span class="number">3</span>];
-
-    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            r: !<span class="self">self</span>.r,
-            g: !<span class="self">self</span>.g,
-            b: !<span class="self">self</span>.b,
-        }
-    }
 
     <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, <span class="kw">_</span>: A) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -2425,6 +2464,19 @@
     }
 
     <span class="macro">force_into_impl!</span>();
+}
+
+<span class="kw">impl </span>Not <span class="kw">for </span>Rgb {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+    <span class="attr">#[allow(clippy::borrow_as_ptr, clippy::cast_ptr_alignment, clippy::ptr_as_ptr)]
+    </span><span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// SAFETY:
+        //   * `(self, 0)` ensures we can cast to `u32` without UB
+        //   * this function is intended to simply invert all 24 bits of the pixel,
+        //     which is exactly what this does
+        </span><span class="kw">unsafe </span>{ <span class="kw-2">*</span>(<span class="kw-2">&amp;</span>(!<span class="kw-2">*</span>(<span class="kw-2">&amp;</span>(<span class="self">self</span>, <span class="number">0u8</span>) <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span>u32)) <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*const </span><span class="self">Self</span>) }
+    }
 }
 
 <span class="kw">impl </span>Rgb {
@@ -2512,15 +2564,6 @@
     <span class="kw">type </span>Subpixel = u8;
     <span class="kw">type </span>Color = <span class="self">Self</span>;
     <span class="kw">type </span>Data = [u8; <span class="number">4</span>];
-
-    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            r: !<span class="self">self</span>.r,
-            g: !<span class="self">self</span>.g,
-            b: !<span class="self">self</span>.b,
-            a: !<span class="self">self</span>.a,
-        }
-    }
 
     <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, a: A) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -2749,6 +2792,19 @@
     }
 }
 
+<span class="kw">impl </span>Not <span class="kw">for </span>Rgba {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+    <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">Self </span>{
+            r: !<span class="self">self</span>.r,
+            g: !<span class="self">self</span>.g,
+            b: !<span class="self">self</span>.b,
+            a: !<span class="self">self</span>.a,
+        }
+    }
+}
+
 <span class="doccomment">/// Represents a subpixel of a dynamic pixel.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>DynamicSubpixel {
@@ -2907,15 +2963,6 @@
         }
     }
 
-    <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::BitPixel(pixel) =&gt; <span class="self">Self</span>::BitPixel(pixel.inverted()),
-            <span class="self">Self</span>::L(pixel) =&gt; <span class="self">Self</span>::L(pixel.inverted()),
-            <span class="self">Self</span>::Rgb(pixel) =&gt; <span class="self">Self</span>::Rgb(pixel.inverted()),
-            <span class="self">Self</span>::Rgba(pixel) =&gt; <span class="self">Self</span>::Rgba(pixel.inverted()),
-        }
-    }
-
     <span class="comment">// noinspection ALL
     </span><span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, a: A) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -3023,6 +3070,19 @@
     }
 
     <span class="macro">force_into_impl!</span>();
+}
+
+<span class="kw">impl </span>Not <span class="kw">for </span>Dynamic {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+    <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::BitPixel(pixel) =&gt; <span class="self">Self</span>::BitPixel(!pixel),
+            <span class="self">Self</span>::L(pixel) =&gt; <span class="self">Self</span>::L(!pixel),
+            <span class="self">Self</span>::Rgb(pixel) =&gt; <span class="self">Self</span>::Rgb(!pixel),
+            <span class="self">Self</span>::Rgba(pixel) =&gt; <span class="self">Self</span>::Rgba(!pixel),
+        }
+    }
 }
 
 <span class="kw">impl </span>Alpha <span class="kw">for </span>Dynamic {
@@ -3375,12 +3435,6 @@
             <span class="kw">type </span>Color = <span class="macro-nonterminal">$tgt</span>;
             <span class="kw">type </span>Data = [u8; <span class="number">1</span>];
 
-            <span class="kw">fn </span>inverted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-                <span class="kw">let </span>target = <span class="kw-2">&amp;</span><span class="self">self</span>.color().inverted();
-
-                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">&quot;inverted&quot;</span>, |color| color == target)
-            }
-
             <span class="kw">fn </span>map_subpixels&lt;F, A&gt;(<span class="self">self</span>, f: F, a: A) -&gt; <span class="self">Self
             </span><span class="kw">where
                 </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
@@ -3435,6 +3489,16 @@
 
             <span class="kw">fn </span>palette_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
                 <span class="self">self</span>.index
+            }
+        }
+
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;p</span>&gt; Not <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;p</span>&gt; {
+            <span class="kw">type </span>Output = <span class="self">Self</span>;
+
+            <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
+                <span class="kw">let </span>target = <span class="kw-2">&amp;</span>!<span class="self">self</span>.color();
+
+                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">&quot;inverted&quot;</span>, |color| color == target)
             }
         }
 

@@ -171,10 +171,53 @@
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::ColorType;
 <span class="kw">use crate</span>::{
-    encode::{Decoder, Encoder},
-    DynamicFrameIterator, Error, Image, ImageFormat, OverlayMode, Pixel, <span class="prelude-ty">Result</span>,
+    encode::{<span class="self">self</span>, Decoder, Encoder},
+    Error, Image, ImageFormat, OverlayMode, Pixel, <span class="prelude-ty">Result</span>, SingleFrameIterator,
 };
 
 <span class="kw">use </span>jpeg_decoder::PixelFormat <span class="kw">as </span>DecoderPixelFormat;
@@ -185,12 +228,19 @@
     num::NonZeroU32,
 };
 
-<span class="doccomment">/// A JPEG encoder interface over [`jpeg_encoder::Encoder`].
-</span><span class="kw">pub struct </span>JpegEncoder {
+<span class="doccomment">/// JPEG encoder options.
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>JpegEncoderOptions {
     quality: u8,
 }
 
-<span class="kw">impl </span>JpegEncoder {
+<span class="kw">impl </span>Default <span class="kw">for </span>JpegEncoderOptions {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
+<span class="kw">impl </span>JpegEncoderOptions {
     <span class="doccomment">/// Creates a new encoder with default settings.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
@@ -223,9 +273,27 @@
     </span>}
 }
 
-<span class="kw">impl </span>Encoder <span class="kw">for </span>JpegEncoder {
-    <span class="kw">fn </span>encode&lt;P: Pixel&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Write) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>sample @ (ct, <span class="kw">_</span>) = (image.data[<span class="number">0</span>].color_type(), P::BIT_DEPTH);
+<span class="kw">enum </span>JpegSpecialCase {
+    L1,
+    LA1,
+    <span class="prelude-val">None</span>,
+}
+
+<span class="doccomment">/// A JPEG encoder interface over [`jpeg_encoder::Encoder`].
+</span><span class="kw">pub struct </span>JpegEncoder&lt;P: Pixel, W: Write&gt; {
+    native_color_type: ColorType,
+    color_type: EncoderColorType,
+    special_case: JpegSpecialCase,
+    quality: u8,
+    writer: <span class="prelude-ty">Option</span>&lt;W&gt;,
+    _marker: PhantomData&lt;P&gt;,
+}
+
+<span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; Encoder&lt;P, W&gt; <span class="kw">for </span>JpegEncoder&lt;P, W&gt; {
+    <span class="kw">type </span>Config = JpegEncoderOptions;
+
+    <span class="kw">fn </span>new(dest: W, metadata: <span class="kw">impl </span>encode::HasEncoderMetadata&lt;<span class="self">Self</span>::Config, P&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>sample = (metadata.color_type(), metadata.bit_depth());
         <span class="kw">let </span>color_type = <span class="kw">match </span>sample {
             (ColorType::Rgb | ColorType::PaletteRgb, <span class="number">8</span>) =&gt; EncoderColorType::Rgb,
             (ColorType::Rgba | ColorType::PaletteRgba, <span class="number">8</span>) =&gt; EncoderColorType::Rgba,
@@ -233,39 +301,57 @@
             </span>(ColorType::L, <span class="number">1 </span>| <span class="number">8</span>) | (ColorType::LA, <span class="number">8</span>) =&gt; EncoderColorType::Luma,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedColorType),
         };
-
-        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="kw">match </span>ct {
-            ColorType::PaletteRgb =&gt; image
-                .data
-                .iter()
-                .map(|<span class="kw-2">&amp;</span>p| p.as_rgb())
-                .flat_map(|p| p.as_bytes())
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
-            ColorType::PaletteRgba =&gt; image
-                .data
-                .iter()
-                .map(|<span class="kw-2">&amp;</span>p| p.as_rgba())
-                .flat_map(|p| p.as_bytes())
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
-            <span class="kw">_ </span>=&gt; image.data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+        <span class="kw">let </span>special_case = <span class="kw">match </span>sample {
+            (ColorType::L, <span class="number">1</span>) =&gt; JpegSpecialCase::L1,
+            (ColorType::LA, <span class="number">1</span>) =&gt; JpegSpecialCase::LA1,
+            <span class="kw">_ </span>=&gt; JpegSpecialCase::None,
         };
 
-        <span class="kw">if </span>sample == (ColorType::L, <span class="number">1</span>) {
-            data.iter_mut()
-                .for_each(|p| <span class="kw-2">*</span>p = <span class="kw">if </span><span class="kw-2">*</span>p &gt; <span class="number">0 </span>{ <span class="number">255 </span>} <span class="kw">else </span>{ <span class="number">0 </span>});
-        }
-        <span class="kw">if </span>sample == (ColorType::LA, <span class="number">1</span>) {
-            data = data.into_iter().step_by(<span class="number">2</span>).collect();
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            native_color_type: metadata.color_type(),
+            color_type,
+            special_case,
+            quality: metadata.config().quality,
+            writer: <span class="prelude-val">Some</span>(dest),
+            _marker: PhantomData,
+        })
+    }
+
+    <span class="kw">fn </span>add_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span><span class="kw">impl </span>encode::FrameLike&lt;P&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>data = frame.image().data.iter();
+        <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="kw">match </span><span class="self">self</span>.native_color_type {
+            ColorType::PaletteRgb =&gt; data.flat_map(|p| p.as_rgb().as_bytes()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            ColorType::PaletteRgba =&gt; data
+                .flat_map(|p| p.as_rgba().as_bytes())
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            <span class="kw">_ </span>=&gt; data.flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+        };
+
+        <span class="kw">match </span><span class="self">self</span>.special_case {
+            JpegSpecialCase::L1 =&gt; data
+                .iter_mut()
+                .for_each(|p| <span class="kw-2">*</span>p = <span class="kw">if </span><span class="kw-2">*</span>p &gt; <span class="number">0 </span>{ <span class="number">255 </span>} <span class="kw">else </span>{ <span class="number">0 </span>}),
+            JpegSpecialCase::LA1 =&gt; data = data.into_iter().step_by(<span class="number">2</span>).collect(),
+            JpegSpecialCase::None =&gt; (),
         }
 
-        <span class="kw">let </span>encoder = jpeg_encoder::Encoder::new(dest, <span class="self">self</span>.quality);
+        <span class="kw">let </span>encoder = jpeg_encoder::Encoder::new(
+            <span class="self">self</span>.writer
+                .take()
+                .expect(<span class="string">&quot;jpeg cannot encode multiple frames&quot;</span>),
+            <span class="self">self</span>.quality,
+        );
         encoder.encode(
             <span class="kw-2">&amp;</span>data,
-            image.width() <span class="kw">as </span>u16,
-            image.height() <span class="kw">as </span>u16,
-            color_type,
+            frame.image().width() <span class="kw">as </span>u16,
+            frame.image().height() <span class="kw">as </span>u16,
+            <span class="self">self</span>.color_type,
         )<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
 
+    <span class="comment">// no-op
+    </span><span class="kw">fn </span>finish(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 }
@@ -286,7 +372,7 @@
 }
 
 <span class="kw">impl</span>&lt;P: Pixel, R: Read&gt; Decoder&lt;P, R&gt; <span class="kw">for </span>JpegDecoder&lt;P, R&gt; {
-    <span class="kw">type </span>Sequence = DynamicFrameIterator&lt;P, R&gt;;
+    <span class="kw">type </span>Sequence = SingleFrameIterator&lt;P&gt;;
 
     <span class="attr">#[allow(clippy::cast_lossless)]
     </span><span class="kw">fn </span>decode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: R) -&gt; <span class="prelude-ty">Result</span>&lt;Image&lt;P&gt;&gt; {
@@ -341,7 +427,7 @@
     <span class="kw">fn </span>decode_sequence(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stream: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Sequence&gt; {
         <span class="kw">let </span>image = <span class="self">self</span>.decode(stream)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(DynamicFrameIterator::single(image))
+        <span class="prelude-val">Ok</span>(SingleFrameIterator::new(image))
     }
 }
 </code></pre></div></section></main></body></html>

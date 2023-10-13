@@ -531,9 +531,27 @@
 <a href="#531" id="531">531</a>
 <a href="#532" id="532">532</a>
 <a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Implements the animated image and image sequence interface.
 
-</span><span class="kw">use crate</span>::{DynamicFrameIterator, Error, Image, ImageFormat, Pixel, <span class="prelude-ty">Result</span>};
+</span><span class="kw">use crate</span>::{Error, FrameIterator, Image, ImageFormat, Pixel, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>std::{
     fs::File,
     io::{Read, Write},
@@ -762,10 +780,13 @@
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
-    </span><span class="kw">pub fn </span>from_reader&lt;R: Read&gt;(
+    </span><span class="kw">pub fn </span>from_reader&lt;<span class="lifetime">&#39;a</span>, R: Read + <span class="lifetime">&#39;a</span>&gt;(
         format: ImageFormat,
         bytes: R,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;DynamicFrameIterator&lt;P, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>FrameIterator&lt;P&gt; + <span class="lifetime">&#39;a</span>&gt;&gt;
+    <span class="kw">where
+        </span>P: <span class="lifetime">&#39;a</span>,
+    {
         format.run_sequence_decoder(bytes)
     }
 
@@ -794,9 +815,12 @@
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    </span><span class="kw">pub fn </span>from_reader_inferred&lt;R: Read + Write&gt;(
+    </span><span class="kw">pub fn </span>from_reader_inferred&lt;<span class="lifetime">&#39;a</span>, R: Read + Write + <span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">mut </span>bytes: R,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;DynamicFrameIterator&lt;P, R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>FrameIterator&lt;P&gt; + <span class="lifetime">&#39;a</span>&gt;&gt;
+    <span class="kw">where
+        </span>P: <span class="lifetime">&#39;a</span>,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
         bytes.read_to_end(<span class="kw-2">&amp;mut </span>buffer)<span class="question-mark">?</span>;
 
@@ -829,7 +853,13 @@
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    </span><span class="kw">pub fn </span>from_bytes(format: ImageFormat, bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;DynamicFrameIterator&lt;P, <span class="kw-2">&amp;</span>[u8]&gt;&gt; {
+    </span><span class="kw">pub fn </span>from_bytes&lt;<span class="lifetime">&#39;a</span>&gt;(
+        format: ImageFormat,
+        bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>FrameIterator&lt;P&gt; + <span class="lifetime">&#39;a</span>&gt;&gt;
+    <span class="kw">where
+        </span>P: <span class="lifetime">&#39;a</span>,
+    {
         format.run_sequence_decoder(bytes)
     }
 
@@ -856,7 +886,10 @@
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    </span><span class="kw">pub fn </span>from_bytes_inferred(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;DynamicFrameIterator&lt;P, <span class="kw-2">&amp;</span>[u8]&gt;&gt; {
+    </span><span class="kw">pub fn </span>from_bytes_inferred&lt;<span class="lifetime">&#39;a</span>&gt;(bytes: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>FrameIterator&lt;P&gt; + <span class="lifetime">&#39;a</span>&gt;&gt;
+    <span class="kw">where
+        </span>P: <span class="lifetime">&#39;a</span>,
+    {
         <span class="kw">match </span>ImageFormat::infer_encoding(bytes) {
             ImageFormat::Unknown =&gt; <span class="prelude-val">Err</span>(Error::UnknownEncodingFormat),
             format =&gt; format.run_sequence_decoder(bytes),
@@ -874,7 +907,10 @@
     ///
     /// # Errors
     /// todo!()
-    </span><span class="kw">pub fn </span>open(path: <span class="kw">impl </span>AsRef&lt;Path&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;DynamicFrameIterator&lt;P, File&gt;&gt; {
+    </span><span class="kw">pub fn </span>open&lt;<span class="lifetime">&#39;a</span>&gt;(path: <span class="kw">impl </span>AsRef&lt;Path&gt; + <span class="lifetime">&#39;a</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>FrameIterator&lt;P&gt; + <span class="lifetime">&#39;a</span>&gt;&gt;
+    <span class="kw">where
+        </span>P: <span class="lifetime">&#39;a</span>,
+    {
         <span class="kw">let </span>file = File::open(path.as_ref())<span class="question-mark">?</span>;
 
         <span class="kw">let </span>format = <span class="kw">match </span>ImageFormat::from_path(path)<span class="question-mark">? </span>{
