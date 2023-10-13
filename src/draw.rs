@@ -2,7 +2,7 @@
 
 use crate::{
     fill::{Fill, IntoFill},
-    Image, OverlayMode, Pixel,
+    BitPixel, Image, OverlayMode, Pixel,
 };
 use std::ops::DerefMut;
 
@@ -1398,7 +1398,7 @@ pub struct Paste<'img, 'mask, P: Pixel> {
     /// values, see [`Image::mask_alpha`].
     ///
     /// If this is None, all pixels will be overlaid on top of the image.
-    pub mask: Option<&'mask Image<crate::BitPixel>>,
+    pub mask: Option<&'mask Image<BitPixel>>,
     /// The overlay mode of the image, or None to inherit from the background image.
     pub overlay: Option<OverlayMode>,
 }
@@ -1431,7 +1431,7 @@ impl<'img, 'mask, P: Pixel> Paste<'img, 'mask, P> {
     /// # Panics
     /// * The mask image has different dimensions than the foreground image.
     #[must_use]
-    pub fn with_mask(self, mask: &'mask Image<crate::BitPixel>) -> Self {
+    pub fn with_mask(self, mask: &'mask Image<BitPixel>) -> Self {
         assert_eq!(
             self.image.dimensions(),
             mask.dimensions(),
@@ -1454,7 +1454,7 @@ impl<'img, 'mask, P: Pixel> Paste<'img, 'mask, P> {
     /// are valid.
     #[must_use]
     #[allow(clippy::missing_const_for_fn)]
-    pub unsafe fn with_mask_unchecked(mut self, mask: &'mask Image<crate::BitPixel>) -> Self {
+    pub unsafe fn with_mask_unchecked(mut self, mask: &'mask Image<BitPixel>) -> Self {
         self.mask = Some(mask);
         self
     }
@@ -1480,7 +1480,7 @@ impl<'img, 'mask, P: Pixel> Draw<P> for Paste<'img, 'mask, P> {
         for (y, i) in (y1..y2).zip(0..) {
             for (x, j) in (x1..x2).zip(0..) {
                 if !mask
-                    .and_then(|mask| mask.get_pixel(j, i).map(|p| p.value()))
+                    .and_then(|mask| mask.get_pixel(j, i).map(BitPixel::value))
                     .unwrap_or(true)
                 {
                     continue;
