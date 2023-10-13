@@ -106,7 +106,7 @@ fn test_gh_17() -> ril::Result<()> {
 
     mask.draw(&hexagon);
     image.mask_alpha(&mask);
-    image.save_inferred("sample_hexagon.png")
+    image.save_inferred("tests/out/gh_17.png")
 }
 
 #[test]
