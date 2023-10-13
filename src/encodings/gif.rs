@@ -1,9 +1,7 @@
-// TODO: paletted images. GIF has native support for this.
-
-use crate::pixel::assume_pixel_from_palette;
 use crate::{
-    encodings::ColorType, Decoder, DisposalMethod, Dynamic, Encoder, Error, Frame, FrameIterator,
-    Image, ImageFormat, ImageSequence, LoopCount, OverlayMode, Pixel, Rgba,
+    encode, encodings::ColorType, pixel::assume_pixel_from_palette, Decoder, DisposalMethod,
+    Dynamic, Encoder, Error, Frame, FrameIterator, Image, ImageFormat, LoopCount, OverlayMode,
+    Pixel, Rgba,
 };
 use std::{
     io::{Read, Write},
@@ -12,12 +10,19 @@ use std::{
     time::Duration,
 };
 
-/// A GIF encoder interface over [`gif::Encoder`].
-pub struct GifEncoder {
+/// Options for encoding GIFs.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct GifEncoderOptions {
     speed: u8,
 }
 
-impl GifEncoder {
+impl Default for GifEncoderOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl GifEncoderOptions {
     /// Creates a new encoder with default settings.
     #[must_use]
     pub const fn new() -> Self {
@@ -30,27 +35,23 @@ impl GifEncoder {
     /// # Panics
     /// * Speed is not between 1 and 30.
     #[must_use]
-    pub fn with_speed(self, speed: u8) -> Self {
-        assert!(speed > 0 && speed <= 30, "speed must be between 1 and 30");
+    pub const fn with_speed(mut self, speed: u8) -> Self {
+        debug_assert!(speed > 0 && speed <= 30, "speed must be between 1 and 30");
 
-        unsafe { self.with_speed_unchecked(speed) }
-    }
-
-    /// Sets the speed of the encoder. Higher speeds come at the cost of lower image quality.
-    /// Should be between 1 and 30, but this doesn't check for that.
-    ///
-    /// # Safety
-    /// Make sure `speed` is between 1 and 30.
-    ///
-    /// # See Also
-    /// * [`with_speed`] for the safe, checked version of this method.
-    #[must_use]
-    pub const unsafe fn with_speed_unchecked(mut self, speed: u8) -> Self {
         self.speed = speed;
         self
     }
+}
 
-    fn encode_frame<'a, P: Pixel>(&self, image: &Image<P>) -> crate::Result<gif::Frame<'a>> {
+/// A GIF encoder interface over [`gif::Encoder`].
+pub struct GifEncoder<P: Pixel, W: Write> {
+    options: GifEncoderOptions,
+    encoder: gif::Encoder<W>,
+    _marker: PhantomData<P>,
+}
+
+impl<P: Pixel, W: Write> GifEncoder<P, W> {
+    fn build_frame<'a>(&self, image: &Image<P>) -> crate::Result<gif::Frame<'a>> {
         macro_rules! data {
             ($t:ty) => {{
                 image
@@ -76,7 +77,7 @@ impl GifEncoder {
                     image.width() as u16,
                     image.height() as u16,
                     &pixels,
-                    self.speed as i32,
+                    self.options.speed as i32,
                 )
             }};
         }
@@ -89,7 +90,7 @@ impl GifEncoder {
                     image.width() as u16,
                     image.height() as u16,
                     &mut pixels,
-                    self.speed as i32,
+                    self.options.speed as i32,
                 )
             }};
         }
@@ -137,57 +138,52 @@ impl GifEncoder {
     }
 }
 
-impl Encoder for GifEncoder {
-    #[allow(clippy::cast_lossless)]
-    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
-        // TODO: support global/sequence-scoped palettes
-        let mut encoder =
-            gif::Encoder::new(dest, image.width() as u16, image.height() as u16, &[])?;
+impl<P: Pixel, W: Write> Encoder<P, W> for GifEncoder<P, W> {
+    type Config = GifEncoderOptions;
 
-        let frame = self.encode_frame(image)?;
-        encoder.write_frame(&frame)?;
-        Ok(())
+    fn new(
+        dest: W,
+        metadata: impl encode::HasEncoderMetadata<Self::Config, P>,
+    ) -> crate::Result<Self> {
+        let mut encoder =
+            gif::Encoder::new(dest, metadata.width() as u16, metadata.height() as u16, &[])?;
+
+        if let Some((_, loop_count)) = metadata.sequence() {
+            encoder.set_repeat(match loop_count {
+                LoopCount::Exactly(n) => gif::Repeat::Finite(n as u16),
+                LoopCount::Infinite => gif::Repeat::Infinite,
+            })?;
+        }
+
+        Ok(Self {
+            options: metadata.config(),
+            encoder,
+            _marker: PhantomData,
+        })
     }
 
-    #[allow(clippy::cast_lossless, clippy::cast_precision_loss)]
-    fn encode_sequence<P: Pixel>(
-        &mut self,
-        sequence: &ImageSequence<P>,
-        dest: &mut impl Write,
-    ) -> crate::Result<()> {
-        let image = sequence
-            .first_frame()
-            .ok_or(Error::EmptyImageError)?
-            .image();
-        let mut encoder =
-            gif::Encoder::new(dest, image.width() as u16, image.height() as u16, &[])?;
+    #[allow(clippy::cast_precision_loss)]
+    fn add_frame(&mut self, frame: &impl encode::FrameLike<P>) -> crate::Result<()> {
+        let mut out = self.build_frame(frame.image())?;
 
-        encoder.set_repeat(match sequence.loop_count() {
-            LoopCount::Exactly(n) => gif::Repeat::Finite(n as u16),
-            LoopCount::Infinite => gif::Repeat::Infinite,
-        })?;
-
-        for frame in sequence.iter() {
-            let image = frame.image();
-            let mut out = self.encode_frame(image)?;
-
-            out.delay = (frame.delay().as_millis() as f64 / 10.).round() as u16;
-            out.dispose = match frame.disposal() {
+        if let Some(delay) = frame.delay() {
+            out.delay = (delay.as_millis() as f64 / 10.).round() as u16;
+        }
+        if let Some(disposal) = frame.disposal() {
+            out.dispose = match disposal {
                 DisposalMethod::None => gif::DisposalMethod::Keep,
                 DisposalMethod::Background => gif::DisposalMethod::Background,
                 DisposalMethod::Previous => gif::DisposalMethod::Previous,
             };
-
-            encoder.write_frame(&out)?;
         }
 
+        self.encoder.write_frame(&out)?;
         Ok(())
     }
-}
 
-impl Default for GifEncoder {
-    fn default() -> Self {
-        Self::new()
+    // no-op
+    fn finish(self) -> crate::Result<()> {
+        Ok(())
     }
 }
 

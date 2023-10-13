@@ -235,19 +235,18 @@
 //! `(255, 0, 0)` (red) inverts to `(0, 255, 255)` (cyan), so that should be the color of the
 //! output image.
 //!
-//! We can also use [`inverted`][Image::inverted] to use method chaining:
+//! We can also use the [`std::ops::Not`] trait to invert an image:
 //!
 //! ```no_run
 //! # use ril::prelude::*;
 //! # fn main() -> ril::Result<()> {
-//! Image::new(256, 256, Rgb::new(255, 0, 0))
-//!     .inverted()
-//!     .save_inferred("output.png")?;
+//! let image = Image::new(256, 256, Rgb::new(255, 0, 0));
+//! (!image).save_inferred("output.png")?;
 //! # Ok(()) }
 //! ```
 //!
 //! Seems to be a bit cleaner than the first way, but it really just comes down to preference...
-//! and whether or not you have ownership of the image object - you likely want to stay away from
+//! and whether or not you have ownership of the image object; you likely want to stay away from
 //! cloning images for no benefit as it is a very expensive operation.
 //!
 //! TODO: finish guide
@@ -266,6 +265,8 @@ pub mod encode;
 pub mod encodings;
 pub mod error;
 pub mod fill;
+pub mod filter;
+mod format;
 #[cfg(feature = "gradient")]
 pub mod gradient;
 mod image;
@@ -284,11 +285,9 @@ macro_rules! inline_doc {
 }
 
 inline_doc! {
-    pub use crate::image::{
-        Banded, Image, ImageFormat, OverlayMode,
-    };
+    pub use crate::image::{Banded, Image, OverlayMode};
     pub use draw::{Border, BorderPosition, Draw, Ellipse, Line, Paste, Polygon, Rectangle};
-    pub use encode::{Decoder, DynamicFrameIterator, Encoder, FrameIterator};
+    pub use encode::{Decoder, Encoder, EncoderMetadata, SingleFrameIterator, FrameIterator};
     pub use encodings::ColorType;
     pub use error::{Error, Result};
     #[cfg(feature = "gradient")]
@@ -302,6 +301,7 @@ inline_doc! {
         RadialGradientCover,
     };
     pub use fill::{Fill, IntoFill};
+    pub use format::ImageFormat;
     pub use pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
         Rgba, TrueColor, L,
@@ -311,7 +311,9 @@ inline_doc! {
     pub use resize::FilterType as ResizeAlgorithm;
     pub use sequence::{DisposalMethod, Frame, ImageSequence, LoopCount};
     #[cfg(feature = "text")]
-    pub use text::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
+    pub use text::{
+        Font, HorizontalAnchor, TextAlign, TextLayout, TextSegment, VerticalAnchor, WrapStyle,
+    };
 }
 
 /// The crate prelude exports. Importing this with a wildcard will import most items from RIL that
@@ -328,10 +330,11 @@ inline_doc! {
 /// ```
 pub mod prelude {
     pub use super::{
-        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, DisposalMethod, Draw, Dynamic,
-        DynamicFrameIterator, DynamicSubpixel, Ellipse, Fill, Frame, FrameIterator, Image,
-        ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted, PalettedRgb,
-        PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba, TrueColor, L,
+        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, Decoder, DisposalMethod, Draw,
+        Dynamic, DynamicSubpixel, Ellipse, Encoder, EncoderMetadata, Fill, Frame, FrameIterator,
+        Image, ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted,
+        PalettedRgb, PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba,
+        SingleFrameIterator, TrueColor, L,
     };
 
     #[cfg(feature = "resize")]
@@ -342,5 +345,7 @@ pub mod prelude {
         RadialGradient, RadialGradientCover,
     };
     #[cfg(feature = "text")]
-    pub use super::{Font, HorizontalAnchor, TextLayout, TextSegment, VerticalAnchor, WrapStyle};
+    pub use super::{
+        Font, HorizontalAnchor, TextAlign, TextLayout, TextSegment, VerticalAnchor, WrapStyle,
+    };
 }

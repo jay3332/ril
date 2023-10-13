@@ -199,7 +199,7 @@ Animated images can be lazily decoded. This means you can process the frames of 
 one by one as each frame is decoded. This can lead to huge performance and memory gains when compared to 
 decoding all frames at once, processing those frames individually, and then encoding the image back to a file.
 
-For lazy animated image decoding, the `DynamicFrameIterator` is used as a high-level iterator interface
+For lazy animated image decoding, the `FrameIterator` trait is used as a high-level iterator interface
 to iterate through all frames of an animated image, lazily. These implement `Iterator<Item = Frame<_>>`.
 
 For times when you need to collect all frames of an image, `ImageSequence` is used as a high-level
@@ -234,9 +234,6 @@ ImageSequence::<Rgba>::open("sample.gif")?
             .unwrap();
     });
 ```
-
-Although a bit misleading a first, `ImageSequence::open` and `ImageSequence::decode_[inferred_]from_bytes`
-return lazy `DynamicFrameIterator`s.
 
 Additionally, `Frame`s house `Image`s, but they are not `Image`s themselves. However, `Frame`s are able
 to dereference into `Image`s, so calling image methods on frames will seem transparent.

@@ -1,7 +1,7 @@
 use super::ColorType;
 use crate::{
-    encode::{Decoder, Encoder},
-    DynamicFrameIterator, Error, Image, ImageFormat, OverlayMode, Pixel, Result,
+    encode::{self, Decoder, Encoder},
+    Error, Image, ImageFormat, OverlayMode, Pixel, Result, SingleFrameIterator,
 };
 
 use jpeg_decoder::PixelFormat as DecoderPixelFormat;
@@ -12,12 +12,19 @@ use std::{
     num::NonZeroU32,
 };
 
-/// A JPEG encoder interface over [`jpeg_encoder::Encoder`].
-pub struct JpegEncoder {
+/// JPEG encoder options.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct JpegEncoderOptions {
     quality: u8,
 }
 
-impl JpegEncoder {
+impl Default for JpegEncoderOptions {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl JpegEncoderOptions {
     /// Creates a new encoder with default settings.
     #[must_use]
     pub const fn new() -> Self {
@@ -50,9 +57,27 @@ impl JpegEncoder {
     }
 }
 
-impl Encoder for JpegEncoder {
-    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> Result<()> {
-        let sample @ (ct, _) = (image.data[0].color_type(), P::BIT_DEPTH);
+enum JpegSpecialCase {
+    L1,
+    LA1,
+    None,
+}
+
+/// A JPEG encoder interface over [`jpeg_encoder::Encoder`].
+pub struct JpegEncoder<P: Pixel, W: Write> {
+    native_color_type: ColorType,
+    color_type: EncoderColorType,
+    special_case: JpegSpecialCase,
+    quality: u8,
+    writer: Option<W>,
+    _marker: PhantomData<P>,
+}
+
+impl<P: Pixel, W: Write> Encoder<P, W> for JpegEncoder<P, W> {
+    type Config = JpegEncoderOptions;
+
+    fn new(dest: W, metadata: impl encode::HasEncoderMetadata<Self::Config, P>) -> Result<Self> {
+        let sample = (metadata.color_type(), metadata.bit_depth());
         let color_type = match sample {
             (ColorType::Rgb | ColorType::PaletteRgb, 8) => EncoderColorType::Rgb,
             (ColorType::Rgba | ColorType::PaletteRgba, 8) => EncoderColorType::Rgba,
@@ -60,39 +85,57 @@ impl Encoder for JpegEncoder {
             (ColorType::L, 1 | 8) | (ColorType::LA, 8) => EncoderColorType::Luma,
             _ => return Err(Error::UnsupportedColorType),
         };
-
-        let mut data = match ct {
-            ColorType::PaletteRgb => image
-                .data
-                .iter()
-                .map(|&p| p.as_rgb())
-                .flat_map(|p| p.as_bytes())
-                .collect::<Vec<_>>(),
-            ColorType::PaletteRgba => image
-                .data
-                .iter()
-                .map(|&p| p.as_rgba())
-                .flat_map(|p| p.as_bytes())
-                .collect::<Vec<_>>(),
-            _ => image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>(),
+        let special_case = match sample {
+            (ColorType::L, 1) => JpegSpecialCase::L1,
+            (ColorType::LA, 1) => JpegSpecialCase::LA1,
+            _ => JpegSpecialCase::None,
         };
 
-        if sample == (ColorType::L, 1) {
-            data.iter_mut()
-                .for_each(|p| *p = if *p > 0 { 255 } else { 0 });
-        }
-        if sample == (ColorType::LA, 1) {
-            data = data.into_iter().step_by(2).collect();
+        Ok(Self {
+            native_color_type: metadata.color_type(),
+            color_type,
+            special_case,
+            quality: metadata.config().quality,
+            writer: Some(dest),
+            _marker: PhantomData,
+        })
+    }
+
+    fn add_frame(&mut self, frame: &impl encode::FrameLike<P>) -> Result<()> {
+        let data = frame.image().data.iter();
+        let mut data = match self.native_color_type {
+            ColorType::PaletteRgb => data.flat_map(|p| p.as_rgb().as_bytes()).collect::<Vec<_>>(),
+            ColorType::PaletteRgba => data
+                .flat_map(|p| p.as_rgba().as_bytes())
+                .collect::<Vec<_>>(),
+            _ => data.flat_map(P::as_bytes).collect::<Vec<_>>(),
+        };
+
+        match self.special_case {
+            JpegSpecialCase::L1 => data
+                .iter_mut()
+                .for_each(|p| *p = if *p > 0 { 255 } else { 0 }),
+            JpegSpecialCase::LA1 => data = data.into_iter().step_by(2).collect(),
+            JpegSpecialCase::None => (),
         }
 
-        let encoder = jpeg_encoder::Encoder::new(dest, self.quality);
+        let encoder = jpeg_encoder::Encoder::new(
+            self.writer
+                .take()
+                .expect("jpeg cannot encode multiple frames"),
+            self.quality,
+        );
         encoder.encode(
             &data,
-            image.width() as u16,
-            image.height() as u16,
-            color_type,
+            frame.image().width() as u16,
+            frame.image().height() as u16,
+            self.color_type,
         )?;
+        Ok(())
+    }
 
+    // no-op
+    fn finish(self) -> Result<()> {
         Ok(())
     }
 }
@@ -113,7 +156,7 @@ impl<P: Pixel, R: Read> JpegDecoder<P, R> {
 }
 
 impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
-    type Sequence = DynamicFrameIterator<P, R>;
+    type Sequence = SingleFrameIterator<P>;
 
     #[allow(clippy::cast_lossless)]
     fn decode(&mut self, stream: R) -> Result<Image<P>> {
@@ -168,6 +211,6 @@ impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
     fn decode_sequence(&mut self, stream: R) -> Result<Self::Sequence> {
         let image = self.decode(stream)?;
 
-        Ok(DynamicFrameIterator::single(image))
+        Ok(SingleFrameIterator::new(image))
     }
 }

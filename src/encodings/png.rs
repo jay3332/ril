@@ -1,14 +1,13 @@
 use super::ColorType;
 use crate::{
-    encode::{Decoder, Encoder, FrameIterator},
-    DisposalMethod, Dynamic, Error, Frame, Image, ImageFormat, ImageSequence, LoopCount,
-    OverlayMode, Pixel, Rgb, Rgba,
+    encode::{self, Decoder, Encoder, FrameIterator},
+    pixel::assume_pixel_from_palette,
+    DisposalMethod, Dynamic, Frame, Image, ImageFormat, LoopCount, OverlayMode, Pixel, Rgb, Rgba,
 };
 
-use crate::pixel::assume_pixel_from_palette;
 pub use png::{AdaptiveFilterType, Compression, FilterType};
-use std::borrow::Cow;
 use std::{
+    borrow::Cow,
     io::{Read, Write},
     marker::PhantomData,
     num::NonZeroU32,
@@ -44,8 +43,9 @@ const fn get_png_color_type(src: ColorType) -> png::ColorType {
     }
 }
 
-/// A PNG encoder interface around [`png::Encoder`].
-pub struct PngEncoder {
+/// PNG configuration options for [`PngEncoder`].
+#[derive(Copy, Clone, Debug, Default)]
+pub struct PngEncoderOptions {
     /// The adaptive filter type to use.
     pub adaptive_filter: AdaptiveFilterType,
     /// The filter type to use.
@@ -54,17 +54,7 @@ pub struct PngEncoder {
     pub compression: Compression,
 }
 
-impl PngEncoder {
-    /// Creates a new encoder with the default settings.
-    #[must_use]
-    pub const fn new() -> Self {
-        Self {
-            adaptive_filter: AdaptiveFilterType::NonAdaptive,
-            filter: FilterType::NoFilter,
-            compression: Compression::Default,
-        }
-    }
-
+impl PngEncoderOptions {
     /// Sets the adaptive filter type to use.
     #[must_use]
     pub const fn with_adaptive_filter(mut self, value: AdaptiveFilterType) -> Self {
@@ -85,46 +75,38 @@ impl PngEncoder {
         self.compression = value;
         self
     }
-
-    fn prepare<'a, W: Write>(
-        &mut self,
-        width: u32,
-        height: u32,
-        color_type: ColorType,
-        bit_depth: u8,
-        dest: &'a mut W,
-    ) -> png::Encoder<&'a mut W> {
-        let mut encoder = png::Encoder::new(dest, width, height);
-        encoder.set_adaptive_filter(self.adaptive_filter);
-        encoder.set_filter(self.filter);
-        encoder.set_compression(self.compression);
-        encoder.set_color(get_png_color_type(color_type));
-        encoder.set_depth(png::BitDepth::from_u8(bit_depth).unwrap());
-
-        encoder
-    }
 }
 
-impl Encoder for PngEncoder {
-    fn encode<P: Pixel>(&mut self, image: &Image<P>, dest: &mut impl Write) -> crate::Result<()> {
-        let data = image.data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
-        let color_type = image.data[0].color_type();
+/// A PNG encoder interface around [`png::Encoder`].
+///
+/// # Note
+/// You **must** anticipate the frame and loop counts of the sequence with
+/// [`crate::EncoderMetadata::with_sequence`] before calling [`PngEncoder::add_frame`].
+/// See [`Encoder#anticipating-frame-and-loop-counts`] for more information.
+pub struct PngEncoder<P: Pixel, W: Write> {
+    writer: png::Writer<W>,
+    dimensions: (u32, u32),
+    _marker: PhantomData<P>,
+}
 
-        let mut encoder = self.prepare(
-            image.width(),
-            image.height(),
-            color_type,
-            P::BIT_DEPTH,
-            dest,
-        );
+impl<P: Pixel, W: Write> Encoder<P, W> for PngEncoder<P, W> {
+    type Config = PngEncoderOptions;
 
-        match color_type {
+    fn new(
+        dest: W,
+        metadata: impl encode::HasEncoderMetadata<Self::Config, P>,
+    ) -> crate::Result<Self> {
+        let mut encoder = png::Encoder::new(dest, metadata.width(), metadata.height());
+        encoder.set_color(get_png_color_type(metadata.color_type()));
+        encoder.set_depth(png::BitDepth::from_u8(metadata.bit_depth()).unwrap());
+
+        match metadata.color_type() {
             ColorType::PaletteRgb => {
-                let pal = image.palette().expect("no palette for paletted image?");
+                let pal = metadata.palette().expect("no palette for paletted image?");
                 encoder.set_palette(pal.iter().flat_map(Pixel::as_bytes).collect::<Cow<_>>());
             }
             ColorType::PaletteRgba => {
-                let pal = image.palette().expect("no palette for paletted image?");
+                let pal = metadata.palette().expect("no palette for paletted image?");
                 encoder.set_palette(
                     pal.iter()
                         .map(Pixel::as_rgb)
@@ -136,60 +118,54 @@ impl Encoder for PngEncoder {
             _ => (),
         }
 
-        let mut writer = encoder.write_header()?;
-        writer.write_image_data(&data)?;
-        writer.finish()?;
+        if let Some((len, loops)) = metadata.sequence() {
+            encoder.set_animated(len as _, loops.count_or_zero())?;
+        }
 
-        Ok(())
+        let dimensions = (metadata.width(), metadata.height());
+        let config = metadata.config();
+        encoder.set_adaptive_filter(config.adaptive_filter);
+        encoder.set_filter(config.filter);
+        encoder.set_compression(config.compression);
+
+        Ok(Self {
+            writer: encoder.write_header()?,
+            dimensions,
+            _marker: PhantomData,
+        })
     }
 
-    fn encode_sequence<P: Pixel>(
-        &mut self,
-        sequence: &ImageSequence<P>,
-        dest: &mut impl Write,
-    ) -> crate::Result<()> {
-        let sample = sequence
-            .first_frame()
-            .ok_or(Error::EmptyImageError)?
-            .image();
-        let pixel = &sample.data[0];
+    fn add_frame(&mut self, frame: &impl encode::FrameLike<P>) -> crate::Result<()> {
+        if (frame.image().dimensions()) != self.dimensions {
+            self.writer
+                .set_frame_dimension(frame.image().width(), frame.image().height())?;
+        }
+        let data = frame
+            .image()
+            .data
+            .iter()
+            .flat_map(P::as_bytes)
+            .collect::<Vec<_>>();
 
-        let mut encoder = self.prepare(
-            sample.width(),
-            sample.height(),
-            pixel.color_type(),
-            P::BIT_DEPTH,
-            dest,
-        );
-        encoder.set_animated(sequence.len() as u32, sequence.loop_count().count_or_zero())?;
-
-        let mut writer = encoder.write_header()?;
-
-        for frame in sequence.iter() {
-            let data = frame
-                .image()
-                .data
-                .iter()
-                .flat_map(P::as_bytes)
-                .collect::<Vec<_>>();
-
-            writer.set_frame_delay(frame.delay().as_millis() as u16, 1000)?;
-            writer.set_dispose_op(match frame.disposal() {
+        if let Some(delay) = frame.delay() {
+            self.writer
+                .set_frame_delay(delay.as_millis() as u16, 1000)?;
+        }
+        if let Some(disposal) = frame.disposal() {
+            self.writer.set_dispose_op(match disposal {
                 DisposalMethod::None => png::DisposeOp::None,
                 DisposalMethod::Background => png::DisposeOp::Background,
                 DisposalMethod::Previous => png::DisposeOp::Previous,
             })?;
-            writer.write_image_data(&data)?;
         }
 
-        writer.finish()?;
+        self.writer.write_image_data(&data)?;
         Ok(())
     }
-}
 
-impl Default for PngEncoder {
-    fn default() -> Self {
-        Self::new()
+    fn finish(self) -> crate::Result<()> {
+        self.writer.finish()?;
+        Ok(())
     }
 }
 
