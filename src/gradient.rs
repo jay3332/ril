@@ -20,9 +20,7 @@ fn check_positions<P: Pixel>(colors: &[(P, f64)]) {
 
         assert!(
             *pos >= last_known,
-            "position {} is less than the last known position {}",
-            pos,
-            last_known
+            "position {pos} is less than the last known position {last_known}",
         );
         last_known = *pos;
     }
