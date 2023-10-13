@@ -135,6 +135,10 @@ fn resize_tiled<P: Pixel>(
 }
 
 /// Performs a resize operation on the given data.
+///
+/// # Panics
+/// * The given data is empty.
+/// * Unsupported bit depth.
 pub fn resize<P: Pixel>(
     data: &[P],
     src_width: NonZeroU32,
