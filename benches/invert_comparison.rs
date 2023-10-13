@@ -1,4 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion};
+use std::ops::Not;
 use std::time::Duration;
 
 use gif::{DecodeOptions, Encoder};
@@ -16,7 +17,7 @@ pub fn bench_invert_gif(c: &mut Criterion) {
         b.iter(|| {
             ImageSequence::open("benches/invert_sample.gif")
                 .unwrap()
-                .map(|frame| frame.unwrap().map_image(Image::inverted))
+                .map(|frame| frame.unwrap().map_image(Image::not))
                 .collect::<ImageSequence<Rgb>>()
                 .save_inferred("benches/out/invert_ril_combinator.gif")
                 .unwrap();
@@ -28,7 +29,7 @@ pub fn bench_invert_gif(c: &mut Criterion) {
             let mut out = ImageSequence::<Rgb>::new();
 
             for frame in ImageSequence::open("benches/invert_sample.gif").unwrap() {
-                out.push_frame(frame.unwrap().map_image(Image::inverted));
+                out.push_frame(frame.unwrap().map_image(Image::not));
             }
 
             out.save_inferred("benches/out/invert_ril_for.gif").unwrap();
@@ -68,7 +69,7 @@ pub fn bench_invert_gif(c: &mut Criterion) {
                 let mut data = image
                     .data
                     .iter()
-                    .flat_map(|p| p.inverted().as_bytes())
+                    .flat_map(|p| (!*p).as_bytes())
                     .collect::<Vec<_>>();
 
                 let frame =

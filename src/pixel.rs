@@ -1,15 +1,17 @@
 //! Encloses pixel-related traits and pixel type implementations.
 
-use crate::Error::DecodingError;
 use crate::{
     encodings::ColorType,
     image::OverlayMode,
-    Error::{InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
+    Error::{DecodingError, InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
     Result,
 };
-use std::borrow::Cow;
-use std::fmt::{self, Debug, Formatter};
-use std::hash::Hash;
+use std::{
+    borrow::Cow,
+    fmt::{self, Debug, Formatter},
+    hash::Hash,
+    ops::Not,
+};
 
 mod sealed {
     use super::{BitPixel, Dynamic, NoOp, PalettedRgb, PalettedRgba, Rgb, Rgba, L};
@@ -37,7 +39,9 @@ pub use sealed::MaybeSealed;
 /// Represents any type of pixel in an image.
 ///
 /// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
-pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeSealed {
+pub trait Pixel:
+    Copy + Clone + Debug + Default + PartialEq + Eq + Hash + Not<Output = Self> + MaybeSealed
+{
     /// The color type of the pixel.
     const COLOR_TYPE: ColorType;
 
@@ -59,14 +63,6 @@ pub trait Pixel: Copy + Clone + Debug + Default + PartialEq + Eq + Hash + MaybeS
     fn color_type(&self) -> ColorType {
         Self::COLOR_TYPE
     }
-
-    /// Returns the inverted value of this pixel.
-    ///
-    /// For pixels with alpha values, the value of the alpha channel will also be inverted, so
-    /// opaque pixels will become transparent and vice versa. To only invert non-alpha channels,
-    /// methods like [`Self::map_subpixels`] or [`Image::<Rgba>::map_rgb_pixels`] can be used.
-    #[must_use]
-    fn inverted(&self) -> Self;
 
     /// The luminance of the pixel.
     #[must_use]
@@ -225,6 +221,13 @@ pub trait Alpha: Pixel {
     fn with_alpha(self, alpha: u8) -> Self;
 }
 
+/// Represents a pixel that can be modulated, i.e. transformed in hue, saturation, and brightness.
+pub trait Modulate: Pixel {
+    /// Modulates this pixel with the given hue, saturation, and brightness values.
+    #[must_use]
+    fn modulate(self, hue: f64, saturation: f64, brightness: f64) -> Self;
+}
+
 /// A pixel type that does and stores nothing. This pixel type is useless and will behave weirdly
 /// with your code. This is usually only used for internal or polyfill purposes.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
@@ -248,10 +251,6 @@ impl Pixel for NoOp {
     type Subpixel = NoOpSubpixel;
     type Color = Self;
     type Data = [u8; 0];
-
-    fn inverted(&self) -> Self {
-        Self
-    }
 
     fn map_subpixels<F, A>(self, _f: F, _a: A) -> Self
     where
@@ -283,6 +282,14 @@ impl Pixel for NoOp {
 
     fn as_rgba(&self) -> Rgba {
         panic!("NoOp is a private pixel type and should not be used")
+    }
+}
+
+impl Not for NoOp {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self
     }
 }
 
@@ -383,10 +390,6 @@ impl Pixel for BitPixel {
     type Color = Self;
     type Data = [u8; 1];
 
-    fn inverted(&self) -> Self {
-        Self(!self.0)
-    }
-
     fn map_subpixels<F, A>(self, f: F, _: A) -> Self
     where
         F: Fn(Self::Subpixel) -> Self::Subpixel,
@@ -436,6 +439,14 @@ impl Pixel for BitPixel {
     }
 
     force_into_impl!();
+}
+
+impl Not for BitPixel {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self(!self.0)
+    }
 }
 
 macro_rules! scale_subpixels {
@@ -527,10 +538,6 @@ impl Pixel for L {
     type Color = Self;
     type Data = [u8; 1];
 
-    fn inverted(&self) -> Self {
-        Self(!self.0)
-    }
-
     fn map_subpixels<F, A>(self, f: F, _: A) -> Self
     where
         F: Fn(Self::Subpixel) -> Self::Subpixel,
@@ -591,6 +598,14 @@ impl Pixel for L {
     force_into_impl!();
 }
 
+impl Not for L {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self(!self.0)
+    }
+}
+
 impl L {
     /// Creates a new L pixel with the given luminance value.
     #[must_use]
@@ -623,14 +638,6 @@ impl Pixel for Rgb {
     type Subpixel = u8;
     type Color = Self;
     type Data = [u8; 3];
-
-    fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
-        }
-    }
 
     fn map_subpixels<F, A>(self, f: F, _: A) -> Self
     where
@@ -702,6 +709,19 @@ impl Pixel for Rgb {
     }
 
     force_into_impl!();
+}
+
+impl Not for Rgb {
+    type Output = Self;
+
+    #[allow(clippy::borrow_as_ptr, clippy::cast_ptr_alignment, clippy::ptr_as_ptr)]
+    fn not(self) -> Self::Output {
+        // SAFETY:
+        //   * `(self, 0)` ensures we can cast to `u32` without UB
+        //   * this function is intended to simply invert all 24 bits of the pixel,
+        //     which is exactly what this does
+        unsafe { *(&(!*(&(self, 0u8) as *const _ as *const u32)) as *const _ as *const Self) }
+    }
 }
 
 impl Rgb {
@@ -789,15 +809,6 @@ impl Pixel for Rgba {
     type Subpixel = u8;
     type Color = Self;
     type Data = [u8; 4];
-
-    fn inverted(&self) -> Self {
-        Self {
-            r: !self.r,
-            g: !self.g,
-            b: !self.b,
-            a: !self.a,
-        }
-    }
 
     fn map_subpixels<F, A>(self, f: F, a: A) -> Self
     where
@@ -1026,6 +1037,19 @@ impl Rgba {
     }
 }
 
+impl Not for Rgba {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self {
+            r: !self.r,
+            g: !self.g,
+            b: !self.b,
+            a: !self.a,
+        }
+    }
+}
+
 /// Represents a subpixel of a dynamic pixel.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum DynamicSubpixel {
@@ -1184,15 +1208,6 @@ impl Pixel for Dynamic {
         }
     }
 
-    fn inverted(&self) -> Self {
-        match self {
-            Self::BitPixel(pixel) => Self::BitPixel(pixel.inverted()),
-            Self::L(pixel) => Self::L(pixel.inverted()),
-            Self::Rgb(pixel) => Self::Rgb(pixel.inverted()),
-            Self::Rgba(pixel) => Self::Rgba(pixel.inverted()),
-        }
-    }
-
     // noinspection ALL
     fn map_subpixels<F, A>(self, f: F, a: A) -> Self
     where
@@ -1300,6 +1315,19 @@ impl Pixel for Dynamic {
     }
 
     force_into_impl!();
+}
+
+impl Not for Dynamic {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        match self {
+            Self::BitPixel(pixel) => Self::BitPixel(!pixel),
+            Self::L(pixel) => Self::L(!pixel),
+            Self::Rgb(pixel) => Self::Rgb(!pixel),
+            Self::Rgba(pixel) => Self::Rgba(!pixel),
+        }
+    }
 }
 
 impl Alpha for Dynamic {
@@ -1652,12 +1680,6 @@ macro_rules! impl_palette8 {
             type Color = $tgt;
             type Data = [u8; 1];
 
-            fn inverted(&self) -> Self {
-                let target = &self.color().inverted();
-
-                try_palette!(self, "inverted", |color| color == target)
-            }
-
             fn map_subpixels<F, A>(self, f: F, a: A) -> Self
             where
                 F: Fn(Self::Subpixel) -> Self::Subpixel,
@@ -1712,6 +1734,16 @@ macro_rules! impl_palette8 {
 
             fn palette_index(&self) -> u8 {
                 self.index
+            }
+        }
+
+        impl<'p> Not for $name<'p> {
+            type Output = Self;
+
+            fn not(self) -> Self::Output {
+                let target = &!self.color();
+
+                try_palette!(self, "inverted", |color| color == target)
             }
         }
 
