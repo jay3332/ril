@@ -71,7 +71,6 @@ impl<P: Pixel, R: Read> Decoder<P, R> for QoiDecoder<P, R> {
 
     fn decode(&mut self, stream: R) -> crate::Result<Image<P>> {
         let mut decoder = QDecoder::from_stream(stream)?;
-        println!("Stream");
         // Decode the header
         let header = decoder.header().to_owned();
 
