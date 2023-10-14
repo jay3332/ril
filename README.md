@@ -158,8 +158,7 @@ For ease of use, the `all-pure` feature is provided, which is the equivalent of 
 use ril::prelude::*;
 
 fn main() -> ril::Result<()> {
-    let image = Image::open("sample.png")?;
-    image.invert();
+    let image = !Image::open("sample.png")?; // notice the `!` operator
     image.save_inferred("inverted.png")?;
     
     Ok(())
@@ -169,7 +168,7 @@ fn main() -> ril::Result<()> {
 or, why not use method chaining?
 ```rust
 Image::open("sample.png")?
-    .inverted()
+    .not()  // std::ops::Not trait
     .save_inferred("inverted.png")?;
 ```
 
@@ -228,7 +227,7 @@ for frame in ImageSequence::<Rgba>::open("sample.gif")? {
     output.push(frame);
 
     // or...
-    output.push_frame(frame?.map_image(|image| image.inverted()));
+    output.push_frame(!frame?);
 }
 
 output.save_inferred("inverted.gif")?;
