@@ -234,6 +234,24 @@ for frame in ImageSequence::<Rgba>::open("sample.gif")? {
 output.save_inferred("inverted.gif")?;
 ```
 
+#### Or, how about we encode each frame immediately without storing them in memory?
+```rust
+let mut stream = ImageSequence::<Rgba>::open("sample.gif")?;
+
+// Use the first frame to initialize the encoder
+let mut output = File::create("inverted.gif")?;
+let first_frame = stream.next().unwrap()?;
+let mut encoder = GifEncoder::new(&mut output, &first_frame)?;
+
+// Then, write the first frame into the GIF
+encoder.add_frame(&first_frame)?;
+
+// Now, invert each frame and write it into the GIF
+for frame in stream {
+    encoder.add_frame(&!frame?)?;
+}
+```
+
 #### Open an animated image and save each frame into a separate PNG image as they are decoded:
 ```rust
 ImageSequence::<Rgba>::open("sample.gif")?
