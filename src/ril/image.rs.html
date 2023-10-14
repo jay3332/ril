@@ -2922,7 +2922,7 @@
     ///
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
     /// let image = Image::&lt;Rgba&gt;::open(&quot;image.png&quot;)?;
-    /// let inverted = image.map_rgb_pixels(|rgb| rgb.inverted());
+    /// let inverted = image.map_rgb_pixels(|rgb| !rgb);
     /// # Ok(())
     /// # }
     /// ```

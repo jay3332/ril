@@ -1038,7 +1038,7 @@
 ///
 /// // Using an image/frame/sequence as metadata:
 /// # let writer = std::io::stdout();
-/// let image = Image::open(&quot;sample.png&quot;)?; // can be any Image, Frame, or ImageSequence
+/// let image = Image::&lt;Rgb&gt;::open(&quot;sample.png&quot;)?; // can be any Image, Frame, or ImageSequence
 /// let encoder = PngEncoder::new(writer, &amp;image);
 ///
 /// // Using a frame as baseline metadata but explicitly anticipating frame count
@@ -1074,7 +1074,7 @@
 /// # fn main() -&gt; ril::Result&lt;()&gt; {
 /// # let writer = std::io::stdout();
 /// // Grab our image, frame, or image sequence:
-/// let frame = Frame::from_image(Image::open(&quot;sample.png&quot;)?);
+/// let frame = Frame::from_image(Image::&lt;Rgb&gt;::open(&quot;sample.png&quot;)?);
 /// // Convert it into encoder metadata with `EncoderMetadata::from`,
 /// // then anticipate the frame and loop counts with `EncoderMetadata::with_sequence`:
 /// let metadata = EncoderMetadata::from(&amp;frame).with_sequence(2, LoopCount::Infinite);
@@ -1106,7 +1106,7 @@
 ///     // Prepare metadata. The PNG encoder requires we anticipate the frame count prior to encoding:
 ///     let metadata = EncoderMetadata::&lt;Rgb&gt;::new(100, 100).with_frame_count(2);
 ///     // Create the encoder
-///     let encoder = PngEncoder::new(&amp;mut writer, metadata);
+///     let mut encoder = PngEncoder::new(&amp;mut writer, metadata)?;
 ///
 ///     // Frame 1: 100x100 red square for 0.5s
 ///     let image = Image::new(100, 100, RED);
@@ -1187,7 +1187,7 @@
     </span><span class="kw">fn </span>encode_sequence(sequence: <span class="kw-2">&amp;</span>ImageSequence&lt;P&gt;, dest: W) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>encoder = <span class="self">Self</span>::new(dest, sequence)<span class="question-mark">?</span>;
         <span class="kw">for </span>frame <span class="kw">in </span>sequence.iter() {
-            encoder.add_frame(frame.image())<span class="question-mark">?</span>;
+            encoder.add_frame(frame)<span class="question-mark">?</span>;
         }
         encoder.finish()
     }
