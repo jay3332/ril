@@ -18,16 +18,13 @@ jobs:
       url: "https://jay3332.github.io/ril/benchmark/index.html"
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install latest stable Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
+      uses: dtolnay/rust-toolchain@stable
 
     - name: Setup cache
-      uses: Swatinem/rust-cache@v1
+      uses: Swatinem/rust-cache@v2
     
     - name: Install gnuplot and neofetch
       run: sudo apt update && sudo apt install gnuplot neofetch
@@ -36,12 +33,12 @@ jobs:
       run: neofetch --stdout
 
     - name: Install cargo-criterion
-      uses: zbraniecki/cached-cargo-install@v0
+      uses: Cryptex-github/cached-cargo-install@main
       with:
         crate-name: cargo-criterion
 
     - name: Install criterion-table
-      uses: zbraniecki/cached-cargo-install@v0
+      uses: Cryptex-github/cached-cargo-install@main
       with:
         crate-name: criterion-table
     
@@ -61,7 +58,7 @@ jobs:
       run: cat BENCHMARKS.md >> $GITHUB_STEP_SUMMARY
     
     - name: Append benchmark webpage to job summary
-      run: echo "For more details, visit [https://jay3332.github.io/ril/benchmark/index.html](https://jay3332.github.io/ril/benchmark/index.html)" > $GITHUB_STEP_SUMMARY
+      run: echo "For more details, visit [https://jay3332.github.io/ril/benchmark/index.html](https://jay3332.github.io/ril/benchmark/index.html)" >> $GITHUB_STEP_SUMMARY
     
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
@@ -82,4 +79,4 @@ jobs:
         publish_branch: benchmarks
     
     - name: Set output URL
-      run: echo "::set-output name=env_url::https://jay3332.github.io/ril/benchmark/index.html"
+      run: echo "env_url=https://jay3332.github.io/ril/benchmark/index.html" >> $GITHUB_OUTPUT
