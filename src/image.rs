@@ -1370,7 +1370,7 @@ impl Image<Rgba> {
     ///
     /// # fn main() -> ril::Result<()> {
     /// let image = Image::<Rgba>::open("image.png")?;
-    /// let inverted = image.map_rgb_pixels(|rgb| rgb.inverted());
+    /// let inverted = image.map_rgb_pixels(|rgb| !rgb);
     /// # Ok(())
     /// # }
     /// ```

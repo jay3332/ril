@@ -391,7 +391,7 @@ impl<C: Default, P: Pixel> DerefMut for EncoderMetadataWithConfig<C, P> {
 ///
 /// // Using an image/frame/sequence as metadata:
 /// # let writer = std::io::stdout();
-/// let image = Image::open("sample.png")?; // can be any Image, Frame, or ImageSequence
+/// let image = Image::<Rgb>::open("sample.png")?; // can be any Image, Frame, or ImageSequence
 /// let encoder = PngEncoder::new(writer, &image);
 ///
 /// // Using a frame as baseline metadata but explicitly anticipating frame count
@@ -427,7 +427,7 @@ impl<C: Default, P: Pixel> DerefMut for EncoderMetadataWithConfig<C, P> {
 /// # fn main() -> ril::Result<()> {
 /// # let writer = std::io::stdout();
 /// // Grab our image, frame, or image sequence:
-/// let frame = Frame::from_image(Image::open("sample.png")?);
+/// let frame = Frame::from_image(Image::<Rgb>::open("sample.png")?);
 /// // Convert it into encoder metadata with `EncoderMetadata::from`,
 /// // then anticipate the frame and loop counts with `EncoderMetadata::with_sequence`:
 /// let metadata = EncoderMetadata::from(&frame).with_sequence(2, LoopCount::Infinite);
@@ -459,7 +459,7 @@ impl<C: Default, P: Pixel> DerefMut for EncoderMetadataWithConfig<C, P> {
 ///     // Prepare metadata. The PNG encoder requires we anticipate the frame count prior to encoding:
 ///     let metadata = EncoderMetadata::<Rgb>::new(100, 100).with_frame_count(2);
 ///     // Create the encoder
-///     let encoder = PngEncoder::new(&mut writer, metadata);
+///     let mut encoder = PngEncoder::new(&mut writer, metadata)?;
 ///
 ///     // Frame 1: 100x100 red square for 0.5s
 ///     let image = Image::new(100, 100, RED);
@@ -540,7 +540,7 @@ pub trait Encoder<P: Pixel, W: Write>: Sized {
     fn encode_sequence(sequence: &ImageSequence<P>, dest: W) -> crate::Result<()> {
         let mut encoder = Self::new(dest, sequence)?;
         for frame in sequence.iter() {
-            encoder.add_frame(frame.image())?;
+            encoder.add_frame(frame)?;
         }
         encoder.finish()
     }

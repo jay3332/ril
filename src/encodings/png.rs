@@ -55,6 +55,16 @@ pub struct PngEncoderOptions {
 }
 
 impl PngEncoderOptions {
+    /// Creates a new set of options with the default settings.
+    #[must_use]
+    pub const fn new() -> Self {
+        Self {
+            adaptive_filter: AdaptiveFilterType::NonAdaptive,
+            filter: FilterType::Sub,
+            compression: Compression::Default,
+        }
+    }
+
     /// Sets the adaptive filter type to use.
     #[must_use]
     pub const fn with_adaptive_filter(mut self, value: AdaptiveFilterType) -> Self {

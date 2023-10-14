@@ -5,6 +5,14 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 
 Versions prior to v0.7 are not tagged/released on GitHub.
 
+## v0.11 (dev)
+- Add `PngEncoderOptions::new`
+
+## v0.10.1 (2023-10-14)
+
+- Fix encoding image sequences not respecting delay and disposal method
+- Fix tests/doctests 
+
 ## v0.10 (2023-10-12)
 
 ### Major encoder/decoder interface changes
