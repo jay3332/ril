@@ -144,9 +144,6 @@ pub trait Pixel:
     /// Turns this pixel into bytes.
     fn as_bytes(&self) -> Self::Data;
 
-    /// Transforms this pixel into bytes.
-    fn into_bytes(self) -> Self::Data { self.as_bytes() }
-
     /// Merges this pixel with the given overlay pixel, taking into account alpha.
     #[must_use]
     fn merge(self, other: Self) -> Self {

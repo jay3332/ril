@@ -16,11 +16,17 @@ use crate::encodings::gif;
 use crate::encodings::jpeg;
 #[cfg(feature = "png")]
 use crate::encodings::png;
-#[cfg(feature = "webp")]
-use crate::encodings::webp;
 #[cfg(feature = "qoi")]
 use crate::encodings::qoi;
-#[cfg(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp", feature = "qoi"))]
+#[cfg(feature = "webp")]
+use crate::encodings::webp;
+#[cfg(any(
+    feature = "png",
+    feature = "gif",
+    feature = "jpeg",
+    feature = "webp",
+    feature = "qoi"
+))]
 use crate::{Decoder, Encoder};
 
 /// Represents the underlying encoding format of an image.
@@ -164,7 +170,13 @@ impl ImageFormat {
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp", feature = "qoi")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     pub fn run_encoder<P: Pixel>(&self, image: &Image<P>, dest: impl Write) -> Result<()> {
@@ -195,7 +207,13 @@ impl ImageFormat {
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp", feature = "qoi")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     pub fn run_sequence_encoder<P: Pixel>(
@@ -229,7 +247,13 @@ impl ImageFormat {
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp", feature = "qoi")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] // would require a major refactor
@@ -260,7 +284,13 @@ impl ImageFormat {
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     #[cfg_attr(
-        not(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp", feature = "qoi")),
+        not(any(
+            feature = "png",
+            feature = "gif",
+            feature = "jpeg",
+            feature = "webp",
+            feature = "qoi"
+        )),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] // would require a major refactor
