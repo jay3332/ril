@@ -65,7 +65,7 @@ impl ImageFormat {
 
     /// Parses the given extension and returns the corresponding image format.
     ///
-    /// If the extension is an unknown extension, Ok([`ImageFormat::unknown`]) is returned.
+    /// If the extension is an unknown extension, Ok([`ImageFormat::Unknown`]) is returned.
     ///
     /// If the extension is completely invalid and fails to be converted into a `&str`,
     /// the [`InvalidExtension`] error is returned.

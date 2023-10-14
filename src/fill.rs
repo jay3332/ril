@@ -4,7 +4,7 @@ pub type BoundingBox<T> = (T, T, T, T);
 
 /// Any fill type that can be used to fill a shape, i.e. solid colors or gradients.
 ///
-/// For solid colors, this trait is implemented for all `Pixel` types as [`SolidFill`].
+/// For solid colors, this trait is implemented for all [`Pixel`] types as [`SolidFill`].
 pub trait IntoFill: Clone {
     /// The pixel type of the fill.
     type Pixel: Pixel;

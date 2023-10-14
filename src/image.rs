@@ -48,7 +48,7 @@ impl Display for OverlayMode {
 /// A high-level image representation.
 ///
 /// This represents a static, single-frame image.
-/// See [`ImageSequence`] for information on opening animated or multi-frame images.
+/// See [`crate::ImageSequence`] for information on opening animated or multi-frame images.
 #[derive(Clone)]
 pub struct Image<P: Pixel> {
     pub(crate) width: NonZeroU32,
@@ -57,8 +57,8 @@ pub struct Image<P: Pixel> {
     /// according to the image's width and height to form the image.
     ///
     /// This data is a low-level, raw representation of the image. You can see the various pixel
-    /// mapping functions, or use the [`pixels`] method directly for higher level representations
-    /// of the data.
+    /// mapping functions, or use the [`pixels`][Image::pixels] method directly for higher level
+    /// representations of the data.
     pub data: Vec<P>,
     pub(crate) format: ImageFormat,
     pub(crate) overlay: OverlayMode,
@@ -405,7 +405,7 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Saves the image with the given encoding to the given path.
-    /// You can try saving to a memory buffer by using the [`encode`] method.
+    /// You can try saving to a memory buffer by using the [`Self::encode`] method.
     ///
     /// # Errors
     /// * An error occured during encoding.
@@ -429,11 +429,12 @@ impl<P: Pixel> Image<P> {
 
     /// Saves the image to the given path, inferring the encoding from the path/filename extension.
     ///
-    /// This is obviously slower than [`save`] since this method itself uses it. You should only
-    /// use this method if the filename is dynamic, or if you do not know the desired encoding
+    /// This is obviously slower than [`Self::save`] since this method itself uses it. You should
+    /// only use this method if the filename is dynamic, or if you do not know the desired encoding
     /// before runtime.
     ///
-    /// See [`save`] for more information on how saving works.
+    /// # See Also
+    /// * [`Self::save`] for more information on how saving works.
     ///
     /// # Errors
     /// * Could not infer encoding format.
@@ -584,8 +585,9 @@ impl<P: Pixel> Image<P> {
     /// Overlays the pixel at the given coordinates with the given pixel according to the specified
     /// overlay mode.
     ///
-    /// If the pixel is out of bounds, nothing occurs. This is expected, use [`set_pixel`] if you
-    /// want this to panic, or to use a custom overlay mode use [`pixel_mut`].
+    /// If the pixel is out of bounds, nothing occurs: the method will fail silently.
+    /// This is expected, use [`Self::set_pixel`] if you want this to panic, or to use a custom
+    /// overlay mode use [`Self::pixel_mut`].
     #[inline]
     pub fn overlay_pixel_with_mode(&mut self, x: u32, y: u32, pixel: P, mode: OverlayMode) {
         let pos = self.resolve_coordinate(x, y);
@@ -598,8 +600,9 @@ impl<P: Pixel> Image<P> {
     /// Overlays the pixel at the given coordinates with the given alpha intensity. This does not
     /// regard the overlay mode, since this is usually used for anti-aliasing.
     ///
-    /// If the pixel is out of bounds, nothing occurs. This is expected, use [`set_pixel`] if you
-    /// want this to panic, or to use a custom overlay mode use [`pixel_mut`].
+    /// If the pixel is out of bounds, nothing occurs: this method will fail silently.
+    /// This is expected, use [`Self::set_pixel`] if you want this to panic, or to use a custom
+    /// overlay mode use [`Self::pixel_mut`].
     #[inline]
     pub fn overlay_pixel_with_alpha(
         &mut self,
@@ -637,7 +640,8 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Brightens the image by increasing all pixels by the specified amount of subpixels in place.
-    /// See [`darken`] to darken the image, since this usually does not take any negative values.
+    /// See [`Self::darken`] to darken the image, since this usually does not take any negative
+    /// values.
     ///
     /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value
     /// of either R, G, or B.
@@ -653,7 +657,8 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Darkens the image by decreasing all pixels by the specified amount of subpixels in place.
-    /// See [`brighten`] to brighten the image, since this usually does not take any negative values.
+    /// See [`Self::brighten`] to brighten the image, since this usually does not take any negative
+    /// values.
     ///
     /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value
     /// of either R, G, or B.
@@ -671,7 +676,8 @@ impl<P: Pixel> Image<P> {
     /// Takes this image and brightens it by increasing all pixels by the specified amount of
     /// subpixels. Negative values will darken the image. Useful for method chaining.
     ///
-    /// See [`darkened`] to darken the image, since this usually does not take any negative values.
+    /// See [`Self::darkened`] to darken the image, since this usually does not take any negative
+    /// values.
     ///
     /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value.
     ///
@@ -687,8 +693,8 @@ impl<P: Pixel> Image<P> {
     /// Takes this image and darkens it by decreasing all pixels by the specified amount of
     /// subpixels. Negative values will brighten the image. Useful for method chaining.
     ///
-    /// See [`brightened`] to brighten the image, since this usually does not take any negative
-    /// values.
+    /// See [`Self::brightened`] to brighten the image, since this usually does not take any
+    /// negative values.
     ///
     /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value.
     ///
@@ -840,7 +846,7 @@ impl<P: Pixel> Image<P> {
         }
     }
 
-    /// Similar to [`map_pixels_with_coords`], but this maps the pixels in place.
+    /// Similar to [`Self::map_pixels_with_coords`], but this maps the pixels in place.
     ///
     /// This means that the output pixel type must be the same.
     pub fn map_in_place(&mut self, f: impl Fn(u32, u32, &mut P)) {
@@ -1108,7 +1114,7 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Pastes the given image onto this image at the given x and y coordinates.
-    /// This is a shorthand for using the [`draw`] method with [`Paste`].
+    /// This is a shorthand for using the [`Self::draw`] method with [`crate::Paste`].
     ///
     /// # Example
     /// ```no_run
@@ -1130,7 +1136,7 @@ impl<P: Pixel> Image<P> {
     ///
     /// Currently, only [`BitPixel`] images are supported for the masking image.
     ///
-    /// This is a shorthand for using the [`draw`] method with [`Paste`].
+    /// This is a shorthand for using the [`Self::draw`] method with [`crate::Paste`].
     ///
     /// # Example
     /// ```no_run
