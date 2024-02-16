@@ -8,6 +8,8 @@ pub mod jpeg;
 pub mod png;
 #[cfg(feature = "webp")]
 pub mod webp;
+#[cfg(feature = "webp-pure")]
+pub mod webp_rust;
 
 /// Represents an arbitrary color type. Note that this does not store the bit-depth or the type used
 /// to store the value of each channel, although it can specify the number of channels.
