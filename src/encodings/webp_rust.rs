@@ -15,7 +15,7 @@ pub struct WebPEncoderOptions {}
 pub struct WebPStaticEncoder<P: Pixel, W: Write> {
     native_color_type: ColorType,
     writer: W,
-    _marker: PhantomData<P>,
+    marker: PhantomData<P>,
 }
 
 impl<P: Pixel, W: Write> Encoder<P, W> for WebPStaticEncoder<P, W> {
@@ -28,21 +28,17 @@ impl<P: Pixel, W: Write> Encoder<P, W> for WebPStaticEncoder<P, W> {
         Ok(Self {
             native_color_type: metadata.color_type(),
             writer: dest,
-            _marker: PhantomData,
+            marker: PhantomData,
         })
     }
 
     fn add_frame(&mut self, frame: &impl encode::FrameLike<P>) -> crate::Result<()> {
-        let data_iter = frame.image().data.iter();
-        let data = match self.native_color_type {
-            ColorType::Rgb => data_iter
-                .flat_map(|p| p.as_rgb().as_bytes())
-                .collect::<Vec<_>>(),
-            ColorType::Rgba => data_iter
-                .flat_map(|p| p.as_rgba().as_bytes())
-                .collect::<Vec<_>>(),
-            _ => data_iter.flat_map(P::as_bytes).collect::<Vec<_>>(),
-        };
+        let data = frame
+            .image()
+            .data
+            .iter()
+            .flat_map(P::as_bytes)
+            .collect::<Vec<_>>();
         let encoder = WebPEncoder::new(self.writer.by_ref());
 
         encoder
@@ -69,7 +65,7 @@ impl<P: Pixel, W: Write> Encoder<P, W> for WebPStaticEncoder<P, W> {
 }
 
 pub struct WebPDecoder<P: Pixel, R: Read> {
-    _marker: PhantomData<(P, R)>,
+    marker: PhantomData<(P, R)>,
 }
 
 impl<P: Pixel, R: Read> Default for WebPDecoder<P, R> {
@@ -82,7 +78,7 @@ impl<P: Pixel, R: Read> WebPDecoder<P, R> {
     #[must_use]
     pub const fn new() -> Self {
         Self {
-            _marker: PhantomData,
+            marker: PhantomData,
         }
     }
 }
@@ -91,30 +87,31 @@ impl<P: Pixel, R: Read> Decoder<P, R> for WebPDecoder<P, R> {
     type Sequence = SingleFrameIterator<P>;
 
     fn decode(&mut self, stream: R) -> crate::Result<Image<P>> {
-        let data = stream
-            .bytes()
-            .collect::<std::result::Result<Vec<u8>, _>>()?;
-        let mut decoder = ImageWebPDecoder::new(Cursor::new(data))
-            .map_err(|e| crate::Error::DecodingError(e.to_string()))?;
-        let mut buf: Vec<u8> = vec![0; decoder.output_buffer_size().unwrap()];
+        let mut decoder = ImageWebPDecoder::new(Cursor::new(
+            stream
+                .bytes()
+                .collect::<std::result::Result<Vec<u8>, _>>()?,
+        ))
+        .map_err(|e| crate::Error::DecodingError(e.to_string()))?;
+
+        let image_buf_len = decoder
+            .output_buffer_size()
+            .ok_or(crate::Error::DecodingError(
+                "Failed to preallocate buffer for image data".to_string(),
+            ))?;
+        let mut image_buf: Vec<u8> = vec![0; image_buf_len];
         decoder
-            .read_image(&mut buf)
+            .read_image(&mut image_buf)
             .map_err(|e| crate::Error::DecodingError(e.to_string()))?;
 
         let (width, height) = decoder.dimensions();
-        print!("width: {}, height: {}", width, height);
-        let color_type = if decoder.has_alpha() {
-            ColorType::Rgba
+        let (color_type, pixel_bytes) = if decoder.has_alpha() {
+            (ColorType::Rgba, 4)
         } else {
-            ColorType::Rgb
-        };
-        let pixel_bytes = match color_type {
-            ColorType::Rgb => 3,
-            ColorType::Rgba => 4,
-            _ => unreachable!(),
+            (ColorType::Rgb, 3)
         };
 
-        let data = buf
+        let data = image_buf
             .as_slice()
             .chunks_exact(pixel_bytes)
             .map(|chunk| P::from_raw_parts(color_type, 8, chunk))
