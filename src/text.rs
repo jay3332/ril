@@ -503,7 +503,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
             &TextStyle::with_user_data(
                 &segment.text,
                 segment.size,
-                0,
+                self.fonts.len() - 1,
                 (segment.fill, segment.overlay),
             ),
         );
