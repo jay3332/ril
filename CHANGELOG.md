@@ -8,6 +8,10 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 ## v0.11 (dev)
 - Add `PngEncoderOptions::new`
 
+### Bug fixes
+- Fix text alignment rendering duplicately ([#28])
+- Fix `TextLayout`s with varying fonts not registering properly ([#29])
+
 ## v0.10.1 (2023-10-14)
 
 - Fix encoding image sequences not respecting delay and disposal method
