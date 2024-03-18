@@ -1231,7 +1231,7 @@
             <span class="kw-2">&amp;</span>TextStyle::with_user_data(
                 <span class="kw-2">&amp;</span>segment.text,
                 segment.size,
-                <span class="number">0</span>,
+                <span class="self">self</span>.fonts.len() - <span class="number">1</span>,
                 (segment.fill, segment.overlay),
             ),
         );
