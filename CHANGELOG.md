@@ -9,8 +9,8 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 - Add `PngEncoderOptions::new`
 
 ### Bug fixes
-- Fix text alignment rendering duplicately ([#28])
-- Fix `TextLayout`s with varying fonts not registering properly ([#29])
+- Fix text alignment rendering duplicately ([#28](https://github.com/jay3332/ril/issues/28))
+- Fix `TextLayout`s with varying fonts not registering properly ([#29](https://github.com/jay3332/ril/issues/29))
 
 ## v0.10.1 (2023-10-14)
 
