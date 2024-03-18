@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/draw.rs`."><title>draw.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/draw.rs`."><title>draw.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1545,7 +1546,7 @@
     /// # Panics
     /// * Panics if the border thickness is 0.
     </span><span class="kw">pub fn </span>new(color: P, thickness: u32) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert_ne!</span>(thickness, <span class="number">0</span>, <span class="string">&quot;border thickness cannot be 0&quot;</span>);
+        <span class="macro">assert_ne!</span>(thickness, <span class="number">0</span>, <span class="string">"border thickness cannot be 0"</span>);
 
         <span class="self">Self </span>{
             color,
@@ -1566,7 +1567,7 @@
     /// * Panics if the border thickness is 0.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>with_thickness(<span class="kw-2">mut </span><span class="self">self</span>, thickness: u32) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert_ne!</span>(thickness, <span class="number">0</span>, <span class="string">&quot;border thickness cannot be 0&quot;</span>);
+        <span class="macro">assert_ne!</span>(thickness, <span class="number">0</span>, <span class="string">"border thickness cannot be 0"</span>);
         <span class="self">self</span>.thickness = thickness;
         <span class="self">self
     </span>}
@@ -1604,8 +1605,8 @@
 <span class="doccomment">/// A line.
 ///
 /// At its core, this method utilizes
-/// [Bresenham&#39;s line algorithm](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm),
-/// and [Xiaolin Wu&#39;s line algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
+/// [Bresenham's line algorithm](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm),
+/// and [Xiaolin Wu's line algorithm](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm)
 /// for antialiased lines. Thicker lines are drawn as polygons.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>Line&lt;F: IntoFill&gt; {
@@ -1622,7 +1623,7 @@
     <span class="doccomment">/// Whether the line should be antialiased. Note that drawing antialiased lines is slower than
     /// drawing non-antialiased lines. Defaults to `false`.
     </span><span class="kw">pub </span>antialiased: bool,
-    <span class="doccomment">/// Whether the endpoints of the line should be &quot;rounded off&quot; with circles. Defaults to `false`.
+    <span class="doccomment">/// Whether the endpoints of the line should be "rounded off" with circles. Defaults to `false`.
     /// Currently, endpoints are not antialiased, regardless of the value of `antialiased`.
     ///
     /// Note that for even-numbered thicknesses, the endpoints will not be perfectly aligned with
@@ -1981,9 +1982,9 @@
     </span><span class="kw">pub </span>rounded: bool,
     <span class="doccomment">/// The fill color of the polygon. Either this or `border` must be `Some`.
     </span><span class="kw">pub </span>fill: <span class="prelude-ty">Option</span>&lt;F::Fill&gt;,
-    <span class="doccomment">/// The overlay mode of the polygon. If `None`, the image&#39;s overlay mode will be used.
+    <span class="doccomment">/// The overlay mode of the polygon. If `None`, the image's overlay mode will be used.
     </span><span class="kw">pub </span>overlay: <span class="prelude-ty">Option</span>&lt;OverlayMode&gt;,
-    <span class="doccomment">/// Whether to antialias the polygon&#39;s edges.
+    <span class="doccomment">/// Whether to antialias the polygon's edges.
     </span><span class="kw">pub </span>antialiased: bool,
 }
 
@@ -2008,7 +2009,7 @@
         <span class="self">Self</span>::default()
     }
 
-    <span class="doccomment">/// Updates the polygon&#39;s bounding box. This is automatically called, unless explicitly
+    <span class="doccomment">/// Updates the polygon's bounding box. This is automatically called, unless explicitly
     /// specified in documentation.
     </span><span class="kw">pub fn </span>update_bounding_box(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>fill) = <span class="self">self</span>.fill {
@@ -2050,7 +2051,7 @@
     </span><span class="attr">#[must_use]
     #[allow(clippy::cast_lossless)]
     </span><span class="kw">pub fn </span>regular_rotated(n: u32, center: (u32, u32), radius: u32, angle: f64) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert!</span>(n &gt;= <span class="number">3</span>, <span class="string">&quot;n must be greater than or equal to 3&quot;</span>);
+        <span class="macro">assert!</span>(n &gt;= <span class="number">3</span>, <span class="string">"n must be greater than or equal to 3"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>vertices = Vec::with_capacity(n <span class="kw">as </span>usize);
         <span class="kw">let </span>base = std::f64::consts::TAU / n <span class="kw">as </span>f64;
@@ -2069,7 +2070,7 @@
     }
 
     <span class="doccomment">/// Creates a regular polygon with the first point vertically up from the center (the polygon
-    /// will seem to be facing &quot;upwards&quot;).
+    /// will seem to be facing "upwards").
     ///
     /// This is a shortcut to calling [`Polygon::regular_rotated`] with `angle = PI / 2` (`90deg`).
     ///
@@ -2151,7 +2152,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Sets whether to antialias the polygon&#39;s edges. If set to `true`, this will also set the
+    <span class="doccomment">/// Sets whether to antialias the polygon's edges. If set to `true`, this will also set the
     /// overlay mode to [`OverlayMode::Merge`].
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>with_antialiased(<span class="kw-2">mut </span><span class="self">self</span>, antialiased: bool) -&gt; <span class="self">Self </span>{
@@ -2166,7 +2167,7 @@
     </span><span class="kw">fn </span>sanitize_vertices(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(u32, u32)&gt; {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.vertices.len() &gt;= <span class="number">3</span>,
-            <span class="string">&quot;polygon must have at least 3 vertices&quot;
+            <span class="string">"polygon must have at least 3 vertices"
         </span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>vertices = <span class="self">self</span>.vertices.clone();
@@ -2241,7 +2242,7 @@
     <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;F::Pixel&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="macro">debug_assert!</span>(
             <span class="self">self</span>.fill.is_some() || <span class="self">self</span>.border.is_some(),
-            <span class="string">&quot;polygon must have a fill or border&quot;
+            <span class="string">"polygon must have a fill or border"
         </span>);
 
         <span class="kw">let </span>image = <span class="kw-2">&amp;mut *</span>image;
@@ -2295,7 +2296,7 @@
 ///
 /// # Note
 /// You must specify a width and height for the rectangle with something such as [`with_size`].
-/// If you don&#39;t, a panic will be raised during drawing. You can also try using
+/// If you don't, a panic will be raised during drawing. You can also try using
 /// [`from_bounding_box`] to create a rectangle from a bounding box, which automatically fills
 /// in the size.
 ///
@@ -2339,7 +2340,7 @@
     /// one of them with [`with_fill`] or [`with_border`] respectively or else you will receive a
     /// panic at draw-time.
     </span><span class="attr">#[must_use]
-    #[deprecated = <span class="string">&quot;use `Rectangle::at` instead&quot;</span>]
+    #[deprecated = <span class="string">"use `Rectangle::at` instead"</span>]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::default()
     }
@@ -2438,11 +2439,11 @@
     <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;F::Pixel&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.fill.is_some() || <span class="self">self</span>.border.is_some(),
-            <span class="string">&quot;must provide one of either fill or border, try calling .with_fill()&quot;
+            <span class="string">"must provide one of either fill or border, try calling .with_fill()"
         </span>);
         <span class="macro">assert!</span>(
             <span class="self">self</span>.size.<span class="number">0 </span>&gt; <span class="number">0 </span>|| <span class="self">self</span>.size.<span class="number">1 </span>&gt; <span class="number">0</span>,
-            <span class="string">&quot;rectangle must have a non-zero width and height, have you called .with_size() yet?&quot;
+            <span class="string">"rectangle must have a non-zero width and height, have you called .with_size() yet?"
         </span>);
 
         <span class="kw">let </span>(x1, y1) = <span class="self">self</span>.position;
@@ -2461,7 +2462,7 @@
         }
 
         <span class="comment">// Draw the border on top of the fill. If the border has alpha this could result in the
-        // border blending with the fill, but this is rarely a problem. This behavior isn&#39;t really
+        // border blending with the fill, but this is rarely a problem. This behavior isn't really
         // normal though and I do plan to fix it, for example calculating border bounds first and
         // only filling in pixels that are not in those bounds.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((inner, outer, color)) = <span class="self">self</span>.border.as_ref().map(Border::bounds) {
@@ -2502,7 +2503,7 @@
     </span><span class="kw">pub </span>border: <span class="prelude-ty">Option</span>&lt;Border&lt;F::Pixel&gt;&gt;,
     <span class="comment">// The fill color for the ellipse if any.
     </span><span class="kw">pub </span>fill: <span class="prelude-ty">Option</span>&lt;F::Fill&gt;,
-    <span class="comment">// The overlay mode for the ellipse or None to inherit from the image&#39;s overlay mode.
+    <span class="comment">// The overlay mode for the ellipse or None to inherit from the image's overlay mode.
     </span><span class="kw">pub </span>overlay: <span class="prelude-ty">Option</span>&lt;OverlayMode&gt;,
 }
 
@@ -2553,8 +2554,8 @@
     /// * `y2 &lt; y1`
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>from_bounding_box(x1: u32, y1: u32, x2: u32, y2: u32) -&gt; <span class="self">Self </span>{
-        <span class="macro">assert!</span>(x2 &gt;= x1, <span class="string">&quot;invalid bounding box&quot;</span>);
-        <span class="macro">assert!</span>(y2 &gt;= y1, <span class="string">&quot;invalid bounding box&quot;</span>);
+        <span class="macro">assert!</span>(x2 &gt;= x1, <span class="string">"invalid bounding box"</span>);
+        <span class="macro">assert!</span>(y2 &gt;= y1, <span class="string">"invalid bounding box"</span>);
 
         <span class="kw">let </span>(dx, dy) = (x2 - x1, y2 - y1);
         <span class="kw">let </span>(x, y) = (x1 + dx / <span class="number">2</span>, y1 + dy / <span class="number">2</span>);
@@ -2634,9 +2635,9 @@
         <span class="kw">let </span>(h, k) = <span class="self">self</span>.position;
         <span class="kw">let </span>(h, k) = (h <span class="kw">as </span>i32, k <span class="kw">as </span>i32);
 
-        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn&#39;t
+        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn't
         </span><span class="kw">let </span>fill = <span class="self">self</span>.fill.as_ref().unwrap();
-        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn&#39;t
+        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn't
         </span><span class="kw">let </span>overlay = <span class="self">self</span>.overlay.unwrap_or(image.overlay);
 
         <span class="macro">macro_rules! </span>line {
@@ -2669,7 +2670,7 @@
     </span><span class="attr">#[allow(clippy::cast_possible_wrap, clippy::cast_precision_loss)]
     </span><span class="kw">fn </span>rasterize_filled_ellipse(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;mut </span>Image&lt;F::Pixel&gt;) {
         <span class="kw">let </span>(ch, k) = <span class="self">self</span>.position;
-        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn&#39;t
+        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn't
         </span><span class="kw">let </span>(ch, k) = (ch <span class="kw">as </span>i32, k <span class="kw">as </span>i32);
 
         <span class="kw">let </span>(w, h) = <span class="self">self</span>.radii;
@@ -2681,9 +2682,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>px = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>py = <span class="number">2 </span>* w2 * y;
 
-        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn&#39;t
+        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn't
         </span><span class="kw">let </span>fill = <span class="self">self</span>.fill.as_ref().unwrap();
-        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn&#39;t
+        <span class="attr">#[allow(unused_variables)] </span><span class="comment">// rust knows this, but the external linter doesn't
         </span><span class="kw">let </span>overlay = <span class="self">self</span>.overlay.unwrap_or(image.overlay);
 
         <span class="macro">macro_rules! </span>line {
@@ -2851,11 +2852,11 @@
     <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;F::Pixel&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.fill.is_some() || <span class="self">self</span>.border.is_some(),
-            <span class="string">&quot;must provide one of either fill or border, try calling .with_fill()&quot;
+            <span class="string">"must provide one of either fill or border, try calling .with_fill()"
         </span>);
         <span class="macro">assert!</span>(
             <span class="self">self</span>.radii.<span class="number">0 </span>&gt; <span class="number">0 </span>|| <span class="self">self</span>.radii.<span class="number">1 </span>&gt; <span class="number">0</span>,
-            <span class="string">&quot;ellipse must have non-zero radii, have you called .with_size() yet?&quot;
+            <span class="string">"ellipse must have non-zero radii, have you called .with_size() yet?"
         </span>);
 
         <span class="kw">let </span>image = <span class="kw-2">&amp;mut *</span>image;
@@ -2880,11 +2881,11 @@
 
 <span class="doccomment">/// Pastes or overlays an image on top of another image.
 </span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>Paste&lt;<span class="lifetime">&#39;img</span>, <span class="lifetime">&#39;mask</span>, P: Pixel&gt; {
+</span><span class="kw">pub struct </span>Paste&lt;<span class="lifetime">'img</span>, <span class="lifetime">'mask</span>, P: Pixel&gt; {
     <span class="doccomment">/// The position of the image to paste.
     </span><span class="kw">pub </span>position: (u32, u32),
     <span class="doccomment">/// A reference to the image to paste, or the foreground image.
-    </span><span class="kw">pub </span>image: <span class="kw-2">&amp;</span><span class="lifetime">&#39;img </span>Image&lt;P&gt;,
+    </span><span class="kw">pub </span>image: <span class="kw-2">&amp;</span><span class="lifetime">'img </span>Image&lt;P&gt;,
     <span class="doccomment">/// A refrence to an image that masks or filters out pixels based on the values of its own
     /// corresponding pixels.
     ///
@@ -2892,15 +2893,15 @@
     /// values, see [`Image::mask_alpha`].
     ///
     /// If this is None, all pixels will be overlaid on top of the image.
-    </span><span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;BitPixel&gt;&gt;,
+    </span><span class="kw">pub </span>mask: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'mask </span>Image&lt;BitPixel&gt;&gt;,
     <span class="doccomment">/// The overlay mode of the image, or None to inherit from the background image.
     </span><span class="kw">pub </span>overlay: <span class="prelude-ty">Option</span>&lt;OverlayMode&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;img</span>, <span class="lifetime">&#39;mask</span>, P: Pixel&gt; Paste&lt;<span class="lifetime">&#39;img</span>, <span class="lifetime">&#39;mask</span>, P&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'img</span>, <span class="lifetime">'mask</span>, P: Pixel&gt; Paste&lt;<span class="lifetime">'img</span>, <span class="lifetime">'mask</span>, P&gt; {
     <span class="doccomment">/// Creates a new image paste with from the given image with the position default to `(0, 0)`.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub const fn </span>new(image: <span class="kw-2">&amp;</span><span class="lifetime">&#39;img </span>Image&lt;P&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new(image: <span class="kw-2">&amp;</span><span class="lifetime">'img </span>Image&lt;P&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             position: (<span class="number">0</span>, <span class="number">0</span>),
             image,
@@ -2925,12 +2926,12 @@
     /// # Panics
     /// * The mask image has different dimensions than the foreground image.
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>with_mask(<span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;BitPixel&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>with_mask(<span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">'mask </span>Image&lt;BitPixel&gt;) -&gt; <span class="self">Self </span>{
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.image.dimensions(),
             mask.dimensions(),
-            <span class="string">&quot;mask image with dimensions {:?} has different dimensions \
-            than foreground image with dimensions {:?}&quot;</span>,
+            <span class="string">"mask image with dimensions {:?} has different dimensions \
+            than foreground image with dimensions {:?}"</span>,
             mask.dimensions(),
             <span class="self">self</span>.image.dimensions(),
         );
@@ -2948,7 +2949,7 @@
     /// are valid.
     </span><span class="attr">#[must_use]
     #[allow(clippy::missing_const_for_fn)]
-    </span><span class="kw">pub unsafe fn </span>with_mask_unchecked(<span class="kw-2">mut </span><span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">&#39;mask </span>Image&lt;BitPixel&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub unsafe fn </span>with_mask_unchecked(<span class="kw-2">mut </span><span class="self">self</span>, mask: <span class="kw-2">&amp;</span><span class="lifetime">'mask </span>Image&lt;BitPixel&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.mask = <span class="prelude-val">Some</span>(mask);
         <span class="self">self
     </span>}
@@ -2961,7 +2962,7 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;img</span>, <span class="lifetime">&#39;mask</span>, P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>Paste&lt;<span class="lifetime">&#39;img</span>, <span class="lifetime">&#39;mask</span>, P&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'img</span>, <span class="lifetime">'mask</span>, P: Pixel&gt; Draw&lt;P&gt; <span class="kw">for </span>Paste&lt;<span class="lifetime">'img</span>, <span class="lifetime">'mask</span>, P&gt; {
     <span class="kw">fn </span>draw&lt;I: DerefMut&lt;Target = Image&lt;P&gt;&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>image: I) {
         <span class="kw">let </span>(x1, y1) = <span class="self">self</span>.position;
         <span class="kw">let </span>(w, h) = <span class="self">self</span>.image.dimensions();

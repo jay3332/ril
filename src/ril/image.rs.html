@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/image.rs`."><title>image.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1566,7 +1567,7 @@
     Dynamic,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"resize"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::ResizeAlgorithm;
 
 <span class="kw">use </span>num_traits::{SaturatingAdd, SaturatingSub};
@@ -1595,10 +1596,10 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>OverlayMode {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Merge =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;merge&quot;</span>),
-            <span class="self">Self</span>::Replace =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;replace&quot;</span>),
+            <span class="self">Self</span>::Merge =&gt; <span class="macro">write!</span>(f, <span class="string">"merge"</span>),
+            <span class="self">Self</span>::Replace =&gt; <span class="macro">write!</span>(f, <span class="string">"replace"</span>),
         }
     }
 }
@@ -1612,7 +1613,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) width: NonZeroU32,
     <span class="kw">pub</span>(<span class="kw">crate</span>) height: NonZeroU32,
     <span class="doccomment">/// A 1-dimensional vector of pixels representing all pixels in the image. This is shaped
-    /// according to the image&#39;s width and height to form the image.
+    /// according to the image's width and height to form the image.
     ///
     /// This data is a low-level, raw representation of the image. You can see the various pixel
     /// mapping functions, or use the [`pixels`][Image::pixels] method directly for higher level
@@ -1625,11 +1626,11 @@
 
 <span class="macro">macro_rules! </span>assert_nonzero {
     (<span class="macro-nonterminal">$width</span>:expr) =&gt; {{
-        <span class="macro">debug_assert_ne!</span>(<span class="macro-nonterminal">$width</span>, <span class="number">0</span>, <span class="string">&quot;width must be non-zero&quot;</span>);
+        <span class="macro">debug_assert_ne!</span>(<span class="macro-nonterminal">$width</span>, <span class="number">0</span>, <span class="string">"width must be non-zero"</span>);
     }};
     (<span class="macro-nonterminal">$width</span>:expr, <span class="macro-nonterminal">$height</span>:expr) =&gt; {{
         <span class="macro">assert_nonzero!</span>(<span class="macro-nonterminal">$width</span>);
-        <span class="macro">debug_assert_ne!</span>(<span class="macro-nonterminal">$height</span>, <span class="number">0</span>, <span class="string">&quot;height must be non-zero&quot;</span>);
+        <span class="macro">debug_assert_ne!</span>(<span class="macro-nonterminal">$height</span>, <span class="number">0</span>, <span class="string">"height must be non-zero"</span>);
     }};
 }
 
@@ -1716,7 +1717,7 @@
         <span class="macro">assert_eq!</span>(
             pixels.len() % width <span class="kw">as </span>usize,
             <span class="number">0</span>,
-            <span class="string">&quot;length of pixels must be a multiple of the image width&quot;</span>,
+            <span class="string">"length of pixels must be a multiple of the image width"</span>,
         );
 
         <span class="self">Self </span>{
@@ -1753,13 +1754,13 @@
     /// # }
     /// ```
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>from_paletted_pixels&lt;<span class="lifetime">&#39;p</span>&gt;(
+    </span><span class="kw">pub fn </span>from_paletted_pixels&lt;<span class="lifetime">'p</span>&gt;(
         width: u32,
-        palette: <span class="kw">impl </span>ToOwned&lt;Owned = Vec&lt;P::Color&gt;&gt; + <span class="lifetime">&#39;p</span>,
+        palette: <span class="kw">impl </span>ToOwned&lt;Owned = Vec&lt;P::Color&gt;&gt; + <span class="lifetime">'p</span>,
         pixels: <span class="kw">impl </span>AsRef&lt;[P::Subpixel]&gt;,
     ) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>P: Paletted&lt;<span class="lifetime">&#39;p</span>&gt;,
+        </span>P: Paletted&lt;<span class="lifetime">'p</span>&gt;,
     {
         <span class="macro">assert_nonzero!</span>(width);
 
@@ -1767,11 +1768,11 @@
         <span class="macro">debug_assert_eq!</span>(
             pixels.len() % width <span class="kw">as </span>usize,
             <span class="number">0</span>,
-            <span class="string">&quot;length of pixels must be a multiple of the image width&quot;</span>,
+            <span class="string">"length of pixels must be a multiple of the image width"</span>,
         );
         <span class="attr">#[allow(clippy::redundant_clone)]
         </span><span class="kw">let </span>palette = palette.to_owned().into_boxed_slice();
-        <span class="macro">debug_assert!</span>(!palette.is_empty(), <span class="string">&quot;palette must not be empty&quot;</span>);
+        <span class="macro">debug_assert!</span>(!palette.is_empty(), <span class="string">"palette must not be empty"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>slf = <span class="self">Self </span>{
             width: NonZeroU32::new(width).unwrap(),
@@ -1788,7 +1789,7 @@
             slf.palette
                 .as_deref()
                 <span class="comment">// SAFETY: references will be dropped when `Self` is dropped; we can guarantee that
-                // &#39;p is only valid for the lifetime of `Self`.
+                // 'p is only valid for the lifetime of `Self`.
                 </span>.map(|slice| std::slice::from_raw_parts(slice.as_ptr(), slice.len()))
                 <span class="comment">// SAFETY: declared palette as `Some` in struct declaration
                 </span>.unwrap_unchecked()
@@ -1810,7 +1811,7 @@
     /// ```no_run
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
-    /// let file = std::fs::File::open(&quot;image.png&quot;)?;
+    /// let file = std::fs::File::open("image.png")?;
     /// let image = Image::&lt;Rgb&gt;::from_reader(ImageFormat::Png, file)?;
     /// # Ok(())
     /// # }
@@ -1833,7 +1834,7 @@
     /// ```no_run
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
-    /// let file = std::fs::File::open(&quot;image.png&quot;)?;
+    /// let file = std::fs::File::open("image.png")?;
     /// let image = Image::&lt;Rgb&gt;::from_reader_inferred(file)?;
     /// # Ok(())
     /// # }
@@ -1863,7 +1864,7 @@
     /// ```no_run,ignore
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
-    /// let bytes = include_bytes!(&quot;sample.png&quot;) as &amp;[u8];
+    /// let bytes = include_bytes!("sample.png") as &amp;[u8];
     /// let image = Image::&lt;Rgb&gt;::from_bytes(ImageFormat::Png, bytes)?;
     /// # Ok(())
     /// # }
@@ -1889,7 +1890,7 @@
     /// ```no_run,ignore
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
-    /// let bytes = include_bytes!(&quot;sample.png&quot;) as &amp;[u8];
+    /// let bytes = include_bytes!("sample.png") as &amp;[u8];
     /// let image = Image::&lt;Rgb&gt;::from_bytes_inferred(bytes)?;
     /// # Ok(())
     /// # }
@@ -1919,8 +1920,8 @@
     /// ```no_run
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
-    /// let image = Image::&lt;Rgb&gt;::open(&quot;sample.png&quot;)?;
-    /// println!(&quot;Image dimensions: {}x{}&quot;, image.width(), image.height());
+    /// let image = Image::&lt;Rgb&gt;::open("sample.png")?;
+    /// println!("Image dimensions: {}x{}", image.width(), image.height());
     /// # Ok(())
     /// # }
     /// ```
@@ -1976,7 +1977,7 @@
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
     /// let image = Image::new(100, 100, Rgb::new(255, 0, 0));
-    /// image.save(ImageFormat::Png, &quot;out.png&quot;)?;
+    /// image.save(ImageFormat::Png, "out.png")?;
     /// # Ok(())
     /// # }
     /// ```
@@ -2006,7 +2007,7 @@
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
     /// let image = Image::new(100, 100, Rgb::new(255, 0, 0));
-    /// image.save_inferred(&quot;out.png&quot;)?;
+    /// image.save_inferred("out.png")?;
     /// # Ok(())
     /// # }
     /// ```
@@ -2192,7 +2193,7 @@
 
     <span class="doccomment">/// Takes this image and inverts it. Useful for method chaining.
     </span><span class="attr">#[must_use]
-    #[deprecated(note = <span class="string">&quot;use the `Not` trait instead (e.g. `!image`)&quot;</span>)]
+    #[deprecated(note = <span class="string">"use the `Not` trait instead (e.g. `!image`)"</span>)]
     </span><span class="kw">pub fn </span>inverted(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.map_pixels(|pixel| !pixel)
     }
@@ -2201,7 +2202,7 @@
     /// See [`Self::darken`] to darken the image, since this usually does not take any negative
     /// values.
     ///
-    /// A subpixel is a value of a pixel&#39;s component, for example in RGB, each subpixel is a value
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value
     /// of either R, G, or B.
     ///
     /// For anything with alpha, alpha is not brightened.
@@ -2218,7 +2219,7 @@
     /// See [`Self::brighten`] to brighten the image, since this usually does not take any negative
     /// values.
     ///
-    /// A subpixel is a value of a pixel&#39;s component, for example in RGB, each subpixel is a value
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value
     /// of either R, G, or B.
     ///
     /// For anything with alpha, alpha is not brightened.
@@ -2237,7 +2238,7 @@
     /// See [`Self::darkened`] to darken the image, since this usually does not take any negative
     /// values.
     ///
-    /// A subpixel is a value of a pixel&#39;s component, for example in RGB, each subpixel is a value.
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value.
     ///
     /// For anything with alpha, alpha is not brightened.
     </span><span class="attr">#[must_use]
@@ -2254,7 +2255,7 @@
     /// See [`Self::brightened`] to brighten the image, since this usually does not take any
     /// negative values.
     ///
-    /// A subpixel is a value of a pixel&#39;s component, for example in RGB, each subpixel is a value.
+    /// A subpixel is a value of a pixel's component, for example in RGB, each subpixel is a value.
     ///
     /// For anything with alpha, alpha is not brightened.
     </span><span class="attr">#[must_use]
@@ -2352,7 +2353,7 @@
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.width() * <span class="self">self</span>.height(),
             data.len() <span class="kw">as </span>u32,
-            <span class="string">&quot;malformed data&quot;
+            <span class="string">"malformed data"
         </span>);
 
         <span class="self">self</span>.data = data;
@@ -2513,7 +2514,7 @@
         <span class="self">self
     </span>}
 
-    <span class="kw">fn </span>rotate_iterator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = P&gt; + DoubleEndedIterator + <span class="lifetime">&#39;_ </span>{
+    <span class="kw">fn </span>rotate_iterator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = P&gt; + DoubleEndedIterator + <span class="lifetime">'_ </span>{
         (<span class="number">0</span>..<span class="self">self</span>.width() <span class="kw">as </span>usize).flat_map(<span class="kw">move </span>|i| {
             (<span class="number">0</span>..<span class="self">self</span>.height() <span class="kw">as </span>usize)
                 .map(<span class="kw">move </span>|j| <span class="self">self</span>.data[j * <span class="self">self</span>.width() <span class="kw">as </span>usize + i])
@@ -2569,7 +2570,7 @@
             <span class="number">180 </span>=&gt; <span class="self">self</span>.rotate_180(),
             <span class="number">270 </span>=&gt; <span class="self">self</span>.rotate_270(),
             <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(
-                <span class="string">&quot;currently only rotations of 0, 90, 180, and 270 degrees are supported&quot;</span>,
+                <span class="string">"currently only rotations of 0, 90, 180, and 270 degrees are supported"</span>,
             ),
         }
     }
@@ -2604,7 +2605,7 @@
     /// # Ok(())
     /// # }
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
+    </span><span class="attr">#[cfg(feature = <span class="string">"resize"</span>)]
     </span><span class="kw">pub fn </span>resize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, width: u32, height: u32, algorithm: ResizeAlgorithm) {
         <span class="macro">assert_nonzero!</span>(width, height);
 
@@ -2635,7 +2636,7 @@
     /// # See Also
     /// * [`Self::resize`] for a version that operates in-place
     </span><span class="attr">#[must_use]
-    #[cfg(feature = <span class="string">&quot;resize&quot;</span>)]
+    #[cfg(feature = <span class="string">"resize"</span>)]
     </span><span class="kw">pub fn </span>resized(<span class="kw-2">mut </span><span class="self">self</span>, width: u32, height: u32, algorithm: ResizeAlgorithm) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.resize(width, height, algorithm);
         <span class="self">self
@@ -2679,7 +2680,7 @@
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
     /// let mut image = Image::new(256, 256, Rgb::white());
-    /// let overlay_image = Image::open(&quot;overlay.png&quot;)?;
+    /// let overlay_image = Image::open("overlay.png")?;
     ///
     /// image.paste(64, 64, &amp;overlay_image);
     /// # Ok(())
@@ -2701,7 +2702,7 @@
     /// # use ril::prelude::*;
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
     /// let mut image = Image::new(256, 256, Rgb::white());
-    /// let overlay_image = Image::open(&quot;overlay.png&quot;)?;
+    /// let overlay_image = Image::open("overlay.png")?;
     ///
     /// let (w, h) = overlay_image.dimensions();
     /// let mut mask = Image::new(w, h, BitPixel::off());
@@ -2721,7 +2722,7 @@
     /// If you want to mask using the alpha values of the image instead of providing an [`L`] image,
     /// you can split the bands of the image and extract the alpha band.
     ///
-    /// This masking image must have the same dimensions as this image. If it doesn&#39;t, you will
+    /// This masking image must have the same dimensions as this image. If it doesn't, you will
     /// receive a panic.
     ///
     /// # Panics
@@ -2733,8 +2734,8 @@
         <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.dimensions(),
             mask.dimensions(),
-            <span class="string">&quot;Masking image with dimensions {:?} must have the \
-            same dimensions as this image with dimensions {:?}&quot;</span>,
+            <span class="string">"Masking image with dimensions {:?} must have the \
+            same dimensions as this image with dimensions {:?}"</span>,
             mask.dimensions(),
             <span class="self">self</span>.dimensions()
         );
@@ -2792,11 +2793,11 @@
     ///
     /// # Panics
     /// * Safe conversion of palette references failed.
-    </span><span class="kw">pub fn </span>map_palette&lt;<span class="lifetime">&#39;a</span>, U, F, C: TrueColor&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>f: F) -&gt; Image&lt;U&gt;
+    </span><span class="kw">pub fn </span>map_palette&lt;<span class="lifetime">'a</span>, U, F, C: TrueColor&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>f: F) -&gt; Image&lt;U&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: <span class="lifetime">&#39;a</span>,
-        P: Paletted&lt;<span class="lifetime">&#39;a</span>&gt;,
-        U: Paletted&lt;<span class="lifetime">&#39;a</span>&gt; + Pixel&lt;Subpixel = P::Subpixel, Color = C&gt;,
+        </span><span class="self">Self</span>: <span class="lifetime">'a</span>,
+        P: Paletted&lt;<span class="lifetime">'a</span>&gt;,
+        U: Paletted&lt;<span class="lifetime">'a</span>&gt; + Pixel&lt;Subpixel = P::Subpixel, Color = C&gt;,
         F: FnMut(P::Color) -&gt; C,
     {
         <span class="kw">let </span>palette = <span class="self">self</span>.palette.map(|palette| {
@@ -2820,7 +2821,7 @@
                         <span class="kw-2">&amp;</span>[p.palette_index().into() <span class="kw">as </span>u8],
                         palette.as_deref(),
                     )
-                    .expect(<span class="string">&quot;could not perform safe conversion of palette references&quot;</span>)
+                    .expect(<span class="string">"could not perform safe conversion of palette references"</span>)
                 })
                 .collect(),
             format: <span class="self">self</span>.format,
@@ -2831,11 +2832,11 @@
 
     <span class="doccomment">/// Takes this image and flattens this paletted image into an unpaletted image. This is similar
     /// to [`Self::convert`] but the output type is automatically resolved.
-    </span><span class="attr">#[must_use = <span class="string">&quot;the image is consumed by this method and returns a new image&quot;</span>]
-    </span><span class="kw">pub fn </span>flatten_palette&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="self">self</span>) -&gt; Image&lt;P::Color&gt;
+    </span><span class="attr">#[must_use = <span class="string">"the image is consumed by this method and returns a new image"</span>]
+    </span><span class="kw">pub fn </span>flatten_palette&lt;<span class="lifetime">'a</span>&gt;(<span class="self">self</span>) -&gt; Image&lt;P::Color&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: <span class="lifetime">&#39;a</span>,
-        P: Paletted&lt;<span class="lifetime">&#39;a</span>&gt;,
+        </span><span class="self">Self</span>: <span class="lifetime">'a</span>,
+        P: Paletted&lt;<span class="lifetime">'a</span>&gt;,
     {
         <span class="self">self</span>.map_pixels(|pixel| pixel.color())
     }
@@ -2852,18 +2853,18 @@
     /// # See Also
     /// * [`Quantizer`] - Implementation of the core quantizer. Use this for more fine-grained
     /// control over the quantization process, such as adjusting the quantization speed.
-    </span><span class="attr">#[must_use = <span class="string">&quot;the image is consumed by this method and returns a new image&quot;</span>]
-    </span><span class="kw">pub fn </span>quantize&lt;<span class="lifetime">&#39;p</span>, T&gt;(<span class="self">self</span>, palette_size: u8) -&gt; Image&lt;T&gt;
+    </span><span class="attr">#[must_use = <span class="string">"the image is consumed by this method and returns a new image"</span>]
+    </span><span class="kw">pub fn </span>quantize&lt;<span class="lifetime">'p</span>, T&gt;(<span class="self">self</span>, palette_size: u8) -&gt; Image&lt;T&gt;
     <span class="kw">where
-        </span><span class="self">Self</span>: <span class="lifetime">&#39;p</span>,
+        </span><span class="self">Self</span>: <span class="lifetime">'p</span>,
         P: TrueColor,
-        T: Pixel&lt;Color = P&gt; + Paletted&lt;<span class="lifetime">&#39;p</span>, Subpixel = u8&gt;,
+        T: Pixel&lt;Color = P&gt; + Paletted&lt;<span class="lifetime">'p</span>, Subpixel = u8&gt;,
     {
         <span class="kw">let </span>width = <span class="self">self</span>.width();
         <span class="kw">let </span>(palette, pixels) = <span class="kw">crate</span>::quantize::Quantizer::new()
             .with_palette_size(palette_size <span class="kw">as </span>usize)
             .quantize(<span class="self">self</span>.data)
-            .expect(<span class="string">&quot;unable to quantize image&quot;</span>);
+            .expect(<span class="string">"unable to quantize image"</span>);
 
         Image::from_paletted_pixels(width, palette, pixels)
     }
@@ -2883,7 +2884,7 @@
     /// use ril::prelude::*;
     ///
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
-    /// let image = Image::&lt;Rgba&gt;::open(&quot;image.png&quot;)?;
+    /// let image = Image::&lt;Rgba&gt;::open("image.png")?;
     /// let (rgb, alpha) = image.split_rgb_and_alpha();
     /// let inverted = Image::from_rgb_and_alpha(rgb.rotated(90), alpha);
     /// # Ok(())
@@ -2913,7 +2914,7 @@
         <span class="macro">debug_assert_eq!</span>(
             rgb.dimensions(),
             alpha.dimensions(),
-            <span class="string">&quot;dimensions of RGB and alpha images do not match&quot;</span>,
+            <span class="string">"dimensions of RGB and alpha images do not match"</span>,
         );
         rgb.map_data(|data| {
             data.into_iter()
@@ -2933,7 +2934,7 @@
     /// use ril::prelude::*;
     ///
     /// # fn main() -&gt; ril::Result&lt;()&gt; {
-    /// let image = Image::&lt;Rgba&gt;::open(&quot;image.png&quot;)?;
+    /// let image = Image::&lt;Rgba&gt;::open("image.png")?;
     /// let inverted = image.map_rgb_pixels(|rgb| !rgb);
     /// # Ok(())
     /// # }
@@ -2970,14 +2971,14 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Image&lt;PalettedRgb&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; <span class="kw">for </span>Image&lt;PalettedRgba&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-    <span class="kw">fn </span>from(image: Image&lt;PalettedRgb&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;Image&lt;PalettedRgb&lt;<span class="lifetime">'a</span>&gt;&gt;&gt; <span class="kw">for </span>Image&lt;PalettedRgba&lt;<span class="lifetime">'a</span>&gt;&gt; {
+    <span class="kw">fn </span>from(image: Image&lt;PalettedRgb&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
         image.map_palette(Into::into)
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; From&lt;Image&lt;PalettedRgba&lt;<span class="lifetime">&#39;a</span>&gt;&gt;&gt; <span class="kw">for </span>Image&lt;PalettedRgb&lt;<span class="lifetime">&#39;a</span>&gt;&gt; {
-    <span class="kw">fn </span>from(image: Image&lt;PalettedRgba&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; From&lt;Image&lt;PalettedRgba&lt;<span class="lifetime">'a</span>&gt;&gt;&gt; <span class="kw">for </span>Image&lt;PalettedRgb&lt;<span class="lifetime">'a</span>&gt;&gt; {
+    <span class="kw">fn </span>from(image: Image&lt;PalettedRgba&lt;<span class="lifetime">'a</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
         image.map_palette(Into::into)
     }
 }
@@ -2990,7 +2991,7 @@
                 <span class="kw">let </span>(palette, pixels) = <span class="kw">crate</span>::quantize::Quantizer::new()
                     .with_palette_size(image.data.len())
                     .quantize(image.data)
-                    .expect(<span class="string">&quot;unable to quantize image&quot;</span>);
+                    .expect(<span class="string">"unable to quantize image"</span>);
 
                 Image::from_paletted_pixels(width, palette, pixels)
             }
@@ -2998,8 +2999,8 @@
     };
 }
 
-<span class="macro">impl_cast_quantize!</span>(Rgb: PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt;);
-<span class="macro">impl_cast_quantize!</span>(Rgba: PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
+<span class="macro">impl_cast_quantize!</span>(Rgb: PalettedRgb&lt;<span class="lifetime">'_</span>&gt;);
+<span class="macro">impl_cast_quantize!</span>(Rgba: PalettedRgba&lt;<span class="lifetime">'_</span>&gt;);
 
 <span class="macro">macro_rules! </span>impl_cast {
     (<span class="macro-nonterminal">$t</span>:ty: $(<span class="macro-nonterminal">$f</span>:ty)+) =&gt; {
@@ -3013,11 +3014,11 @@
     };
 }
 
-<span class="macro">impl_cast!</span>(BitPixel: L Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
-<span class="macro">impl_cast!</span>(L: BitPixel Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
-<span class="macro">impl_cast!</span>(Rgb: BitPixel L Rgba Dynamic PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
-<span class="macro">impl_cast!</span>(Rgba: BitPixel L Rgb Dynamic PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
-<span class="macro">impl_cast!</span>(Dynamic: BitPixel L Rgb Rgba PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
+<span class="macro">impl_cast!</span>(BitPixel: L Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">'_</span>&gt; PalettedRgba&lt;<span class="lifetime">'_</span>&gt;);
+<span class="macro">impl_cast!</span>(L: BitPixel Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">'_</span>&gt; PalettedRgba&lt;<span class="lifetime">'_</span>&gt;);
+<span class="macro">impl_cast!</span>(Rgb: BitPixel L Rgba Dynamic PalettedRgb&lt;<span class="lifetime">'_</span>&gt; PalettedRgba&lt;<span class="lifetime">'_</span>&gt;);
+<span class="macro">impl_cast!</span>(Rgba: BitPixel L Rgb Dynamic PalettedRgb&lt;<span class="lifetime">'_</span>&gt; PalettedRgba&lt;<span class="lifetime">'_</span>&gt;);
+<span class="macro">impl_cast!</span>(Dynamic: BitPixel L Rgb Rgba PalettedRgb&lt;<span class="lifetime">'_</span>&gt; PalettedRgba&lt;<span class="lifetime">'_</span>&gt;);
 
 <span class="doccomment">/// Represents an image with multiple channels, called bands.
 ///
@@ -3059,8 +3060,8 @@
             <span class="macro">assert_eq!</span>(
                 <span class="macro-nonterminal">$target</span>.dimensions(),
                 <span class="macro-nonterminal">$others</span>.dimensions(),
-                <span class="string">&quot;bands have different dimensions: {} has dimensions of {:?}, which is different \
-                from {} which has dimenesions of {:?}&quot;</span>,
+                <span class="string">"bands have different dimensions: {} has dimensions of {:?}, which is different \
+                from {} which has dimenesions of {:?}"</span>,
                 <span class="macro">stringify!</span>(<span class="macro-nonterminal">$target</span>),
                 <span class="macro-nonterminal">$target</span>.dimensions(),
                 <span class="macro">stringify!</span>(<span class="macro-nonterminal">$others</span>),

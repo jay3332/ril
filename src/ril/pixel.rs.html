@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pixel.rs`."><title>pixel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pixel.rs`."><title>pixel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1786,7 +1787,7 @@
         <span class="kw">const </span>SEALED: bool = <span class="bool-val">true</span>;
     }
 
-    <span class="macro">sealed!</span>(NoOp BitPixel L Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">&#39;_</span>&gt; PalettedRgba&lt;<span class="lifetime">&#39;_</span>&gt;);
+    <span class="macro">sealed!</span>(NoOp BitPixel L Rgb Rgba Dynamic PalettedRgb&lt;<span class="lifetime">'_</span>&gt; PalettedRgba&lt;<span class="lifetime">'_</span>&gt;);
 }
 
 <span class="kw">pub use </span>sealed::MaybeSealed;
@@ -1830,7 +1831,7 @@
         value
     }
 
-    <span class="doccomment">/// Maps the pixel&#39;s components and returns a new pixel with the mapped components.
+    <span class="doccomment">/// Maps the pixel's components and returns a new pixel with the mapped components.
     ///
     /// Alpha is intentionally mapped separately. If no alpha component exists, the alpha function
     /// is ignored.
@@ -1936,7 +1937,7 @@
     </span><span class="attr">#[allow(unused_variables)]
     #[must_use]
     </span><span class="kw">fn </span>from_dynamic(dynamic: Dynamic) -&gt; <span class="self">Self </span>{
-        <span class="macro">panic!</span>(<span class="string">&quot;cannot convert from dynamic pixel for this pixel type&quot;</span>);
+        <span class="macro">panic!</span>(<span class="string">"cannot convert from dynamic pixel for this pixel type"</span>);
     }
 
     <span class="doccomment">/// Returns this pixel as RGB despite its type. This can panic on some pixel types, you must
@@ -2032,11 +2033,11 @@
     </span>}
 
     <span class="kw">fn </span>as_rgb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgb {
-        <span class="macro">panic!</span>(<span class="string">&quot;NoOp is a private pixel type and should not be used&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"NoOp is a private pixel type and should not be used"</span>)
     }
 
     <span class="kw">fn </span>as_rgba(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgba {
-        <span class="macro">panic!</span>(<span class="string">&quot;NoOp is a private pixel type and should not be used&quot;</span>)
+        <span class="macro">panic!</span>(<span class="string">"NoOp is a private pixel type and should not be used"</span>)
     }
 }
 
@@ -2211,13 +2212,13 @@
         } <span class="kw">else </span>{
             <span class="kw">if </span>!<span class="macro-nonterminal">$src_depth</span>.is_power_of_two() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError(<span class="macro">format!</span>(
-                    <span class="string">&quot;source depth {} is not a power of two&quot;</span>,
+                    <span class="string">"source depth {} is not a power of two"</span>,
                     <span class="macro-nonterminal">$src_depth
                 </span>)));
             }
             <span class="macro">debug_assert!</span>(
                 <span class="macro-nonterminal">$target_depth</span>.is_power_of_two(),
-                <span class="string">&quot;target depth {} is not a power of two&quot;</span>,
+                <span class="string">"target depth {} is not a power of two"</span>,
                 <span class="macro-nonterminal">$target_depth</span>,
             );
 
@@ -2262,7 +2263,7 @@
     (<span class="macro-nonterminal">$data</span>:expr, <span class="macro-nonterminal">$expected</span>:expr) =&gt; {{
         <span class="kw">if </span><span class="macro-nonterminal">$data</span>.len() &lt; <span class="macro-nonterminal">$expected </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError(<span class="macro">format!</span>(
-                <span class="string">&quot;malformed pixel data for {}: expected at least {} component(s) but received {}&quot;</span>,
+                <span class="string">"malformed pixel data for {}: expected at least {} component(s) but received {}"</span>,
                 std::any::type_name::&lt;<span class="self">Self</span>&gt;(),
                 <span class="macro-nonterminal">$expected</span>,
                 <span class="macro-nonterminal">$data</span>.len(),
@@ -2277,7 +2278,7 @@
 <span class="doccomment">/// Represents an L, or luminance pixel that is stored as only one single
 /// number representing how bright, or intense, the pixel is.
 ///
-/// This can be thought of as the &quot;unit channel&quot; as this represents only
+/// This can be thought of as the "unit channel" as this represents only
 /// a single channel in which other pixel types can be composed of.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 </span><span class="kw">pub struct </span>L(
@@ -2492,7 +2493,7 @@
     /// - RRGGBB
     /// - RGB
     ///
-    /// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.
+    /// These can be optionally padded with #, for example "#FF0000" is the same as as "FF0000".
     ///
     /// # Errors
     /// * Received a malformed hex code.
@@ -2500,11 +2501,11 @@
         <span class="kw">let </span>hex = hex.as_ref();
 
         <span class="comment">// Strip # from the hex code
-        </span><span class="kw">let </span>hex = hex.strip_prefix(<span class="string">&#39;#&#39;</span>).unwrap_or(hex);
+        </span><span class="kw">let </span>hex = hex.strip_prefix(<span class="string">'#'</span>).unwrap_or(hex);
 
         <span class="comment">// Expand the hex code to 6 characters
         //
-        // We can use .len() instead of .chars().count() since it&#39;s both faster
+        // We can use .len() instead of .chars().count() since it's both faster
         // performance-wise and also because characters of a hex-string will never
         // take up more than one byte.
         </span><span class="kw">let </span>hex = <span class="kw">if </span>hex.len() == <span class="number">3 </span>{
@@ -2737,12 +2738,12 @@
     /// - RGBA
     /// - RGB
     ///
-    /// These can be optionally padded with #, for example &quot;#FF0000&quot; is the same as as &quot;FF0000&quot;.
+    /// These can be optionally padded with #, for example "#FF0000" is the same as as "FF0000".
     ///
     /// # Errors
     /// * Received a malformed hex code.
     </span><span class="kw">pub fn </span>from_hex(hex: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>hex = hex.strip_prefix(<span class="string">&#39;#&#39;</span>).unwrap_or(hex);
+        <span class="kw">let </span>hex = hex.strip_prefix(<span class="string">'#'</span>).unwrap_or(hex);
 
         <span class="kw">match </span>hex.len() {
             <span class="number">3 </span>| <span class="number">6 </span>=&gt; Rgb::from_hex(hex).map(<span class="self">Self</span>::from_rgb),
@@ -2819,14 +2820,14 @@
         <span class="kw">match </span>(<span class="macro-nonterminal">$self</span>, <span class="macro-nonterminal">$other</span>) {
             (DynamicSubpixel::U8(<span class="macro-nonterminal">$a</span>), DynamicSubpixel::U8(<span class="macro-nonterminal">$b</span>)) =&gt; DynamicSubpixel::U8(<span class="macro-nonterminal">$out</span>),
             (DynamicSubpixel::Bool(<span class="kw">_</span>), DynamicSubpixel::Bool(<span class="kw">_</span>)) =&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;cannot {} DynamicPixel boolean variants. You should try converting to a \
-                    concrete pixel type so these runtime panics are not triggered.&quot;</span>,
+                <span class="string">"cannot {} DynamicPixel boolean variants. You should try converting to a \
+                    concrete pixel type so these runtime panics are not triggered."</span>,
                 <span class="macro-nonterminal">$err</span>,
             ),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;cannot {} different or incompatible DynamicSubpixel variants. You should \
+                <span class="string">"cannot {} different or incompatible DynamicSubpixel variants. You should \
                     try converting to a concrete pixel type so these runtime panics are not \
-                    triggered.&quot;</span>,
+                    triggered."</span>,
                 <span class="macro-nonterminal">$err</span>,
             ),
         }
@@ -2837,7 +2838,7 @@
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>add(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;add&quot;</span>; <span class="self">self</span>, other; a, b; a + b)
+        <span class="macro">impl_num_op!</span>(<span class="string">"add"</span>; <span class="self">self</span>, other; a, b; a + b)
     }
 }
 
@@ -2851,7 +2852,7 @@
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>sub(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;subtract&quot;</span>; <span class="self">self</span>, other; a, b; a - b)
+        <span class="macro">impl_num_op!</span>(<span class="string">"subtract"</span>; <span class="self">self</span>, other; a, b; a - b)
     }
 }
 
@@ -2865,7 +2866,7 @@
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>mul(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;multiply&quot;</span>; <span class="self">self</span>, other; a, b; a * b)
+        <span class="macro">impl_num_op!</span>(<span class="string">"multiply"</span>; <span class="self">self</span>, other; a, b; a * b)
     }
 }
 
@@ -2879,7 +2880,7 @@
     <span class="kw">type </span>Output = <span class="self">Self</span>;
 
     <span class="kw">fn </span>div(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;divide&quot;</span>; <span class="self">self</span>, other; a, b; a / b)
+        <span class="macro">impl_num_op!</span>(<span class="string">"divide"</span>; <span class="self">self</span>, other; a, b; a / b)
     }
 }
 
@@ -2892,7 +2893,7 @@
 <span class="kw">impl </span>std::ops::Rem <span class="kw">for </span>DynamicSubpixel {
     <span class="kw">type </span>Output = <span class="self">Self</span>;
     <span class="kw">fn </span>rem(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;remainder&quot;</span>; <span class="self">self</span>, other; a, b; a % b)
+        <span class="macro">impl_num_op!</span>(<span class="string">"remainder"</span>; <span class="self">self</span>, other; a, b; a % b)
     }
 }
 
@@ -2904,19 +2905,19 @@
 
 <span class="kw">impl </span>num_traits::SaturatingAdd <span class="kw">for </span>DynamicSubpixel {
     <span class="kw">fn </span>saturating_add(<span class="kw-2">&amp;</span><span class="self">self</span>, v: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_add&quot;</span>; <span class="self">self</span>, v; a, b; a.saturating_add(b))
+        <span class="macro">impl_num_op!</span>(<span class="string">"saturating_add"</span>; <span class="self">self</span>, v; a, b; a.saturating_add(b))
     }
 }
 
 <span class="kw">impl </span>num_traits::SaturatingSub <span class="kw">for </span>DynamicSubpixel {
     <span class="kw">fn </span>saturating_sub(<span class="kw-2">&amp;</span><span class="self">self</span>, v: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_sub&quot;</span>; <span class="self">self</span>, v; a, b; a.saturating_sub(b))
+        <span class="macro">impl_num_op!</span>(<span class="string">"saturating_sub"</span>; <span class="self">self</span>, v; a, b; a.saturating_sub(b))
     }
 }
 
 <span class="kw">impl </span>num_traits::SaturatingMul <span class="kw">for </span>DynamicSubpixel {
     <span class="kw">fn </span>saturating_mul(<span class="kw-2">&amp;</span><span class="self">self</span>, v: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
-        <span class="macro">impl_num_op!</span>(<span class="string">&quot;saturating_mul&quot;</span>; <span class="self">self</span>, v; a, b; a.saturating_mul(b))
+        <span class="macro">impl_num_op!</span>(<span class="string">"saturating_mul"</span>; <span class="self">self</span>, v; a, b; a.saturating_mul(b))
     }
 }
 
@@ -2941,8 +2942,8 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>Dynamic {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="macro">panic!</span>(
-            <span class="string">&quot;Dynamic pixel type must be known, try using a concrete pixel type instead so these \
-                runtime panics are not triggered.&quot;
+            <span class="string">"Dynamic pixel type must be known, try using a concrete pixel type instead so these \
+                runtime panics are not triggered."
         </span>);
     }
 }
@@ -2974,11 +2975,11 @@
                 (<span class="macro-nonterminal">$pixel</span>).map_subpixels(
                     |pixel| <span class="kw">match </span>f(DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(pixel)) {
                         DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(pixel) =&gt; pixel,
-                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;dynamic subpixel map returned something different&quot;</span>),
+                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"dynamic subpixel map returned something different"</span>),
                     },
                     |alpha| <span class="kw">match </span>a(DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(alpha)) {
                         DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(alpha) =&gt; alpha,
-                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;dynamic subpixel map returned something different&quot;</span>),
+                        <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"dynamic subpixel map returned something different"</span>),
                     },
                 )
             }};
@@ -3038,7 +3039,7 @@
             <span class="number">1 </span>=&gt; <span class="self">Self</span>::L(Pixel::from_bytes(bytes)),
             <span class="number">3 </span>=&gt; <span class="self">Self</span>::Rgb(Pixel::from_bytes(bytes)),
             <span class="number">4 </span>=&gt; <span class="self">Self</span>::Rgba(Pixel::from_bytes(bytes)),
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Invalid pixel data length&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Invalid pixel data length"</span>),
         }
     }
 
@@ -3061,7 +3062,7 @@
             (<span class="self">Self</span>::Rgba(pixel), <span class="self">Self</span>::Rgba(other)) =&gt; {
                 <span class="self">Self</span>::Rgba(pixel.merge_with_alpha(other, alpha))
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Cannot overlay two foreign pixel types&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Cannot overlay two foreign pixel types"</span>),
         }
     }
 
@@ -3273,12 +3274,12 @@
 }
 
 <span class="attr">#[allow(dead_code)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>assume_pixel_from_palette&lt;<span class="lifetime">&#39;p</span>, P, Index: Into&lt;usize&gt;&gt;(
-    palette: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[P::Color],
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>assume_pixel_from_palette&lt;<span class="lifetime">'p</span>, P, Index: Into&lt;usize&gt;&gt;(
+    palette: <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[P::Color],
     index: Index,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;P&gt;
 <span class="kw">where
-    </span>P: <span class="lifetime">&#39;p </span>+ Pixel,
+    </span>P: <span class="lifetime">'p </span>+ Pixel,
 {
     <span class="macro">macro_rules! </span>unsafe_cast {
         (<span class="macro-nonterminal">$t</span>:ty =&gt; <span class="macro-nonterminal">$out</span>:ty) =&gt; {{
@@ -3305,11 +3306,11 @@
 
 <span class="doccomment">/// A trait representing a paletted pixel. [`Pixel::Subpixel`] is the type of the palette index.
 ///
-/// The generic lifetime parameter `&#39;p` represents the lifetime of a palette the type will hold a
+/// The generic lifetime parameter `'p` represents the lifetime of a palette the type will hold a
 /// reference to.
-</span><span class="kw">pub trait </span>Paletted&lt;<span class="lifetime">&#39;p</span>&gt;: Pixel
+</span><span class="kw">pub trait </span>Paletted&lt;<span class="lifetime">'p</span>&gt;: Pixel
 <span class="kw">where
-    </span><span class="self">Self</span>: <span class="lifetime">&#39;p</span>,
+    </span><span class="self">Self</span>: <span class="lifetime">'p</span>,
 {
     <span class="doccomment">/// Creates this pixel from the given palette and index. For unpaletted pixels, use
     /// [`Pixel::from_arbitrary_palette`] instead.
@@ -3318,10 +3319,10 @@
     /// * The pixel index is invalid/out of bounds.
     /// * If the color type is not supported by the pixel type.
     /// * An error occurs when trying to convert the data to the pixel type.
-    </span><span class="kw">fn </span>from_palette(palette: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[<span class="self">Self</span>::Color], index: <span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>;
+    </span><span class="kw">fn </span>from_palette(palette: <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[<span class="self">Self</span>::Color], index: <span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Returns the palette lookup as a slice.
-    </span><span class="kw">fn </span>palette(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[<span class="self">Self</span>::Color];
+    </span><span class="kw">fn </span>palette(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[<span class="self">Self</span>::Color];
 
     <span class="doccomment">/// Returns the index in the palette this pixel is of.
     </span><span class="kw">fn </span>palette_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Subpixel;
@@ -3333,11 +3334,11 @@
         <span class="kw-2">*</span><span class="self">self
             </span>.palette()
             .get(<span class="self">self</span>.palette_index().into())
-            .expect(<span class="string">&quot;invalid palette index&quot;</span>)
+            .expect(<span class="string">"invalid palette index"</span>)
     }
 
     <span class="doccomment">/// Resolves the color of the pixel. Invalid palette values *should* be propagated prior to
-    /// to calling this, but it isn&#39;t guaranteed, for example if the palette pixel was manually
+    /// to calling this, but it isn't guaranteed, for example if the palette pixel was manually
     /// initialized.
     ///
     /// This results in undefined behavior if the palette index is invalid.
@@ -3354,7 +3355,7 @@
         $(
             <span class="kw">impl </span>Default <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
                 <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-                    <span class="macro">panic!</span>(<span class="string">&quot;cannot use default for paletted pixel&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"cannot use default for paletted pixel"</span>);
                 }
             }
         )+
@@ -3366,9 +3367,9 @@
         <span class="self">Self </span>{
             index: <span class="macro-nonterminal">$self</span>.palette().iter().position(<span class="macro-nonterminal">$filter</span>).unwrap_or_else(|| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;could not find a color in the palette with the same value once {}, \
+                    <span class="string">"could not find a color in the palette with the same value once {}, \
                      try converting this pixel or image to a true color format first. paletted \
-                     pixels can only transform to other colors in the same palette.&quot;</span>,
+                     pixels can only transform to other colors in the same palette."</span>,
                     <span class="macro-nonterminal">$action</span>,
                 )
             }) <span class="kw">as </span>u8,
@@ -3380,11 +3381,11 @@
 <span class="macro">macro_rules! </span>panic_unpaletted {
     () =&gt; {{
         <span class="macro">panic!</span>(
-            <span class="string">&quot;currently, pixels are resolved independent from other pixels, meaning that RIL \
+            <span class="string">"currently, pixels are resolved independent from other pixels, meaning that RIL \
                 cannot quantize non-paletted pixels into a palette, since it must be aware of all \
                 other pixels in the image. Consider manually quantizing the image, or using a \
                 non-paletted pixel format, such as RGBA, instead - RIL can automatically flatten \
-                paletted images into true color images, but not the opposite.&quot;</span>,
+                paletted images into true color images, but not the opposite."</span>,
         )
     }};
 }
@@ -3401,33 +3402,33 @@
     };
 }
 
-<span class="comment">// Suffixed with an 8 to indicate that it&#39;s an 8-bit palette
+<span class="comment">// Suffixed with an 8 to indicate that it's an 8-bit palette
 </span><span class="macro">macro_rules! </span>impl_palette8 {
     (<span class="macro-nonterminal">$name</span>:ident: <span class="macro-nonterminal">$color_type</span>:ident <span class="macro-nonterminal">$cast</span>:ident <span class="macro-nonterminal">$tgt</span>:ty) =&gt; {
         <span class="attr">#[derive(Copy, Clone, PartialEq, Eq, Hash)]
         #[doc = <span class="macro">concat!</span>(
-            <span class="string">&quot;Represents a paletted pixel, holding an index to a palette of &quot;</span>,
+            <span class="string">"Represents a paletted pixel, holding an index to a palette of "</span>,
             <span class="macro">stringify!</span>(<span class="macro-nonterminal">$tgt</span>),
-            <span class="string">&quot; colors represented as a `&amp;&#39;p [&quot;</span>,
+            <span class="string">" colors represented as a `&amp;'p ["</span>,
             <span class="macro">stringify!</span>(<span class="macro-nonterminal">$tgt</span>),
-            <span class="string">&quot;]`, where `&#39;p` is the lifetime of the palette.&quot;</span>,
+            <span class="string">"]`, where `'p` is the lifetime of the palette."</span>,
         )]
-        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;p</span>&gt; {
+        </span><span class="kw">pub struct </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">'p</span>&gt; {
             <span class="kw">pub </span>index: u8,
-            palette: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[<span class="macro-nonterminal">$tgt</span>],
+            palette: <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[<span class="macro-nonterminal">$tgt</span>],
         }
 
-        <span class="kw">impl </span>fmt::Debug <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;_</span>&gt; {
-            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">impl </span>fmt::Debug <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">'_</span>&gt; {
+            <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
                 f.debug_struct(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
-                    .field(<span class="string">&quot;index&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.index)
+                    .field(<span class="string">"index"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.index)
                     .finish()
             }
         }
 
-        <span class="macro">impl_palette_default!</span>(<span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;_</span>&gt;);
+        <span class="macro">impl_palette_default!</span>(<span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">'_</span>&gt;);
 
-        <span class="kw">impl </span>Pixel <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;_</span>&gt; {
+        <span class="kw">impl </span>Pixel <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">'_</span>&gt; {
             <span class="kw">const </span>COLOR_TYPE: ColorType = ColorType::<span class="macro-nonterminal">$color_type</span>;
             <span class="kw">const </span>BIT_DEPTH: u8 = <span class="number">8</span>;
 
@@ -3442,7 +3443,7 @@
             {
                 <span class="kw">let </span>target = <span class="kw-2">&amp;</span><span class="self">self</span>.color().map_subpixels(f, a);
 
-                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">&quot;mapped&quot;</span>, |color| color == target)
+                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">"mapped"</span>, |color| color == target)
             }
 
             <span class="kw">fn </span>from_raw_parts_paletted&lt;P: Pixel&gt;(
@@ -3455,7 +3456,7 @@
             }
 
             <span class="kw">fn </span>from_bytes(_bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
-                <span class="macro">panic!</span>(<span class="string">&quot;cannot initialize a paletted pixel without being aware of its palette&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">"cannot initialize a paletted pixel without being aware of its palette"</span>)
             }
 
             <span class="kw">fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::Data {
@@ -3465,25 +3466,25 @@
             <span class="kw">fn </span>merge_with_alpha(<span class="self">self</span>, other: <span class="self">Self</span>, alpha: u8) -&gt; <span class="self">Self </span>{
                 <span class="kw">let </span>target = <span class="kw-2">&amp;</span><span class="self">self</span>.color().merge_with_alpha(other.color(), alpha);
 
-                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">&quot;merged&quot;</span>, |color| color == target)
+                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">"merged"</span>, |color| color == target)
             }
 
             <span class="kw">fn </span>from_dynamic(_dynamic: Dynamic) -&gt; <span class="self">Self </span>{
-                <span class="macro">todo!</span>(<span class="string">&quot;implement dynamic palettes&quot;</span>)
+                <span class="macro">todo!</span>(<span class="string">"implement dynamic palettes"</span>)
             }
 
             <span class="macro">force_into_impl!</span>();
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;p</span>&gt; Paletted&lt;<span class="lifetime">&#39;p</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;p</span>&gt; {
-            <span class="kw">fn </span>from_palette(palette: <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[<span class="self">Self</span>::Color], index: <span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self </span>{
+        <span class="kw">impl</span>&lt;<span class="lifetime">'p</span>&gt; Paletted&lt;<span class="lifetime">'p</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">'p</span>&gt; {
+            <span class="kw">fn </span>from_palette(palette: <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[<span class="self">Self</span>::Color], index: <span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self </span>{
                 <span class="self">Self </span>{
                     index: usize::from(index) <span class="kw">as </span>u8,
                     palette,
                 }
             }
 
-            <span class="kw">fn </span>palette(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;p </span>[<span class="self">Self</span>::Color] {
+            <span class="kw">fn </span>palette(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[<span class="self">Self</span>::Color] {
                 <span class="self">self</span>.palette
             }
 
@@ -3492,17 +3493,17 @@
             }
         }
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;p</span>&gt; Not <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;p</span>&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">'p</span>&gt; Not <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">'p</span>&gt; {
             <span class="kw">type </span>Output = <span class="self">Self</span>;
 
             <span class="kw">fn </span>not(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Output {
                 <span class="kw">let </span>target = <span class="kw-2">&amp;</span>!<span class="self">self</span>.color();
 
-                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">&quot;inverted&quot;</span>, |color| color == target)
+                <span class="macro">try_palette!</span>(<span class="self">self</span>, <span class="string">"inverted"</span>, |color| color == target)
             }
         }
 
-        <span class="macro">impl_palette_cast!</span>(<span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;_</span>&gt;: Rgb Rgba L BitPixel Dynamic);
+        <span class="macro">impl_palette_cast!</span>(<span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">'_</span>&gt;: Rgb Rgba L BitPixel Dynamic);
     }
 }
 

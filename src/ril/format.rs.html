@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/format.rs`."><title>format.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-cb6f1f67f1bcd037.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.73.0 (cc66ad468 2023-10-03)" data-channel="1.73.0" data-search-js="search-6dfdfced5eff6596.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-1596385f77d47ef2.css" data-theme-dark-css="dark-0a43001d3fc2282c.css" data-theme-ayu-css="ayu-fd19013d6ce078bf.css" ><script src="../../static.files/storage-db41da1a38ea3cb8.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../static.files/light-1596385f77d47ef2.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../static.files/dark-0a43001d3fc2282c.css"><link rel="stylesheet" href="../../static.files/noscript-cffde32267a19fd6.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><a class="sub-logo-container" href="../../ril/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/format.rs`."><title>format.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -298,15 +299,15 @@
     path::Path,
 };
 
-<span class="attr">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"gif"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::gif;
-<span class="attr">#[cfg(feature = <span class="string">&quot;jpeg&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"jpeg"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::jpeg;
-<span class="attr">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"png"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::png;
-<span class="attr">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+<span class="attr">#[cfg(feature = <span class="string">"webp"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::encodings::webp;
-<span class="attr">#[cfg(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>))]
+<span class="attr">#[cfg(any(feature = <span class="string">"png"</span>, feature = <span class="string">"gif"</span>, feature = <span class="string">"jpeg"</span>, feature = <span class="string">"webp"</span>))]
 </span><span class="kw">use crate</span>::{Decoder, Encoder};
 
 <span class="doccomment">/// Represents the underlying encoding format of an image.
@@ -369,12 +370,12 @@
                 </span>.to_ascii_lowercase()
                 .as_str()
             {
-                <span class="string">&quot;png&quot; </span>| <span class="string">&quot;apng&quot; </span>=&gt; <span class="self">Self</span>::Png,
-                <span class="string">&quot;jpg&quot; </span>| <span class="string">&quot;jpeg&quot; </span>=&gt; <span class="self">Self</span>::Jpeg,
-                <span class="string">&quot;gif&quot; </span>=&gt; <span class="self">Self</span>::Gif,
-                <span class="string">&quot;bmp&quot; </span>=&gt; <span class="self">Self</span>::Bmp,
-                <span class="string">&quot;tiff&quot; </span>=&gt; <span class="self">Self</span>::Tiff,
-                <span class="string">&quot;webp&quot; </span>=&gt; <span class="self">Self</span>::WebP,
+                <span class="string">"png" </span>| <span class="string">"apng" </span>=&gt; <span class="self">Self</span>::Png,
+                <span class="string">"jpg" </span>| <span class="string">"jpeg" </span>=&gt; <span class="self">Self</span>::Jpeg,
+                <span class="string">"gif" </span>=&gt; <span class="self">Self</span>::Gif,
+                <span class="string">"bmp" </span>=&gt; <span class="self">Self</span>::Bmp,
+                <span class="string">"tiff" </span>=&gt; <span class="self">Self</span>::Tiff,
+                <span class="string">"webp" </span>=&gt; <span class="self">Self</span>::WebP,
                 <span class="kw">_ </span>=&gt; <span class="self">Self</span>::Unknown,
             },
         )
@@ -401,12 +402,12 @@
         <span class="kw">let </span>mime = mime.as_ref();
 
         <span class="kw">match </span>mime {
-            <span class="string">&quot;image/png&quot; </span>=&gt; <span class="self">Self</span>::Png,
-            <span class="string">&quot;image/jpeg&quot; </span>=&gt; <span class="self">Self</span>::Jpeg,
-            <span class="string">&quot;image/gif&quot; </span>=&gt; <span class="self">Self</span>::Gif,
-            <span class="string">&quot;image/bmp&quot; </span>=&gt; <span class="self">Self</span>::Bmp,
-            <span class="string">&quot;image/tiff&quot; </span>=&gt; <span class="self">Self</span>::Tiff,
-            <span class="string">&quot;image/webp&quot; </span>=&gt; <span class="self">Self</span>::WebP,
+            <span class="string">"image/png" </span>=&gt; <span class="self">Self</span>::Png,
+            <span class="string">"image/jpeg" </span>=&gt; <span class="self">Self</span>::Jpeg,
+            <span class="string">"image/gif" </span>=&gt; <span class="self">Self</span>::Gif,
+            <span class="string">"image/bmp" </span>=&gt; <span class="self">Self</span>::Bmp,
+            <span class="string">"image/tiff" </span>=&gt; <span class="self">Self</span>::Tiff,
+            <span class="string">"image/webp" </span>=&gt; <span class="self">Self</span>::WebP,
             <span class="kw">_ </span>=&gt; <span class="self">Self</span>::Unknown,
         }
     }
@@ -414,17 +415,17 @@
     <span class="doccomment">/// Infers the encoding format from the given data via a byte stream.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>infer_encoding(sample: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>sample.starts_with(<span class="string">b&quot;\x89PNG\x0D\x0A\x1A\x0A&quot;</span>) {
+        <span class="kw">if </span>sample.starts_with(<span class="string">b"\x89PNG\x0D\x0A\x1A\x0A"</span>) {
             <span class="self">Self</span>::Png
-        } <span class="kw">else if </span>sample.starts_with(<span class="string">b&quot;\xFF\xD8\xFF&quot;</span>) {
+        } <span class="kw">else if </span>sample.starts_with(<span class="string">b"\xFF\xD8\xFF"</span>) {
             <span class="self">Self</span>::Jpeg
-        } <span class="kw">else if </span>sample.starts_with(<span class="string">b&quot;GIF&quot;</span>) {
+        } <span class="kw">else if </span>sample.starts_with(<span class="string">b"GIF"</span>) {
             <span class="self">Self</span>::Gif
-        } <span class="kw">else if </span>sample.starts_with(<span class="string">b&quot;BM&quot;</span>) {
+        } <span class="kw">else if </span>sample.starts_with(<span class="string">b"BM"</span>) {
             <span class="self">Self</span>::Bmp
-        } <span class="kw">else if </span>sample.len() &gt; <span class="number">11 </span>&amp;&amp; <span class="kw-2">&amp;</span>sample[<span class="number">8</span>..<span class="number">12</span>] == <span class="string">b&quot;WEBP&quot; </span>{
+        } <span class="kw">else if </span>sample.len() &gt; <span class="number">11 </span>&amp;&amp; <span class="kw-2">&amp;</span>sample[<span class="number">8</span>..<span class="number">12</span>] == <span class="string">b"WEBP" </span>{
             <span class="self">Self</span>::WebP
-        } <span class="kw">else if </span>(sample.starts_with(<span class="string">b&quot;\x49\x49\x2A\0&quot;</span>) || sample.starts_with(<span class="string">b&quot;\x4D\x4D\0\x2A&quot;</span>))
+        } <span class="kw">else if </span>(sample.starts_with(<span class="string">b"\x49\x49\x2A\0"</span>) || sample.starts_with(<span class="string">b"\x4D\x4D\0\x2A"</span>))
             &amp;&amp; sample[<span class="number">8</span>] != <span class="number">0x43
             </span>&amp;&amp; sample[<span class="number">9</span>] != <span class="number">0x52
         </span>{
@@ -442,22 +443,22 @@
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     </span><span class="attr">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
+        not(any(feature = <span class="string">"png"</span>, feature = <span class="string">"gif"</span>, feature = <span class="string">"jpeg"</span>, feature = <span class="string">"webp"</span>)),
         allow(unused_variables, unreachable_code)
     )]
     </span><span class="kw">pub fn </span>run_encoder&lt;P: Pixel&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;, dest: <span class="kw">impl </span>Write) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"png"</span>)]
             </span><span class="self">Self</span>::Png =&gt; png::PngEncoder::encode_static(image, dest),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;jpeg&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"jpeg"</span>)]
             </span><span class="self">Self</span>::Jpeg =&gt; jpeg::JpegEncoder::encode_static(image, dest),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"gif"</span>)]
             </span><span class="self">Self</span>::Gif =&gt; gif::GifEncoder::encode_static(image, dest),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"webp"</span>)]
             </span><span class="self">Self</span>::WebP =&gt; webp::WebPStaticEncoder::encode_static(image, dest),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;No encoder implementation is found for this image format. \
-                 Did you forget to enable the feature?&quot;
+                <span class="string">"No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
             </span>),
         }
     }
@@ -471,7 +472,7 @@
     /// # Panics
     /// * No encoder implementation is found for this image encoding.
     </span><span class="attr">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
+        not(any(feature = <span class="string">"png"</span>, feature = <span class="string">"gif"</span>, feature = <span class="string">"jpeg"</span>, feature = <span class="string">"webp"</span>)),
         allow(unused_variables, unreachable_code)
     )]
     </span><span class="kw">pub fn </span>run_sequence_encoder&lt;P: Pixel&gt;(
@@ -480,17 +481,17 @@
         dest: <span class="kw">impl </span>Write,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"png"</span>)]
             </span><span class="self">Self</span>::Png =&gt; png::PngEncoder::encode_sequence(seq, dest),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;jpeg&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"jpeg"</span>)]
             </span><span class="self">Self</span>::Jpeg =&gt; jpeg::JpegEncoder::encode_sequence(seq, dest),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"gif"</span>)]
             </span><span class="self">Self</span>::Gif =&gt; gif::GifEncoder::encode_sequence(seq, dest),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"webp"</span>)]
             </span><span class="self">Self</span>::WebP =&gt; webp::WebPMuxEncoder::encode_sequence(seq, dest),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;No encoder implementation is found for this image format. \
-                 Did you forget to enable the feature?&quot;
+                <span class="string">"No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
             </span>),
         }
     }
@@ -503,23 +504,23 @@
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     </span><span class="attr">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
+        not(any(feature = <span class="string">"png"</span>, feature = <span class="string">"gif"</span>, feature = <span class="string">"jpeg"</span>, feature = <span class="string">"webp"</span>)),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] </span><span class="comment">// would require a major refactor
     </span><span class="kw">pub fn </span>run_decoder&lt;P: Pixel&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, stream: <span class="kw">impl </span>Read) -&gt; <span class="prelude-ty">Result</span>&lt;Image&lt;P&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"png"</span>)]
             </span><span class="self">Self</span>::Png =&gt; png::PngDecoder::new().decode(stream),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;jpeg&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"jpeg"</span>)]
             </span><span class="self">Self</span>::Jpeg =&gt; jpeg::JpegDecoder::new().decode(stream),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"gif"</span>)]
             </span><span class="self">Self</span>::Gif =&gt; gif::GifDecoder::new().decode(stream),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"webp"</span>)]
             </span><span class="self">Self</span>::WebP =&gt; webp::WebPDecoder::default().decode(stream),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;No encoder implementation is found for this image format. \
-                 Did you forget to enable the feature?&quot;
+                <span class="string">"No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
             </span>),
         }
     }
@@ -532,26 +533,26 @@
     /// # Panics
     /// * No decoder implementation is found for this image encoding.
     </span><span class="attr">#[cfg_attr(
-        not(any(feature = <span class="string">&quot;png&quot;</span>, feature = <span class="string">&quot;gif&quot;</span>, feature = <span class="string">&quot;jpeg&quot;</span>, feature = <span class="string">&quot;webp&quot;</span>)),
+        not(any(feature = <span class="string">"png"</span>, feature = <span class="string">"gif"</span>, feature = <span class="string">"jpeg"</span>, feature = <span class="string">"webp"</span>)),
         allow(unused_variables, unreachable_code)
     )]
     #[allow(clippy::needless_pass_by_value)] </span><span class="comment">// would require a major refactor
-    </span><span class="kw">pub fn </span>run_sequence_decoder&lt;<span class="lifetime">&#39;a</span>, P: Pixel + <span class="lifetime">&#39;a</span>, R: Read + <span class="lifetime">&#39;a</span>&gt;(
+    </span><span class="kw">pub fn </span>run_sequence_decoder&lt;<span class="lifetime">'a</span>, P: Pixel + <span class="lifetime">'a</span>, R: Read + <span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         stream: R,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>FrameIterator&lt;P&gt; + <span class="lifetime">&#39;a</span>&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>FrameIterator&lt;P&gt; + <span class="lifetime">'a</span>&gt;&gt; {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self </span>{
-            <span class="attr">#[cfg(feature = <span class="string">&quot;png&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"png"</span>)]
             </span><span class="self">Self</span>::Png =&gt; Box::new(png::PngDecoder::new().decode_sequence(stream)<span class="question-mark">?</span>),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;jpeg&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"jpeg"</span>)]
             </span><span class="self">Self</span>::Jpeg =&gt; Box::new(jpeg::JpegDecoder::new().decode_sequence(stream)<span class="question-mark">?</span>),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;gif&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"gif"</span>)]
             </span><span class="self">Self</span>::Gif =&gt; Box::new(gif::GifDecoder::new().decode_sequence(stream)<span class="question-mark">?</span>),
-            <span class="attr">#[cfg(feature = <span class="string">&quot;webp&quot;</span>)]
+            <span class="attr">#[cfg(feature = <span class="string">"webp"</span>)]
             </span><span class="self">Self</span>::WebP =&gt; Box::new(webp::WebPDecoder::default().decode_sequence(stream)<span class="question-mark">?</span>),
             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(
-                <span class="string">&quot;No encoder implementation is found for this image format. \
-                 Did you forget to enable the feature?&quot;
+                <span class="string">"No encoder implementation is found for this image format. \
+                 Did you forget to enable the feature?"
             </span>),
         })
     }
@@ -561,15 +562,15 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
             f,
-            <span class="string">&quot;{}&quot;</span>,
+            <span class="string">"{}"</span>,
             <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Png =&gt; <span class="string">&quot;png&quot;</span>,
-                <span class="self">Self</span>::Jpeg =&gt; <span class="string">&quot;jpeg&quot;</span>,
-                <span class="self">Self</span>::Gif =&gt; <span class="string">&quot;gif&quot;</span>,
-                <span class="self">Self</span>::Bmp =&gt; <span class="string">&quot;bmp&quot;</span>,
-                <span class="self">Self</span>::Tiff =&gt; <span class="string">&quot;tiff&quot;</span>,
-                <span class="self">Self</span>::WebP =&gt; <span class="string">&quot;webp&quot;</span>,
-                <span class="self">Self</span>::Unknown =&gt; <span class="string">&quot;&quot;</span>,
+                <span class="self">Self</span>::Png =&gt; <span class="string">"png"</span>,
+                <span class="self">Self</span>::Jpeg =&gt; <span class="string">"jpeg"</span>,
+                <span class="self">Self</span>::Gif =&gt; <span class="string">"gif"</span>,
+                <span class="self">Self</span>::Bmp =&gt; <span class="string">"bmp"</span>,
+                <span class="self">Self</span>::Tiff =&gt; <span class="string">"tiff"</span>,
+                <span class="self">Self</span>::WebP =&gt; <span class="string">"webp"</span>,
+                <span class="self">Self</span>::Unknown =&gt; <span class="string">""</span>,
             }
         )
     }
