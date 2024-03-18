@@ -698,8 +698,12 @@ impl<'a, P: Pixel> Draw<P> for TextLayout<'a, P> {
         let image = &mut *image;
 
         // Skips the calculation of offsets
-        if self.x_anchor == HorizontalAnchor::Left && self.y_anchor == VerticalAnchor::Top {
+        if self.x_anchor == HorizontalAnchor::Left
+            && self.y_anchor == VerticalAnchor::Top
+            && self.align == TextAlign::Left
+        {
             render_layout(image, &self.fonts, &self.inner);
+            return;
         }
 
         let (widths, max_width, fx, ox, oy) = self.calculate_offsets();
