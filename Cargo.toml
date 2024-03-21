@@ -10,6 +10,7 @@ homepage = "https://github.com/jay3332/ril"
 readme = "README.md"
 keywords = ["ril", "imaging", "image", "processing", "editing"]
 categories = ["encoding", "graphics", "multimedia", "visualization"]
+rust-version = "1.72"
 
 [dependencies]
 num-traits = "0.2"
