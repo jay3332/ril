@@ -1,5 +1,6 @@
+mod test_png;
+
 use ril::prelude::*;
-// use std::time::Duration;
 
 #[test]
 fn test_static_webp_encode() -> ril::Result<()> {

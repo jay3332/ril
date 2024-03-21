@@ -19,9 +19,10 @@ use crate::encodings::png;
 #[cfg(feature = "webp")]
 use crate::encodings::webp;
 #[cfg(feature = "webp-pure")]
-use crate::encodings::webp_rust;
+use crate::encodings::webp_pure;
 #[cfg(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp"))]
 use crate::{Decoder, Encoder};
+
 #[cfg(all(feature = "webp-pure", feature = "webp"))]
 compile_error!("features `ril/webp-pure` and `ril/webp` are mutually exclusive");
 
@@ -172,7 +173,7 @@ impl ImageFormat {
             #[cfg(feature = "webp")]
             Self::WebP => webp::WebPStaticEncoder::encode_static(image, dest),
             #[cfg(feature = "webp-pure")]
-            Self::WebP => webp_rust::WebPStaticEncoder::encode_static(image, dest),
+            Self::WebP => webp_pure::WebPStaticEncoder::encode_static(image, dest),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
@@ -237,7 +238,7 @@ impl ImageFormat {
             Self::WebP => webp::WebPDecoder::default().decode(stream),
             #[cfg(feature = "webp-pure")]
             // Self::WebP => webp_rust::WebPDecoder::default().decode(stream),
-            Self::WebP => webp_rust::WebPDecoder::default().decode(stream),
+            Self::WebP => webp_pure::WebPDecoder::default().decode(stream),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
