@@ -1,6 +1,7 @@
 #![cfg(feature = "webp-pure")]
 
-mod test_png;
+mod common;
+use common::COLORS;
 
 use ril::prelude::*;
 
@@ -17,6 +18,19 @@ fn test_static_webp_decode() -> ril::Result<()> {
 
     assert_eq!(image.dimensions(), (256, 256));
     assert_eq!(image.pixel(0, 0), &Rgb::new(255, 0, 0));
+
+    Ok(())
+}
+
+#[test]
+fn test_animated_webp_decode() -> ril::Result<()> {
+    for (frame, ref color) in ImageSequence::<Rgb>::open("tests/animated_sample.webp")?.zip(COLORS)
+    {
+        let frame = frame?.into_image();
+
+        assert_eq!(frame.dimensions(), (256, 256));
+        assert_eq!(frame.pixel(0, 0), color);
+    }
 
     Ok(())
 }

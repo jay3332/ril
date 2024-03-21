@@ -1,8 +1,8 @@
-mod test_png;
+mod common;
 
+use common::COLORS;
 use ril::prelude::*;
 use std::time::Duration;
-use test_png::COLORS;
 
 #[test]
 fn test_gif_encode() -> ril::Result<()> {
