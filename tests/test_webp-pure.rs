@@ -1,3 +1,5 @@
+#![cfg(feature = "webp-pure")]
+
 mod test_png;
 
 use ril::prelude::*;

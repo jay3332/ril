@@ -27,7 +27,7 @@ image-webp = { version = "0.1.1", optional = true }
 [features]
 default = ["resize", "text", "quantize", "gradient"]
 all-pure = ["resize", "png", "jpeg", "gif", "text", "quantize", "webp-pure"]
-all = ["all-pure", "webp"]
+all = ["resize", "png", "jpeg", "gif", "text", "quantize", "webp"]
 png = ["dep:png"]
 jpeg = ["dep:jpeg-decoder", "dep:jpeg-encoder"]
 gif = ["dep:gif"]
