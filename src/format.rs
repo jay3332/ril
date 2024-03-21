@@ -23,7 +23,7 @@ use crate::encodings::webp_pure;
 #[cfg(any(feature = "png", feature = "gif", feature = "jpeg", feature = "webp"))]
 use crate::{Decoder, Encoder};
 
-#[cfg(all(feature = "webp-pure", feature = "webp"))]
+#[cfg(all(feature = "webp-pure", feature = "webp", not(doc)))]
 compile_error!("features `ril/webp-pure` and `ril/webp` are mutually exclusive");
 
 /// Represents the underlying encoding format of an image.
