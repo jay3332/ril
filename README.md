@@ -313,7 +313,7 @@ let layout = TextLayout::new()
     .centered() // Shorthand for centering horizontally and vertically
     .with_wrap(WrapStyle::Word) // RIL supports word wrapping
     .with_width(image.width()) // This is the width to wrap text at. Only required if you want to wrap text.
-    .with_position(x, y); // Position the anchor (which is the center) at the center of the image
+    .with_position(x, y) // Position the anchor (which is the center) at the center of the image
     .with_segment(&TextSegment::new(&font, "Here is some ", Rgb::white()))
     .with_segment(&TextSegment::new(&bold, "bold ", Rgb::white()))
     .with_segment(&TextSegment::new(&font, "text.", Rgb::white()));
