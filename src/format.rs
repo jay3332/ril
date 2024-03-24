@@ -237,7 +237,6 @@ impl ImageFormat {
             #[cfg(feature = "webp")]
             Self::WebP => webp::WebPDecoder::default().decode(stream),
             #[cfg(feature = "webp-pure")]
-            // Self::WebP => webp_rust::WebPDecoder::default().decode(stream),
             Self::WebP => webp_pure::WebPDecoder::default().decode(stream),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
@@ -271,6 +270,8 @@ impl ImageFormat {
             Self::Gif => Box::new(gif::GifDecoder::new().decode_sequence(stream)?),
             #[cfg(feature = "webp")]
             Self::WebP => Box::new(webp::WebPDecoder::default().decode_sequence(stream)?),
+            #[cfg(feature = "webp-pure")]
+            Self::WebP => Box::new(webp_pure::WebPDecoder::default().decode_sequence(stream)?),
             _ => panic!(
                 "No encoder implementation is found for this image format. \
                  Did you forget to enable the feature?"
