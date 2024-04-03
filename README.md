@@ -72,7 +72,7 @@ Additionally, we also plan to support the following pixel formats:
 have actual support 16-bit pixel formats in the future.
 
 ## Requirements
-MSRV (Minimum Supported Rust Version) is v1.72.0.
+MSRV (Minimum Supported Rust Version) is v1.67.1.
 
 ## Installation
 Add the following to your `Cargo.toml` dependencies:
