@@ -36,13 +36,31 @@ fn test_static_webp_decode() -> ril::Result<()> {
 }
 
 #[test]
-fn test_animated_webp_decode() -> ril::Result<()> {
-    for (frame, ref color) in ImageSequence::<Rgb>::open("tests/animated_sample.webp")?.zip(COLORS)
-    {
+fn test_animated_webp_lossless() -> ril::Result<()> {
+    for (i, frame) in ImageSequence::<Rgb>::open("tests/animated_lossless.webp")?.enumerate() {
         let frame = frame?.into_image();
 
-        assert_eq!(frame.dimensions(), (256, 256));
-        assert_eq!(frame.pixel(0, 0), color);
+        let reference =
+            Image::<Rgb>::open(format!("tests/reference/random_lossless-{}.png", i + 1))?;
+
+        frame.pixels().zip(reference.pixels()).for_each(|(a, b)| {
+            assert_eq!(a, b);
+        });
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_animated_webp_lossy() -> ril::Result<()> {
+    for (i, frame) in ImageSequence::<Rgb>::open("tests/animated_lossy.webp")?.enumerate() {
+        let frame = frame?.into_image();
+
+        let reference = Image::<Rgb>::open(format!("tests/reference/random_lossy-{}.png", i + 1))?;
+
+        frame.pixels().zip(reference.pixels()).for_each(|(a, b)| {
+            assert_eq!(a, b);
+        });
     }
 
     Ok(())
