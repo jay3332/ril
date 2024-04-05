@@ -72,7 +72,7 @@ Additionally, we also plan to support the following pixel formats:
 have actual support 16-bit pixel formats in the future.
 
 ## Requirements
-MSRV (Minimum Supported Rust Version) is v1.61.0.
+MSRV (Minimum Supported Rust Version) is v1.67.1.
 
 ## Installation
 Add the following to your `Cargo.toml` dependencies:
@@ -128,12 +128,12 @@ image format support, but adds a lot of dependencies you may not need.
 
 For every image encoding that requires a dependency, a corresponding feature can be enabled for it:
 
-| Encoding     | Feature | Dependencies                   | Default? |
-|--------------|---------|--------------------------------|----------|
-| PNG and APNG | `png`   | `png`                          | no       |
-| JPEG         | `jpeg`  | `jpeg-decoder`, `jpeg-encoder` | no       |
-| GIF          | `gif`   | `gif`                          | no       |
-| WebP         | `webp`  | `libwebp-sys2`                 | no       |
+| Encoding     | Feature               | Dependencies                   | Default? |
+|--------------|-----------------------|--------------------------------|----------|
+| PNG and APNG | `png`                 | `png`                          | no       |
+| JPEG         | `jpeg`                | `jpeg-decoder`, `jpeg-encoder` | no       |
+| GIF          | `gif`                 | `gif`                          | no       |
+| WebP         | `webp` or `webp-pure` | `libwebp-sys2` or `image-webp` | no       |
 
 Other features:
 

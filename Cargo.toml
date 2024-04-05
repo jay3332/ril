@@ -10,6 +10,7 @@ homepage = "https://github.com/jay3332/ril"
 readme = "README.md"
 keywords = ["ril", "imaging", "image", "processing", "editing"]
 categories = ["encoding", "graphics", "multimedia", "visualization"]
+rust-version = "1.67"
 
 [dependencies]
 num-traits = "0.2"
@@ -22,11 +23,15 @@ libwebp-sys2 = { version = "^0.1", features = ["1_2", "mux", "demux"], optional 
 fontdue = { version = "^0.7", optional = true }
 color_quant = { version = "^1.1", optional = true }
 colorgrad = { version = "^0.6", optional = true, default_features = false }
+# todo: switch back to crates release once
+# https://github.com/image-rs/image-webp/commit/4020925b7002bac88cda9f951eb725f6a7fcd3d8
+# is released
+image-webp = { git = "https://github.com/image-rs/image-webp", optional = true }
 
 [features]
 default = ["resize", "text", "quantize", "gradient"]
-all-pure = ["resize", "png", "jpeg", "gif", "text", "quantize"]
-all = ["all-pure", "webp"]
+all-pure = ["resize", "png", "jpeg", "gif", "text", "quantize", "webp-pure"]
+all = ["resize", "png", "jpeg", "gif", "text", "quantize", "webp"]
 png = ["dep:png"]
 jpeg = ["dep:jpeg-decoder", "dep:jpeg-encoder"]
 gif = ["dep:gif"]
@@ -36,10 +41,11 @@ text = ["dep:fontdue"]
 quantize = ["dep:color_quant"]
 gradient = ["dep:colorgrad"]
 static = ["libwebp-sys2?/static"]
+webp-pure = ["dep:image-webp"]
 
 [dev-dependencies]
 criterion = "^0.4"
-image = "^0"
+image = "^0.24"
 imageproc = "^0.23"
 rusttype = "^0.9"
 

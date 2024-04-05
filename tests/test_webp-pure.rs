@@ -1,28 +1,14 @@
-#![cfg(feature = "webp")]
+#![cfg(feature = "webp-pure")]
 
 mod common;
-use common::COLORS;
+
 use ril::prelude::*;
-use std::time::Duration;
 
 #[test]
 fn test_static_webp_encode() -> ril::Result<()> {
     let image = Image::from_fn(256, 256, |x, _| L(x as u8));
 
-    image.save_inferred("tests/out/webp_encode_output.webp")
-}
-
-#[test]
-fn test_animated_webp_encode() -> ril::Result<()> {
-    let mut seq = ImageSequence::new();
-
-    for color in COLORS {
-        seq.push_frame(
-            Frame::from_image(Image::new(256, 256, color)).with_delay(Duration::from_millis(100)),
-        );
-    }
-
-    seq.save_inferred("tests/out/animated_webp_encode_output.webp")
+    image.save_inferred("tests/out/webp_pure_encode_output.webp")
 }
 
 #[test]
@@ -58,9 +44,19 @@ fn test_animated_webp_lossy() -> ril::Result<()> {
 
         let reference = Image::<Rgb>::open(format!("tests/reference/random_lossy-{}.png", i + 1))?;
 
-        frame.pixels().zip(reference.pixels()).for_each(|(a, b)| {
-            assert_eq!(a, b);
-        });
+        let (width, height) = frame.dimensions();
+
+        // https://github.com/image-rs/image-webp/blob/4020925b7002bac88cda9f951eb725f6a7fcd3d8/tests/decode.rs#L56-L59
+        let num_bytes_different = frame
+            .pixels()
+            .zip(reference.pixels())
+            .filter(|(a, b)| a != b)
+            .count();
+
+        assert!(
+            100 * num_bytes_different / ((width * height) as usize) < 5,
+            "More than 5% of pixels differ"
+        );
     }
 
     Ok(())
