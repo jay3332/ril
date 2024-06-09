@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/resize.rs`."><title>resize.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/resize.rs`."><title>resize.rs - source</title><script> if (window.location.protocol !== "file:") document.write(`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2">`)</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0 (9b00956e5 2024-04-29)" data-channel="1.78.0" data-search-js="search-42d8da7a6b9792c2.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-12cf3b4f4f9dc36d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../ril/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
@@ -148,26 +148,14 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! An interfacing layer between `fast_image_resize` and this crate.
 
 </span><span class="kw">use crate</span>::{encodings::ColorType, Pixel};
-
 <span class="kw">use </span>fast_image_resize::{
-    FilterType <span class="kw">as </span>ResizeFilterType, Image <span class="kw">as </span>ResizeImage, PixelType <span class="kw">as </span>ResizePixelType, ResizeAlg,
+    images::{Image <span class="kw">as </span>ImageOut, ImageRef},
+    FilterType <span class="kw">as </span>ResizeFilterType, PixelType <span class="kw">as </span>ResizePixelType, ResizeAlg, ResizeOptions,
     Resizer,
 };
-<span class="kw">use </span>std::num::NonZeroU32;
 
 <span class="doccomment">/// A filtering algorithm that is used to resize an image.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -232,10 +220,10 @@
     </span><span class="kw">pub fn </span>resize&lt;P: Pixel&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         data: <span class="kw-2">&amp;</span>[P],
-        src_width: NonZeroU32,
-        src_height: NonZeroU32,
-        dst_width: NonZeroU32,
-        dst_height: NonZeroU32,
+        src_width: u32,
+        src_height: u32,
+        dst_width: u32,
+        dst_height: u32,
     ) -&gt; Vec&lt;P&gt; {
         <span class="kw">let </span>color_type = data[<span class="number">0</span>].color_type();
         <span class="kw">let </span>pixel_type = <span class="kw">match </span>P::BIT_DEPTH {
@@ -262,15 +250,14 @@
 
         <span class="kw">let </span>buffer = data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="comment">// We are able to unwrap here since we validated the buffer throughout the creation of the image.
-        </span><span class="kw">let </span>image = ResizeImage::from_vec_u8(src_width, src_height, buffer, pixel_type).unwrap();
-        <span class="kw">let </span>view = image.view();
+        </span><span class="kw">let </span>src = ImageRef::new(src_width, src_height, <span class="kw-2">&amp;</span>buffer, pixel_type).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>dest = ImageOut::new(dst_width, dst_height, pixel_type);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>dest = ResizeImage::new(dst_width, dst_height, pixel_type);
-        <span class="kw">let </span><span class="kw-2">mut </span>dst_view = dest.view_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>resizer = Resizer::new();
+        <span class="kw">let </span>options = ResizeOptions::new().resize_alg(ResizeAlg::from(<span class="kw-2">*</span><span class="self">self</span>));
 
-        <span class="kw">let </span><span class="kw-2">mut </span>resizer = Resizer::new(ResizeAlg::from(<span class="kw-2">*</span><span class="self">self</span>));
         <span class="comment">// The pixel type is the same, we can unwrap here
-        </span>resizer.resize(<span class="kw-2">&amp;</span>view, <span class="kw-2">&amp;mut </span>dst_view).unwrap();
+        </span>resizer.resize(<span class="kw-2">&amp;</span>src, <span class="kw-2">&amp;mut </span>dest, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>options)).unwrap();
 
         <span class="kw">let </span>bpp = color_type.channels() * ((P::BIT_DEPTH <span class="kw">as </span>usize + <span class="number">7</span>) &gt;&gt; <span class="number">3</span>);
         dest.into_vec()
@@ -280,16 +267,7 @@
     }
 }
 
-<span class="kw">fn </span>resize_tiled&lt;P: Pixel&gt;(
-    data: <span class="kw-2">&amp;</span>[P],
-    src_width: NonZeroU32,
-    dst_width: NonZeroU32,
-    dst_height: NonZeroU32,
-) -&gt; Vec&lt;P&gt; {
-    <span class="kw">let </span>src_width = src_width.get();
-    <span class="kw">let </span>dst_width = dst_width.get();
-    <span class="kw">let </span>dst_height = dst_height.get();
-
+<span class="kw">fn </span>resize_tiled&lt;P: Pixel&gt;(data: <span class="kw-2">&amp;</span>[P], src_width: u32, dst_width: u32, dst_height: u32) -&gt; Vec&lt;P&gt; {
     <span class="kw">let </span>chunks = data.chunks_exact(src_width <span class="kw">as _</span>);
 
     chunks
@@ -307,10 +285,10 @@
 /// * Unsupported bit depth.
 </span><span class="kw">pub fn </span>resize&lt;P: Pixel&gt;(
     data: <span class="kw-2">&amp;</span>[P],
-    src_width: NonZeroU32,
-    src_height: NonZeroU32,
-    dst_width: NonZeroU32,
-    dst_height: NonZeroU32,
+    src_width: u32,
+    src_height: u32,
+    dst_width: u32,
+    dst_height: u32,
     filter: FilterType,
 ) -&gt; Vec&lt;P&gt; {
     <span class="kw">match </span>filter {

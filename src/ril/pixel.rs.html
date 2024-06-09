@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pixel.rs`."><title>pixel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-5bc39a1768837dd0.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.77.0 (aedd173a2 2024-03-17)" data-channel="1.77.0" data-search-js="search-dd67cee4cfa65049.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-48f368f3872407c8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/pixel.rs`."><title>pixel.rs - source</title><script> if (window.location.protocol !== "file:") document.write(`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2">`)</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e935ef01ae1c1829.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ril" data-themes="" data-resource-suffix="" data-rustdoc-version="1.78.0 (9b00956e5 2024-04-29)" data-channel="1.78.0" data-search-js="search-42d8da7a6b9792c2.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-4c98445ec4002617.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-12cf3b4f4f9dc36d.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-04d5337699b92874.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title">
             <h2>Files</h2></div></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../../ril/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
@@ -1774,7 +1774,7 @@
     <span class="kw">use super</span>::{BitPixel, Dynamic, NoOp, PalettedRgb, PalettedRgba, Rgb, Rgba, L};
     <span class="kw">pub trait </span>Sealed {}
 
-    <span class="macro">macro_rules! </span>sealed {
+    <span class="macro">macro_rules!</span> sealed {
         ($(<span class="macro-nonterminal">$t</span>:ty)+) =&gt; {
             $(<span class="kw">impl </span>Sealed <span class="kw">for </span><span class="macro-nonterminal">$t </span>{})+
         };
@@ -2086,7 +2086,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>propagate_palette {
+<span class="macro">macro_rules!</span> propagate_palette {
     (<span class="macro-nonterminal">$p</span>:expr, <span class="macro-nonterminal">$data</span>:expr) =&gt; {{
         <span class="kw">if let </span><span class="prelude-val">Some</span>(palette) = <span class="macro-nonterminal">$p </span>{
             <span class="kw">return </span><span class="self">Self</span>::from_arbitrary_palette(palette, <span class="macro-nonterminal">$data</span>[<span class="number">0</span>] <span class="kw">as </span>usize);
@@ -2127,7 +2127,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>force_into_impl {
+<span class="macro">macro_rules!</span> force_into_impl {
     () =&gt; {
         <span class="kw">fn </span>as_rgb(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rgb {
             (<span class="kw-2">*</span><span class="self">self</span>).into()
@@ -2206,7 +2206,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>scale_subpixels {
+<span class="macro">macro_rules!</span> scale_subpixels {
     (<span class="macro-nonterminal">$src_depth</span>:expr, <span class="macro-nonterminal">$target_depth</span>:expr, <span class="macro-nonterminal">$data</span>:expr) =&gt; {{
         <span class="kw">if </span><span class="macro-nonterminal">$src_depth </span>== <span class="macro-nonterminal">$target_depth </span>{
             Cow::from(<span class="macro-nonterminal">$data</span>)
@@ -2260,7 +2260,7 @@
     }};
 }
 
-<span class="macro">macro_rules! </span>propagate_data {
+<span class="macro">macro_rules!</span> propagate_data {
     (<span class="macro-nonterminal">$data</span>:expr, <span class="macro-nonterminal">$expected</span>:expr) =&gt; {{
         <span class="kw">if </span><span class="macro-nonterminal">$data</span>.len() &lt; <span class="macro-nonterminal">$expected </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError(<span class="macro">format!</span>(
@@ -2816,7 +2816,7 @@
     </span>Bool(bool),
 }
 
-<span class="macro">macro_rules! </span>impl_num_op {
+<span class="macro">macro_rules!</span> impl_num_op {
     (<span class="macro-nonterminal">$err</span>:literal; <span class="macro-nonterminal">$self</span>:expr, <span class="macro-nonterminal">$other</span>:expr; <span class="macro-nonterminal">$a</span>:ident, <span class="macro-nonterminal">$b</span>:ident; <span class="macro-nonterminal">$out</span>:expr) =&gt; {{
         <span class="kw">match </span>(<span class="macro-nonterminal">$self</span>, <span class="macro-nonterminal">$other</span>) {
             (DynamicSubpixel::U8(<span class="macro-nonterminal">$a</span>), DynamicSubpixel::U8(<span class="macro-nonterminal">$b</span>)) =&gt; DynamicSubpixel::U8(<span class="macro-nonterminal">$out</span>),
@@ -2971,7 +2971,7 @@
         </span>F: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
         A: Fn(<span class="self">Self</span>::Subpixel) -&gt; <span class="self">Self</span>::Subpixel,
     {
-        <span class="macro">macro_rules! </span>subpixel {
+        <span class="macro">macro_rules!</span> subpixel {
             (<span class="macro-nonterminal">$pixel</span>:expr, <span class="macro-nonterminal">$variant</span>:ident) =&gt; {{
                 (<span class="macro-nonterminal">$pixel</span>).map_subpixels(
                     |pixel| <span class="kw">match </span>f(DynamicSubpixel::<span class="macro-nonterminal">$variant</span>(pixel)) {
@@ -3113,7 +3113,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>impl_dynamic {
+<span class="macro">macro_rules!</span> impl_dynamic {
     ($(<span class="macro-nonterminal">$t</span>:ident),+) =&gt; {
         $(
             <span class="kw">impl </span>From&lt;Dynamic&gt; <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
@@ -3150,7 +3150,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>impl_from_bitpixel {
+<span class="macro">macro_rules!</span> impl_from_bitpixel {
     ($(<span class="macro-nonterminal">$t</span>:ident),+) =&gt; {
         $(
             <span class="kw">impl </span>From&lt;BitPixel&gt; <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
@@ -3282,7 +3282,7 @@
 <span class="kw">where
     </span>P: <span class="lifetime">'p </span>+ Pixel,
 {
-    <span class="macro">macro_rules! </span>unsafe_cast {
+    <span class="macro">macro_rules!</span> unsafe_cast {
         (<span class="macro-nonterminal">$t</span>:ty =&gt; <span class="macro-nonterminal">$out</span>:ty) =&gt; {{
             <span class="kw">let </span>length = palette.len();
             <span class="kw">let </span>ptr = palette.as_ptr().cast::&lt;<span class="macro-nonterminal">$t</span>&gt;();
@@ -3351,7 +3351,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>impl_palette_default {
+<span class="macro">macro_rules!</span> impl_palette_default {
     ($(<span class="macro-nonterminal">$t</span>:ty),+) =&gt; {
         $(
             <span class="kw">impl </span>Default <span class="kw">for </span><span class="macro-nonterminal">$t </span>{
@@ -3363,7 +3363,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>try_palette {
+<span class="macro">macro_rules!</span> try_palette {
     (<span class="macro-nonterminal">$self</span>:ident, <span class="macro-nonterminal">$action</span>:literal, <span class="macro-nonterminal">$filter</span>:expr) =&gt; {{
         <span class="self">Self </span>{
             index: <span class="macro-nonterminal">$self</span>.palette().iter().position(<span class="macro-nonterminal">$filter</span>).unwrap_or_else(|| {
@@ -3379,7 +3379,7 @@
     }};
 }
 
-<span class="macro">macro_rules! </span>panic_unpaletted {
+<span class="macro">macro_rules!</span> panic_unpaletted {
     () =&gt; {{
         <span class="macro">panic!</span>(
             <span class="string">"currently, pixels are resolved independent from other pixels, meaning that RIL \
@@ -3391,7 +3391,7 @@
     }};
 }
 
-<span class="macro">macro_rules! </span>impl_palette_cast {
+<span class="macro">macro_rules!</span> impl_palette_cast {
     (<span class="macro-nonterminal">$t</span>:ty: $(<span class="macro-nonterminal">$f</span>:ty)+) =&gt; {
         $(
             <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$t</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$f </span>{
@@ -3404,7 +3404,7 @@
 }
 
 <span class="comment">// Suffixed with an 8 to indicate that it's an 8-bit palette
-</span><span class="macro">macro_rules! </span>impl_palette8 {
+</span><span class="macro">macro_rules!</span> impl_palette8 {
     (<span class="macro-nonterminal">$name</span>:ident: <span class="macro-nonterminal">$color_type</span>:ident <span class="macro-nonterminal">$cast</span>:ident <span class="macro-nonterminal">$tgt</span>:ty) =&gt; {
         <span class="attr">#[derive(Copy, Clone, PartialEq, Eq, Hash)]
         #[doc = <span class="macro">concat!</span>(
