@@ -955,7 +955,7 @@ impl<P: Pixel> Image<P> {
         self
     }
 
-    fn rotate_iterator(&self) -> impl Iterator<Item = P> + DoubleEndedIterator + '_ {
+    fn rotate_iterator(&self) -> impl DoubleEndedIterator<Item = P> + '_ {
         (0..self.width() as usize).flat_map(move |i| {
             (0..self.height() as usize)
                 .map(move |j| self.data[j * self.width() as usize + i])
@@ -1055,10 +1055,10 @@ impl<P: Pixel> Image<P> {
 
         self.data = crate::resize::resize(
             &self.data,
-            self.width,
-            self.height,
-            width,
-            height,
+            self.width.get(),
+            self.height.get(),
+            width.get(),
+            height.get(),
             algorithm,
         );
         self.width = width;
@@ -1522,8 +1522,8 @@ impl Banded<(Band, Band, Band)> for Image<Rgb> {
 
         r.map_data(|data| {
             data.into_iter()
-                .zip(g.data.into_iter())
-                .zip(b.data.into_iter())
+                .zip(g.data)
+                .zip(b.data)
                 .map(|((L(r), L(g)), L(b))| Rgb::new(r, g, b))
                 .collect()
         })
@@ -1540,9 +1540,9 @@ impl Banded<(Band, Band, Band, Band)> for Image<Rgba> {
 
         r.map_data(|data| {
             data.into_iter()
-                .zip(g.data.into_iter())
-                .zip(b.data.into_iter())
-                .zip(a.data.into_iter())
+                .zip(g.data)
+                .zip(b.data)
+                .zip(a.data)
                 .map(|(((L(r), L(g)), L(b)), L(a))| Rgba::new(r, g, b, a))
                 .collect()
         })

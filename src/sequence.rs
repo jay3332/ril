@@ -520,7 +520,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// Returns a reference to the first frame in the image sequence, if any.
     #[must_use]
     pub fn first_frame(&self) -> Option<&Frame<P>> {
-        self.frames.get(0)
+        self.frames.first()
     }
 
     /// Returns a reference to the first frame in the image sequence. This does not check if there

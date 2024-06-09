@@ -72,7 +72,7 @@ impl<'a, C: Default, P: Pixel> HasEncoderMetadata<C, P> for &'a Image<P> {
         None
     }
     fn color_type(&self) -> ColorType {
-        self.data.get(0).map_or(P::COLOR_TYPE, P::color_type)
+        self.data.first().map_or(P::COLOR_TYPE, P::color_type)
     }
     fn bit_depth(&self) -> u8 {
         P::BIT_DEPTH
@@ -93,7 +93,7 @@ impl<'a, C: Default, P: Pixel> HasEncoderMetadata<C, P> for &'a Frame<P> {
         Some((1, LoopCount::Infinite))
     }
     fn color_type(&self) -> ColorType {
-        self.data.get(0).map_or(P::COLOR_TYPE, P::color_type)
+        self.data.first().map_or(P::COLOR_TYPE, P::color_type)
     }
     fn bit_depth(&self) -> u8 {
         P::BIT_DEPTH
@@ -126,7 +126,7 @@ impl<'a, C: Default, P: Pixel> HasEncoderMetadata<C, P> for &'a ImageSequence<P>
 
     fn color_type(&self) -> ColorType {
         self.first_frame().map_or(P::COLOR_TYPE, |image| {
-            image.data.get(0).map_or(P::COLOR_TYPE, P::color_type)
+            image.data.first().map_or(P::COLOR_TYPE, P::color_type)
         })
     }
 
@@ -591,10 +591,7 @@ pub trait FrameIterator<P: Pixel>: Iterator<Item = crate::Result<Frame<P>>> {
     ///
     /// # Errors
     /// * An error occured during decoding one of the frames.
-    fn into_sequence(self) -> crate::Result<ImageSequence<P>>
-    where
-        Self: Sized,
-    {
+    fn into_sequence(self: Box<Self>) -> crate::Result<ImageSequence<P>> {
         let loop_count = self.loop_count();
         let frames = self.collect::<crate::Result<Vec<_>>>()?;
 
@@ -622,7 +619,7 @@ impl<P: Pixel> FrameIterator<P> for SingleFrameIterator<P> {
         LoopCount::Exactly(1)
     }
 
-    fn into_sequence(mut self) -> crate::Result<ImageSequence<P>> {
+    fn into_sequence(mut self: Box<Self>) -> crate::Result<ImageSequence<P>> {
         let image = self.0.take().unwrap();
         let frame = Frame::from_image(image);
 

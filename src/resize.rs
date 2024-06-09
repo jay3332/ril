@@ -1,12 +1,11 @@
 //! An interfacing layer between `fast_image_resize` and this crate.
 
 use crate::{encodings::ColorType, Pixel};
-
 use fast_image_resize::{
-    FilterType as ResizeFilterType, Image as ResizeImage, PixelType as ResizePixelType, ResizeAlg,
+    images::{Image as ImageOut, ImageRef},
+    FilterType as ResizeFilterType, PixelType as ResizePixelType, ResizeAlg, ResizeOptions,
     Resizer,
 };
-use std::num::NonZeroU32;
 
 /// A filtering algorithm that is used to resize an image.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -71,10 +70,10 @@ impl FilterType {
     pub fn resize<P: Pixel>(
         &self,
         data: &[P],
-        src_width: NonZeroU32,
-        src_height: NonZeroU32,
-        dst_width: NonZeroU32,
-        dst_height: NonZeroU32,
+        src_width: u32,
+        src_height: u32,
+        dst_width: u32,
+        dst_height: u32,
     ) -> Vec<P> {
         let color_type = data[0].color_type();
         let pixel_type = match P::BIT_DEPTH {
@@ -101,15 +100,14 @@ impl FilterType {
 
         let buffer = data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
         // We are able to unwrap here since we validated the buffer throughout the creation of the image.
-        let image = ResizeImage::from_vec_u8(src_width, src_height, buffer, pixel_type).unwrap();
-        let view = image.view();
+        let src = ImageRef::new(src_width, src_height, &buffer, pixel_type).unwrap();
+        let mut dest = ImageOut::new(dst_width, dst_height, pixel_type);
 
-        let mut dest = ResizeImage::new(dst_width, dst_height, pixel_type);
-        let mut dst_view = dest.view_mut();
+        let mut resizer = Resizer::new();
+        let options = ResizeOptions::new().resize_alg(ResizeAlg::from(*self));
 
-        let mut resizer = Resizer::new(ResizeAlg::from(*self));
         // The pixel type is the same, we can unwrap here
-        resizer.resize(&view, &mut dst_view).unwrap();
+        resizer.resize(&src, &mut dest, Some(&options)).unwrap();
 
         let bpp = color_type.channels() * ((P::BIT_DEPTH as usize + 7) >> 3);
         dest.into_vec()
@@ -119,16 +117,7 @@ impl FilterType {
     }
 }
 
-fn resize_tiled<P: Pixel>(
-    data: &[P],
-    src_width: NonZeroU32,
-    dst_width: NonZeroU32,
-    dst_height: NonZeroU32,
-) -> Vec<P> {
-    let src_width = src_width.get();
-    let dst_width = dst_width.get();
-    let dst_height = dst_height.get();
-
+fn resize_tiled<P: Pixel>(data: &[P], src_width: u32, dst_width: u32, dst_height: u32) -> Vec<P> {
     let chunks = data.chunks_exact(src_width as _);
 
     chunks
@@ -146,10 +135,10 @@ fn resize_tiled<P: Pixel>(
 /// * Unsupported bit depth.
 pub fn resize<P: Pixel>(
     data: &[P],
-    src_width: NonZeroU32,
-    src_height: NonZeroU32,
-    dst_width: NonZeroU32,
-    dst_height: NonZeroU32,
+    src_width: u32,
+    src_height: u32,
+    dst_width: u32,
+    dst_height: u32,
     filter: FilterType,
 ) -> Vec<P> {
     match filter {
