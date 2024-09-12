@@ -169,6 +169,8 @@ pub struct TextSegment<'a, P: Pixel> {
     /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::with_wrap`] is
     /// used instead.
     pub wrap: WrapStyle,
+    /// The maximum height of the text. If this is set, the text will be ellipsized if it exceeds
+    pub max_height: Option<u32>,
 }
 
 impl<'a, P: Pixel> TextSegment<'a, P> {
@@ -192,6 +194,7 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
             overlay: OverlayMode::Merge,
             size: font.optimal_size(),
             wrap: WrapStyle::Word,
+            max_height: None,
         }
     }
 
@@ -229,6 +232,13 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
     #[must_use]
     pub const fn with_wrap(mut self, wrap: WrapStyle) -> Self {
         self.wrap = wrap;
+        self
+    }
+
+    /// Sets the maximum height of the text segment. If this is set, the text will be ellipsized if. It only works in a [`TextLayout`].
+    #[must_use]
+    pub const fn with_max_height(mut self, height: u32) -> Self {
+        self.max_height = Some(height);
         self
     }
 
@@ -495,13 +505,70 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self
     }
 
+    fn truncate_text_with_ellipsis(&self, segment: &TextSegment<'a, P>) -> String {
+        if segment.max_height.is_none() {
+            return segment.text.clone();
+        }
+
+        let max_height = segment.max_height.unwrap() as f32;
+        let ellipsis = "...";
+
+        // Create a new layout with the same settings as the main layout
+        let mut layout = Layout::new(CoordinateSystem::PositiveYDown);
+        layout.reset(&self.settings);
+
+        // Check if the entire text fits within the max height
+        layout.append(
+            &[segment.font.inner()],
+            &TextStyle::new(&segment.text, segment.size, 0),
+        );
+
+        if layout.height() <= max_height {
+            return segment.text.clone();
+        }
+
+        // Binary search to find the optimal truncation point
+        let mut left = 0;
+        let mut right = segment.text.len();
+
+        while left + 1 < right {
+            let mid = (left + right) / 2;
+            // Create truncated text with ellipsis
+            let truncated = format!("{}{}", &segment.text[..mid], ellipsis);
+
+            // Clear the layout and append the truncated text
+            layout.clear();
+            layout.append(
+                &[segment.font.inner()],
+                &TextStyle::new(&truncated, segment.size, 0),
+            );
+
+            // If the truncated text fits, try a longer string; otherwise, try a shorter one
+            if layout.height() <= max_height {
+                left = mid;
+            } else {
+                right = mid;
+            }
+        }
+
+        if left == 0 {
+            // If even the shortest truncation doesn't fit, just return the ellipsis
+            ellipsis.to_string()
+        } else {
+            // Trim whitespace at the end before adding ellipsis
+            let trimmed_text = segment.text[..left].trim_end();
+            format!("{trimmed_text}{ellipsis}")
+        }
+    }
+
     /// Adds a text segment to the text layout.
     pub fn push_segment(&mut self, segment: &TextSegment<'a, P>) {
+        let truncated_text = self.truncate_text_with_ellipsis(segment);
         self.fonts.push(segment.font.inner());
         self.inner.append(
             &self.fonts,
             &TextStyle::with_user_data(
-                &segment.text,
+                &truncated_text,
                 segment.size,
                 self.fonts.len() - 1,
                 (segment.fill, segment.overlay),
