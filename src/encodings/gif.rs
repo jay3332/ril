@@ -103,7 +103,12 @@ impl<P: Pixel, W: Write> GifEncoder<P, W> {
             (ColorType::PaletteRgb, 8) => gif::Frame::from_palette_pixels(
                 image.width() as u16,
                 image.height() as u16,
-                data!(crate::Rgb),
+                image
+                    .data
+                    .iter()
+                    .flat_map(|p| p.as_rgb().as_bytes())
+                    .collect::<Vec<_>>()
+                    .as_slice(),
                 image
                     .palette()
                     .expect("paletted image without palette?")
@@ -124,7 +129,12 @@ impl<P: Pixel, W: Write> GifEncoder<P, W> {
                 gif::Frame::from_palette_pixels(
                     image.width() as u16,
                     image.height() as u16,
-                    data!(Rgba),
+                    image
+                        .data
+                        .iter()
+                        .flat_map(|p| p.as_rgba().as_bytes())
+                        .collect::<Vec<_>>()
+                        .as_slice(),
                     pixels
                         .iter()
                         .flat_map(|p| p.as_rgb().as_bytes())
