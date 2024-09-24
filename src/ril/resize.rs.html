@@ -146,6 +146,7 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! An interfacing layer between `fast_image_resize` and this crate.
 
 </span><span class="kw">use crate</span>::{encodings::ColorType, Pixel};
@@ -248,7 +249,8 @@
 
         <span class="kw">let </span>buffer = data.iter().flat_map(P::as_bytes).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="comment">// We are able to unwrap here since we validated the buffer throughout the creation of the image.
-        </span><span class="kw">let </span>src = ImageRef::new(src_width, src_height, <span class="kw-2">&amp;</span>buffer, pixel_type).unwrap();
+        </span><span class="kw">let </span>src =
+            ImageRef::new(src_width, src_height, <span class="kw-2">&amp;</span>buffer, pixel_type).expect(<span class="string">"Invalid buffer size"</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>dest = ImageOut::new(dst_width, dst_height, pixel_type);
 
         <span class="kw">let </span><span class="kw-2">mut </span>resizer = Resizer::new();

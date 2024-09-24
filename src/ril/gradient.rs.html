@@ -924,7 +924,7 @@
         ///
         /// # Panics
         /// * If the position is outside of the range `[0.0, 1.0]`. For auto-normalized positions, see
-        /// [`Self::push_color`].
+        ///   [`Self::push_color`].
         </span><span class="kw">pub fn </span>push_color_at(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: f64, color: P) {
             <span class="macro">assert!</span>(
                 (<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>position),
@@ -937,7 +937,7 @@
         ///
         /// # Panics
         /// * If the position is outside of the range `[0.0, 1.0]`. For auto-normalized positions, see
-        /// [`Self::with_color`].
+        ///   [`Self::with_color`].
         </span><span class="attr">#[must_use]
         </span><span class="kw">pub fn </span>with_color_at(<span class="kw-2">mut </span><span class="self">self</span>, position: f64, color: P) -&gt; <span class="self">Self </span>{
             <span class="self">self</span>.push_color_at(position, color);
@@ -969,7 +969,7 @@
         ///
         /// # Panics
         /// * If any of the positions are outside of the range `[0.0, 1.0]`. For auto-normalized
-        /// positions, see [`Self::extend`].
+        ///   positions, see [`Self::extend`].
         </span><span class="kw">pub fn </span>extend_with_positions&lt;I: IntoIterator&lt;Item = (P, f64)&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, iter: I) {
             <span class="self">self</span>.colors.extend(iter);
         }

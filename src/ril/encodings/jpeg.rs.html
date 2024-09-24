@@ -214,6 +214,7 @@
 <a href="#214" id="214">214</a>
 <a href="#215" id="215">215</a>
 <a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::ColorType;
 <span class="kw">use crate</span>::{
     encode::{<span class="self">self</span>, Decoder, Encoder},
@@ -357,6 +358,7 @@
 }
 
 <span class="doccomment">/// A JPEG decoder interface over [`jpeg_decoder::Decoder`].
+</span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>JpegDecoder&lt;P: Pixel, R: Read&gt; {
     _marker: PhantomData&lt;(P, R)&gt;,
 }

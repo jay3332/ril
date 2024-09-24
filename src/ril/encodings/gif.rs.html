@@ -340,6 +340,7 @@
 <a href="#340" id="340">340</a>
 <a href="#341" id="341">341</a>
 <a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     encode, encodings::ColorType, pixel::assume_pixel_from_palette, Decoder, DisposalMethod,
     Dynamic, Encoder, Error, Frame, FrameIterator, Image, ImageFormat, LoopCount, OverlayMode,
@@ -393,7 +394,8 @@
 }
 
 <span class="kw">impl</span>&lt;P: Pixel, W: Write&gt; GifEncoder&lt;P, W&gt; {
-    <span class="kw">fn </span>build_frame&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;gif::Frame&lt;<span class="lifetime">'a</span>&gt;&gt; {
+    <span class="attr">#[allow(clippy::cast_lossless)]
+    </span><span class="kw">fn </span>build_frame&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, image: <span class="kw-2">&amp;</span>Image&lt;P&gt;) -&gt; <span class="kw">crate</span>::Result&lt;gif::Frame&lt;<span class="lifetime">'a</span>&gt;&gt; {
         <span class="macro">macro_rules!</span> data {
             (<span class="macro-nonterminal">$t</span>:ty) =&gt; {{
                 image
@@ -563,11 +565,6 @@
 <span class="kw">fn </span>read_frame&lt;P: Pixel, R: Read&gt;(
     decoder: <span class="kw-2">&amp;mut </span>gif::Decoder&lt;R&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::Result&lt;(<span class="kw-2">&amp;</span>gif::Frame, Image&lt;P&gt;)&gt;&gt; {
-    <span class="attr">#[allow(clippy::cast_lossless)]
-    </span><span class="kw">let </span>width = decoder.width() <span class="kw">as </span>u32;
-    <span class="attr">#[allow(clippy::cast_lossless)]
-    </span><span class="kw">let </span>height = decoder.height() <span class="kw">as </span>u32;
-
     <span class="kw">let </span>global_palette = decoder.global_palette().map(ToOwned::to_owned);
     <span class="kw">let </span>frame = <span class="kw">match </span>decoder.read_next_frame() {
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(frame)) =&gt; frame,
@@ -605,6 +602,11 @@
         <span class="prelude-val">Ok</span>(data) =&gt; data,
         <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)),
     };
+
+    <span class="attr">#[allow(clippy::cast_lossless)]
+    </span><span class="kw">let </span>width = frame.width <span class="kw">as </span>u32;
+    <span class="attr">#[allow(clippy::cast_lossless)]
+    </span><span class="kw">let </span>height = frame.height <span class="kw">as </span>u32;
 
     <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>((
         frame,

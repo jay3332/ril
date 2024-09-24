@@ -315,11 +315,11 @@
     ///
     /// # Behavior
     /// * If the `quantize` feature is disabled (enabled by default), this function will simply
-    /// run the [`quantize_simple`] function (lossless) and return `Err` if there are more unique
-    /// colors than the palette size.
+    ///   run the [`quantize_simple`] function (lossless) and return `Err` if there are more unique
+    ///   colors than the palette size.
     /// * Otherwise, this function will always favor a lossy quantization algorithm unless the
-    /// `fallback_to_lossless` option is set to `true` (which is the default) and the amount of
-    /// unique colors in the image is less than the desired palette size.
+    ///   `fallback_to_lossless` option is set to `true` (which is the default) and the amount of
+    ///   unique colors in the image is less than the desired palette size.
     ///
     /// # Errors
     /// * There are more unique colors than the palette size, and the `quantize` feature is disabled

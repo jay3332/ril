@@ -1556,6 +1556,9 @@
 <a href="#1556" id="1556">1556</a>
 <a href="#1557" id="1557">1557</a>
 <a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::wildcard_imports)]
 
 </span><span class="kw">use crate</span>::{
@@ -1824,7 +1827,7 @@
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
@@ -1880,7 +1883,7 @@
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
@@ -1909,7 +1912,7 @@
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     /// * `IoError`: The file could not be opened.
     ///
     /// # Panics
@@ -2526,7 +2529,7 @@
     /// # See Also
     /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
     /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
-    /// chaining
+    ///   chaining
     </span><span class="kw">pub fn </span>rotate_90(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.data = <span class="self">self</span>.rotate_iterator().collect();
         std::mem::swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>.width, <span class="kw-2">&amp;mut </span><span class="self">self</span>.height);
@@ -2537,7 +2540,7 @@
     /// # See Also
     /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
     /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
-    /// chaining
+    ///   chaining
     </span><span class="kw">pub fn </span>rotate_180(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.data.reverse();
     }
@@ -2849,9 +2852,12 @@
     /// # Errors
     /// * The palette could not be created.
     ///
+    /// # Panics
+    /// * Unable to quantize the image.
+    ///
     /// # See Also
     /// * [`Quantizer`] - Implementation of the core quantizer. Use this for more fine-grained
-    /// control over the quantization process, such as adjusting the quantization speed.
+    ///   control over the quantization process, such as adjusting the quantization speed.
     </span><span class="attr">#[must_use = <span class="string">"the image is consumed by this method and returns a new image"</span>]
     </span><span class="kw">pub fn </span>quantize&lt;<span class="lifetime">'p</span>, T&gt;(<span class="self">self</span>, palette_size: u8) -&gt; Image&lt;T&gt;
     <span class="kw">where
@@ -2893,7 +2899,7 @@
     /// # See Also
     /// * [`Self::from_rgb_and_alpha`] - The inverse of this method.
     /// * [`Self::map_rgb_pixels`] - A more optimized method for performing operations on individual RGB
-    /// pixels.
+    ///   pixels.
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>split_rgb_and_alpha(<span class="self">self</span>) -&gt; (Image&lt;Rgb&gt;, Image&lt;L&gt;) {
         <span class="kw">let </span>(r, g, b, a) = <span class="self">self</span>.bands();
@@ -2941,9 +2947,9 @@
     ///
     /// # See Also
     /// * [`Self::map_alpha_pixels`] - Performs the given operation on every pixel in the alpha
-    /// channel.
+    ///   channel.
     /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image&lt;Rgb&gt;`
-    /// (and `Image&lt;L&gt;`).
+    ///   (and `Image&lt;L&gt;`).
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>map_rgb_pixels(<span class="self">self</span>, <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(Rgb) -&gt; Rgb) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.map_pixels(|Rgba { r, g, b, a }| {
@@ -2958,7 +2964,7 @@
     /// # See Also
     /// * [`Self::map_rgb_pixels`] - Performs the given operation on every pixel in the RGB channels.
     /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image&lt;L&gt;`
-    /// (and `Image&lt;Rgb&gt;`).
+    ///   (and `Image&lt;Rgb&gt;`).
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>map_alpha_pixels(<span class="self">self</span>, <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(L) -&gt; L) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.map_pixels(|Rgba { r, g, b, a }| Rgba {
