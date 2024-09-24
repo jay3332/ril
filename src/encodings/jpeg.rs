@@ -141,6 +141,7 @@ impl<P: Pixel, W: Write> Encoder<P, W> for JpegEncoder<P, W> {
 }
 
 /// A JPEG decoder interface over [`jpeg_decoder::Decoder`].
+#[derive(Default)]
 pub struct JpegDecoder<P: Pixel, R: Read> {
     _marker: PhantomData<(P, R)>,
 }

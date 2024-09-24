@@ -260,7 +260,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
@@ -331,7 +331,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.

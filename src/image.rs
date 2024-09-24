@@ -266,7 +266,7 @@ impl<P: Pixel> Image<P> {
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
@@ -322,7 +322,7 @@ impl<P: Pixel> Image<P> {
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
@@ -351,7 +351,7 @@ impl<P: Pixel> Image<P> {
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
     /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    /// specifying it.
+    ///   specifying it.
     /// * `IoError`: The file could not be opened.
     ///
     /// # Panics
@@ -968,7 +968,7 @@ impl<P: Pixel> Image<P> {
     /// # See Also
     /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
     /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
-    /// chaining
+    ///   chaining
     pub fn rotate_90(&mut self) {
         self.data = self.rotate_iterator().collect();
         std::mem::swap(&mut self.width, &mut self.height);
@@ -979,7 +979,7 @@ impl<P: Pixel> Image<P> {
     /// # See Also
     /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
     /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
-    /// chaining
+    ///   chaining
     pub fn rotate_180(&mut self) {
         self.data.reverse();
     }
@@ -1291,9 +1291,12 @@ impl<P: Pixel> Image<P> {
     /// # Errors
     /// * The palette could not be created.
     ///
+    /// # Panics
+    /// * Unable to quantize the image.
+    ///
     /// # See Also
     /// * [`Quantizer`] - Implementation of the core quantizer. Use this for more fine-grained
-    /// control over the quantization process, such as adjusting the quantization speed.
+    ///   control over the quantization process, such as adjusting the quantization speed.
     #[must_use = "the image is consumed by this method and returns a new image"]
     pub fn quantize<'p, T>(self, palette_size: u8) -> Image<T>
     where
@@ -1335,7 +1338,7 @@ impl Image<Rgba> {
     /// # See Also
     /// * [`Self::from_rgb_and_alpha`] - The inverse of this method.
     /// * [`Self::map_rgb_pixels`] - A more optimized method for performing operations on individual RGB
-    /// pixels.
+    ///   pixels.
     #[must_use]
     pub fn split_rgb_and_alpha(self) -> (Image<Rgb>, Image<L>) {
         let (r, g, b, a) = self.bands();
@@ -1383,9 +1386,9 @@ impl Image<Rgba> {
     ///
     /// # See Also
     /// * [`Self::map_alpha_pixels`] - Performs the given operation on every pixel in the alpha
-    /// channel.
+    ///   channel.
     /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<Rgb>`
-    /// (and `Image<L>`).
+    ///   (and `Image<L>`).
     #[must_use]
     pub fn map_rgb_pixels(self, mut f: impl FnMut(Rgb) -> Rgb) -> Self {
         self.map_pixels(|Rgba { r, g, b, a }| {
@@ -1400,7 +1403,7 @@ impl Image<Rgba> {
     /// # See Also
     /// * [`Self::map_rgb_pixels`] - Performs the given operation on every pixel in the RGB channels.
     /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<L>`
-    /// (and `Image<Rgb>`).
+    ///   (and `Image<Rgb>`).
     #[must_use]
     pub fn map_alpha_pixels(self, mut f: impl FnMut(L) -> L) -> Self {
         self.map_pixels(|Rgba { r, g, b, a }| Rgba {

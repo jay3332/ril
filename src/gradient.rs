@@ -196,7 +196,7 @@ macro_rules! gradient_methods {
         ///
         /// # Panics
         /// * If the position is outside of the range `[0.0, 1.0]`. For auto-normalized positions, see
-        /// [`Self::push_color`].
+        ///   [`Self::push_color`].
         pub fn push_color_at(&mut self, position: f64, color: P) {
             assert!(
                 (0.0..=1.0).contains(&position),
@@ -209,7 +209,7 @@ macro_rules! gradient_methods {
         ///
         /// # Panics
         /// * If the position is outside of the range `[0.0, 1.0]`. For auto-normalized positions, see
-        /// [`Self::with_color`].
+        ///   [`Self::with_color`].
         #[must_use]
         pub fn with_color_at(mut self, position: f64, color: P) -> Self {
             self.push_color_at(position, color);
@@ -241,7 +241,7 @@ macro_rules! gradient_methods {
         ///
         /// # Panics
         /// * If any of the positions are outside of the range `[0.0, 1.0]`. For auto-normalized
-        /// positions, see [`Self::extend`].
+        ///   positions, see [`Self::extend`].
         pub fn extend_with_positions<I: IntoIterator<Item = (P, f64)>>(&mut self, iter: I) {
             self.colors.extend(iter);
         }

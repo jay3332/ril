@@ -51,6 +51,7 @@ pub struct GifEncoder<P: Pixel, W: Write> {
 }
 
 impl<P: Pixel, W: Write> GifEncoder<P, W> {
+    #[allow(clippy::cast_lossless)]
     fn build_frame<'a>(&self, image: &Image<P>) -> crate::Result<gif::Frame<'a>> {
         macro_rules! data {
             ($t:ty) => {{
@@ -221,11 +222,6 @@ impl<P: Pixel, R: Read> Default for GifDecoder<P, R> {
 fn read_frame<P: Pixel, R: Read>(
     decoder: &mut gif::Decoder<R>,
 ) -> Option<crate::Result<(&gif::Frame, Image<P>)>> {
-    #[allow(clippy::cast_lossless)]
-    let width = decoder.width() as u32;
-    #[allow(clippy::cast_lossless)]
-    let height = decoder.height() as u32;
-
     let global_palette = decoder.global_palette().map(ToOwned::to_owned);
     let frame = match decoder.read_next_frame() {
         Ok(Some(frame)) => frame,
@@ -263,6 +259,11 @@ fn read_frame<P: Pixel, R: Read>(
         Ok(data) => data,
         Err(e) => return Some(Err(e)),
     };
+
+    #[allow(clippy::cast_lossless)]
+    let width = frame.width as u32;
+    #[allow(clippy::cast_lossless)]
+    let height = frame.height as u32;
 
     Some(Ok((
         frame,

@@ -100,7 +100,8 @@ impl FilterType {
 
         let buffer = data.iter().flat_map(P::as_bytes).collect::<Vec<_>>();
         // We are able to unwrap here since we validated the buffer throughout the creation of the image.
-        let src = ImageRef::new(src_width, src_height, &buffer, pixel_type).unwrap();
+        let src =
+            ImageRef::new(src_width, src_height, &buffer, pixel_type).expect("Invalid buffer size");
         let mut dest = ImageOut::new(dst_width, dst_height, pixel_type);
 
         let mut resizer = Resizer::new();

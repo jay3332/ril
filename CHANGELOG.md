@@ -8,6 +8,9 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 ## v0.11 (dev)
 - Add `PngEncoderOptions::new`
 
+## v0.10.3 (2024-09-23)
+- Fix GIF encoding issues as produced in [#38](https://github.com/jay3332/ril/issues/38)
+
 ## v0.10.2 (2024-09-22)
 - Fix text alignment rendering duplicately ([#28](https://github.com/jay3332/ril/issues/28))
 - Fix `TextLayout`s with varying fonts not registering properly ([#29](https://github.com/jay3332/ril/issues/29))
