@@ -32,7 +32,7 @@ impl Font {
     /// # Errors
     /// * Failed to load the font.
     pub fn open<P: AsRef<Path>>(path: P, optimal_size: f32) -> crate::Result<Self> {
-        Self::from_reader(File::open(path)?, optimal_size)
+        Self::from_read(File::open(path)?, optimal_size)
     }
 
     /// Loads the font from the given byte slice. Useful for the `include_bytes!` macro.
@@ -68,7 +68,7 @@ impl Font {
     ///
     /// # Errors
     /// * Failed to load the font.
-    pub fn from_reader<R: Read>(mut buffer: R, optimal_size: f32) -> crate::Result<Self> {
+    pub fn from_read<R: Read>(mut buffer: R, optimal_size: f32) -> crate::Result<Self> {
         let settings = FontSettings {
             scale: optimal_size,
             collection_index: 0,
@@ -291,9 +291,7 @@ fn render_layout<P: Pixel>(
                         continue;
                     }
 
-                    if let Some(pixel) = image.get_pixel(x, y) {
-                        *image.pixel_mut(x, y) = pixel.overlay_with_alpha(fill, overlay, value);
-                    }
+                    image.overlay_pixel_with_alpha(x, y, fill, overlay, value);
                 }
             }
         }
@@ -345,9 +343,7 @@ fn render_layout_with_alignment<P: Pixel>(
                         continue;
                     }
 
-                    if let Some(pixel) = image.get_pixel(x, y) {
-                        *image.pixel_mut(x, y) = pixel.overlay_with_alpha(fill, overlay, value);
-                    }
+                    image.overlay_pixel_with_alpha(x, y, fill, overlay, value);
                 }
             }
         }

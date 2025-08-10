@@ -276,11 +276,11 @@ impl<P: Pixel> Image<P> {
     /// # use ril::prelude::*;
     /// # fn main() -> ril::Result<()> {
     /// let file = std::fs::File::open("image.png")?;
-    /// let image = Image::<Rgb>::from_reader_inferred(file)?;
+    /// let image = Image::<Rgb>::from_read_inferred(file)?;
     /// # Ok(())
     /// # }
     /// ```
-    pub fn from_reader_inferred(mut bytes: impl Read) -> Result<Self> {
+    pub fn from_read_inferred(mut bytes: impl Read) -> Result<Self> {
         let buf = &mut [0; 12];
         let n = bytes.read(buf)?;
 
@@ -293,7 +293,7 @@ impl<P: Pixel> Image<P> {
     /// Decodes an image with the explicitly given image encoding from the given bytes.
     /// Could be useful in conjunction with the `include_bytes!` macro.
     ///
-    /// Currently, this is not any different from [`from_reader`].
+    /// Currently, this is not any different from [`from_read`].
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
@@ -317,7 +317,7 @@ impl<P: Pixel> Image<P> {
     /// Decodes an image from the given bytes, inferring its encoding.
     /// Could be useful in conjunction with the `include_bytes!` macro.
     ///
-    /// This is more efficient than [`from_reader_inferred`].
+    /// This is more efficient than [`from_read_inferred`].
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.

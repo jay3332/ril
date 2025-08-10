@@ -229,7 +229,7 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
-    pub fn from_reader<'a, R: Read + 'a>(
+    pub fn from_read<'a, R: Read + 'a>(
         format: ImageFormat,
         bytes: R,
     ) -> Result<Box<dyn FrameIterator<P> + 'a>>
@@ -252,8 +252,8 @@ impl<P: Pixel> ImageSequence<P> {
     /// in the future to not require `Write`.
     ///
     /// If you are limited by this trait bound, you can either specify the image format manually
-    /// using [`from_reader`], or you can try using [`ImageFormat::infer_encoding`] along with
-    /// [`from_reader`] manually instead. If you are able to use [`from_bytes`] instead, which takes
+    /// using [`from_read`], or you can try using [`ImageFormat::infer_encoding`] along with
+    /// [`from_read`] manually instead. If you are able to use [`from_bytes`] instead, which takes
     /// a byte slice instead of a `Read` stream, you can either that or [`from_bytes_inferred`],
     /// too, which does not require a `Write` bound either.
     ///
@@ -264,7 +264,7 @@ impl<P: Pixel> ImageSequence<P> {
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
-    pub fn from_reader_inferred<'a, R: Read + Write + 'a>(
+    pub fn from_read_inferred<'a, R: Read + Write + 'a>(
         mut bytes: R,
     ) -> Result<Box<dyn FrameIterator<P> + 'a>>
     where
@@ -285,7 +285,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// Decodes an image sequence with the explicitly given image encoding from the byte slice.
     /// Could be useful in conjunction with the `include_bytes!` macro.
     ///
-    /// Currently, this is not any different than [`from_reader`].
+    /// Currently, this is not any different than [`from_read`].
     ///
     /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
     /// collect all frames greedily into an [`ImageSequence`].
@@ -315,7 +315,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// Decodes an image sequence from the given byte slice, inferring its encoding.
     /// Could be useful in conjunction with the `include_bytes!` macro.
     ///
-    /// This is more efficient than [`from_reader_inferred`], and can act as a workaround for
+    /// This is more efficient than [`from_read_inferred`], and can act as a workaround for
     /// bypassing the `Write` trait bound.
     ///
     /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
