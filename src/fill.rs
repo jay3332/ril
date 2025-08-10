@@ -1,3 +1,9 @@
+//! Includes the [`Fill`] and [`IntoFill`] traits and primitive fill types such as [`SolidFill`].
+//! 
+//! You should almost never need use a fill type directly since methods that take fills usually
+//! allow anything that implements [`IntoFill`], which includes things such as [`Pixel`]s for solid
+//! fills, [`gradient`][crate::gradient] types, and even [`Image`]s for image fills.
+
 use crate::{Image, OverlayMode, Pixel};
 
 pub type BoundingBox<T> = (T, T, T, T);
