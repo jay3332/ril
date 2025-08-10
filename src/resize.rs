@@ -78,19 +78,19 @@ impl FilterType {
         let color_type = data[0].color_type();
         let pixel_type = match P::BIT_DEPTH {
             1 | 2 | 4 | 8 => match color_type {
-                ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => {
+                ColorType::Luma | ColorType::PaletteRgb | ColorType::PaletteRgba => {
                     ResizePixelType::U8
                 }
-                ColorType::LA => ResizePixelType::U8x2,
+                ColorType::LumaA => ResizePixelType::U8x2,
                 ColorType::Rgb => ResizePixelType::U8x3,
                 ColorType::Rgba => ResizePixelType::U8x4,
                 ColorType::Dynamic => unreachable!(),
             },
             16 => match color_type {
-                ColorType::L | ColorType::PaletteRgb | ColorType::PaletteRgba => {
+                ColorType::Luma | ColorType::PaletteRgb | ColorType::PaletteRgba => {
                     ResizePixelType::U16
                 }
-                ColorType::LA => ResizePixelType::U16x2,
+                ColorType::LumaA => ResizePixelType::U16x2,
                 ColorType::Rgb => ResizePixelType::U16x3,
                 ColorType::Rgba => ResizePixelType::U16x4,
                 ColorType::Dynamic => unreachable!(),

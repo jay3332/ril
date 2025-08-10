@@ -20,8 +20,8 @@ impl From<png::ColorType> for ColorType {
         use png::ColorType::*;
 
         match value {
-            Grayscale => Self::L,
-            GrayscaleAlpha => Self::LA,
+            Grayscale => Self::Luma,
+            GrayscaleAlpha => Self::LumaA,
             Rgb => Self::Rgb,
             Rgba => Self::Rgba,
             Indexed => Self::PaletteRgb,
@@ -34,8 +34,8 @@ const fn get_png_color_type(src: ColorType) -> png::ColorType {
     use png::ColorType::*;
 
     match src {
-        ColorType::L => Grayscale,
-        ColorType::LA => GrayscaleAlpha,
+        ColorType::Luma => Grayscale,
+        ColorType::LumaA => GrayscaleAlpha,
         ColorType::Rgb => Rgb,
         ColorType::Rgba => Rgba,
         ColorType::PaletteRgb | ColorType::PaletteRgba => Indexed,
@@ -305,7 +305,7 @@ pub struct ApngFrameIterator<P: Pixel, R: Read> {
 }
 
 impl<P: Pixel, R: Read> ApngFrameIterator<P, R> {
-    fn info(&self) -> &png::Info {
+    fn info(&self) -> &png::Info<'_> {
         self.reader.info()
     }
 

@@ -62,8 +62,8 @@ Additionally, we also plan to support the following pixel formats:
 |----------------------------------------|-----------------------------|
 | RGB8                                   | Supported as `Rgb`          |
 | RGBA8                                  | Supported as `Rgba`         |
-| L8 (grayscale)                         | Supported as `L`            |
-| LA8 (grayscale + alpha)                | Not yet supported           |
+| L8 (luminance/grayscale)               | Supported as `Luma`         |
+| LA8 (luminance + alpha)                | Not yet supported           |
 | 1 (single-bit pixel, equivalent to L1) | Supported as `BitPixel`     |
 | Indexed RGB8 (palette)                 | Supported as `PalettedRgb`  |
 | Indexed RGBA8 (palette)                | Supported as `PalettedRgba` |

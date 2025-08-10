@@ -99,8 +99,8 @@ impl<P: Pixel, W: Write> GifEncoder<P, W> {
         Ok(match (image.data[0].color_type(), P::BIT_DEPTH) {
             (ColorType::Rgb, 8) => rgb!(data!()),
             (ColorType::Rgba, 8) => rgba!(data!()),
-            (ColorType::L, 1 | 8) => rgb!(data!(crate::Rgb)),
-            (ColorType::LA, 1 | 8) => rgba!(data!(Rgba)),
+            (ColorType::Luma, 1 | 8) => rgb!(data!(crate::Rgb)),
+            (ColorType::LumaA, 1 | 8) => rgba!(data!(Rgba)),
             (ColorType::PaletteRgb, 8) => gif::Frame::from_palette_pixels(
                 image.width() as u16,
                 image.height() as u16,
@@ -221,7 +221,7 @@ impl<P: Pixel, R: Read> Default for GifDecoder<P, R> {
 
 fn read_frame<P: Pixel, R: Read>(
     decoder: &mut gif::Decoder<R>,
-) -> Option<crate::Result<(&gif::Frame, Image<P>)>> {
+) -> Option<crate::Result<(&gif::Frame<'_>, Image<P>)>> {
     let global_palette = decoder.global_palette().map(ToOwned::to_owned);
     let frame = match decoder.read_next_frame() {
         Ok(Some(frame)) => frame,

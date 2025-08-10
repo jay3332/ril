@@ -6,6 +6,23 @@ of v0.5, therefore all changes logged prior to v0.5 may not be accurate and are 
 Versions prior to v0.7 are not tagged/released on GitHub.
 
 ## v0.11 (dev)
+
+### Breaking Changes
+- Rename the `L` pixel type to `Luma`
+  - `ril::pixel::L` is now `ril::pixel::Luma`
+  - `ril::pixel::Dynamic::L` is now `ril::pixel::Dynamic::Luma`
+  - `ril::encodings::PixelType::L` is now `ril::encodings::PixelType::Luma`
+  - `ril::encodings::PixelType::LA` is now `ril::encodings::PixelType::LumaA`
+
+- Rename `from_reader[_inferred]` methods to `from_read[_inferred]`
+  - `ril::Image::from_reader` is now `ril::Image::from_read`
+  - `ril::Image::from_reader_inferred` is now `ril::Image::from_read_inferred`
+  - `ril::ImageSequence::from_reader` is now `ril::ImageSequence::from_read`
+  - `ril::ImageSequence::from_reader_inferred` is now `ril::ImageSequence::from_read_inferred`
+  - `ril::Font::from_reader` is now `ril::Font::from_read`
+
+### New Features
+
 - Add `PngEncoderOptions::new`
 
 ## v0.10.3 (2024-09-23)

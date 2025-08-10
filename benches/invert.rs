@@ -18,9 +18,9 @@ pub fn bench_invert(c: &mut Criterion) {
             b.iter(|| image.invert())
         });
 
-        let mut image = Image::new(size, size, L(0));
+        let mut image = Image::new(size, size, Luma(0));
 
-        c.bench_function(format!("invert {0}x{0} L", size).as_str(), |b| {
+        c.bench_function(format!("invert {0}x{0} Luma", size).as_str(), |b| {
             b.iter(|| image.invert())
         });
     }

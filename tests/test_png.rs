@@ -97,12 +97,12 @@ fn test_gh_17() -> ril::Result<()> {
 
     let vertices = vec![(50, 0), (100, 25), (100, 75), (50, 100), (0, 75), (0, 25)];
 
-    let border = Border::<L>::new(L(255), 1);
+    let border = Border::<Luma>::new(Luma(255), 1);
     let hexagon = Polygon::from_vertices(vertices)
-        .with_fill(L(255))
+        .with_fill(Luma(255))
         .with_border(border);
 
-    let mut mask = Image::new(width, height, L(0));
+    let mut mask = Image::new(width, height, Luma(0));
 
     mask.draw(&hexagon);
     image.mask_alpha(&mask);

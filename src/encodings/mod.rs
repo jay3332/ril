@@ -15,9 +15,9 @@ pub mod webp;
 pub enum ColorType {
     /// A single-channel pixel that holds one value, typically representing luminance. Typically
     /// used for grayscale images.
-    L,
-    /// A two-channel [`L`][Self::L] pixel that holds an additional alpha value, for transparency.
-    LA,
+    Luma,
+    /// A two-channel [`Luma`][Self::Luma] pixel that holds an additional alpha value, for transparency.
+    LumaA,
     /// A three-channel pixel that holds red, green, and blue values. This is a common pixel type
     /// used for true-color images.
     Rgb,
@@ -42,8 +42,8 @@ impl ColorType {
     #[must_use]
     pub const fn channels(&self) -> usize {
         match self {
-            Self::L | Self::PaletteRgb | Self::PaletteRgba => 1,
-            Self::LA => 2,
+            Self::Luma | Self::PaletteRgb | Self::PaletteRgba => 1,
+            Self::LumaA => 2,
             Self::Rgb => 3,
             Self::Rgba => 4,
             Self::Dynamic => 0,
@@ -55,7 +55,7 @@ impl ColorType {
     pub const fn has_alpha(&self) -> bool {
         matches!(
             self,
-            Self::LA | Self::Rgba | Self::PaletteRgba | Self::Dynamic
+            Self::LumaA | Self::Rgba | Self::PaletteRgba | Self::Dynamic
         )
     }
 

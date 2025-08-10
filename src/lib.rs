@@ -100,7 +100,7 @@
 //! this image has - in this case, the image has RGB pixels.
 //!
 //! Common pixel formats are [`Rgb`] (colored) and [`Rgba`] (colored with transparency),
-//! which are found in the prelude. There are also grayscale counterparts, such as [`L`].
+//! which are found in the prelude. There are also grayscale counterparts, such as [`Luma`].
 //!
 //! ### Reading from a byte stream
 //! You can also read from raw bytes using [`from_bytes`][Image::decode_from_bytes]:
@@ -304,7 +304,7 @@ inline_doc! {
     pub use format::ImageFormat;
     pub use pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
-        Rgba, TrueColor, L,
+        Rgba, TrueColor, Luma,
     };
     pub use quantize::Quantizer;
     #[cfg(feature = "resize")]
@@ -334,7 +334,7 @@ pub mod prelude {
         Dynamic, DynamicSubpixel, Ellipse, Encoder, EncoderMetadata, Fill, Frame, FrameIterator,
         Image, ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted,
         PalettedRgb, PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba,
-        SingleFrameIterator, TrueColor, L,
+        SingleFrameIterator, TrueColor, Luma,
     };
 
     #[cfg(feature = "resize")]

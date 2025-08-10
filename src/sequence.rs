@@ -348,7 +348,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// Opens a file from the given path and decodes it, returning an iterator over its frames.
     ///
     /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
-    /// by using the [`from_reader`] method.
+    /// by using the [`from_read`] method.
     ///
     /// # Note
     /// Unlike the inference of [`Image::open`] this does **not** infer from raw bytes if inferring

@@ -82,12 +82,12 @@ impl<P: Pixel, W: Write> Encoder<P, W> for JpegEncoder<P, W> {
             (ColorType::Rgb | ColorType::PaletteRgb, 8) => EncoderColorType::Rgb,
             (ColorType::Rgba | ColorType::PaletteRgba, 8) => EncoderColorType::Rgba,
             // Just like how Rgba strips into Rgb, perform the same thing here manually
-            (ColorType::L, 1 | 8) | (ColorType::LA, 8) => EncoderColorType::Luma,
+            (ColorType::Luma, 1 | 8) | (ColorType::LumaA, 8) => EncoderColorType::Luma,
             _ => return Err(Error::UnsupportedColorType),
         };
         let special_case = match sample {
-            (ColorType::L, 1) => JpegSpecialCase::L1,
-            (ColorType::LA, 1) => JpegSpecialCase::LA1,
+            (ColorType::Luma, 1) => JpegSpecialCase::L1,
+            (ColorType::LumaA, 1) => JpegSpecialCase::LA1,
             _ => JpegSpecialCase::None,
         };
 
@@ -166,8 +166,8 @@ impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
 
         let info = decoder.info().unwrap();
         let (color_type, bit_depth) = match info.pixel_format {
-            DecoderPixelFormat::L8 => (ColorType::L, 8),
-            DecoderPixelFormat::L16 => (ColorType::L, 16),
+            DecoderPixelFormat::L8 => (ColorType::Luma, 8),
+            DecoderPixelFormat::L16 => (ColorType::Luma, 16),
             DecoderPixelFormat::RGB24 | DecoderPixelFormat::CMYK32 => (ColorType::Rgb, 8),
         };
         let perform_conversion = info.pixel_format == jpeg_decoder::PixelFormat::CMYK32;
@@ -176,8 +176,8 @@ impl<P: Pixel, R: Read> Decoder<P, R> for JpegDecoder<P, R> {
             .as_slice()
             .chunks_exact(info.pixel_format.pixel_bytes())
             .map(|chunk| {
-                if color_type == ColorType::L {
-                    return P::from_raw_parts(ColorType::L, bit_depth, chunk);
+                if color_type == ColorType::Luma {
+                    return P::from_raw_parts(ColorType::Luma, bit_depth, chunk);
                 }
 
                 let chunk = &if perform_conversion {

@@ -120,10 +120,10 @@ impl<P: Pixel> Image<P> {
     /// ```
     /// # use ril::prelude::*;
     /// # fn main() -> ril::Result<()> {
-    /// let gradient = Image::from_fn(256, 256, |x, _y| L(x as u8));
+    /// let gradient = Image::from_fn(256, 256, |x, _y| Luma(x as u8));
     ///
-    /// assert_eq!(gradient.pixel(0, 0), &L(0));
-    /// assert_eq!(gradient.pixel(255, 0), &L(255));
+    /// assert_eq!(gradient.pixel(0, 0), &Luma(0));
+    /// assert_eq!(gradient.pixel(255, 0), &Luma(255));
     /// # Ok(())
     /// # }
     /// ```
@@ -142,11 +142,11 @@ impl<P: Pixel> Image<P> {
     /// ```
     /// # use ril::prelude::*;
     /// # fn main() -> ril::Result<()> {
-    /// let image = Image::from_pixels(2, &[L(0), L(1), L(2), L(3)]);
+    /// let image = Image::from_pixels(2, &[Luma(0), Luma(1), Luma(2), Luma(3)]);
     ///
     /// assert_eq!(image.width(), 2);
     /// assert_eq!(image.height(), 2);
-    /// assert_eq!(image.pixel(1, 1), &L(3));
+    /// assert_eq!(image.pixel(1, 1), &Luma(3));
     /// # Ok(())
     /// # }
     /// ```
@@ -253,11 +253,11 @@ impl<P: Pixel> Image<P> {
     /// # use ril::prelude::*;
     /// # fn main() -> ril::Result<()> {
     /// let file = std::fs::File::open("image.png")?;
-    /// let image = Image::<Rgb>::from_reader(ImageFormat::Png, file)?;
+    /// let image = Image::<Rgb>::from_read(ImageFormat::Png, file)?;
     /// # Ok(())
     /// # }
     /// ```
-    pub fn from_reader(format: ImageFormat, bytes: impl Read) -> Result<Self> {
+    pub fn from_read(format: ImageFormat, bytes: impl Read) -> Result<Self> {
         format.run_decoder(bytes)
     }
 
@@ -346,7 +346,7 @@ impl<P: Pixel> Image<P> {
     /// Opens a file from the given path and decodes it into an image.
     ///
     /// The encoding of the image is automatically inferred. You can explicitly pass in an encoding
-    /// by using the [`from_reader`] method.
+    /// by using the [`from_read`] method.
     ///
     /// # Errors
     /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
@@ -1158,9 +1158,9 @@ impl<P: Pixel> Image<P> {
     }
 
     /// Masks the alpha values of this image with the luminance values of the given single-channel
-    /// [`L`] image.
+    /// [`Luma`] image.
     ///
-    /// If you want to mask using the alpha values of the image instead of providing an [`L`] image,
+    /// If you want to mask using the alpha values of the image instead of providing an [`Luma`] image,
     /// you can split the bands of the image and extract the alpha band.
     ///
     /// This masking image must have the same dimensions as this image. If it doesn't, you will
@@ -1168,7 +1168,7 @@ impl<P: Pixel> Image<P> {
     ///
     /// # Panics
     /// * The masking image has different dimensions from this image.
-    pub fn mask_alpha(&mut self, mask: &Image<L>)
+    pub fn mask_alpha(&mut self, mask: &Image<Luma>)
     where
         P: Alpha,
     {
@@ -1315,8 +1315,8 @@ impl<P: Pixel> Image<P> {
 }
 
 impl Image<Rgba> {
-    /// Splits this image into an `Rgb` image and an `L` image, where the `Rgb` image contains the
-    /// red, green, and blue color channels and the `L` image contains the alpha channel.
+    /// Splits this image into an `Rgb` image and an `Luma` image, where the `Rgb` image contains the
+    /// red, green, and blue color channels and the `Luma` image contains the alpha channel.
     ///
     /// There is a more optimized method available, [`Self::map_rgb_pixels`], if you only need to perform
     /// operations on individual RGB pixels. If you can, you should use that instead.
@@ -1340,13 +1340,13 @@ impl Image<Rgba> {
     /// * [`Self::map_rgb_pixels`] - A more optimized method for performing operations on individual RGB
     ///   pixels.
     #[must_use]
-    pub fn split_rgb_and_alpha(self) -> (Image<Rgb>, Image<L>) {
+    pub fn split_rgb_and_alpha(self) -> (Image<Rgb>, Image<Luma>) {
         let (r, g, b, a) = self.bands();
         (Image::from_bands((r, g, b)), a)
     }
 
-    /// Creates an `Rgba` image from an `Rgb` image and an `L` image, where the `Rgb` image contains
-    /// the red, green, and blue color channels and the `L` image contains the alpha channel.
+    /// Creates an `Rgba` image from an `Rgb` image and an `Luma` image, where the `Rgb` image contains
+    /// the red, green, and blue color channels and the `Luma` image contains the alpha channel.
     ///
     /// # Panics
     /// * The dimensions of the two images do not match.
@@ -1354,7 +1354,7 @@ impl Image<Rgba> {
     /// # See Also
     /// * [`Self::split_rgb_and_alpha`] - The inverse of this method.
     #[must_use]
-    pub fn from_rgb_and_alpha(rgb: Image<Rgb>, alpha: Image<L>) -> Self {
+    pub fn from_rgb_and_alpha(rgb: Image<Rgb>, alpha: Image<Luma>) -> Self {
         debug_assert_eq!(
             rgb.dimensions(),
             alpha.dimensions(),
@@ -1363,7 +1363,7 @@ impl Image<Rgba> {
         rgb.map_data(|data| {
             data.into_iter()
                 .zip(alpha.data)
-                .map(|(Rgb { r, g, b }, L(a))| Rgba { r, g, b, a })
+                .map(|(Rgb { r, g, b }, Luma(a))| Rgba { r, g, b, a })
                 .collect()
         })
     }
@@ -1388,7 +1388,7 @@ impl Image<Rgba> {
     /// * [`Self::map_alpha_pixels`] - Performs the given operation on every pixel in the alpha
     ///   channel.
     /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<Rgb>`
-    ///   (and `Image<L>`).
+    ///   (and `Image<Luma>`).
     #[must_use]
     pub fn map_rgb_pixels(self, mut f: impl FnMut(Rgb) -> Rgb) -> Self {
         self.map_pixels(|Rgba { r, g, b, a }| {
@@ -1402,15 +1402,15 @@ impl Image<Rgba> {
     ///
     /// # See Also
     /// * [`Self::map_rgb_pixels`] - Performs the given operation on every pixel in the RGB channels.
-    /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<L>`
+    /// * [`Self::split_rgb_and_alpha`] - If you need to operate on the entire `Image<Luma>`
     ///   (and `Image<Rgb>`).
     #[must_use]
-    pub fn map_alpha_pixels(self, mut f: impl FnMut(L) -> L) -> Self {
+    pub fn map_alpha_pixels(self, mut f: impl FnMut(Luma) -> Luma) -> Self {
         self.map_pixels(|Rgba { r, g, b, a }| Rgba {
             r,
             g,
             b,
-            a: f(L(a)).value(),
+            a: f(Luma(a)).value(),
         })
     }
 }
@@ -1458,15 +1458,15 @@ macro_rules! impl_cast {
     };
 }
 
-impl_cast!(BitPixel: L Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
-impl_cast!(L: BitPixel Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
-impl_cast!(Rgb: BitPixel L Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
-impl_cast!(Rgba: BitPixel L Rgb Dynamic PalettedRgb<'_> PalettedRgba<'_>);
-impl_cast!(Dynamic: BitPixel L Rgb Rgba PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(BitPixel: Luma Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Luma: BitPixel Rgb Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Rgb: BitPixel Luma Rgba Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Rgba: BitPixel Luma Rgb Dynamic PalettedRgb<'_> PalettedRgba<'_>);
+impl_cast!(Dynamic: BitPixel Luma Rgb Rgba PalettedRgb<'_> PalettedRgba<'_>);
 
 /// Represents an image with multiple channels, called bands.
 ///
-/// Each band should be represented as a separate [`Image`] with [`L`] or [`BitPixel`] pixels.
+/// Each band should be represented as a separate [`Image`] with [`Luma`] or [`BitPixel`] pixels.
 pub trait Banded<T> {
     /// Takes this image and returns its bands.
     fn bands(&self) -> T;
@@ -1475,16 +1475,16 @@ pub trait Banded<T> {
     fn from_bands(bands: T) -> Self;
 }
 
-type Band = Image<L>;
+type Band = Image<Luma>;
 
 macro_rules! map_idx {
     ($image:expr, $idx:expr) => {{
-        use $crate::{Image, L};
+        use $crate::{Image, Luma};
 
         Image {
             width: $image.width,
             height: $image.height,
-            data: $image.data.iter().map(|p| L(p.as_bytes()[$idx])).collect(),
+            data: $image.data.iter().map(|p| Luma(p.as_bytes()[$idx])).collect(),
             format: $image.format,
             overlay: $image.overlay,
             palette: None,
@@ -1527,7 +1527,7 @@ impl Banded<(Band, Band, Band)> for Image<Rgb> {
             data.into_iter()
                 .zip(g.data)
                 .zip(b.data)
-                .map(|((L(r), L(g)), L(b))| Rgb::new(r, g, b))
+                .map(|((Luma(r), Luma(g)), Luma(b))| Rgb::new(r, g, b))
                 .collect()
         })
     }
@@ -1546,7 +1546,7 @@ impl Banded<(Band, Band, Band, Band)> for Image<Rgba> {
                 .zip(g.data)
                 .zip(b.data)
                 .zip(a.data)
-                .map(|(((L(r), L(g)), L(b)), L(a))| Rgba::new(r, g, b, a))
+                .map(|(((Luma(r), Luma(g)), Luma(b)), Luma(a))| Rgba::new(r, g, b, a))
                 .collect()
         })
     }
