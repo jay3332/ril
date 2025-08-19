@@ -1,4 +1,6 @@
-<h1 align="center" id="ril">ril</h1>
+<h1 align="center" id="ril">
+  <a href="https://jay3332.tech/projects/ril">ril</a>
+</h1>
 <p align="center">
   <sup>
     <b>R</b>ust <b>I</b>maging <b>L</b>ibrary: A performant and high-level Rust imaging crate.

@@ -491,6 +491,18 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self
     }
 
+    /// Sets the line height of the text.
+    ///
+    /// **This must be set before adding any text segments!**
+    #[must_use]
+    pub fn with_line_height(mut self, line_height: f32) -> Self {
+        self.set_settings(LayoutSettings {
+            line_height,
+            ..self.settings
+        });
+        self
+    }
+
     /// Adds a text segment to the text layout.
     pub fn push_segment(&mut self, segment: &TextSegment<'a, P>) {
         self.fonts.push(segment.font.inner());
