@@ -7,8 +7,7 @@ fn test_text_rendering() -> ril::Result<()> {
 
     let (cx, cy) = image.center();
     let layout = TextLayout::new()
-        .with_wrap(WrapStyle::Word)
-        .with_width(image.width())
+        .with_wrap(image.width(), WrapStyle::Word)
         .with_position(cx, cy)
         .with_basic_text(&font, include_str!("sample_text.txt"), Rgba::white())
         .with_align(TextAlign::Center)
@@ -28,8 +27,7 @@ fn test_text_gradient() -> ril::Result<()> {
 
     let (cx, cy) = mask.center();
     let layout = TextLayout::new()
-        .with_wrap(WrapStyle::Word)
-        .with_width(mask.width())
+        .with_wrap(mask.width(), WrapStyle::Word)
         .with_position(cx, cy)
         .with_basic_text(&font, "gradient", Rgba::white())
         .centered();
