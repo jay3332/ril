@@ -837,13 +837,13 @@
 <a href=#837 id=837 data-nosnippet>837</a><span class="kw">impl</span>&lt;F: IntoFill&gt; Rectangle&lt;F&gt; {
 <a href=#838 id=838 data-nosnippet>838</a>    <span class="doccomment">/// Creates a new rectangle with default values.
 <a href=#839 id=839 data-nosnippet>839</a>    ///
-<a href=#840 id=840 data-nosnippet>840</a>    /// This immediately sets the position to `(0, 0)`
-<a href=#841 id=841 data-nosnippet>841</a>    /// and you must explicitly set the size of the rectangle with [`with_size`] in order to set a
-<a href=#842 id=842 data-nosnippet>842</a>    /// size for the rectangle. If no size is set before drawing, you will receive a panic.
+<a href=#840 id=840 data-nosnippet>840</a>    /// This immediately sets the position to `(0, 0)` and you must explicitly set the size of the 
+<a href=#841 id=841 data-nosnippet>841</a>    /// rectangle with [`with_size`][Self::with_size] in order to set a size for the rectangle. 
+<a href=#842 id=842 data-nosnippet>842</a>    /// If no size is set before drawing, you will receive a panic.
 <a href=#843 id=843 data-nosnippet>843</a>    ///
 <a href=#844 id=844 data-nosnippet>844</a>    /// This also does not set any border or fill for the rectangle, you must explicitly set either
-<a href=#845 id=845 data-nosnippet>845</a>    /// one of them with [`with_fill`] or [`with_border`] respectively or else you will receive a
-<a href=#846 id=846 data-nosnippet>846</a>    /// panic at draw-time.
+<a href=#845 id=845 data-nosnippet>845</a>    /// one of them with [`with_fill`][Self::with_fill] or [`with_border`][Self::with_border] 
+<a href=#846 id=846 data-nosnippet>846</a>    /// respectively or else you will receive a panic at draw-time.
 <a href=#847 id=847 data-nosnippet>847</a>    </span><span class="attr">#[must_use]
 <a href=#848 id=848 data-nosnippet>848</a>    #[deprecated = <span class="string">"use `Rectangle::at` instead"</span>]
 <a href=#849 id=849 data-nosnippet>849</a>    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
@@ -991,12 +991,12 @@
 <a href=#991 id=991 data-nosnippet>991</a><span class="doccomment">/// An ellipse, which could be a circle.
 <a href=#992 id=992 data-nosnippet>992</a>///
 <a href=#993 id=993 data-nosnippet>993</a>/// Using any of the predefined constructors will automatically set the position to `(0, 0)` and
-<a href=#994 id=994 data-nosnippet>994</a>/// you must explicitly set the size of the ellipse with [`with_size`] in order to set a size for
-<a href=#995 id=995 data-nosnippet>995</a>/// the ellipse. If no size is set before drawing, you will receive a panic.
+<a href=#994 id=994 data-nosnippet>994</a>/// you must explicitly set the size of the ellipse with [`with_size`][Self::with_size] in order to 
+<a href=#995 id=995 data-nosnippet>995</a>/// set a size for the ellipse. If no size is set before drawing, you will receive a panic.
 <a href=#996 id=996 data-nosnippet>996</a>///
 <a href=#997 id=997 data-nosnippet>997</a>/// This also does not set any border or fill for the ellipse, you must explicitly set either one
-<a href=#998 id=998 data-nosnippet>998</a>/// of them with [`with_fill`] or [`with_border`] respectively or else you will receive a panic at
-<a href=#999 id=999 data-nosnippet>999</a>/// draw-time.
+<a href=#998 id=998 data-nosnippet>998</a>/// of them with [`with_fill`][Self::with_fill] or [`with_border`][Self::with_border] respectively 
+<a href=#999 id=999 data-nosnippet>999</a>/// or else you will receive a panic at draw-time.
 <a href=#1000 id=1000 data-nosnippet>1000</a></span><span class="attr">#[derive(Clone, Debug)]
 <a href=#1001 id=1001 data-nosnippet>1001</a></span><span class="kw">pub struct </span>Ellipse&lt;F: IntoFill&gt; {
 <a href=#1002 id=1002 data-nosnippet>1002</a>    <span class="doccomment">/// The center position of the ellipse.
@@ -1029,13 +1029,13 @@
 <a href=#1029 id=1029 data-nosnippet>1029</a>    ///
 <a href=#1030 id=1030 data-nosnippet>1030</a>    /// The ellipse by default will be centered at `(0, 0)` which will always cut off a portion
 <a href=#1031 id=1031 data-nosnippet>1031</a>    /// of the ellipse. You should explicitly set the position of the center of the ellipse with
-<a href=#1032 id=1032 data-nosnippet>1032</a>    /// [`with_position`] or else you will receive a panic at draw-time.
+<a href=#1032 id=1032 data-nosnippet>1032</a>    /// [`with_position`][Self::with_position] or else you will receive a panic at draw-time.
 <a href=#1033 id=1033 data-nosnippet>1033</a>    ///
-<a href=#1034 id=1034 data-nosnippet>1034</a>    /// You must also specify a size for the ellipse with [`with_size`] or else you will receive a
-<a href=#1035 id=1035 data-nosnippet>1035</a>    /// panic at draw-time.
+<a href=#1034 id=1034 data-nosnippet>1034</a>    /// You must also specify a size for the ellipse with [`with_size`][Self::with_size] or else 
+<a href=#1035 id=1035 data-nosnippet>1035</a>    /// you will receive a panic at draw-time.
 <a href=#1036 id=1036 data-nosnippet>1036</a>    ///
-<a href=#1037 id=1037 data-nosnippet>1037</a>    /// Finally, you must also specify a fill color with [`with_fill`] or a border color with
-<a href=#1038 id=1038 data-nosnippet>1038</a>    /// [`with_border`] or else you will receive a panic at draw-time.
+<a href=#1037 id=1037 data-nosnippet>1037</a>    /// Finally, you must also specify a fill color with [`with_fill`][Self::with_fill] or a border 
+<a href=#1038 id=1038 data-nosnippet>1038</a>    /// color with [`with_border`][Self::with_border] or else you will receive a panic at draw-time.
 <a href=#1039 id=1039 data-nosnippet>1039</a>    </span><span class="attr">#[must_use]
 <a href=#1040 id=1040 data-nosnippet>1040</a>    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
 <a href=#1041 id=1041 data-nosnippet>1041</a>        <span class="self">Self</span>::default()
