@@ -777,16 +777,24 @@ impl Rgb {
         Self { r, g, b }
     }
 
-    /// Parses an RGB pixel from a hex value.
+    /// Parses an RGB pixel from a hex string.
     ///
     /// The hex value can be in one of the following formats:
     /// - RRGGBB
     /// - RGB
     ///
-    /// These can be optionally padded with #, for example "#FF0000" is the same as as "FF0000".
+    /// These can be optionally padded with #, for example "#FF0000" is the same as "FF0000".
+    ///
+    /// # Note
+    /// This is a relatively expensive operation. Use [`Rgb::from_u32`] if you know the hex value
+    /// (i.e. if you are defining a constant), since you can write a `u32` using an integer literal
+    /// of radix 16, e.g. `0xff0000`.
     ///
     /// # Errors
     /// * Received a malformed hex code.
+    ///
+    /// # See Also
+    /// * [`Rgb::from_u32`] for parsing from an integer (better for known hex values).
     pub fn from_hex(hex: impl AsRef<str>) -> Result<Self> {
         let hex = hex.as_ref();
 
@@ -820,6 +828,26 @@ impl Rgb {
             g: u8::from_str_radix(&hex[2..4], 16).map_err(err)?,
             b: u8::from_str_radix(&hex[4..6], 16).map_err(err)?,
         })
+    }
+
+    /// Resolves the RGB pixel from a 32-bit integer.
+    ///
+    /// Note that RGB pixels are inherently 24-bits, so the leading 8 bits of the integer are
+    /// ignored (they are "padding bits").
+    ///
+    /// # Examples
+    /// ```
+    /// # use ril::prelude::*;
+    /// const RED: Rgb = Rgb::from_u32(0xff0000);
+    /// assert_eq!(RED, Rgb::new(255, 0, 0));
+    /// ```
+    #[must_use]
+    pub const fn from_u32(value: u32) -> Self {
+        Self {
+            r: (value >> 16) as u8,
+            g: (value >> 8) as u8,
+            b: value as u8,
+        }
     }
 
     /// Creates a completely black pixel.
@@ -1020,7 +1048,7 @@ impl Rgba {
         Self::new(r, g, b, 255)
     }
 
-    /// Parses an RGBA pixel from a hex value.
+    /// Parses an RGBA pixel from a hex string.
     ///
     /// The hex value can be in one of the following formats:
     /// - RRGGBBAA
@@ -1030,8 +1058,16 @@ impl Rgba {
     ///
     /// These can be optionally padded with #, for example "#FF0000" is the same as as "FF0000".
     ///
+    /// # Note
+    /// This is a relatively expensive operation. Use [`Rgba::from_u32`] if you know the hex value
+    /// (i.e. if you are defining a constant), since you can write a `u32` using an integer literal
+    /// of radix 16, e.g. `0xff0000ff`.
+    ///
     /// # Errors
     /// * Received a malformed hex code.
+    ///
+    /// # See Also
+    /// * [`Rgba::from_u32`] for parsing from an integer (better for known hex values).
     pub fn from_hex(hex: &str) -> Result<Self> {
         let hex = hex.strip_prefix('#').unwrap_or(hex);
 
@@ -1061,6 +1097,27 @@ impl Rgba {
                 })
             }
             _ => Err(InvalidHexCode(hex.to_string())),
+        }
+    }
+
+    /// Resolves the RGBA pixel from a 32-bit integer (0xRRGGBBAA).
+    ///
+    /// Consider using [`Rgb::from_u32`] and then [`TrueColor::into_rgba`] if you have a
+    /// conventional 24-bit RGB integer, as this method will not properly handle that.
+    ///
+    /// # Examples
+    /// ```
+    /// # use ril::prelude::*;
+    /// const RED: Rgba = Rgba::from_u32(0xff0000ff);
+    /// assert_eq!(RED, Rgba::new(255, 0, 0, 255));
+    /// ```
+    #[must_use]
+    pub const fn from_u32(value: u32) -> Self {
+        Self {
+            r: (value >> 24) as u8,
+            g: (value >> 16) as u8,
+            b: (value >> 8) as u8,
+            a: value as u8,
         }
     }
 

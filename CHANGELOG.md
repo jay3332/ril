@@ -48,6 +48,7 @@ Versions prior to v0.7 are not tagged/released on GitHub.
   - This allows you to create a gradient from an iterator of colors or an iterator of `(color, position)` pairs
 - Add `Image::from_fill`
 - Add `LoopCount::count_or`
+- Add `Rgb[a]::from_u32`
 
 ## v0.10.3 (2024-09-23)
 - Fix GIF encoding issues as produced in [#38](https://github.com/jay3332/ril/issues/38)

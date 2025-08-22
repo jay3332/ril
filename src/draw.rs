@@ -837,12 +837,12 @@ impl<F: IntoFill> Default for Rectangle<F> {
 impl<F: IntoFill> Rectangle<F> {
     /// Creates a new rectangle with default values.
     ///
-    /// This immediately sets the position to `(0, 0)` and you must explicitly set the size of the 
-    /// rectangle with [`with_size`][Self::with_size] in order to set a size for the rectangle. 
+    /// This immediately sets the position to `(0, 0)` and you must explicitly set the size of the
+    /// rectangle with [`with_size`][Self::with_size] in order to set a size for the rectangle.
     /// If no size is set before drawing, you will receive a panic.
     ///
     /// This also does not set any border or fill for the rectangle, you must explicitly set either
-    /// one of them with [`with_fill`][Self::with_fill] or [`with_border`][Self::with_border] 
+    /// one of them with [`with_fill`][Self::with_fill] or [`with_border`][Self::with_border]
     /// respectively or else you will receive a panic at draw-time.
     #[must_use]
     #[deprecated = "use `Rectangle::at` instead"]
@@ -991,11 +991,11 @@ impl<F: IntoFill> Draw<F::Pixel> for Rectangle<F> {
 /// An ellipse, which could be a circle.
 ///
 /// Using any of the predefined constructors will automatically set the position to `(0, 0)` and
-/// you must explicitly set the size of the ellipse with [`with_size`][Self::with_size] in order to 
+/// you must explicitly set the size of the ellipse with [`with_size`][Self::with_size] in order to
 /// set a size for the ellipse. If no size is set before drawing, you will receive a panic.
 ///
 /// This also does not set any border or fill for the ellipse, you must explicitly set either one
-/// of them with [`with_fill`][Self::with_fill] or [`with_border`][Self::with_border] respectively 
+/// of them with [`with_fill`][Self::with_fill] or [`with_border`][Self::with_border] respectively
 /// or else you will receive a panic at draw-time.
 #[derive(Clone, Debug)]
 pub struct Ellipse<F: IntoFill> {
@@ -1031,10 +1031,10 @@ impl<F: IntoFill> Ellipse<F> {
     /// of the ellipse. You should explicitly set the position of the center of the ellipse with
     /// [`with_position`][Self::with_position] or else you will receive a panic at draw-time.
     ///
-    /// You must also specify a size for the ellipse with [`with_size`][Self::with_size] or else 
+    /// You must also specify a size for the ellipse with [`with_size`][Self::with_size] or else
     /// you will receive a panic at draw-time.
     ///
-    /// Finally, you must also specify a fill color with [`with_fill`][Self::with_fill] or a border 
+    /// Finally, you must also specify a fill color with [`with_fill`][Self::with_fill] or a border
     /// color with [`with_border`][Self::with_border] or else you will receive a panic at draw-time.
     #[must_use]
     pub fn new() -> Self {
