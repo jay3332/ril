@@ -22,7 +22,7 @@ Versions prior to v0.7 are not tagged/released on GitHub.
   - `ril::Font::from_reader` is now `ril::Font::from_read`
 
 - Combine `TextSegment::with_wrap` and `TextSegment::with_width` into just `TextSegment::with_wrap(max_width, wrap_style)`, \
-  and combine `TextLayout::with_wrap` and `TextLayout::with_width` into just `TextSegment::with_wrap(max_width, wrap_style)`
+  and combine `TextLayout::with_wrap` and `TextLayout::with_width` into just `TextLayout::with_wrap(max_width, wrap_style)`
   - The two properties were only useful when both were specified, so they were combined into one function
 
 - `TextSegment` now has two lifetime generics: `TextSegment<'font, 'text, P>`.
