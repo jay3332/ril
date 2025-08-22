@@ -259,15 +259,15 @@
 <a href=#259 id=259 data-nosnippet>259</a>    ///
 <a href=#260 id=260 data-nosnippet>260</a>    /// If you are limited by this trait bound, you can either specify the image format manually
 <a href=#261 id=261 data-nosnippet>261</a>    /// using [`from_read`][Self::from_read], or you can try using [`ImageFormat::infer_encoding`]
-<a href=#262 id=262 data-nosnippet>262</a>    /// along with [`from_read`][Self::from_read] manually instead. If you are able to use 
-<a href=#263 id=263 data-nosnippet>263</a>    /// [`from_bytes`][Self::from_bytes] instead, which takes a byte slice instead of a `Read` 
-<a href=#264 id=264 data-nosnippet>264</a>    /// stream, you can either that or [`from_bytes_inferred`][Self::from_bytes_inferred], too, 
+<a href=#262 id=262 data-nosnippet>262</a>    /// along with [`from_read`][Self::from_read] manually instead. If you are able to use
+<a href=#263 id=263 data-nosnippet>263</a>    /// [`from_bytes`][Self::from_bytes] instead, which takes a byte slice instead of a `Read`
+<a href=#264 id=264 data-nosnippet>264</a>    /// stream, you can either that or [`from_bytes_inferred`][Self::from_bytes_inferred], too,
 <a href=#265 id=265 data-nosnippet>265</a>    /// which does not require a `Write` bound either.
 <a href=#266 id=266 data-nosnippet>266</a>    ///
 <a href=#267 id=267 data-nosnippet>267</a>    /// # Errors
-<a href=#268 id=268 data-nosnippet>268</a>    /// * [`DecodingError`][crate::Error::DecodingError]: The image could not be decoded, maybe it 
+<a href=#268 id=268 data-nosnippet>268</a>    /// * [`DecodingError`][crate::Error::DecodingError]: The image could not be decoded, maybe it
 <a href=#269 id=269 data-nosnippet>269</a>    ///   is corrupt.
-<a href=#270 id=270 data-nosnippet>270</a>    /// * [`UnknownEncodingFormat`][crate::Error::UnknownEncodingFormat]: Could not infer the 
+<a href=#270 id=270 data-nosnippet>270</a>    /// * [`UnknownEncodingFormat`][crate::Error::UnknownEncodingFormat]: Could not infer the
 <a href=#271 id=271 data-nosnippet>271</a>    ///   encoding from the image. Try explicitly specifying it.
 <a href=#272 id=272 data-nosnippet>272</a>    ///
 <a href=#273 id=273 data-nosnippet>273</a>    /// # Panics
@@ -323,7 +323,7 @@
 <a href=#323 id=323 data-nosnippet>323</a>    <span class="doccomment">/// Decodes an image sequence from the given byte slice, inferring its encoding.
 <a href=#324 id=324 data-nosnippet>324</a>    /// Could be useful in conjunction with the `include_bytes!` macro.
 <a href=#325 id=325 data-nosnippet>325</a>    ///
-<a href=#326 id=326 data-nosnippet>326</a>    /// This is more efficient than [`from_read_inferred`][Self::from_read_inferred], and can act as 
+<a href=#326 id=326 data-nosnippet>326</a>    /// This is more efficient than [`from_read_inferred`][Self::from_read_inferred], and can act as
 <a href=#327 id=327 data-nosnippet>327</a>    /// a workaround for bypassing the `Write` trait bound.
 <a href=#328 id=328 data-nosnippet>328</a>    ///
 <a href=#329 id=329 data-nosnippet>329</a>    /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
