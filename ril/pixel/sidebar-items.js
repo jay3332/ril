@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Dynamic","DynamicSubpixel"],"struct":["BitPixel","L","NoOp","NoOpSubpixel","PalettedRgb","PalettedRgba","Rgb","Rgba"],"trait":["Alpha","MaybeSealed","Modulate","Paletted","Pixel","TrueColor"]};
+window.SIDEBAR_ITEMS = {"enum":["Dynamic","DynamicSubpixel"],"struct":["BitPixel","Luma","NoOp","NoOpSubpixel","PalettedRgb","PalettedRgba","Rgb","Rgba"],"trait":["Alpha","MaybeSealed","Paletted","Pixel","TrueColor"]};

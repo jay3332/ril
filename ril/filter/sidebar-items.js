@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Brightness","Mask"],"trait":["Filter"]};
+window.SIDEBAR_ITEMS = {"struct":["Convolution","DynamicConvolution","Identity","Mask"],"trait":["Filter"]};
