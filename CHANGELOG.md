@@ -21,9 +21,25 @@ Versions prior to v0.7 are not tagged/released on GitHub.
   - `ril::ImageSequence::from_reader_inferred` is now `ril::ImageSequence::from_read_inferred`
   - `ril::Font::from_reader` is now `ril::Font::from_read`
 
+- Combine `TextSegment::with_wrap` and `TextSegment::with_width` into just `TextSegment::with_wrap(max_width, wrap_style)`, \
+  and combine `TextLayout::with_wrap` and `TextLayout::with_width` into just `TextSegment::with_wrap(max_width, wrap_style)`
+  - The two properties were only useful when both were specified, so they were combined into one function
+
+- `TextSegment` now has two lifetime generics: `TextSegment<'font, 'text, P>`.
+  - This is such that the text itself can be represented as a `&'text str`, removing the need to reallocate and clone
+    the rendered string.
+  - `TextSegment::new`, `TextLayout::push_basic_text`, and `TextLayout::with_basic_text`
+    now takes a `&str` as the text parameter rather than an `impl AsRef<str>`. \
+    For example, if you used to pass in a `String` into one of these methods, you must now explicitly 
+    convert into a `&str` (e.g. use the `Deref` trait: `&text == &*text`)
+
 ### New Features
 
 - Add `PngEncoderOptions::new`
+- Add ability to modify text line height ([#35](https://github.com/jay3332/ril/pull/35))
+  - This adds `TextLayout::with_line_height`  and `TextSegment::with_line_height`
+- Add `TextLayout::at(x, y)` as a shortcut to `TextLayout::new().with_position(x, y)`
+- Add `TextLayout::with_capacity`
 
 ## v0.10.3 (2024-09-23)
 - Fix GIF encoding issues as produced in [#38](https://github.com/jay3332/ril/issues/38)

@@ -147,31 +147,34 @@ impl Default for WrapStyle {
 /// Note that [`TextLayout`] is not cloneable while text segments are, which is one advantage
 /// of using this over [`TextLayout`].
 #[derive(Clone)]
-pub struct TextSegment<'a, P: Pixel> {
+pub struct TextSegment<'font, 'text, P: Pixel> {
     /// The position the text will be rendered at. Ignored if this is used in a [`TextLayout`].
     pub position: (u32, u32),
-    /// The width of the text box. If this is used in a [`TextLayout`], this is ignored and
-    /// [`TextLayout::with_width`] is used instead. This is used for text wrapping and wrapping only.
-    pub width: Option<u32>,
     /// The content of the text segment.
-    pub text: String,
+    pub text: &'text str,
     /// The font to use to render the text.
-    pub font: &'a Font,
+    pub font: &'font Font,
     /// The fill color the text will be in.
     pub fill: P,
+    /// The stroke or outline color of the text, if this segment should be rendered with one.
+    pub stroke: Option<P>,
     /// The overlay mode of the text. Note that anti-aliasing is still a bit funky with
     /// [`OverlayMode::Replace`], so it is best to use [`OverlayMode::Merge`] for this, which is
     /// the default.
     pub overlay: OverlayMode,
     /// The size of the text in pixels.
     pub size: f32,
-    /// The wrapping style of the text. Note that text will only wrap if [`width`] is set.
+    /// The wrapping behavior of the text, specified as `(max_width, wrap_style)`.
     /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::with_wrap`] is
     /// used instead.
-    pub wrap: WrapStyle,
+    pub wrap: (Option<u32>, WrapStyle),
+    /// The line height of the text as a multiplier of the font size.
+    /// By default, this is ``1.0``. If this is used in a [`TextLayout`], this is ignored and
+    /// [`TextLayout::with_line_height`] is used instead.
+    pub line_height: f32,
 }
 
-impl<'a, P: Pixel> TextSegment<'a, P> {
+impl<'font, 'text, P: Pixel> TextSegment<'font, 'text, P> {
     /// Creates a new text segment with the given text, font, and fill color.
     /// The text can be anything that implements [`AsRef<str>`].
     ///
@@ -182,17 +185,25 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
     /// The size defaults to the font's optimal size.
     /// You can override this by using the [`with_size`][Self::with_size] method.
     #[must_use]
-    pub fn new(font: &'a Font, text: impl AsRef<str>, fill: P) -> Self {
+    pub const fn new(font: &'font Font, text: &'text str, fill: P) -> Self {
         Self {
             position: (0, 0),
-            width: None,
-            text: text.as_ref().to_string(),
+            text,
             font,
             fill,
+            stroke: None,
             overlay: OverlayMode::Merge,
             size: font.optimal_size(),
-            wrap: WrapStyle::Word,
+            wrap: (None, WrapStyle::Word),
+            line_height: 1.0,
         }
+    }
+
+    /// Sets the stroke (outline) color of the text segment.
+    #[must_use]
+    pub const fn with_stroke(mut self, stroke: P) -> Self {
+        self.stroke = Some(stroke);
+        self
     }
 
     /// Sets the position of the text segment. Ignored if this segment is used in a [`TextLayout`].
@@ -216,19 +227,25 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
         self
     }
 
-    /// Sets the width of the text segment, used for text wrapping.
-    /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::width`] is used instead.
+    /// Sets the wrapping behavior of the text segment. You must specify the maximum width of the
+    /// text segment in pixels, as well as the [`WrapStyle`][WrapStyle] to use.
+    ///
+    /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::with_wrap`] is used
+    /// instead.
     #[must_use]
-    pub const fn with_width(mut self, width: u32) -> Self {
-        self.width = Some(width);
+    pub const fn with_wrap(mut self, max_width: u32, wrap_style: WrapStyle) -> Self {
+        self.wrap = (Some(max_width), wrap_style);
         self
     }
 
-    /// Sets the wrapping style of the text segment.
-    /// If this is used in a [`TextLayout`], this is ignored and [`TextLayout::wrap`] is used instead.
+    /// Sets the line height of the text segment as a multiplier of the font size.
+    /// By default, this is ``1.0``.
+    ///
+    /// This is ignored if this segment is used in a [`TextLayout`], since the layout has its own
+    /// line height setting ([`TextLayout::with_line_height`]).
     #[must_use]
-    pub const fn with_wrap(mut self, wrap: WrapStyle) -> Self {
-        self.wrap = wrap;
+    pub const fn with_line_height(mut self, line_height: f32) -> Self {
+        self.line_height = line_height;
         self
     }
 
@@ -237,20 +254,21 @@ impl<'a, P: Pixel> TextSegment<'a, P> {
         layout.reset(&LayoutSettings {
             x: self.position.0 as f32,
             y: self.position.1 as f32,
-            max_width: if self.wrap == WrapStyle::None {
+            max_width: if self.wrap.1 == WrapStyle::None {
                 None
             } else {
-                self.width.map(|w| w as f32)
+                self.wrap.0.map(|w| w as f32)
             },
-            wrap_style: match self.wrap {
+            wrap_style: match self.wrap.1 {
                 WrapStyle::None | WrapStyle::Word => fontdue::layout::WrapStyle::Word,
                 WrapStyle::Character => fontdue::layout::WrapStyle::Letter,
             },
+            line_height: self.line_height,
             ..LayoutSettings::default()
         });
         layout.append(
             &[self.font.inner()],
-            &TextStyle::with_user_data(&self.text, self.size, 0, (self.fill, self.overlay)),
+            &TextStyle::with_user_data(self.text, self.size, 0, (self.fill, self.overlay)),
         );
         layout
     }
@@ -350,7 +368,7 @@ fn render_layout_with_alignment<P: Pixel>(
     }
 }
 
-impl<'a, P: Pixel> Draw<P> for TextSegment<'a, P> {
+impl<'font, 'text, P: Pixel> Draw<P> for TextSegment<'font, 'text, P> {
     fn draw<I: DerefMut<Target = Image<P>>>(&self, mut image: I) {
         render_layout(&mut *image, &[self.font.inner()], &self.layout());
     }
@@ -419,8 +437,44 @@ impl Default for VerticalAnchor {
 /// any of the features [`TextLayout`] provides.
 ///
 /// # Note
-/// This is does not implement [`Clone`] and therefore it is not cloneable! Consider using
-/// [`TextSegment`] if you require cloning functionality.
+/// This does not implement [`Clone`]! Consider using [`TextSegment`] if you require cloning
+/// functionality.
+///
+/// # Example
+/// ```
+/// # use ril::prelude::*;
+/// const WHITE: Rgb = Rgb::white();
+/// const BLACK: Rgb = Rgb::black();
+///
+/// # fn main() -> ril::Result<()> {
+/// // Simple input prompt for name
+/// print!("What's your name? ");
+/// let mut name = String::new();
+/// std::io::stdin()
+///     .read_line(&mut name)
+///     .expect("failed to read line");
+///
+/// // Load fonts (you must have these fonts in PWD)
+/// let regular = Font::open("Arial.ttf", 32.0)?;
+/// let bold = Font::open("Arial-Bold.ttf", 32.0)?;
+///
+/// // Create rendering layout
+/// let mut layout = TextLayout::new()
+///     .with_position(100, 100)
+///     .with_basic_text(&regular, "Hello, ", WHITE)
+///     .with_basic_text(&bold, name.trim(), WHITE)
+///     .with_basic_text(&regular, "!", WHITE);
+///
+/// // Render it on a black image and save it
+/// Image::new(400, 400, BLACK)
+///     .with(&layout)
+///     .save_inferred("greetings.png")?;
+/// # Ok(())
+/// # }
+/// ```
+///
+/// # See Also
+/// * [`TextSegment`] - A lightweight text segment that can be drawn directly.
 pub struct TextLayout<'a, P: Pixel> {
     inner: Layout<(P, OverlayMode)>,
     fonts: Vec<&'a fontdue::Font>,
@@ -444,6 +498,31 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         }
     }
 
+    /// Creates a new text layout with default settings and a capacity for the amount of
+    /// individual text segments that will be added to the layout.
+    ///
+    /// This is useful for optimizing performance if you know roughly how many text segments will
+    /// be added.
+    #[must_use]
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            inner: Layout::new(CoordinateSystem::PositiveYDown),
+            fonts: Vec::with_capacity(capacity),
+            settings: LayoutSettings::default(),
+            x_anchor: HorizontalAnchor::default(),
+            y_anchor: VerticalAnchor::default(),
+            align: TextAlign::default(),
+        }
+    }
+
+    /// Creates a new text layout with its origin at the given position.
+    ///
+    /// This is equivalent to ``Self::new().with_position(x, y)``.
+    #[must_use]
+    pub fn at(x: u32, y: u32) -> Self {
+        Self::new().with_position(x, y)
+    }
+
     fn set_settings(&mut self, settings: LayoutSettings) {
         self.inner.reset(&settings);
         self.settings = settings;
@@ -462,36 +541,29 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
         self
     }
 
-    /// Sets the wrapping style of the text. Make sure to also set the wrapping width using
-    /// [`with_width`] for wrapping to work.
+    /// Sets the wrapping behavior of the text. This does not directly impact [`Self::width`]
+    /// and [`Self::dimensions`].
+    ///
+    /// You must specify the maximum width of the text layout in pixels, as well as the
+    /// [`WrapStyle`][WrapStyle] to use.
     ///
     /// **This must be set before adding any text segments!**
     #[must_use]
-    pub fn with_wrap(mut self, wrap: WrapStyle) -> Self {
+    pub fn with_wrap(mut self, max_width: u32, wrap_style: WrapStyle) -> Self {
         self.set_settings(LayoutSettings {
-            wrap_style: match wrap {
+            wrap_style: match wrap_style {
                 WrapStyle::None | WrapStyle::Word => fontdue::layout::WrapStyle::Word,
                 WrapStyle::Character => fontdue::layout::WrapStyle::Letter,
             },
-            max_width: Some(self.settings.max_width.unwrap_or(f32::MAX)),
+            max_width: Some(max_width as f32),
             ..self.settings
         });
         self
     }
 
-    /// Sets the wrapping width of the text. This does not impact [`Self::width`] and [`Self::dimensions`].
+    /// Sets the line height of the text as a multiplier of the font size.
     ///
-    /// **This must be set before adding any text segments!**
-    #[must_use]
-    pub fn with_width(mut self, width: u32) -> Self {
-        self.set_settings(LayoutSettings {
-            max_width: Some(width as f32),
-            ..self.settings
-        });
-        self
-    }
-
-    /// Sets the line height of the text.
+    /// By default, this is ``1.0``.
     ///
     /// **This must be set before adding any text segments!**
     #[must_use]
@@ -504,7 +576,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     }
 
     /// Adds a text segment to the text layout.
-    pub fn push_segment(&mut self, segment: &TextSegment<'a, P>) {
+    pub fn push_segment(&mut self, segment: &TextSegment<'a, '_, P>) {
         self.fonts.push(segment.font.inner());
         self.inner.append(
             &self.fonts,
@@ -520,7 +592,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     /// Takes this text layout and returns it with the given text segment added to the text layout.
     /// Useful for method chaining.
     #[must_use]
-    pub fn with_segment(mut self, segment: &TextSegment<'a, P>) -> Self {
+    pub fn with_segment(mut self, segment: &TextSegment<'a, '_, P>) -> Self {
         self.push_segment(segment);
         self
     }
@@ -533,7 +605,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     /// # Note
     /// The overlay mode is set to [`OverlayMode::Merge`] and not the image's overlay mode, since
     /// anti-aliasing is funky with the replace overlay mode.
-    pub fn push_basic_text(&mut self, font: &'a Font, text: impl AsRef<str>, fill: P) {
+    pub fn push_basic_text(&mut self, font: &'a Font, text: &str, fill: P) {
         self.push_segment(&TextSegment::new(font, text, fill));
     }
 
@@ -547,7 +619,7 @@ impl<'a, P: Pixel> TextLayout<'a, P> {
     /// # See Also
     /// * [`push_basic_text`][TextLayout::push_basic_text]
     #[must_use]
-    pub fn with_basic_text(mut self, font: &'a Font, text: impl AsRef<str>, fill: P) -> Self {
+    pub fn with_basic_text(mut self, font: &'a Font, text: &str, fill: P) -> Self {
         self.push_basic_text(font, text, fill);
         self
     }
