@@ -160,13 +160,19 @@ impl Default for LoopCount {
 }
 
 impl LoopCount {
-    /// Returns the exact number of times this loop should be repeated or 0.
+    /// Returns the exact number of times this loop should be repeated or `default`.
     #[must_use]
-    pub const fn count_or_zero(self) -> u32 {
+    pub const fn count_or(self, default: u32) -> u32 {
         match self {
-            Self::Infinite => 0,
+            Self::Infinite => default,
             Self::Exactly(count) => count,
         }
+    }
+
+    /// Returns the exact number of times this loop should be repeated or zero if it is infinite.
+    #[must_use]
+    pub const fn count_or_zero(self) -> u32 {
+        self.count_or(0)
     }
 }
 
@@ -285,9 +291,9 @@ impl<P: Pixel> ImageSequence<P> {
     /// Decodes an image sequence with the explicitly given image encoding from the byte slice.
     /// Could be useful in conjunction with the `include_bytes!` macro.
     ///
-    /// Currently, this is not any different than [`from_read`].
+    /// Currently, this is no different than [`from_read`].
     ///
-    /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
+    /// This decodes frames lazily as an iterator. Call [`FrameIterator::into_sequence`] to
     /// collect all frames greedily into an [`ImageSequence`].
     ///
     /// If the image sequence is a single-frame static image or if the encoding format does not

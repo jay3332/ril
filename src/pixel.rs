@@ -4,7 +4,7 @@ use crate::{
     encodings::ColorType,
     image::OverlayMode,
     Error::{DecodingError, InvalidHexCode, InvalidPaletteIndex, UnsupportedColorType},
-    Result,
+    FromVector, IntoVector, Result, Vector,
 };
 use std::{
     borrow::Cow,
@@ -14,7 +14,7 @@ use std::{
 };
 
 mod sealed {
-    use super::{BitPixel, Dynamic, NoOp, PalettedRgb, PalettedRgba, Rgb, Rgba, Luma};
+    use super::{BitPixel, Dynamic, Luma, NoOp, PalettedRgb, PalettedRgba, Rgb, Rgba};
     pub trait Sealed {}
 
     macro_rules! sealed {
@@ -38,7 +38,7 @@ pub use sealed::MaybeSealed;
 
 /// Represents any type of pixel in an image.
 ///
-/// Generally speaking, the values enclosed inside of each pixel are designed to be immutable.
+/// Generally speaking, the values enclosed inside each pixel are designed to be immutable.
 pub trait Pixel:
     Copy + Clone + Debug + Default + PartialEq + Eq + Hash + Not<Output = Self> + MaybeSealed
 {
@@ -68,9 +68,9 @@ pub trait Pixel:
     #[must_use]
     fn luminance(&self) -> u8
     where
-        Self: Into<L>,
+        Self: Into<Luma>,
     {
-        let L(value) = (*self).into();
+        let Luma(value) = (*self).into();
 
         value
     }
@@ -219,13 +219,6 @@ pub trait Alpha: Pixel {
     /// Clones this pixel with the given alpha value.
     #[must_use]
     fn with_alpha(self, alpha: u8) -> Self;
-}
-
-/// Represents a pixel that can be modulated, i.e. transformed in hue, saturation, and brightness.
-pub trait Modulate: Pixel {
-    /// Modulates this pixel with the given hue, saturation, and brightness values.
-    #[must_use]
-    fn modulate(self, hue: f64, saturation: f64, brightness: f64) -> Self;
 }
 
 /// A pixel type that does and stores nothing. This pixel type is useless and will behave weirdly
@@ -383,7 +376,7 @@ macro_rules! force_into_impl {
 }
 
 impl Pixel for BitPixel {
-    const COLOR_TYPE: ColorType = ColorType::L;
+    const COLOR_TYPE: ColorType = ColorType::Luma;
     const BIT_DEPTH: u8 = 1;
 
     type Subpixel = bool;
@@ -405,7 +398,7 @@ impl Pixel for BitPixel {
         palette: Option<&[P]>,
     ) -> Result<Self> {
         propagate_palette!(palette, data);
-        // Before, this supported L, however this implicit conversion is not supported anymore
+        // Before, this supported Luma, however this implicit conversion is not supported anymore
         // as the result will be completely different
         match (color_type, bit_depth, data.is_empty()) {
             (_, 1, false) => Ok(Self(data[0] != 0)),
@@ -432,7 +425,7 @@ impl Pixel for BitPixel {
     fn from_dynamic(dynamic: Dynamic) -> Self {
         match dynamic {
             Dynamic::BitPixel(value) => value,
-            Dynamic::L(value) => value.into(),
+            Dynamic::Luma(value) => value.into(),
             Dynamic::Rgb(value) => value.into(),
             Dynamic::Rgba(value) => value.into(),
         }
@@ -446,6 +439,23 @@ impl Not for BitPixel {
 
     fn not(self) -> Self::Output {
         Self(!self.0)
+    }
+}
+
+impl IntoVector<1> for BitPixel {
+    type Element = u8;
+
+    fn into_vector(self) -> Vector<1, Self::Element> {
+        let [p] = self.as_bytes();
+        Vector::new([p])
+    }
+}
+
+impl FromVector<1> for BitPixel {
+    type Element = u8;
+
+    fn from_vector(vector: Vector<1, Self::Element>) -> Self {
+        Self(vector[0] > 127)
     }
 }
 
@@ -519,7 +529,7 @@ macro_rules! propagate_data {
     }};
 }
 
-/// Represents a luminance pixel that is stored as only one single number representing how bright, 
+/// Represents a luminance pixel that is stored as only one single number representing how bright,
 /// or intense, the pixel is.
 ///
 /// This can be thought of as the "unit channel" as this represents only
@@ -560,7 +570,7 @@ impl Pixel for Luma {
         match color_type {
             // Currently, losing alpha implicitly is allowed, but I may change my mind about this
             // in the future.
-            ColorType::L | ColorType::LA => Ok(Self(data[0])),
+            ColorType::Luma | ColorType::LumaA => Ok(Self(data[0])),
             _ => Err(UnsupportedColorType),
         }
     }
@@ -685,7 +695,7 @@ impl Pixel for Rgb {
                     b: data[2],
                 })
             }
-            ColorType::L | ColorType::LA => {
+            ColorType::Luma | ColorType::LumaA => {
                 propagate_data!(data, 1);
                 Ok(Self {
                     r: data[0],
@@ -720,7 +730,7 @@ impl Pixel for Rgb {
             Dynamic::Rgb(value) => value,
             Dynamic::Rgba(value) => value.into(),
             Dynamic::BitPixel(value) => value.into(),
-            Dynamic::L(value) => value.into(),
+            Dynamic::Luma(value) => value.into(),
         }
     }
 
@@ -737,6 +747,26 @@ impl Not for Rgb {
         //   * this function is intended to simply invert all 24 bits of the pixel,
         //     which is exactly what this does
         unsafe { *(&(!*(&(self, 0u8) as *const _ as *const u32)) as *const _ as *const Self) }
+    }
+}
+
+impl IntoVector<3> for Rgb {
+    type Element = u8;
+
+    fn into_vector(self) -> Vector<3, Self::Element> {
+        Vector::new([self.r, self.g, self.b])
+    }
+}
+
+impl FromVector<3> for Rgb {
+    type Element = u8;
+
+    fn from_vector(vector: Vector<3, Self::Element>) -> Self {
+        Self {
+            r: vector[0],
+            g: vector[1],
+            b: vector[2],
+        }
     }
 }
 
@@ -1066,6 +1096,27 @@ impl Not for Rgba {
     }
 }
 
+impl IntoVector<4> for Rgba {
+    type Element = u8;
+
+    fn into_vector(self) -> Vector<4, Self::Element> {
+        Vector::new([self.r, self.g, self.b, self.a])
+    }
+}
+
+impl FromVector<4> for Rgba {
+    type Element = u8;
+
+    fn from_vector(vector: Vector<4, Self::Element>) -> Self {
+        Self {
+            r: vector[0],
+            g: vector[1],
+            b: vector[2],
+            a: vector[3],
+        }
+    }
+}
+
 /// Represents a subpixel of a dynamic pixel.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum DynamicSubpixel {
@@ -1247,7 +1298,7 @@ impl Pixel for Dynamic {
 
         match self {
             Self::BitPixel(pixel) => Self::BitPixel(subpixel!(pixel, Bool)),
-            Self::L(pixel) => Self::L(subpixel!(pixel, U8)),
+            Self::Luma(pixel) => Self::Luma(subpixel!(pixel, U8)),
             Self::Rgb(pixel) => Self::Rgb(subpixel!(pixel, U8)),
             Self::Rgba(pixel) => Self::Rgba(subpixel!(pixel, U8)),
         }
@@ -1317,7 +1368,9 @@ impl Pixel for Dynamic {
             (Self::BitPixel(pixel), Self::BitPixel(other)) => {
                 Self::BitPixel(pixel.merge_with_alpha(other, alpha))
             }
-            (Self::Luma(pixel), Self::Luma(other)) => Self::Luma(pixel.merge_with_alpha(other, alpha)),
+            (Self::Luma(pixel), Self::Luma(other)) => {
+                Self::Luma(pixel.merge_with_alpha(other, alpha))
+            }
             (Self::Rgb(pixel), Self::Rgb(other)) => Self::Rgb(pixel.merge_with_alpha(other, alpha)),
             (Self::Rgba(pixel), Self::Rgba(other)) => {
                 Self::Rgba(pixel.merge_with_alpha(other, alpha))
@@ -1339,7 +1392,7 @@ impl Not for Dynamic {
     fn not(self) -> Self::Output {
         match self {
             Self::BitPixel(pixel) => Self::BitPixel(!pixel),
-            Self::L(pixel) => Self::L(!pixel),
+            Self::Luma(pixel) => Self::Luma(!pixel),
             Self::Rgb(pixel) => Self::Rgb(!pixel),
             Self::Rgba(pixel) => Self::Rgba(!pixel),
         }
@@ -1379,7 +1432,7 @@ macro_rules! impl_dynamic {
                 fn from(pixel: Dynamic) -> Self {
                     match pixel {
                         Dynamic::BitPixel(pixel) => pixel.into(),
-                        Dynamic::L(pixel) => pixel.into(),
+                        Dynamic::Luma(pixel) => pixel.into(),
                         Dynamic::Rgb(pixel) => pixel.into(),
                         Dynamic::Rgba(pixel) => pixel.into(),
                     }
@@ -1395,7 +1448,7 @@ macro_rules! impl_dynamic {
     };
 }
 
-impl_dynamic!(BitPixel, L, Rgb, Rgba);
+impl_dynamic!(BitPixel, Luma, Rgb, Rgba);
 
 impl From<Rgb> for BitPixel {
     fn from(rgb: Rgb) -> Self {

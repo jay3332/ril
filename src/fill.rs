@@ -1,5 +1,5 @@
 //! Includes the [`Fill`] and [`IntoFill`] traits and primitive fill types such as [`SolidFill`].
-//! 
+//!
 //! You should almost never need use a fill type directly since methods that take fills usually
 //! allow anything that implements [`IntoFill`], which includes things such as [`Pixel`]s for solid
 //! fills, [`gradient`][crate::gradient] types, and even [`Image`]s for image fills.
@@ -79,7 +79,7 @@ impl<P: Pixel> SolidFill<P> {
         Self(color)
     }
 
-    /// Returns a the color (represented as a [`Pixel`]) of the fill.
+    /// Returns the color (represented as a [`Pixel`]) of the fill.
     #[must_use]
     pub const fn color(&self) -> P {
         self.0

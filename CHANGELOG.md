@@ -43,6 +43,9 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 - Add `TextLayout::with_capacity`
 - Add `TextLayout::at(x, y)` as a shortcut to `TextLayout::new().with_position(x, y)`
 - Add `{Linear, Radial, Conic}Gradient::with_colors` and `{Linear, Radial, Conic}Gradient::with_colors_and_positions`
+- Implement `FromIterator<P>` and `FromIterator<(P, f64)>` for `LinearGradient`, `RadialGradient`, and `ConicGradient`
+  - This allows you to create a gradient from an iterator of colors or an iterator of `(color, position)` pairs
+- Add `Image::from_fill`
 
 ## v0.10.3 (2024-09-23)
 - Fix GIF encoding issues as produced in [#38](https://github.com/jay3332/ril/issues/38)

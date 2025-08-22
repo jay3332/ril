@@ -281,6 +281,22 @@ macro_rules! gradient_methods {
     };
 }
 
+macro_rules! gradient_impls {
+    ($t:ident) => {
+        impl<P: Pixel> FromIterator<P> for $t<P> {
+            fn from_iter<I: IntoIterator<Item = P>>(iter: I) -> Self {
+                Self::new().with_colors(iter)
+            }
+        }
+
+        impl<P: Pixel> FromIterator<(P, f64)> for $t<P> {
+            fn from_iter<I: IntoIterator<Item = (P, f64)>>(iter: I) -> Self {
+                Self::new().with_colors_and_positions(iter)
+            }
+        }
+    };
+}
+
 impl<P: Pixel> LinearGradient<P> {
     /// Creates a new [`LinearGradient`] with default settings.
     #[must_use]
@@ -310,6 +326,8 @@ impl<P: Pixel> LinearGradient<P> {
 
     gradient_methods!();
 }
+
+gradient_impls!(LinearGradient);
 
 impl<P: Pixel> IntoFill for LinearGradient<P> {
     type Pixel = P;
@@ -507,6 +525,8 @@ impl<P: Pixel> RadialGradient<P> {
     gradient_methods!();
 }
 
+gradient_impls!(RadialGradient);
+
 impl<P: Pixel> IntoFill for RadialGradient<P> {
     type Pixel = P;
     type Fill = RadialGradientFill<Self::Pixel>;
@@ -685,6 +705,8 @@ impl<P: Pixel> ConicGradient<P> {
 
     gradient_methods!();
 }
+
+gradient_impls!(ConicGradient);
 
 impl<P: Pixel> IntoFill for ConicGradient<P> {
     type Pixel = P;

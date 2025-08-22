@@ -446,13 +446,11 @@ impl<C: Default, P: Pixel> DerefMut for EncoderMetadataWithConfig<C, P> {
 /// ```no_run
 /// use std::fs::File;
 /// use std::time::Duration;
+/// use ril::colors::{RED, BLUE};
 /// use ril::encodings::png::PngEncoder;
 /// use ril::prelude::*;
 ///
 /// const HALF_SECOND: Duration = Duration::from_millis(500);
-///
-/// const RED: Rgb = Rgb::new(255, 0, 0);
-/// const BLUE: Rgb = Rgb::new(0, 0, 255);
 ///
 /// fn main() -> ril::Result<()> {
 ///     let mut writer = File::create("output.png")?;

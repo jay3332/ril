@@ -1,3 +1,4 @@
+use ril::colors::*;
 use ril::prelude::*;
 use std::time::Duration;
 
@@ -22,6 +23,12 @@ fn test_static_png() -> ril::Result<()> {
     assert_eq!(image.dimensions(), (1024, 1024));
 
     image.save_inferred("tests/out/png_encode_output.png")
+}
+
+#[test]
+fn test_png_gradient() -> ril::Result<()> {
+    Image::from_fill(200, 200, LinearGradient::from_iter([RED, YELLOW, BLUE]))
+        .save_inferred("tests/out/png_gradient_output.png")
 }
 
 #[test]
@@ -53,7 +60,7 @@ fn test_animated_png_decode() -> ril::Result<()> {
 fn test_paletted_png_encode() -> ril::Result<()> {
     let mut image = Image::<PalettedRgb>::from_paletted_pixels(
         2,
-        vec![Rgb::new(255, 255, 255), Rgb::new(0, 0, 0)],
+        vec![Rgb::white(), Rgb::black()],
         vec![0, 1, 1, 0, 1, 0, 0, 1, 1, 0],
     );
     // palette mutation test

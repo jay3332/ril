@@ -278,6 +278,7 @@ mod resize;
 pub mod sequence;
 #[cfg(feature = "text")]
 pub mod text;
+pub mod vector;
 
 macro_rules! inline_doc {
     ($($token:item)*) => {
@@ -302,6 +303,7 @@ inline_doc! {
         RadialGradientCover,
     };
     pub use fill::{Fill, IntoFill};
+    pub use filter::{Convolution, DynamicConvolution};
     pub use format::ImageFormat;
     pub use pixel::{
         Alpha, BitPixel, Dynamic, DynamicSubpixel, Paletted, PalettedRgb, PalettedRgba, Pixel, Rgb,
@@ -315,6 +317,7 @@ inline_doc! {
     pub use text::{
         Font, HorizontalAnchor, TextAlign, TextLayout, TextSegment, VerticalAnchor, WrapStyle,
     };
+    pub use vector::{FromVector, IntoVector, Vector};
 }
 
 /// The crate prelude exports. Importing this with a wildcard will import most items from RIL that
@@ -331,11 +334,12 @@ inline_doc! {
 /// ```
 pub mod prelude {
     pub use super::{
-        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, Decoder, DisposalMethod, Draw,
-        Dynamic, DynamicSubpixel, Ellipse, Encoder, EncoderMetadata, Fill, Frame, FrameIterator,
-        Image, ImageFormat, ImageSequence, IntoFill, Line, LoopCount, OverlayMode, Paletted,
-        PalettedRgb, PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba,
-        SingleFrameIterator, TrueColor, Luma,
+        Alpha, Banded, BitPixel, Border, BorderPosition, ColorType, Convolution, Decoder,
+        DisposalMethod, Draw, Dynamic, DynamicConvolution, DynamicSubpixel, Ellipse, Encoder,
+        EncoderMetadata, Fill, Frame, FrameIterator, FromVector, Image, ImageFormat, ImageSequence,
+        IntoFill, IntoVector, Line, LoopCount, Luma, OverlayMode, Paletted, PalettedRgb,
+        PalettedRgba, Paste, Pixel, Polygon, Rectangle, Rgb, Rgba, SingleFrameIterator, TrueColor,
+        Vector,
     };
 
     #[cfg(feature = "resize")]

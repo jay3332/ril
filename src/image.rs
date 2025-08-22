@@ -3,14 +3,15 @@
 use crate::{
     draw::Draw,
     error::{Error, Result},
+    fill::{Fill, IntoFill},
     format::ImageFormat,
     pixel::*,
-    Dynamic,
 };
 
 #[cfg(feature = "resize")]
 use crate::ResizeAlgorithm;
 
+use crate::filter::Filter;
 use num_traits::{SaturatingAdd, SaturatingSub};
 use std::{
     fmt::{self, Display},
@@ -130,6 +131,28 @@ impl<P: Pixel> Image<P> {
     #[must_use]
     pub fn from_fn(width: u32, height: u32, f: impl Fn(u32, u32) -> P) -> Self {
         Self::new(width, height, P::default()).map_pixels_with_coords(|x, y, _| f(x, y))
+    }
+
+    /// Creates a new image with the given width and height from the provided fill that implements
+    /// [`IntoFill`]. This can be a solid color, gradient, or something else.
+    ///
+    /// # Example
+    /// ```
+    /// use ril::colors::*;
+    /// # use ril::prelude::*;
+    /// # fn main() -> ril::Result<()> {
+    /// let gradient = LinearGradient::from_iter([RED, ORANGE, YELLOW, GREEN, BLUE]);
+    /// let image = Image::from_fill(256, 256, gradient);
+    ///
+    /// assert_eq!(image.pixel(0, 0), &RED);
+    /// assert_eq!(image.pixel(255, 0), &BLUE);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[must_use]
+    pub fn from_fill<F: IntoFill<Pixel = P>>(width: u32, height: u32, fill: F) -> Self {
+        let fill = fill.into_fill().with_bounding_box((0, 0, width, height));
+        Self::from_fn(width, height, |x, y| fill.get_pixel(x, y))
     }
 
     /// Creates a new image shaped with the given width and a 1-dimensional sequence of pixels
@@ -823,29 +846,6 @@ impl<P: Pixel> Image<P> {
         })
     }
 
-    pub(crate) fn map_image_with_coords<T: Pixel>(
-        self,
-        f: impl Fn(&Self, u32, u32, P) -> T,
-    ) -> Image<T> {
-        let width = self.width;
-
-        let data = self
-            .data
-            .iter()
-            .zip(0..)
-            .map(|(p, i)| f(&self, i % width, i / width, *p))
-            .collect();
-
-        Image {
-            width: self.width,
-            height: self.height,
-            data,
-            format: self.format,
-            overlay: self.overlay,
-            palette: None,
-        }
-    }
-
     /// Similar to [`Self::map_pixels_with_coords`], but this maps the pixels in place.
     ///
     /// This means that the output pixel type must be the same.
@@ -900,6 +900,19 @@ impl<P: Pixel> Image<P> {
     /// This is more or less image metadata.
     pub fn set_format(&mut self, format: ImageFormat) {
         self.format = format;
+    }
+
+    /// Applies the given [`Filter`] to this image in place.
+    pub fn apply_filter(&mut self, filter: &impl Filter<Input = P, Output = P>) {
+        let old = self.clone();
+        self.map_in_place(|x, y, pixel| *pixel = filter.apply_pixel(&old, x, y, *pixel));
+    }
+
+    /// Applies the given [`Filter`] to this image, returning a new image.
+    #[must_use]
+    pub fn filtered<T: Pixel>(self, filter: &impl Filter<Input = P, Output = T>) -> Image<T> {
+        let old = self.clone();
+        self.map_pixels_with_coords(|x, y, pixel| filter.apply_pixel(&old, x, y, pixel))
     }
 
     /// Crops this image in place to the given bounding box.
@@ -989,7 +1002,7 @@ impl<P: Pixel> Image<P> {
     /// # See Also
     /// - [`Self::rotate`] for a version that can take any arbitrary amount of degrees
     /// - [`Self::rotated`] for the above method which does operate in-place - useful for method
-    /// chaining
+    ///   chaining
     pub fn rotate_270(&mut self) {
         self.data = self.rotate_iterator().rev().collect();
         std::mem::swap(&mut self.width, &mut self.height);
@@ -1484,7 +1497,11 @@ macro_rules! map_idx {
         Image {
             width: $image.width,
             height: $image.height,
-            data: $image.data.iter().map(|p| Luma(p.as_bytes()[$idx])).collect(),
+            data: $image
+                .data
+                .iter()
+                .map(|p| Luma(p.as_bytes()[$idx]))
+                .collect(),
             format: $image.format,
             overlay: $image.overlay,
             palette: None,

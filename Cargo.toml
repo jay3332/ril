@@ -43,6 +43,9 @@ image = "^0"
 imageproc = "^0.23"
 rusttype = "^0.9"
 
+[profile.test]
+inherits = "release"
+
 [[bench]]
 path = "benches/invert.rs"
 name = "invert"
