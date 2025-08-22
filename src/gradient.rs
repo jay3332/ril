@@ -107,20 +107,21 @@ fn into_colorgrad<P: Pixel>(
 ///
 /// # Example
 /// ```
+/// use ril::colors::{RED, BLUE};
+///
 /// # use ril::prelude::*;
 /// # fn main() {
 /// let mut image = Image::new(256, 256, Rgb::black());
 /// let gradient = LinearGradient::new()
 ///     .with_angle_degrees(45.0)
-///     .with_color(Rgb::new(255, 0, 0))  // red
-///     .with_color(Rgb::new(0, 0, 255)); // blue
+///     .with_colors([RED, BLUE]);
 ///
 /// image.draw(&Rectangle::from_bounding_box(64, 64, 192, 192).with_fill(gradient));
 /// # }
 /// ```
 #[derive(Clone, Debug)]
 pub struct LinearGradient<P: Pixel> {
-    /// The angle of the gradient in radians. Defaults to 0 radians.  Angles outside of the range
+    /// The angle of the gradient in radians. Defaults to 0 radians. Angles outside the range
     /// `[0, 2 * PI)` will be normalized.
     pub angle: f64,
     /// A `Vec` of colors and their positions in the gradient, represented as `(color, position)`
@@ -246,6 +247,20 @@ macro_rules! gradient_methods {
             self.colors.extend(iter);
         }
 
+        /// Takes this gradient and extends it with the colors and positions specified in the
+        /// given iterator of tuples represented as `(color, position)`.
+        ///
+        /// # Panics
+        /// * If any of the positions are outside of the range `[0.0, 1.0]`. For auto-normalized
+        ///   positions, see [`Self::with_colors`].
+        pub fn with_colors_and_positions<I: IntoIterator<Item = (P, f64)>>(
+            mut self,
+            iter: I,
+        ) -> Self {
+            self.extend_with_positions(iter);
+            self
+        }
+
         /// Extends the colors of this gradient with those specified in the given iterator.
         /// The positions of the colors will be automatically calculated. See the documentation for
         /// [`Self.colors`] for more information of how colors are normalized.
@@ -255,6 +270,13 @@ macro_rules! gradient_methods {
         pub fn extend<I: IntoIterator<Item = P>>(&mut self, iter: I) {
             self.colors
                 .extend(iter.into_iter().map(|color| (color, f64::NAN)));
+        }
+
+        /// Takes this gradient and extends it with the colors specified in the given iterator.
+        #[must_use]
+        pub fn with_colors<I: IntoIterator<Item = P>>(mut self, iter: I) -> Self {
+            self.extend(iter);
+            self
         }
     };
 }

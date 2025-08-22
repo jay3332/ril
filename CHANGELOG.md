@@ -35,11 +35,14 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 
 ### New Features
 
+- Add preset color constants (`ril::colors`)
+  - Includes all colors in the list of X11/CSS3 color names
 - Add `PngEncoderOptions::new`
 - Add ability to modify text line height ([#35](https://github.com/jay3332/ril/pull/35))
   - This adds `TextLayout::with_line_height`  and `TextSegment::with_line_height`
-- Add `TextLayout::at(x, y)` as a shortcut to `TextLayout::new().with_position(x, y)`
 - Add `TextLayout::with_capacity`
+- Add `TextLayout::at(x, y)` as a shortcut to `TextLayout::new().with_position(x, y)`
+- Add `{Linear, Radial, Conic}Gradient::with_colors` and `{Linear, Radial, Conic}Gradient::with_colors_and_positions`
 
 ## v0.10.3 (2024-09-23)
 - Fix GIF encoding issues as produced in [#38](https://github.com/jay3332/ril/issues/38)

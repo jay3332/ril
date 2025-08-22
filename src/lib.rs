@@ -260,6 +260,7 @@
     clippy::doc_markdown
 )]
 
+pub mod colors;
 pub mod draw;
 pub mod encode;
 pub mod encodings;
