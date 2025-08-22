@@ -258,15 +258,17 @@ impl<P: Pixel> ImageSequence<P> {
     /// in the future to not require `Write`.
     ///
     /// If you are limited by this trait bound, you can either specify the image format manually
-    /// using [`from_read`], or you can try using [`ImageFormat::infer_encoding`] along with
-    /// [`from_read`] manually instead. If you are able to use [`from_bytes`] instead, which takes
-    /// a byte slice instead of a `Read` stream, you can either that or [`from_bytes_inferred`],
-    /// too, which does not require a `Write` bound either.
+    /// using [`from_read`][Self::from_read], or you can try using [`ImageFormat::infer_encoding`]
+    /// along with [`from_read`][Self::from_read] manually instead. If you are able to use 
+    /// [`from_bytes`][Self::from_bytes] instead, which takes a byte slice instead of a `Read` 
+    /// stream, you can either that or [`from_bytes_inferred`][Self::from_bytes_inferred], too, 
+    /// which does not require a `Write` bound either.
     ///
     /// # Errors
-    /// * `DecodingError`: The image could not be decoded, maybe it is corrupt.
-    /// * `UnknownEncodingFormat`: Could not infer the encoding from the image. Try explicitly
-    ///   specifying it.
+    /// * [`DecodingError`][crate::Error::DecodingError]: The image could not be decoded, maybe it 
+    ///   is corrupt.
+    /// * [`UnknownEncodingFormat`][crate::Error::UnknownEncodingFormat]: Could not infer the 
+    ///   encoding from the image. Try explicitly specifying it.
     ///
     /// # Panics
     /// * No decoder implementation for the given encoding format.
@@ -291,7 +293,7 @@ impl<P: Pixel> ImageSequence<P> {
     /// Decodes an image sequence with the explicitly given image encoding from the byte slice.
     /// Could be useful in conjunction with the `include_bytes!` macro.
     ///
-    /// Currently, this is no different than [`from_read`].
+    /// Currently, this is no different than [`from_read`][Self::from_read].
     ///
     /// This decodes frames lazily as an iterator. Call [`FrameIterator::into_sequence`] to
     /// collect all frames greedily into an [`ImageSequence`].
@@ -321,8 +323,8 @@ impl<P: Pixel> ImageSequence<P> {
     /// Decodes an image sequence from the given byte slice, inferring its encoding.
     /// Could be useful in conjunction with the `include_bytes!` macro.
     ///
-    /// This is more efficient than [`from_read_inferred`], and can act as a workaround for
-    /// bypassing the `Write` trait bound.
+    /// This is more efficient than [`from_read_inferred`][Self::from_read_inferred], and can act as 
+    /// a workaround for bypassing the `Write` trait bound.
     ///
     /// This decodes frames lazily as an iterator. Call [`DynamicFrameIterator::into_sequence`] to
     /// collect all frames greedily into an [`ImageSequence`].
@@ -388,7 +390,7 @@ impl<P: Pixel> ImageSequence<P> {
     }
 
     /// Saves the image sequence with the given encoding to the given path.
-    /// You can try saving to a memory buffer by using the [`encode`] method.
+    /// You can try saving to a memory buffer by using the [`encode`][Self::encode] method.
     ///
     /// # Errors
     /// * An error occured during encoding.
@@ -403,9 +405,9 @@ impl<P: Pixel> ImageSequence<P> {
     /// Saves the image sequence to the given path, inferring the encoding from the given
     /// path/filename extension.
     ///
-    /// This is obviously slower than [`save`] since this method itself uses it. You should only
-    /// use this method if the filename is dynamic, or if you do not know the desired encoding
-    /// before runtime.
+    /// This is obviously slower than [`save`][Self::save] since this method itself uses it.
+    /// You should only use this method if the filename is dynamic, or if you do not know the
+    /// desired encoding before runtime.
     ///
     /// See [`save`] for more information on how saving works.
     ///

@@ -27,7 +27,8 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 
 - `TextSegment` now has two lifetime generics: `TextSegment<'font, 'text, P>`.
   - This is such that the text itself can be represented as a `&'text str`, removing the need to reallocate and clone
-    the rendered string.
+    the rendered string. 
+    - *This also has the added benefit of making `TextSegment::new` a `const fn` (though font loading cannot be `const`, so this isn't a huge deal)*
   - `TextSegment::new`, `TextLayout::push_basic_text`, and `TextLayout::with_basic_text`
     now takes a `&str` as the text parameter rather than an `impl AsRef<str>`. \
     For example, if you used to pass in a `String` into one of these methods, you must now explicitly 
@@ -46,6 +47,7 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 - Implement `FromIterator<P>` and `FromIterator<(P, f64)>` for `LinearGradient`, `RadialGradient`, and `ConicGradient`
   - This allows you to create a gradient from an iterator of colors or an iterator of `(color, position)` pairs
 - Add `Image::from_fill`
+- Add `LoopCount::count_or`
 
 ## v0.10.3 (2024-09-23)
 - Fix GIF encoding issues as produced in [#38](https://github.com/jay3332/ril/issues/38)
@@ -65,7 +67,7 @@ Versions prior to v0.7 are not tagged/released on GitHub.
 ### Major encoder/decoder interface changes
 v0.10 introduces a major overhaul to the `Encoder`/`Decoder` interfaces.
 
-- **Added support for lazy encoding of image sequences.**
+- **Add support for lazy encoding of image sequences!**
   - The `Encoder` trait has been overhauled
     - New associated type `<_ as Encoder>::Config` for configuring specific encoders
     - Encoding logic between static images and image sequences are now unified: main encoding logic will occur in
@@ -75,7 +77,7 @@ v0.10 introduces a major overhaul to the `Encoder`/`Decoder` interfaces.
       - You can derive an `EncoderMetadata` from an `Image` or `Frame` with the `From`/`Into` trait
         (i.e. `EncoderMetadata::from(&image)`)
     - See below to see how you can lazily encode a stream of frames into a GIF
-- Removed `DynamicFrameIterator`
+- Remove `DynamicFrameIterator`
   - Replaced with `Box<dyn FrameIterator<_>>`
   - The new `SingleFrameIterator` struct allows for iterating over a single static image
 - `ImageFormat` struct is now moved into a private standalone `format` module.
